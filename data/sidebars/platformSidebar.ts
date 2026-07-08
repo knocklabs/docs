@@ -169,6 +169,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/identifying-recipients", title: "Identifying recipients" },
+      { slug: "/schemas", title: "Recipient schemas" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/deleting-users", title: "Deleting users" },
       { slug: "/merging-users", title: "Merging users" },

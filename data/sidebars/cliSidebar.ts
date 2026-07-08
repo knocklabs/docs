@@ -132,6 +132,17 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Schemas",
+    slug: "/cli/schema",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/pull", title: "Pull schemas" },
+      { slug: "/push", title: "Push schemas" },
+    ],
+  },
+
+  {
     title: "Commits",
     slug: "/cli/commit",
     pages: [

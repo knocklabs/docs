@@ -1,0 +1,165 @@
+---
+title: Recipient schemas
+description: Curate the schemas Knock infers for your users, tenants, and objects. Hide properties, add labels and descriptions, and set preview text.
+section: Managing recipients
+---
+
+Knock builds a schema for each type of recipient in your environment (your [users](/concepts/users), your [tenants](/multi-tenancy/overview), and each [object](/concepts/objects) collection) by inferring the properties, types, and preview text from the recipient data you send. Schema management gives you control over that schema. You can hide properties you don't want to surface, add human-readable labels and descriptions, and set preview text that is used when previewing templates.
+
+Curating a schema shapes how recipient properties appear across the Knock dashboard: in the template editor, in condition and segment builders, and in recipient tables. It also makes your data legible to the Knock agent, which reads your schema to understand what properties exist and what they mean.
+
+## How recipient schemas work
+
+As you [identify recipients](/managing-recipients/identifying-recipients), Knock observes the properties on that data and records them on the schema for that recipient type. Each property carries:
+
+- **Key.** The property name, such as `plan` or `address.city`.
+- **Type.** The data type Knock inferred from your data, such as `string`, `number`, `boolean`, `object`, or `array`. Types are read-only.
+- **Source.** Whether Knock inferred the property from your data or it is a built-in system property, such as `email` on a user. This is read-only.
+- **Preview text.** A value Knock has seen for the property, used to render realistic previews of templates that reference it.
+
+Schemas are logically isolated per [environment](/version-control/environments), the same way recipient data is. A property that only appears in production will not show up on your development schema until Knock sees it there.
+
+<Callout
+  type="info"
+  title="Recipient schemas cover recipients."
+  text={
+    <>
+      Schema management applies to recipient data: users, tenants, and object
+      collections. Source events, workflow trigger data, and broadcast data are
+      not part of recipient schemas.
+    </>
+  }
+/>
+
+## Curate a schema in the dashboard
+
+Go to <a href="https://dashboard.knock.app/~/settings/schemas" target="_blank">**Settings** > **Schemas**</a> and select a recipient type: users, tenants, or one of your object collections. You will see every property Knock has inferred for that type, along with its type, source, and preview text.
+
+### Hide or show a property
+
+Toggle a property's visibility to control where Knock offers it. When you hide a property, Knock stops offering it across the dashboard: template variable suggestions, condition and audience segment builders, and recipient table columns no longer list it.
+
+<Callout
+  type="info"
+  title="Hiding never breaks anything."
+  text={
+    <>
+      Hiding a property controls where it is offered, not whether it exists.
+      Anything that already references a hidden property keeps working, and the
+      property is still returned by the API. Because nothing can break, you can
+      hide properties to tidy up what your team sees.
+    </>
+  }
+/>
+
+### Add a label and description
+
+Give a property a **label** to set a human-readable display name, and a **description** to explain what the property is for and how it should be used. Labels and descriptions help your team choose the right property, and they give the Knock agent context about your data.
+
+### Set the preview text
+
+Set the **preview text** for a property to control how it renders in template previews. When you preview a template that references the property, Knock uses this value so the preview reflects realistic data. In the Management API and CLI, this is the property's `preview_text` field.
+
+## Where curated schemas appear
+
+Once you curate a schema, it drives every place Knock surfaces recipient properties, including:
+
+- **Template editor.** Variable suggestions offer only visible properties, and previews use your preview text.
+- **Condition and segment builders.** Property pickers for [conditions](/designing-workflows/step-conditions) and [audiences](/concepts/audiences) list only visible properties.
+- **Recipient tables.** Column options reflect the curated schema.
+
+## Permissions
+
+Access to schema management is tied to your [role](/manage-your-account/roles-and-permissions).
+
+| Capability                                          | Roles                |
+| --------------------------------------------------- | -------------------- |
+| View schemas                                        | Member, Admin, Owner |
+| Set the preview text, or add a property             | Member, Admin, Owner |
+| Hide or show a property, add a label or description | Admin, Owner         |
+
+## Environments and branches
+
+Schema configuration is scoped to an environment and applies immediately when saved, the same way [environment variables](/concepts/variables) do, rather than through commit and promote. Curate the schema in the environment whose data you want to manage.
+
+[Branch](/version-control/branches) environments inherit the schema and curation from their parent environment and are read-only for schema changes. Editing a schema from a branch is rejected with a pointer to the parent environment. Manage the schema from the parent environment instead.
+
+## Sync schemas with the Management API
+
+You can read and update recipient schemas with the [Management API](/developer-tools/management-api). This is useful for version-controlling your schema configuration or for applying the same curation across environments.
+
+| Method and path                        | Description                                    |
+| -------------------------------------- | ---------------------------------------------- |
+| `GET /v1/schemas`                      | List the schemas in an environment.            |
+| `GET /v1/schemas/{item_type}`          | Retrieve the schema for a recipient type.      |
+| `PUT /v1/schemas/{item_type}`          | Update the schema for a recipient type.        |
+| `PUT /v1/schemas/{item_type}/validate` | Validate a schema payload without applying it. |
+
+`item_type` is `user`, `tenant`, or `object`. For object schemas, pass the collection with a `collection` query parameter.
+
+Each schema is a list of properties:
+
+```json title="A user schema"
+{
+  "item_type": "user",
+  "item_id": null,
+  "properties": [
+    {
+      "key": "plan",
+      "type": "string",
+      "preview_text": "\"enterprise\"",
+      "visible": true,
+      "label": "Plan",
+      "description": "The account's current billing plan."
+    }
+  ]
+}
+```
+
+The curatable fields on a property are:
+
+| Field          | Type    | Description                                                               |
+| -------------- | ------- | ------------------------------------------------------------------------- |
+| `visible`      | boolean | Whether the property is offered across the dashboard. Defaults to `true`. |
+| `label`        | string  | An optional human-readable display name.                                  |
+| `description`  | string  | An optional description of the property.                                  |
+| `preview_text` | string  | The preview text, JSON-encoded, used to preview templates.                |
+
+A property's `type` and `source` are inferred by Knock and are read-only.
+
+<Callout
+  type="info"
+  title="Permissions apply to the Management API too."
+  text={
+    <>
+      The same role-based permissions govern the Management API: any member can
+      read schemas, set preview text, and add properties, while hiding or
+      showing a property or setting a label or description requires an admin or
+      owner.
+    </>
+  }
+/>
+
+## Sync schemas with the CLI
+
+The [Knock CLI](/cli/overview) can pull schemas from an environment to local files and push local changes back, so you can keep your schema configuration in version control alongside your other Knock resources.
+
+```bash title="Pull and push schemas"
+# Pull every schema in the environment into a local schemas directory
+knock schema pull --all
+
+# Push a single recipient schema to an environment
+knock schema push user --environment=production
+
+# Push an object collection schema
+knock schema push object --collection=projects --environment=production
+```
+
+Schemas are stored in a `schemas/` directory, one file per recipient type. See the [schema CLI reference](/cli/schema) for the full set of commands and flags.
+
+## Limitations
+
+- Hidden properties are still returned by the API. Hiding affects where a property is offered in the dashboard, not API responses.
+- Property types are inferred and read-only.
+- Schemas cover recipients only: users, tenants, and objects. Source events, workflow trigger data, and broadcast data are not yet included.
+- Knock does not yet track where a property is used or validate incoming data against your schema.
