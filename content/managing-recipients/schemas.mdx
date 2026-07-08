@@ -17,11 +17,11 @@ As you [identify recipients](/managing-recipients/identifying-recipients), Knock
 - **Source.** Whether Knock inferred the property from your data or it is a built-in system property, such as `email` on a user. This is read-only.
 - **Preview text.** A value Knock has seen for the property, used to render realistic previews of templates that reference it.
 
-Schemas are generated per [environment](/version-control/environments), the same way recipient data is. A property that only appears in production will not show up on your development schema until Knock sees it there.
+Schemas are logically isolated per [environment](/version-control/environments), the same way recipient data is. A property that only appears in production will not show up on your development schema until Knock sees it there.
 
 <Callout
   type="info"
-  title="Recipient schemas cover recipients"
+  title="Recipient schemas cover recipients."
   text={
     <>
       Schema management applies to recipient data: users, tenants, and object
@@ -33,15 +33,15 @@ Schemas are generated per [environment](/version-control/environments), the same
 
 ## Curate a schema in the dashboard
 
-Go to **Settings** > **Schemas** and select a recipient type: users, tenants, or one of your object collections. You will see every property Knock has inferred for that type, along with its type, source, and preview text.
+Go to <a href="https://dashboard.knock.app/~/settings/schemas" target="_blank">**Settings** > **Schemas**</a> and select a recipient type: users, tenants, or one of your object collections. You will see every property Knock has inferred for that type, along with its type, source, and preview text.
 
 ### Hide or show a property
 
-Toggle a property's visibility to control where Knock offers it. When you hide a property, Knock stops offering it across the dashboard: template variable suggestions, condition and segment builders, and recipient table columns no longer list it.
+Toggle a property's visibility to control where Knock offers it. When you hide a property, Knock stops offering it across the dashboard: template variable suggestions, condition and audience segment builders, and recipient table columns no longer list it.
 
 <Callout
   type="info"
-  title="Hiding never breaks anything"
+  title="Hiding never breaks anything."
   text={
     <>
       Hiding a property controls where it is offered, not whether it exists.
@@ -70,17 +70,17 @@ Once you curate a schema, it drives every place Knock surfaces recipient propert
 
 ## Permissions
 
-Access to schema management is governed by three permissions, each tied to a [role](/manage-your-account/roles-and-permissions).
+Access to schema management is tied to your [role](/manage-your-account/roles-and-permissions).
 
-| Capability                                          | Permission            | Roles                |
-| --------------------------------------------------- | --------------------- | -------------------- |
-| View schemas                                        | `item_schemas:read`   | Member, Admin, Owner |
-| Set the preview text, or add a property             | `item_schemas:edit`   | Member, Admin, Owner |
-| Hide or show a property, add a label or description | `item_schemas:manage` | Admin, Owner         |
+| Capability                                          | Roles                |
+| --------------------------------------------------- | -------------------- |
+| View schemas                                        | Member, Admin, Owner |
+| Set the preview text, or add a property             | Member, Admin, Owner |
+| Hide or show a property, add a label or description | Admin, Owner         |
 
 ## Environments and branches
 
-Schema configuration is scoped to an environment and applies immediately, the same way [environment variables](/concepts/variables) do, rather than through commit and promote. Curate the schema in the environment whose data you want to manage.
+Schema configuration is scoped to an environment and applies immediately when saved, the same way [environment variables](/concepts/variables) do, rather than through commit and promote. Curate the schema in the environment whose data you want to manage.
 
 [Branch](/version-control/branches) environments inherit the schema and curation from their parent environment and are read-only for schema changes. Editing a schema from a branch is rejected with a pointer to the parent environment. Manage the schema from the parent environment instead.
 
@@ -129,13 +129,13 @@ A property's `type` and `source` are inferred by Knock and are read-only.
 
 <Callout
   type="info"
-  title="Permissions apply to the Management API too"
+  title="Permissions apply to the Management API too."
   text={
     <>
-      Reads require <code>item_schemas:read</code>. Changing a property's
-      preview text or adding a property requires <code>item_schemas:edit</code>.
-      Hiding or showing a property, or setting a label or description, requires{" "}
-      <code>item_schemas:manage</code>.
+      The same role-based permissions govern the Management API: any member can
+      read schemas, set preview text, and add properties, while hiding or
+      showing a property or setting a label or description requires an admin or
+      owner.
     </>
   }
 />
@@ -149,10 +149,10 @@ The [Knock CLI](/cli/overview) can pull schemas from an environment to local fil
 knock schema pull --all
 
 # Push a single recipient schema to an environment
-knock schema push user --environment production
+knock schema push user --environment=production
 
 # Push an object collection schema
-knock schema push object --collection projects --environment production
+knock schema push object --collection=projects --environment=production
 ```
 
 Schemas are stored in a `schemas/` directory, one file per recipient type. See the [schema CLI reference](/cli/schema) for the full set of commands and flags.
