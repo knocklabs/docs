@@ -35,6 +35,7 @@ Before you get started, we recommend reading the [preferences overview docs](/pr
 To use this example, you'll need [an account on Knock](https://dashboard.knock.app) and you'll need to have [identified a user](/concepts/users). You'll also need:
 
 - A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+- A signed user token from your backend (required in production with enhanced security mode enabled; see [Authentication with enhanced security](/in-app-ui/security-and-authentication#authentication-with-enhanced-security))
 
 ### Installing dependencies
 
@@ -82,8 +83,10 @@ The next step here is to create our preference center component. Create a `Prefe
 import Knock from "@knocklabs/client";
 import { useEffect, useState } from "react";
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
-knockClient.authenticate({ id: currentUser.id });
+knockClient.authenticate({ id: currentUser.id }, currentUser.knockUserToken);
 ```
+
+In development environments without enhanced security mode enabled, you can omit the second argument (signed user token) and authenticate with the user id alone.
 
 <Steps titleSize="h3">
   <Step title="Create a preferences view config">
@@ -488,7 +491,7 @@ Knock's preference model is very flexible, but you should find that the componen
 import Knock from "@knocklabs/client";
 import { useEffect, useState } from "react";
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
-knockClient.authenticate({ id: currentUser.id });
+knockClient.authenticate({ id: currentUser.id }, currentUser.knockUserToken);
 
 // Here we create a view config object, this helps us customize the interface
 // and choose which preference options we want to display to the user

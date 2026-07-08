@@ -119,6 +119,41 @@ A `PreferenceSet` has an `id`. When you [set a given user's preferences](/api-re
 
 To set per-tenant preferences for a recipient, you'll use the ID of the tenant that they should be associated with as the `PreferenceSet`'s ID.
 
+<Callout
+  type="info"
+  title="Build per-tenant preference UIs in your application."
+  text={
+    <>
+      A user's own per-tenant preferences are public-key endpoints. You can read
+      and write them from your application using your public API key and a
+      signed user token, with the tenant id as the preference set id. See{" "}
+      <a href="/preferences/overview#build-your-preference-center">
+        Build your preference center
+      </a>{" "}
+      and{" "}
+      <a href="/in-app-ui/security-and-authentication">
+        Security and authentication
+      </a>{" "}
+      for details.
+    </>
+  }
+/>
+
+```javascript title="Get tenant preferences from your application"
+import Knock from "@knocklabs/client";
+
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knockClient.authenticate({ id: user.id }, userToken);
+
+const preferences = await knockClient.user.getPreferences({
+  preferenceSet: "tenant-id",
+});
+```
+
+For the default preference set, use `knockClient.user.getPreferences()`. Per-tenant preferences live in a separate preference set, so pass the tenant id as the `preferenceSet` parameter on `knockClient.user.getPreferences()`.
+
+The examples below use the server-side Node SDK with a secret API key. Use them when you manage preferences from your backend.
+
 ```javascript title="Set tenant preferences for a user"
 import Knock from "@knocklabs/node";
 const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });

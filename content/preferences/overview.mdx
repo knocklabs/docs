@@ -131,12 +131,18 @@ A preference center is a place where users can manage their notification prefere
       </a>
       , a no-code page you configure from the dashboard. Use the steps below when
       you want to build and host your own UI within your application, or when you
-      need to support <a href="/preferences/tenant-preferences">
+      need to support <a href="/multi-tenancy/per-tenant-preferences">
         per-tenant preferences
       </a>.
     </>
   }
 />
+
+### Authentication
+
+Building a preference center in your application does not require a secret API key in the browser. Initialize the Knock client with your public API key and authenticate the user with a signed user token from your backend. In production environments with enhanced security mode enabled, Knock requires the signed user token on all client-side requests.
+
+See [Security and authentication](/in-app-ui/security-and-authentication) for details on generating and passing user tokens.
 
 If you need more control over the experience, you can build your own preference center in your application. There are four steps to building a preference center with Knock:
 
@@ -178,19 +184,16 @@ text={
 
   </Step> */}
   <Step title="Get a user's preferences">
-    {/* TODO add once we have pre-built react component for prefs
-    You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
+    Once you have your default `PreferenceSet` created, use the Knock client to retrieve the authenticated user's preferences for rendering in your application. If no preferences are set, this returns the default preference set you created in the step above.
 
-    ```jsx
-    TODO: We need this component built and documented.
-    ``` */}
+```javascript title="Get preferences in your application"
+import Knock from "@knocklabs/client";
 
-    Once you have your default `PreferenceSet` created, you will use the `getPreferences` method to retrieve a user's preferences for rendering in your application. If no preferences are set, this method will return the default preference set you created in the step above.
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knockClient.authenticate({ id: user.id }, userToken);
 
-    <MultiLangCodeBlock
-      title="Get preferences for a user"
-      snippet="users.getPreferences"
-    />
+const preferences = await knockClient.user.getPreferences();
+```
 
   </Step>
   <Step title="Render your preference center">
@@ -223,10 +226,19 @@ text={
 
     By default, the `setPreferences` method will overwrite any existing `PreferenceSet` with the new preferences provided. You can learn more about how to update a single preference in the [frequently asked questions](#frequently-asked-questions) section below.
 
-    <MultiLangCodeBlock
-      title="Set preferences for a user"
-      snippet="users.setPreferences"
-    />
+```javascript title="Set preferences in your application"
+await knockClient.user.setPreferences({
+  categories: {
+    collaboration: {
+      channel_types: {
+        email: false,
+      },
+    },
+  },
+});
+```
+
+    You can also manage preferences server-side with a secret API key for backend operations like migrations and bulk updates. See the [preferences API reference](/api-reference/recipients/preferences) for server-side endpoint details.
 
   </Step>
 </Steps>
