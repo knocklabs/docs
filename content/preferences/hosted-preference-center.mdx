@@ -128,16 +128,21 @@ Knock renders the user-specific link in the notification. Use `vars.manage_prefe
 
 ### Get a signed URL from your backend
 
-{/_
-TODO: Document once switchboard #6885 merges and API reference is updated.
-Endpoint: POST /v1/users/user_id/preference_center/signed_url
-Auth: secret API key (server-side only)
-Response: url and token fields — full hosted preference center URL for the user
-Use cases: app settings page, admin panel, support tools
-Ref: https://github.com/knocklabs/switchboard/pull/6885
-_/}
+Use this when you need to generate a preference center link outside of workflow templates—for example, from your app settings page or an admin panel.
 
-Use this when you need to generate a preference center link outside of workflow templates—for example, from your app settings page or an admin panel. Call `POST /v1/users/user_id/preference_center/signed_url` from your backend with a secret API key. Full documentation and API reference are coming soon.
+Call [`POST /v1/users/{user_id}/preference_center/signed_url`](/api-reference/users/preference_center/generate_signed_url) from your backend with a **secret API key**. The response includes:
+
+- **`url`.** The full hosted preference center URL for the user.
+
+```bash title="Generate a preference center signed URL"
+curl -X POST "https://api.knock.app/v1/users/user_id/preference_center/signed_url" \
+  -H "Authorization: Bearer $KNOCK_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+Redirect the user to `url`. If your environment uses a [custom preference center domain](/preferences/hosted-preference-center#custom-domain-for-the-preference-center), the returned `url` reflects that domain.
+
+See the [create preference center signed URL API reference](/api-reference/users/preference_center/generate_signed_url) for details.
 
 ## Copying configuration between environments
 
