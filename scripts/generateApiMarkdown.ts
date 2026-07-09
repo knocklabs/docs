@@ -428,24 +428,13 @@ function generateSubresourcePages(
   // Generate method pages for this subresource
   if (subresource.methods) {
     for (const [methodName, method] of Object.entries(subresource.methods)) {
-      const [methodType, endpoint] = resolveEndpointFromMethod(
-        method as string | { endpoint: string },
+      const methodContent = getMethodMarkdownContent(
+        methodName,
+        method,
+        openApiSpec,
       );
-      const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
 
-      if (openApiOperation) {
-        let methodContent = `### ${openApiOperation.summary || methodName}\n\n`;
-
-        if (openApiOperation.description) {
-          methodContent += `${openApiOperation.description}\n\n`;
-        }
-
-        methodContent += `**Endpoint:** \`${methodType.toUpperCase()} ${endpoint}\`\n\n`;
-
-        if (openApiOperation["x-ratelimit-tier"]) {
-          methodContent += `**Rate limit tier:** ${openApiOperation["x-ratelimit-tier"]}\n\n`;
-        }
-
+      if (methodContent.trim()) {
         const methodPagePath = path.join(subresourceDir, `${methodName}.md`);
         writeMarkdownFile(methodPagePath, methodContent);
       }
@@ -578,17 +567,19 @@ function getMethodMarkdownContent(
   }
 
   // Add request body if present
-  const requestBody =
-    openApiOperation.requestBody?.content?.["application/json"]?.schema;
+  const requestBodyContent =
+    openApiOperation.requestBody?.content?.["application/json"];
+  const requestBody = requestBodyContent?.schema;
   if (requestBody) {
     content += `#### Request body\n\n`;
     if (requestBody.description) {
       content += `${requestBody.description}\n\n`;
     }
-    if (requestBody.example) {
+    const requestExample = requestBodyContent?.example || requestBody.example;
+    if (requestExample) {
       content += `##### Example\n\n`;
       content += `\`\`\`json\n${JSON.stringify(
-        requestBody.example,
+        requestExample,
         null,
         2,
       )}\n\`\`\`\n\n`;
@@ -606,12 +597,13 @@ function getMethodMarkdownContent(
         content += `${(response as any).description}\n\n`;
       }
 
-      const responseSchema = (response as any).content?.["application/json"]
-        ?.schema;
-      if (responseSchema?.example) {
+      const responseContent = (response as any).content?.["application/json"];
+      const responseSchema = responseContent?.schema;
+      const responseExample = responseContent?.example || responseSchema?.example;
+      if (responseExample) {
         content += `###### Example\n\n`;
         content += `\`\`\`json\n${JSON.stringify(
-          responseSchema.example,
+          responseExample,
           null,
           2,
         )}\n\`\`\`\n\n`;
@@ -654,55 +646,7 @@ function getSubresourceMarkdownContent(
   // Add method content for subresource
   if (subresource.methods) {
     for (const [methodName, method] of Object.entries(subresource.methods)) {
-      const [methodType, endpoint] = resolveEndpointFromMethod(
-        method as string | { endpoint: string },
-      );
-      const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
-
-      if (openApiOperation) {
-        content += `#### ${openApiOperation.summary || methodName}\n\n`;
-
-        if (openApiOperation.description) {
-          content += `${openApiOperation.description}\n\n`;
-        }
-
-        content += `**Endpoint:** \`${methodType.toUpperCase()} ${endpoint}\`\n\n`;
-
-        if (openApiOperation["x-ratelimit-tier"]) {
-          content += `**Rate limit tier:** ${openApiOperation["x-ratelimit-tier"]}\n\n`;
-        }
-
-        // Add parameters
-        const parameters = openApiOperation.parameters || [];
-        const pathParams = parameters.filter((p: any) => p.in === "path");
-        const queryParams = parameters.filter((p: any) => p.in === "query");
-
-        if (pathParams.length > 0) {
-          content += `**Path parameters:**\n\n`;
-          for (const param of pathParams) {
-            content += `- **${param.name}** (${
-              param.schema?.type || "string"
-            })`;
-            if (param.required) content += ` *required*`;
-            if (param.description) content += ` - ${param.description}`;
-            content += "\n";
-          }
-          content += "\n";
-        }
-
-        if (queryParams.length > 0) {
-          content += `**Query parameters:**\n\n`;
-          for (const param of queryParams) {
-            content += `- **${param.name}** (${
-              param.schema?.type || "string"
-            })`;
-            if (param.required) content += ` *required*`;
-            if (param.description) content += ` - ${param.description}`;
-            content += "\n";
-          }
-          content += "\n";
-        }
-      }
+      content += getMethodMarkdownContent(methodName, method, openApiSpec);
     }
   }
 
