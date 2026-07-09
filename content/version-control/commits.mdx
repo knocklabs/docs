@@ -38,30 +38,18 @@ A few additional notes:
 
 ## Empty commits
 
-An empty commit lets you commit (publish) a versioned resource without changing its content. This is similar to `git commit --allow-empty`.
+An empty commit lets you commit (publish) a versioned resource without changing its content, similar to `git commit --allow-empty`. Empty commits are useful when you need to promote a resource to another environment, but the resource has no unpublished changes in the current environment.
 
-Empty commits are useful when you need to promote a resource to another environment, but the resource has no unpublished changes in the current environment.
+Knock tracks promotable changes by comparing each resource's identifier (`ref`) and version (`version_id`). If a resource already points to the published version (`current_version_id == published_version_id`), a standard commit does not create a new promotable change. An empty commit solves this by creating a new version with the same content, then publishing that version, giving Knock a new `version_id` to include in promotion diffs, so you can promote the commit downstream even though the resource content has not changed.
 
-Knock tracks promotable changes by comparing each resource's identifier (`ref`) and version (`version_id`). If a resource already points to the published version (`current_version_id == published_version_id`), a standard commit does not create a new promotable change.
+What happens when you create an empty commit depends on the resource's current state:
 
-An empty commit solves this by creating a new version with the same content, then publishing that version. This gives Knock a new `version_id` to include in promotion diffs, so you can promote the commit downstream even though the resource content has not changed.
-
-```mermaid
-flowchart LR
-  published["published_version_id == current_version_id"] --> emptyClone["Clone version row"]
-  emptyClone --> publish["Publish new version_id"]
-  publish --> promotable["New commit appears in promotion diffs"]
-```
-
-When the resource has **unpublished changes**, the empty-clone step is skipped and a normal publish happens instead.
-
-When the resource is **already published with no changes**, an empty commit creates a new version with identical content.
+- **The resource has unpublished changes.** The empty-clone step is skipped, and a normal publish happens instead.
+- **The resource is already published with no changes.** An empty commit creates a new version with identical content.
 
 Commit log entries for empty commits include audit metadata with `empty: true` and an optional message.
 
-You can create empty commits using the [CLI](/cli/commit/all) or the [Management API](/developer-tools/management-api#committing-changes).
-
-Supported resource types on the bulk commit endpoint (`PUT /v1/commits`):
+You can create empty commits using the [CLI](/cli/commit/all) or the [Management API](/developer-tools/management-api#committing-changes). The bulk commit endpoint (`PUT /v1/commits`) supports the following resource types:
 
 - `workflow`
 - `email_layout`
@@ -71,9 +59,19 @@ Supported resource types on the bulk commit endpoint (`PUT /v1/commits`):
 - `guide`
 - `audience`
 
-The bulk commit endpoint does not support `reusable_step`. To create an empty commit for a reusable step, use a resource upsert with `commit=true` and `allow_empty=true`, or publish via the dashboard.
-
 For translations, the `resource_id` can be a locale (`es`), a locale and namespace (`es/courses`), or a locale, namespace, and tenant (`es/courses~tenant`).
+
+<Callout
+  title="Note:"
+  text={
+    <>
+      The bulk commit endpoint doesn't support <code>reusable_step</code>. To
+      create an empty commit for a reusable step, use a resource upsert with{" "}
+      <code>commit=true</code> and <code>allow_empty=true</code>, or publish via
+      the dashboard.
+    </>
+  }
+/>
 
 ## Visualizing commit changes
 
