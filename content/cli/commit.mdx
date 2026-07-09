@@ -52,7 +52,7 @@ List all commits in the environment. Use an `--environment` flag to specify the 
   <Attribute
     name="--resource-type"
     type="string"
-    description="Filter commits by resource type. One of: `email_layout`, `guide`, `message_type`, `partial`, `translation`, `workflow`. Can be used alone or together with `--resource-id`."
+    description="Filter commits by resource type. One of: `audience`, `email_layout`, `guide`, `message_type`, `partial`, `translation`, `workflow`. Can be used alone or together with `--resource-id`."
   />
   <Attribute
     name="--resource-id"
@@ -106,6 +106,14 @@ knock commit get 69cdde18-830a-42e0-ad4b-a230943bdc90
 
 You can commit all changes across all resources in the development environment with the commit command. Use `--resource-type` to commit only changes for a specific resource type, and optionally `--resource-id` to scope it further to a single resource.
 
+Use `--allow-empty` to create an empty commit for a single resource that is already published with no unpublished changes. This produces a new commit log entry with identical content, which you can promote downstream. See [empty commits](/version-control/commits#empty-commits) for more on when and why to use this.
+
+Note:
+
+- `--allow-empty` requires both `--resource-type` and `--resource-id`. You cannot use `--allow-empty` without scoping to a single resource.
+- When the resource has unpublished changes, `--allow-empty` is ignored and a normal commit happens instead.
+- `-m, --commit-message` is optional and stored in commit audit metadata. Your account may require a commit message.
+
 ### Flags
 
 <Attributes>
@@ -127,20 +135,47 @@ You can commit all changes across all resources in the development environment w
   <Attribute
     name="--resource-type"
     type="string"
-    description="Commit only changes for the given resource type. One of: `email_layout`, `guide`, `message_type`, `partial`, `translation`, `workflow`. Can be used alone or together with `--resource-id`."
+    description="Commit only changes for the given resource type. One of: `audience`, `email_layout`, `guide`, `message_type`, `partial`, `translation`, `workflow`. Can be used alone or together with `--resource-id`."
   />
   <Attribute
     name="--resource-id"
     type="string"
     description="Commit only changes for the given resource identifier. Must be used together with `--resource-type`."
   />
+  <Attribute
+    name="--allow-empty"
+    type="boolean"
+    description="Create an empty commit for a single resource when it is already published with no unpublished changes. Requires both `--resource-type` and `--resource-id`. Defaults to false."
+  />
 </Attributes>
+
+### Error cases
+
+| Scenario                                                           | Result                                                                              |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `--allow-empty` without both `--resource-type` and `--resource-id` | 422 — `allow_empty` must be used with a single `resource_type` and `resource_id`    |
+| Resource not found                                                 | 404                                                                                 |
+| Resource has no current version                                    | Error — cannot create an empty commit without a current version                     |
+| Commit message required by account                                 | 422 — message can't be blank when account has `control-commit-msg-required` enabled |
 
 </ContentColumn>
 <ExampleColumn>
 
 ```bash title="Basic usage"
 knock commit -m "Commit message"
+```
+
+```bash title="Empty commit on an already-published workflow"
+knock commit \
+  --resource-type=workflow \
+  --resource-id=my-workflow \
+  --allow-empty \
+  -m "Empty touch for promotion"
+```
+
+```bash title="Verify metadata.empty in the latest commit"
+knock commit list --resource-type=workflow --resource-id=my-workflow --limit=1
+knock commit get <commit_id>
 ```
 
 </ExampleColumn>

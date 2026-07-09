@@ -36,6 +36,43 @@ A few additional notes:
 - **Account-level resources are not version controlled.** Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
 - **You can commit changes using our CLI and management API.** We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically, both of which support programmatic commits.
 
+## Empty commits
+
+An empty commit lets you commit (publish) a versioned resource without changing its content, similar to `git commit --allow-empty`. Empty commits are useful when you need to promote a resource to another environment, but the resource has no unpublished changes in the current environment.
+
+Knock tracks promotable changes by comparing each resource's identifier (`ref`) and version (`version_id`). If a resource already points to the published version (`current_version_id == published_version_id`), a standard commit does not create a new promotable change. An empty commit solves this by creating a new version with the same content, then publishing that version, giving Knock a new `version_id` to include in promotion diffs, so you can promote the commit downstream even though the resource content has not changed.
+
+What happens when you create an empty commit depends on the resource's current state:
+
+- **The resource has unpublished changes.** The empty-clone step is skipped, and a normal publish happens instead.
+- **The resource is already published with no changes.** An empty commit creates a new version with identical content.
+
+Commit log entries for empty commits include audit metadata with `empty: true` and an optional message.
+
+You can create empty commits using the [CLI](/cli/commit/all) or the [Management API](/developer-tools/management-api#committing-changes). The bulk commit endpoint (`PUT /v1/commits`) supports the following resource types:
+
+- `workflow`
+- `email_layout`
+- `partial`
+- `translation`
+- `message_type`
+- `guide`
+- `audience`
+
+For translations, the `resource_id` can be a locale (`es`), a locale and namespace (`es/courses`), or a locale, namespace, and tenant (`es/courses~tenant`).
+
+<Callout
+  title="Note:"
+  text={
+    <>
+      The bulk commit endpoint doesn't support <code>reusable_step</code>. To
+      create an empty commit for a reusable step, use a resource upsert with{" "}
+      <code>commit=true</code> and <code>allow_empty=true</code>, or publish via
+      the dashboard.
+    </>
+  }
+/>
+
 ## Visualizing commit changes
 
 Clicking the "Commit to development" button will show you a view of changes between your current commit and the most recent version of the resource that you're updating. Commit diffs are also available on your full commit log (viewable on the "Commits" page in your dashboard), so you can view the commit history for a resource and know exactly what was changed with each commit.
