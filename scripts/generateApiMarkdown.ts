@@ -599,7 +599,8 @@ function getMethodMarkdownContent(
 
       const responseContent = (response as any).content?.["application/json"];
       const responseSchema = responseContent?.schema;
-      const responseExample = responseContent?.example || responseSchema?.example;
+      const responseExample =
+        responseContent?.example || responseSchema?.example;
       if (responseExample) {
         content += `###### Example\n\n`;
         content += `\`\`\`json\n${JSON.stringify(
