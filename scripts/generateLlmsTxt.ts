@@ -319,8 +319,28 @@ async function generateAllLlmsFiles() {
     }
 
     // Initialize content arrays
-    const indexContent = ["# Knock Documentation\n"];
-    const fullContent = ["# Knock Documentation\n"];
+    const indexContent = [
+      "# Knock Documentation\n",
+      "",
+      "## OpenAPI specs",
+      "",
+      "- [Knock API OpenAPI spec](/openapi.json)",
+      "- [Management API OpenAPI spec](/mapi-openapi.json)",
+      "- [Knock API OpenAPI (markdown)](/api-reference-openapi.md)",
+      "- [Management API OpenAPI (markdown)](/mapi-reference-openapi.md)",
+      "",
+    ];
+    const fullContent = [
+      "# Knock Documentation\n",
+      "",
+      "## OpenAPI specs",
+      "",
+      "- [Knock API OpenAPI spec](/openapi.json)",
+      "- [Management API OpenAPI spec](/mapi-openapi.json)",
+      "- [Knock API OpenAPI (markdown)](/api-reference-openapi.md)",
+      "- [Management API OpenAPI (markdown)](/mapi-reference-openapi.md)",
+      "",
+    ];
 
     // HOMEPAGE
     await processSections(PLATFORM_SIDEBAR, indexContent, fullContent);
