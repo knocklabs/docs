@@ -1,12 +1,15 @@
 ---
 title: Multi-factor authentication
-description: Add an extra layer of security to your Knock account by enabling multi-factor authentication (MFA) for dashboard login.
+description: Add an extra layer of security to your Knock account by enabling multi-factor authentication (MFA) with an authenticator app or passkey for dashboard login.
 tags:
   [
     "mfa",
     "2fa",
     "two-factor",
     "authenticator",
+    "passkey",
+    "webauthn",
+    "biometric",
     "backup codes",
     "security",
     "login",
@@ -16,7 +19,12 @@ section: Manage your account
 
 ## Overview
 
-Multi-factor authentication (MFA) adds a second verification step on top of your existing [login method](/manage-your-account/authentication-methods). After you sign in with email or Google, Knock prompts you for a one-time code from your authenticator app before granting access to the dashboard.
+Multi-factor authentication (MFA) adds a second verification step on top of your existing [login method](/manage-your-account/authentication-methods). After you sign in with email or Google, Knock prompts you to verify your identity before granting access to the dashboard.
+
+Knock supports two MFA methods:
+
+1. **Authenticator app (TOTP).** Enter a one-time 6-digit code from an app such as 1Password, Authy, or Google Authenticator.
+2. **Passkey.** Authenticate with a WebAuthn-compatible device using biometrics, a device PIN, or a hardware security key.
 
 MFA applies to email (passwordless) and Google logins. If your account uses [SAML SSO](/manage-your-account/saml-sso), your identity provider handles MFA for those users and Knock does not prompt for an additional factor.
 
@@ -24,28 +32,43 @@ MFA applies to email (passwordless) and Google logins. If your account uses [SAM
 
 Any member can enroll in MFA from their profile settings in the Knock dashboard. Account owners and admins who want to require MFA for all members use a separate account-level setting (see [Enforce MFA for your account](#enforce-mfa-for-your-account) below).
 
+If your account owner or admin has enabled account-wide MFA enforcement, you are prompted to complete enrollment the next time you log in before you can access the dashboard.
+
+### Enroll with an authenticator app
+
 1. Click **Overview** in the sidebar, then open your <a href="https://dashboard.knock.app/~/settings/profile" target="_blank" rel="noopener">**profile settings**</a> and navigate to the **Security** section.
 2. Under **Two-factor authentication**, click **Set up**.
 3. Scan the QR code with an authenticator app (such as 1Password, Authy, or Google Authenticator).
 4. Enter the 6-digit code from your authenticator app to confirm enrollment.
 5. Save your backup codes in a secure location. Knock shows these codes once during enrollment.
 
-If your account owner or admin has enabled account-wide MFA enforcement, you are prompted to complete this enrollment flow the next time you log in before you can access the dashboard.
+### Enroll with a passkey
+
+1. Click **Overview** in the sidebar, then open your <a href="https://dashboard.knock.app/~/settings/profile" target="_blank" rel="noopener">**profile settings**</a> and navigate to the **Security** section.
+2. Under **Two-factor authentication**, click **Add passkey**.
+3. Select your preferred authenticator when prompted. Available options depend on your browser and device (for example, Touch ID, Face ID, Windows Hello, a hardware security key, or a password manager).
+4. Follow the on-device prompts to complete registration.
+5. The passkey appears in your list of enrolled MFA methods in **Security** settings.
+
+You can enroll multiple passkeys, such as one for your laptop and one for your phone. Remove any passkeys you no longer use from your profile **Security** settings.
 
 ## Backup codes
 
-When you enroll in MFA, Knock generates a set of backup codes you can use to sign in if you lose access to your authenticator app. Each backup code is single-use.
+When you enroll with an authenticator app, Knock generates a set of backup codes you can use to sign in if you lose access to your app. Each backup code is single-use.
 
 You can regenerate backup codes from your profile **Security** settings at any time. Regenerating codes invalidates any previously issued backup codes.
 
+If you enroll with a passkey, you verify your identity with your enrolled device or security key at login instead of using backup codes.
+
 ## Logging in with MFA
 
-When MFA is enabled on your account, Knock prompts you for a verification code after you complete the initial sign-in step (email magic link or Google SSO).
+When MFA is enabled on your account, Knock prompts you to verify your identity after you complete the initial sign-in step (email magic link or Google SSO).
 
-1. Open your authenticator app and enter the current 6-digit code on the MFA challenge screen.
-2. If you cannot access your authenticator app, click **Use a backup code** and enter one of your saved backup codes instead.
+1. **Authenticator app.** Open your authenticator app and enter the current 6-digit code on the MFA challenge screen.
+2. **Passkey.** Click **Sign in with passkey** on the MFA challenge screen and complete the WebAuthn prompt on your device.
+3. **Backup codes.** If you cannot access your authenticator app, click **Use a backup code** and enter one of your saved backup codes instead.
 
-After you verify your code, Knock authenticates your session and redirects you to the dashboard.
+After you verify your identity, Knock authenticates your session and redirects you to the dashboard.
 
 ## Enforce MFA for your account
 
@@ -55,7 +78,7 @@ Account owners and admins can require all members to enroll in MFA before they c
 2. Navigate to the **Security** page under **Admin** in your account settings (`dashboard.knock.app/<slug>/settings/security`, where `<slug>` is your account identifier).
 3. Toggle **Require multi-factor authentication** to enable enforcement for all members.
 
-When enforcement is enabled, members who have not yet enrolled in MFA are prompted to set up an authenticator app at their next login or token refresh. They cannot access the dashboard until enrollment is complete.
+When enforcement is enabled, members who have not yet enrolled in MFA are prompted to enroll at their next login or token refresh. They can choose an authenticator app or a passkey. They cannot access the dashboard until enrollment is complete.
 
 <Callout
   type="info"
@@ -71,7 +94,7 @@ When enforcement is enabled, members who have not yet enrolled in MFA are prompt
 
 ## Reset a member's MFA
 
-If a member loses access to their authenticator app and backup codes, an account owner or admin can reset their MFA from the account **Security** settings. Resetting a member's MFA removes their enrolled factor and backup codes. The member must enroll again at their next login.
+If a member loses access to their MFA methods, an account owner or admin can reset their MFA from the account **Security** settings. Resetting a member's MFA removes all enrolled factors, including authenticator apps, passkeys, and backup codes. The member must enroll again at their next login.
 
 ## Frequently asked questions
 
@@ -81,15 +104,34 @@ If a member loses access to their authenticator app and backup codes, an account
     Google Authenticator, and other apps that scan QR codes or accept
     `otpauth://` URIs.
   </Accordion>
+  <Accordion title="What devices and browsers support passkeys?">
+    Passkeys work in WebAuthn-compatible browsers and devices. You can use
+    biometrics such as Touch ID or Face ID, a device PIN, a password manager, or
+    a hardware security key.
+  </Accordion>
+  <Accordion title="Can I enroll both an authenticator app and a passkey?">
+    Yes. You can enroll an authenticator app, one or more passkeys, or both. At
+    login, Knock prompts you to verify with whichever method you choose on the
+    MFA challenge screen.
+  </Accordion>
+  <Accordion title="Can I remove a passkey?">
+    Yes. You can remove individual passkeys from your profile **Security**
+    settings at any time.
+  </Accordion>
   <Accordion title="Can I disable MFA on my account?">
     Yes. You can disable MFA from your profile **Security** settings. You must
-    enter a current code from your authenticator app to confirm. If your account
-    owner or admin has enabled account-wide MFA enforcement, you cannot disable
-    MFA until enforcement is turned off.
+    verify your identity to confirm, such as by entering a current code from
+    your authenticator app or using a passkey. If your account owner or admin
+    has enabled account-wide MFA enforcement, you cannot disable MFA until
+    enforcement is turned off.
   </Accordion>
   <Accordion title="What happens if I lose my authenticator and backup codes?">
     Contact an account owner or admin to reset your MFA. After the reset, you
-    enroll a new authenticator app at your next login.
+    enroll a new MFA method at your next login.
+  </Accordion>
+  <Accordion title="What happens if I lose access to my passkey?">
+    Contact an account owner or admin to reset your MFA. After the reset, you
+    enroll a new MFA method at your next login.
   </Accordion>
   <Accordion title="Does MFA apply to API keys or service tokens?">
     No. MFA applies to interactive dashboard login only. API keys, service
