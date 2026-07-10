@@ -6,9 +6,14 @@ tags:
 section: Preferences
 ---
 
-Knock's hosted preference center is a page where your users manage their `default` notification preferences. You configure it from the dashboard; Knock hosts and renders the page, so you can launch a preference center without building or hosting any UI yourself.
+Knock's hosted preference center is a page where your users manage their `default` notification preferences. Knock hosts and renders the page, so you can launch a preference center without building or hosting any UI yourself.
 
-This is the fastest way to let your users update their preferences when they receive a notification. If you need more control over the experience, you can [build your own preference center UI](/preferences/overview#build-your-preference-center) on top of Knock's preferences API.
+- **Knock hosts the page.** Users access their preferences through a signed URL.
+- **Configure in the dashboard.** Set rows, labels, and branding under **Platform** > **Preferences** > **Preference center**.
+- **No code required.** Enable the preference center and link to it from your notifications.
+- **User default preferences only.** Does not support [per-tenant](/multi-tenancy/per-tenant-preferences), [object](/preferences/object-preferences), or non-default preference sets.
+
+This is the fastest way to let your users update their preferences when they receive a notification. If you need more control over the experience, see [Build your preference center](/preferences/build-your-preference-center). Not sure which approach fits? See [Choosing a preference center](/preferences/overview#choosing-a-preference-center).
 
 <Callout
   type="info"
@@ -111,6 +116,8 @@ When a user saves their preferences, Knock updates the corresponding keys on the
 
 ## Linking to the preference center
 
+### From workflow templates
+
 To link a user directly to their preference center from a notification, include the URL in your message template or [email layout](/integrations/email/layouts) using the built-in variable:
 
 ```liquid title="Link to the hosted preference center in an email template"
@@ -119,9 +126,27 @@ To link a user directly to their preference center from a notification, include 
 
 Knock renders the user-specific link in the notification. Use `vars.manage_preferences_url` when you want to give users full control over their preferences via the hosted preference center. For single-click opt-out of commercial messages via the commercial unsubscribe feature, use `vars.commercial_unsubscribe_url` instead.
 
+### Get a signed URL from your backend
+
+Use this when you need to generate a preference center link outside of workflow templates—for example, from your app settings page or an admin panel.
+
+Call [`POST /v1/users/{user_id}/preference_center/signed_url`](/api-reference/users/preference_center/generate_signed_url) from your backend with a **secret API key**. The response includes:
+
+- **`url`.** The full hosted preference center URL for the user.
+
+```bash title="Generate a preference center signed URL"
+curl -X POST "https://api.knock.app/v1/users/user_id/preference_center/signed_url" \
+  -H "Authorization: Bearer $KNOCK_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+Redirect the user to `url`. If your environment uses a [custom preference center domain](/preferences/hosted-preference-center#custom-domain-for-the-preference-center), the returned `url` reflects that domain.
+
+See the [create preference center signed URL API reference](/api-reference/users/preference_center/generate_signed_url) for details.
+
 ## Copying configuration between environments
 
-Your preference center configuration is environment-specific, just like your [preference defaults](/preferences/overview#create-a-default-preferenceset). You can copy it from one environment to another using the "Copy to..." button in the upper right corner of the preference center settings. This enables you to keep your environments in sync as you move from development to production.
+Your preference center configuration is environment-specific, just like your [preference defaults](/preferences/build-your-preference-center#create-a-default-preferenceset). You can copy it from one environment to another using the "Copy to..." button in the upper right corner of the preference center settings. This enables you to keep your environments in sync as you move from development to production.
 
 ## Custom domain for the preference center
 
