@@ -24,6 +24,7 @@ import {
 } from "../data/sidebars/inAppSidebar";
 import { getSidebarContent } from "../components/ui/ApiReference/helpers";
 
+import { expandMultiLangCodeBlocks } from "../lib/expandMultiLangCodeBlocks";
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
 import {
   MAPI_REFERENCE_OVERVIEW_CONTENT,
@@ -84,6 +85,10 @@ async function parseFrontmatter(markdownContent) {
   return yaml.parse(yamlNode.value);
 }
 
+function prepareMarkdownForExport(content: string): string {
+  return expandMultiLangCodeBlocks(content);
+}
+
 async function writePublicMarkdown(slug, content) {
   try {
     const publicPath = path.join(
@@ -93,7 +98,11 @@ async function writePublicMarkdown(slug, content) {
     );
     // Create directories if they don't exist
     fs.mkdirSync(path.dirname(publicPath), { recursive: true });
-    fs.writeFileSync(publicPath, content, "utf-8");
+    fs.writeFileSync(
+      publicPath,
+      prepareMarkdownForExport(content),
+      "utf-8",
+    );
   } catch (error) {
     console.warn(`Warning: Could not write public markdown for ${slug}`, error);
   }
@@ -179,7 +188,8 @@ async function processPages(
     fullContent.push(`## ${page.title}${betaTag}`);
     if (description) fullContent.push(description);
     if (pageContent) {
-      fullContent.push(pageContent);
+      const exportContent = prepareMarkdownForExport(pageContent);
+      fullContent.push(exportContent);
       // Write to public directory if we have content
       await writePublicMarkdown(fullHref, pageContent);
     }
@@ -232,7 +242,7 @@ async function processFlatContentItem(
   fullContent.push(`# ${section.title}${betaTag}`);
   if (description) fullContent.push(description);
   if (pageContent) {
-    fullContent.push(pageContent);
+    fullContent.push(prepareMarkdownForExport(pageContent));
     // Write to public directory so .md URLs work
     await writePublicMarkdown(fullHref, pageContent);
   }
