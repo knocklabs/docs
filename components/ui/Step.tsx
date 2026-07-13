@@ -2,7 +2,15 @@ import React from "react";
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Heading } from "@telegraph/typography";
 
-const Steps = ({ titleSize = "p", children }) => (
+type TitleSize = "p" | "h2" | "h3" | "h4";
+
+const Steps = ({
+  titleSize = "p",
+  children,
+}: {
+  titleSize?: TitleSize;
+  children: React.ReactElement<any> | React.ReactElement<any>[];
+}) => (
   <Box role="list" ml="4" mt="10" mb="6">
     {React.Children.map(children, (child, i) =>
       React.cloneElement(child, { titleSize, stepNumber: i + 1 }),
@@ -10,7 +18,7 @@ const Steps = ({ titleSize = "p", children }) => (
   </Box>
 );
 
-function TitleTag({ size, title }) {
+function TitleTag({ size, title }: { size: TitleSize; title: string }) {
   const id = title.toLowerCase().replaceAll(" ", "-");
 
   switch (size) {
@@ -28,7 +36,7 @@ function TitleTag({ size, title }) {
           id={id}
           color="default"
           weight="semi-bold"
-          size="3"
+          size="4"
           mb="2"
         >
           {title}
@@ -49,12 +57,37 @@ function TitleTag({ size, title }) {
         </Heading>
       );
     }
+    case "h4": {
+      return (
+        <Heading
+          as="h4"
+          id={id}
+          color="default"
+          weight="semi-bold"
+          size="2"
+          mb="2"
+        >
+          {title}
+        </Heading>
+      );
+    }
     default:
+      // Unreachable when titleSize is typed correctly; intentionally returns null
       return null;
   }
 }
 
-const Step = ({ titleSize = "p", title, children, stepNumber }) => (
+const Step = ({
+  titleSize = "p",
+  title,
+  children,
+  stepNumber,
+}: {
+  titleSize?: TitleSize;
+  title: string;
+  children: React.ReactNode;
+  stepNumber?: number;
+}) => (
   <Stack position="relative" alignItems="flex-start" pb="4" role="listitem">
     <Box
       position="absolute"
