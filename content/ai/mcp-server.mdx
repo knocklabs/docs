@@ -67,17 +67,24 @@ claude mcp add --transport http knock https://mcp.knock.app/mcp
 
 2. Start Claude Code and run `/mcp` to authenticate with your Knock account.
 
-## Tool groups
+## Capabilities
 
-When connecting to the Knock MCP server, you can choose exactly which groups of tools to enable. The MCP server exposes a curated subset of Knock capabilities — focused on managing resources and data, inspecting environments, and committing or promoting changes. Limiting the active tool groups to only what you need keeps the tool list manageable and reduces the risk of unintended changes.
+When connecting to the Knock MCP server, you can choose exactly which capabilities to enable. The MCP server exposes a curated subset of Knock functionality — focused on reading and managing resources, running the Knock agent, inspecting environments, and searching documentation. Limiting the active capabilities to only what you need keeps the tool list manageable and reduces the risk of unintended changes.
 
-| Group                | Description                                                                                                     |
-| -------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Manage resources** | Create and manage notification workflows, channels, templates, email layouts, partials, and other configuration |
-| **Commits**          | Commit and promote changes across environments                                                                  |
-| **Debug**            | Inspect environments and view sent message logs                                                                 |
-| **Manage data**      | Manage users, tenants, and object data                                                                          |
-| **Documentation**    | Search Knock documentation                                                                                      |
+| Capability           | Description                                                                                 | Enabled by default |
+| -------------------- | ------------------------------------------------------------------------------------------- | ------------------ |
+| **Read resources**   | Inspect Knock configuration via the Management API (GET requests)                           | Yes                |
+| **Manage resources** | Create and update Knock configuration via the Management API (write requests)               | Yes                |
+| **Knock agent**      | Use the Knock agent to create and manage workflows, broadcasts, guides, and other resources | Yes                |
+| **Debug**            | Inspect environments and view sent message logs                                             | No                 |
+| **Manage data**      | Manage users, tenants, and object data                                                      | No                 |
+| **Documentation**    | Search Knock documentation                                                                  | No                 |
+
+### Knock agent capability
+
+The **Knock agent** capability enables tools that invoke the same [Knock agent](/ai/agent) available in the dashboard. When enabled, your MCP client can start agent sessions to create and manage workflows, broadcasts, guides, and other resources through a conversational interface.
+
+This capability is useful when you want the agent to handle complex, multi-step tasks that benefit from its built-in knowledge of Knock best practices and resource relationships. For simpler, direct operations, the **Read resources** and **Manage resources** capabilities provide lower-level access through the Management API.
 
 If you need capabilities the MCP server doesn't expose — such as local file scaffolding for new resources, validating them before push, or working entirely offline against a checked-in repo — reach for the [Knock CLI](/ai/cli) instead.
 
@@ -132,9 +139,9 @@ See the [skills page](/ai/skills) for the full catalog of available skills and w
 <AccordionGroup>
   <Accordion title="Why do I see a warning about having too many tools?">
     Some MCP clients will warn you about having more than 50 tools. To address
-    this, enable only the tool groups you need for the task at hand. For
-    example, if you're only managing user data, enable the **Manage data** group
-    and leave the others disabled.
+    this, enable only the capabilities you need for the task at hand. For
+    example, if you're only managing user data, enable the **Manage data**
+    capability and leave the others disabled.
   </Accordion>
   <Accordion title="Why do I receive an error in Cursor when I try to use one of the available MCP tools?">
     If you see an error like _"The model returned an error. Try disabling MCP
