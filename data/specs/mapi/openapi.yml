@@ -353,6 +353,73 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PartialRequest
       x-validate: null
+    PreviewEmailLayoutRequest:
+      description: A request to preview an email layout, without requiring a layout to be persisted within Knock.
+      example:
+        data:
+          order_id: 123
+        email_layout:
+          html_layout: <html><body>Hello {{ recipient.name }}! {{ content }}</body></html>
+          name: Transactional
+          text_layout: Hello {{ recipient.name }}! {{ content }}
+        recipient: user_123
+      properties:
+        actor:
+          anyOf:
+            - $ref: '#/components/schemas/RecipientReference'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: The actor to reference in the preview.
+          x-struct: null
+          x-validate: null
+        data:
+          additionalProperties: true
+          description: The data to pass to the layout for rendering.
+          type: object
+          x-struct: null
+          x-validate: null
+        email_layout:
+          $ref: '#/components/schemas/EmailLayoutRequest'
+        recipient:
+          $ref: '#/components/schemas/RecipientReference'
+        tenant:
+          description: The tenant to associate with the preview. Must not contain whitespace.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        workflow:
+          description: Optional workflow context for variable hydration. When provided, recipient/actor/tenant are resolved via Knock.
+          nullable: true
+          properties:
+            categories:
+              description: Workflow categories.
+              items:
+                type: string
+                x-struct: null
+                x-validate: null
+              nullable: true
+              type: array
+              x-struct: null
+              x-validate: null
+            key:
+              description: The workflow key.
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - key
+          type: object
+          x-struct: null
+          x-validate: null
+      required:
+        - email_layout
+        - recipient
+      title: PreviewEmailLayoutRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreviewEmailLayoutRequest
+      x-validate: null
     RecipientReference:
       description: A recipient reference, used when referencing a recipient by either their ID (for a user), or by a reference for an object.
       example:
@@ -7115,6 +7182,78 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup.ConditionGroupAllMatch
       x-validate: null
+    PreviewEmailLayoutResponse:
+      description: A response to an email layout preview request.
+      example:
+        layout:
+          html_body: <html><body>Hello John! Welcome to Acme!</body></html>
+          text_body: Hello John! Welcome to Acme!
+        result: success
+      properties:
+        errors:
+          description: A list of errors encountered during rendering. Present when result is "error".
+          items:
+            description: A rendering error with optional location information.
+            properties:
+              field:
+                description: The layout field that caused the error, if available.
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              line:
+                description: The line number where the error occurred, if available.
+                nullable: true
+                type: integer
+                x-struct: null
+                x-validate: null
+              message:
+                description: A human-readable description of the error.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - message
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        layout:
+          description: The rendered email layout, ready to be previewed.
+          nullable: true
+          properties:
+            html_body:
+              description: The fully rendered HTML body of the email layout.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            text_body:
+              description: The fully rendered plain text body of the email layout.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        result:
+          description: The result of the preview.
+          enum:
+            - success
+            - error
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: PreviewEmailLayoutResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreviewEmailLayoutResponse
+      x-validate: null
     MessageTypeMultiSelectField:
       description: A multi-select field used in a message type.
       example:
@@ -10603,7 +10742,6 @@ components:
         from:
           description: The start time of the send window.
           example: 09:00
-          format: time
           nullable: true
           type: string
           x-struct: null
@@ -10620,7 +10758,6 @@ components:
         until:
           description: The end time of the send window.
           example: 17:00
-          format: time
           nullable: true
           type: string
           x-struct: null
@@ -12826,6 +12963,49 @@ paths:
           	}
           	fmt.Printf("%+v\n", sourcesResponse.Entries)
           }
+  /v1/email_layouts/preview:
+    post:
+      callbacks: {}
+      description: |
+        Renders an email layout preview, without requiring a layout to be persisted within Knock.
+        This is useful for previewing layouts in isolation, before saving them.
+      operationId: previewEmailLayout
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewEmailLayoutRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewEmailLayoutResponse'
+          description: OK
+      summary: Preview an email layout
+      tags:
+        - Email layouts
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -15323,9 +15503,11 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const partial = await client.partials.retrieve('partial_key', { environment: 'development' });
+          const partialResource = await client.partials.retrieve('partial_key', {
+            environment: 'development',
+          });
 
-          console.log(partial.valid);
+          console.log(partialResource.valid);
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -17028,8 +17210,8 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const partial of client.partials.list({ environment: 'development' })) {
-            console.log(partial.valid);
+          for await (const partialResource of client.partials.list({ environment: 'development' })) {
+            console.log(partialResource.valid);
           }
         python: |-
           import os
@@ -19688,6 +19870,40 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Translation)
           }
+  /v1/branches/{branch_slug}/rebase:
+    put:
+      callbacks: {}
+      description: Rebases a branch onto the development environment, bringing in new and updated resources while preserving commits made on the branch.
+      operationId: rebaseBranch
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of the branch to rebase.
+          in: path
+          name: branch_slug
+          required: true
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: OK
+      summary: Rebase a branch
+      tags:
+        - Branches
   /v1/broadcasts:
     get:
       callbacks: {}
