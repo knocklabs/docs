@@ -69,6 +69,53 @@ knock workflow push my-workflow --branch my-branch --commit
 
 If you need to overwrite existing content in Knock (for example, when local changes should replace what is currently stored), you can add the `--force` flag to the push command.
 
+## Rebase a branch
+
+When `main` moves ahead while you're working on a branch, you can rebase the branch to bring in the latest changes from `main` while preserving your branch's commits. Rebase updates your branch in place. It does not promote your branch's changes to `main` — use [merge](#merging-changes-from-a-branch) for that.
+
+Rebasing always syncs a branch onto `main` in the `development` environment. You cannot rebase onto staging, production, or another branch.
+
+**In the dashboard**
+
+When your branch is behind `main`, Knock shows a banner on the **Commits** page indicating how many commits behind you are. You can rebase from there, from the branch selector, or when resolving a merge conflict.
+
+**In the CLI**
+
+```bash title="Rebasing a branch in the CLI"
+knock branch rebase my-branch
+```
+
+See the [CLI reference](/cli/branch/rebase) for flags and error handling.
+
+### How rebase works
+
+During a rebase, Knock compares each resource on `main` with the same resource on your branch and applies automatic resolution:
+
+| Situation                                              | What happens                                                 |
+| ------------------------------------------------------ | ------------------------------------------------------------ |
+| You have unmerged commits for a resource on the branch | Your branch version is preserved                             |
+| You have not changed a resource on the branch          | The branch receives the latest committed version from `main` |
+| A resource exists on `main` but not on the branch      | The resource is copied into the branch                       |
+
+Knock does not perform a Git-style three-way merge or per-field conflict resolution during rebase. For resources you have changed on the branch, your branch's version wins automatically.
+
+Rebasing also resets the conflict-detection baseline for your branch. If you and `main` both changed the same resource and Knock previously flagged a merge conflict, rebasing can clear that conflict by absorbing the changes from `main` that your branch had not modified.
+
+### Before you rebase
+
+Rebase may be blocked when you have **unpublished changes on shared resources** where `main` has moved ahead since your branch last synced. In that case, commit or discard the blocking drafts before rebasing. Knock returns an error listing the affected resources.
+
+Rebase is **not** blocked by:
+
+- Unpublished changes on resources you have already committed to on the branch
+- Unpublished changes on resources that exist only on your branch
+- Unpublished changes on shared resources where `main` has not changed
+
+<Callout
+  type="warning"
+  text="Rebasing does not promote branch changes to main. After rebasing, merge your branch when you are ready to apply your changes to main."
+/>
+
 ## Merging changes from a branch
 
 **In the dashboard**
@@ -125,7 +172,7 @@ Branches are supported in the Knock CLI for all commands that interact with reso
 knock workflow list --branch my-branch
 ```
 
-It's also possible to use the CLI to programmatically create, update, and delete branches.
+It's also possible to use the CLI to programmatically create, update, delete, rebase, and merge branches.
 
 ## Working with branches via the Management API
 
@@ -136,7 +183,12 @@ curl -X GET "https://control.knock.app/v1/workflows?branch=my-branch" \
   -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN"
 ```
 
-It's also possible to use the management API to programmatically create, update, and delete branches.
+It's also possible to use the management API to programmatically create, update, delete, and rebase branches.
+
+```bash title="Rebasing a branch via the Management API"
+curl -X PUT "https://control.knock.app/v1/branches/my-branch/rebase?environment=development" \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN"
+```
 
 ## Recipients and audiences
 
@@ -154,8 +206,10 @@ Similarly, [audience](/concepts/audiences) membership changes in the main branch
 There are a few limitations to branches in Knock:
 
 - Branches are **only** available in the `development` environment.
-- If you have merge conflicts on a resource that is part of a branch, you will need to resolve the conflicts outside of the dashboard via the CLI in order to continue.
-- There's currently no way to "rebase" a branch against `main` without using the CLI.
+- Rebase is **only** available in the `development` environment and always targets `main`.
+- Rebase uses automatic branch-wins resolution. Knock does not provide per-field merge or conflict resolution during rebase.
+- Rebase may be blocked when you have unpublished changes on shared resources where `main` has moved ahead. Commit or discard those drafts before rebasing.
+- If you have merge conflicts on a resource that is part of a branch, you can rebase the branch to absorb non-conflicting changes from `main`, or resolve the conflicts outside of the dashboard via the CLI in order to continue.
 - [Audiences](/concepts/audiences) cannot be created or updated on a branch.
 - Branches are not supported for [broadcasts](/concepts/broadcasts).
 - Branches are not supported for [sources](/integrations/sources/overview).
