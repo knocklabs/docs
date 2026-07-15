@@ -87,6 +87,10 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
             slug: "/sending-a-message-to-channels",
             title: "Sending a message to channels",
           },
+          {
+            slug: "/overriding-recipient-connections",
+            title: "Overriding recipient connections",
+          },
         ],
       },
       {
