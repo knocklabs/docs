@@ -38,7 +38,7 @@ Accepts `KnockProviderProps`
   <Attribute
     name="enabled"
     type="boolean"
-    description="Defaults to `true`. When `false`, children still render but the Knock client stays idle: no identify call, no API requests, and no websocket. Flipping it to `true` connects like a login; flipping it back to `false` disconnects and clears its data like a logout. Use it to defer activity until you have a complete identity (see below)."
+    description="Defaults to `true`. When `false`, children still render but the Knock client stays idle: no identify call, no API requests, and no websocket. Flipping it to `true` authenticates and connects the client; flipping it back to `false` disconnects it and clears its data. Use it to defer activity until you have a complete identity (see below)."
   />
   <Attribute
     name="host"
@@ -54,7 +54,7 @@ Accepts `KnockProviderProps`
 
 #### Deferring activity with `enabled`
 
-`KnockProvider` takes an `enabled` prop that defaults to `true`. When it's `false`, the provider still renders its children, but the Knock client sits idle: it doesn't identify the user, make any API requests, or open a websocket. Set it back to `true` and the client connects like a login; set it to `false` again and it disconnects and clears its data like a logout.
+`KnockProvider` takes an `enabled` prop that defaults to `true`. When it's `false`, the provider still renders its children, but the Knock client sits idle: it doesn't identify the user, make any API requests, or open a websocket. Set it back to `true` and the client authenticates and connects; set it to `false` again and it disconnects and clears its data.
 
 This is the recommended way to gate the provider on a complete identity — for example, an enhanced-security user token that isn't ready on the first render — rather than mounting and unmounting `KnockProvider` as that identity changes:
 
@@ -124,7 +124,7 @@ Accepts `KnockExpoPushNotificationProviderProps`:
   <Attribute
     name="autoRegister"
     type="boolean"
-    description="When true, the Expo provider retrieves a push token from Expo and stores it as channel data on the user. Registration waits until the client is authenticated, so a user isn't shown the OS permission prompt until sign-in completes."
+    description="When true, the Expo provider retrieves a push token from Expo and stores it as channel data on the user. Registration waits until the client is authenticated, so a user isn't shown the OS permission prompt until client authentication completes."
   />
 </Attributes>
 
@@ -254,7 +254,7 @@ const MyComponent = () => {
 
 ### `useKnockAuthState`
 
-Subscribes to a `Knock` client's authentication state, re-rendering when the user signs in, signs out, or switches. Use it to react to the [`enabled` prop on `KnockProvider`](#knockprovider) flipping between states.
+Subscribes to a `Knock` client's authentication state, re-rendering when the authenticated user changes. Use it to react to the [`enabled` prop on `KnockProvider`](#knockprovider) flipping between states.
 
 **Returns**: `KnockAuthState`
 
