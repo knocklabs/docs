@@ -1,0 +1,55 @@
+The `useKnockAuthState` hook subscribes to a Knock client's authentication state, re-rendering your component when the authenticated user changes. It's backed by the subscribable `authStore` on the client, so it stays correct even when the client is re-authenticated in place — for example, when you toggle the [`enabled` prop on `KnockProvider`](/in-app-ui/react/sdk/components/knock-provider).
+
+## Parameters
+
+This hook accepts a single argument:
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="An authenticated Knock client, such as the instance returned by the `useKnockClient` hook."
+    isRequired
+  />
+</Attributes>
+
+## Returns
+
+Returns a `KnockAuthState` object describing the client's current authentication.
+
+<Attributes>
+  <Attribute
+    name="status"
+    type="'authenticated' | 'unauthenticated'"
+    description="Whether a user is authenticated to the client."
+  />
+  <Attribute
+    name="userId"
+    type="string | undefined | null"
+    description="The ID of the authenticated user, or `undefined` when no user is authenticated."
+  />
+  <Attribute
+    name="userToken"
+    type="string | undefined"
+    description="The user token in use for the authenticated user, when one was provided."
+  />
+</Attributes>
+
+## Example
+
+The following example reads the authentication state to render different UI while a user authenticates. It pairs well with the `enabled` prop on `KnockProvider`, which flips the client between unauthenticated and authenticated as the identity loads.
+
+```tsx
+import { useKnockClient, useKnockAuthState } from "@knocklabs/react";
+
+const AuthStatus = () => {
+  const knock = useKnockClient();
+  const { status, userId } = useKnockAuthState(knock);
+
+  if (status === "unauthenticated") {
+    return <span>Authenticating…</span>;
+  }
+
+  return <span>Connected as {userId}</span>;
+};
+```

@@ -36,6 +36,11 @@ Accepts `KnockProviderProps`
     description="A JWT that identifies the authenticated user, signed with the private key provided in the Knock dashboard. Required to secure your production environment. [Learn more.](https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security)"
   />
   <Attribute
+    name="enabled"
+    type="boolean"
+    description="Defaults to `true`. When `false`, children still render but the Knock client stays idle: no identify call, no API requests, and no websocket. Flipping it to `true` authenticates and connects the client; flipping it back to `false` disconnects it and clears its data. Use it to defer activity until you have a complete identity (see below)."
+  />
+  <Attribute
     name="host"
     type="string"
     description="A custom API host for Knock."
@@ -46,6 +51,25 @@ Accepts `KnockProviderProps`
     description="An optional set of translations to override the default `en` translations used in the feed components."
   />
 </Attributes>
+
+#### Deferring activity with `enabled`
+
+`KnockProvider` takes an `enabled` prop that defaults to `true`. When it's `false`, the provider still renders its children, but the Knock client sits idle: it doesn't identify the user, make any API requests, or open a websocket. Set it back to `true` and the client authenticates and connects; set it to `false` again and it disconnects and clears its data.
+
+This is the recommended way to gate the provider on a complete identity — for example, an enhanced-security user token that isn't ready on the first render — rather than mounting and unmounting `KnockProvider` as that identity changes:
+
+```jsx
+<KnockProvider
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  user={{ id: userId }}
+  userToken={userToken}
+  enabled={Boolean(userId && userToken)}
+>
+  {/* ... */}
+</KnockProvider>
+```
+
+When `enabled` becomes `true`, feed components remount and reload their data, and Slack and Microsoft Teams connection status re-checks for the authenticated user. To react to these transitions in your own components, use the [`useKnockAuthState`](#useknockauthstate) hook.
 
 ### `KnockFeedProvider`
 
@@ -205,6 +229,43 @@ const MyComponent = () => {
     { id: user.id },
     user.knockToken,
   );
+
+  return null;
+};
+```
+
+### `useKnockAuthState`
+
+Subscribes to a `Knock` client's authentication state, re-rendering when the authenticated user changes. Use it to react to the [`enabled` prop on `KnockProvider`](#knockprovider) flipping between states.
+
+**Returns**: `KnockAuthState`
+
+<Attributes>
+  <Attribute
+    name="status"
+    type="'authenticated' | 'unauthenticated'"
+    description="Whether a user is authenticated to the client."
+  />
+  <Attribute
+    name="userId"
+    type="string | undefined | null"
+    description="The ID of the authenticated user, or `undefined` when no user is authenticated."
+  />
+  <Attribute
+    name="userToken"
+    type="string | undefined"
+    description="The user token in use for the authenticated user, when one was provided."
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import { useKnock, useKnockAuthState } from "@knocklabs/react-native";
+
+const MyComponent = () => {
+  const knock = useKnock();
+  const { status, userId } = useKnockAuthState(knock);
 
   return null;
 };
