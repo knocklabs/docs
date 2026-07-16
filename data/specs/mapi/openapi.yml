@@ -1327,6 +1327,44 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WorkflowWaitForEventAudienceEvent:
+      description: An audience membership event to wait for when a recipient enters or exits an audience.
+      example:
+        audience_key: vip-users
+        event_key: enter
+        event_type: audience
+      properties:
+        audience_key:
+          description: The key of the audience to wait for membership changes.
+          example: vip-users
+          type: string
+          x-struct: null
+          x-validate: null
+        event_key:
+          description: The audience membership transition to wait for.
+          enum:
+            - enter
+            - exit
+          example: enter
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event to wait for.
+          enum:
+            - audience
+          example: audience
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event_type
+        - event_key
+        - audience_key
+      title: WorkflowWaitForEventAudienceEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventAudienceEvent
+      x-validate: null
     WorkflowBranchStepBranch:
       description: A branch in a branch step.
       example:
@@ -1699,6 +1737,34 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WorkflowWaitForEventRecipientEvent:
+      description: A recipient updated event to wait for from the workflow recipient.
+      example:
+        event_key: updated
+        event_type: recipient
+      properties:
+        event_key:
+          description: Recipient lifecycle event to wait for. Always "updated" today.
+          enum:
+            - updated
+          example: updated
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event to wait for.
+          enum:
+            - recipient
+          example: recipient
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event_type
+      title: WorkflowWaitForEventRecipientEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventRecipientEvent
+      x-validate: null
     PaginatedEmailLayoutResponse:
       description: A paginated list of EmailLayout. Contains a list of entries and page information.
       example:
@@ -1951,6 +2017,44 @@ components:
       title: WrappedAudienceResponse
       type: object
       x-struct: null
+      x-validate: null
+    WorkflowWaitForEventWorkflowEvent:
+      description: A workflow lifecycle event to wait for from a child workflow run for the same recipient.
+      example:
+        event_key: completed
+        event_type: workflow
+        source_key: onboarding
+      properties:
+        event_key:
+          description: The workflow lifecycle event to wait for.
+          enum:
+            - started
+            - completed
+          example: completed
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event to wait for.
+          enum:
+            - workflow
+          example: workflow
+          type: string
+          x-struct: null
+          x-validate: null
+        source_key:
+          description: The key of the workflow whose lifecycle event should match this wait.
+          example: onboarding
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event_type
+        - event_key
+        - source_key
+      title: WorkflowWaitForEventWorkflowEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventWorkflowEvent
       x-validate: null
     WorkflowTriggerWorkflowStep:
       description: A workflow trigger function step. Read more in the [docs](https://docs.knock.app/designing-workflows/trigger-workflow-function).
@@ -7415,6 +7519,70 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ItemSchemaProperty
       x-validate: null
+    WorkflowWaitForEventMessageEvent:
+      description: A message event to wait for from a message source.
+      example:
+        event_key: interacted
+        event_type: message
+        source_key: engagement-workflow
+        source_type: workflow
+      properties:
+        event_key:
+          description: The message lifecycle event to wait for.
+          enum:
+            - created
+            - queued
+            - sent
+            - not_sent
+            - delivered
+            - delivery_attempted
+            - undelivered
+            - bounced
+            - read
+            - unread
+            - seen
+            - unseen
+            - archived
+            - unarchived
+            - interacted
+            - link_clicked
+          example: interacted
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event to wait for.
+          enum:
+            - message
+          example: message
+          type: string
+          x-struct: null
+          x-validate: null
+        source_key:
+          description: The key of the message source to scope the wait to.
+          example: engagement-workflow
+          type: string
+          x-struct: null
+          x-validate: null
+        source_type:
+          description: The type of message source to scope the wait to.
+          enum:
+            - workflow
+            - broadcast
+            - guide
+          example: workflow
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event_type
+        - event_key
+        - source_type
+        - source_key
+      title: WorkflowWaitForEventMessageEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventMessageEvent
+      x-validate: null
     BrandingOverrides:
       additionalProperties: false
       description: Overrides to apply against account branding variables in an email layout, including dark mode-specific values.
@@ -11449,21 +11617,22 @@ components:
     WorkflowWaitForEventStep:
       description: A wait for event function step that pauses a workflow until a matching event is received.
       example:
-        name: Wait for event
+        name: Wait for message event
         ref: wait_for_event_1
         settings:
           event:
-            event_key: order.updated
-            event_type: integration_source
-            integration_source_key: segment
+            event_key: interacted
+            event_type: message
+            source_key: engagement-workflow
+            source_type: workflow
           expires_after:
             unit: days
             value: 1
           match_conditions:
             - conditions:
-                - argument: some_property
+                - argument: msg_123
                   operator: equal_to
-                  variable: recipient.property
+                  variable: event.message_id
               operator: and
           on_match: continue
           on_timeout: halt
@@ -11500,74 +11669,322 @@ components:
           x-struct: null
           x-validate: null
         settings:
-          description: The settings for the wait for event step.
-          properties:
-            event:
-              description: The event to wait for. The shape depends on `event_type`.
-              discriminator:
-                mapping:
-                  integration_source: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
-                propertyName: event_type
-              oneOf:
-                - $ref: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
-              x-struct: null
-              x-validate: null
-            expires_after:
-              anyOf:
-                - $ref: '#/components/schemas/Duration'
-                - nullable: true
+          description: The settings for the wait for event step. When `event.event_type` is `message` or `workflow`, `match_conditions` is required.
+          oneOf:
+            - description: Settings for waiting on an integration source event.
+              properties:
+                event:
+                  $ref: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
+                expires_after:
+                  anyOf:
+                    - $ref: '#/components/schemas/Duration'
+                    - nullable: true
+                      x-struct: null
+                      x-validate: null
+                  description: A duration object that describes how long to wait for a matching event before timing out.
+                  type: object
                   x-struct: null
                   x-validate: null
-              description: A duration object that describes how long to wait for a matching event before timing out.
+                match_conditions:
+                  description: A list of condition groups the incoming event must match to resolve the wait.
+                  items:
+                    properties:
+                      conditions:
+                        description: A list of conditions.
+                        items:
+                          $ref: '#/components/schemas/Condition'
+                        type: array
+                        x-struct: null
+                        x-validate: null
+                      operator:
+                        description: The operator used to join the conditions in the group.
+                        enum:
+                          - and
+                        example: and
+                        type: string
+                        x-struct: null
+                        x-validate: null
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  type: array
+                  x-struct: null
+                  x-validate: null
+                on_match:
+                  description: The action to take when a matching event is received.
+                  enum:
+                    - continue
+                    - halt
+                  example: continue
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                on_timeout:
+                  description: The action to take when the wait expires before a match.
+                  enum:
+                    - continue
+                    - halt
+                  example: halt
+                  type: string
+                  x-struct: null
+                  x-validate: null
+              required:
+                - event
               type: object
               x-struct: null
               x-validate: null
-            match_conditions:
-              description: A list of condition groups the incoming event must match to resolve the wait.
-              items:
-                properties:
-                  conditions:
-                    description: A list of conditions.
-                    items:
-                      $ref: '#/components/schemas/Condition'
-                    type: array
+            - description: Settings for waiting on a message event.
+              properties:
+                event:
+                  $ref: '#/components/schemas/WorkflowWaitForEventMessageEvent'
+                expires_after:
+                  anyOf:
+                    - $ref: '#/components/schemas/Duration'
+                    - nullable: true
+                      x-struct: null
+                      x-validate: null
+                  description: A duration object that describes how long to wait for a matching event before timing out.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                match_conditions:
+                  description: Required when waiting for a message event. A list of condition groups the incoming event must match to resolve the wait.
+                  items:
+                    properties:
+                      conditions:
+                        description: A list of conditions.
+                        items:
+                          $ref: '#/components/schemas/Condition'
+                        type: array
+                        x-struct: null
+                        x-validate: null
+                      operator:
+                        description: The operator used to join the conditions in the group.
+                        enum:
+                          - and
+                        example: and
+                        type: string
+                        x-struct: null
+                        x-validate: null
+                    type: object
                     x-struct: null
                     x-validate: null
-                  operator:
-                    description: The operator used to join the conditions in the group.
-                    enum:
-                      - and
-                    example: and
-                    type: string
+                  minItems: 1
+                  type: array
+                  x-struct: null
+                  x-validate: null
+                on_match:
+                  description: The action to take when a matching event is received.
+                  enum:
+                    - continue
+                    - halt
+                  example: continue
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                on_timeout:
+                  description: The action to take when the wait expires before a match.
+                  enum:
+                    - continue
+                    - halt
+                  example: halt
+                  type: string
+                  x-struct: null
+                  x-validate: null
+              required:
+                - event
+                - match_conditions
+              type: object
+              x-struct: null
+              x-validate: null
+            - description: Settings for waiting on a workflow event.
+              properties:
+                event:
+                  $ref: '#/components/schemas/WorkflowWaitForEventWorkflowEvent'
+                expires_after:
+                  anyOf:
+                    - $ref: '#/components/schemas/Duration'
+                    - nullable: true
+                      x-struct: null
+                      x-validate: null
+                  description: A duration object that describes how long to wait for a matching event before timing out.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                match_conditions:
+                  description: Required when waiting for a workflow event. A list of condition groups the incoming event must match to resolve the wait.
+                  items:
+                    properties:
+                      conditions:
+                        description: A list of conditions.
+                        items:
+                          $ref: '#/components/schemas/Condition'
+                        type: array
+                        x-struct: null
+                        x-validate: null
+                      operator:
+                        description: The operator used to join the conditions in the group.
+                        enum:
+                          - and
+                        example: and
+                        type: string
+                        x-struct: null
+                        x-validate: null
+                    type: object
                     x-struct: null
                     x-validate: null
-                type: object
-                x-struct: null
-                x-validate: null
-              type: array
+                  minItems: 1
+                  type: array
+                  x-struct: null
+                  x-validate: null
+                on_match:
+                  description: The action to take when a matching event is received.
+                  enum:
+                    - continue
+                    - halt
+                  example: continue
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                on_timeout:
+                  description: The action to take when the wait expires before a match.
+                  enum:
+                    - continue
+                    - halt
+                  example: halt
+                  type: string
+                  x-struct: null
+                  x-validate: null
+              required:
+                - event
+                - match_conditions
+              type: object
               x-struct: null
               x-validate: null
-            on_match:
-              description: The action to take when a matching event is received.
-              enum:
-                - continue
-                - halt
-              example: continue
-              type: string
+            - description: Settings for waiting on an audience membership event.
+              properties:
+                event:
+                  $ref: '#/components/schemas/WorkflowWaitForEventAudienceEvent'
+                expires_after:
+                  anyOf:
+                    - $ref: '#/components/schemas/Duration'
+                    - nullable: true
+                      x-struct: null
+                      x-validate: null
+                  description: A duration object that describes how long to wait for a matching event before timing out.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                match_conditions:
+                  description: A list of condition groups the incoming event must match to resolve the wait.
+                  items:
+                    properties:
+                      conditions:
+                        description: A list of conditions.
+                        items:
+                          $ref: '#/components/schemas/Condition'
+                        type: array
+                        x-struct: null
+                        x-validate: null
+                      operator:
+                        description: The operator used to join the conditions in the group.
+                        enum:
+                          - and
+                        example: and
+                        type: string
+                        x-struct: null
+                        x-validate: null
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  type: array
+                  x-struct: null
+                  x-validate: null
+                on_match:
+                  description: The action to take when a matching event is received.
+                  enum:
+                    - continue
+                    - halt
+                  example: continue
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                on_timeout:
+                  description: The action to take when the wait expires before a match.
+                  enum:
+                    - continue
+                    - halt
+                  example: halt
+                  type: string
+                  x-struct: null
+                  x-validate: null
+              required:
+                - event
+              type: object
               x-struct: null
               x-validate: null
-            on_timeout:
-              description: The action to take when the wait expires before a match.
-              enum:
-                - continue
-                - halt
-              example: halt
-              type: string
+            - description: Settings for waiting on a recipient change event.
+              properties:
+                event:
+                  $ref: '#/components/schemas/WorkflowWaitForEventRecipientEvent'
+                expires_after:
+                  anyOf:
+                    - $ref: '#/components/schemas/Duration'
+                    - nullable: true
+                      x-struct: null
+                      x-validate: null
+                  description: A duration object that describes how long to wait for a matching event before timing out.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                match_conditions:
+                  description: A list of condition groups the incoming event must match to resolve the wait.
+                  items:
+                    properties:
+                      conditions:
+                        description: A list of conditions.
+                        items:
+                          $ref: '#/components/schemas/Condition'
+                        type: array
+                        x-struct: null
+                        x-validate: null
+                      operator:
+                        description: The operator used to join the conditions in the group.
+                        enum:
+                          - and
+                        example: and
+                        type: string
+                        x-struct: null
+                        x-validate: null
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  type: array
+                  x-struct: null
+                  x-validate: null
+                on_match:
+                  description: The action to take when a matching event is received.
+                  enum:
+                    - continue
+                    - halt
+                  example: continue
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                on_timeout:
+                  description: The action to take when the wait expires before a match.
+                  enum:
+                    - continue
+                    - halt
+                  example: halt
+                  type: string
+                  x-struct: null
+                  x-validate: null
+              required:
+                - event
+              type: object
               x-struct: null
               x-validate: null
-          required:
-            - event
-          type: object
           x-struct: null
           x-validate: null
         type:
