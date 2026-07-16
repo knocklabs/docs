@@ -62,6 +62,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/delete", title: "Delete branches" },
       { slug: "/switch", title: "Switch to a branch" },
       { slug: "/exit", title: "Exit a branch" },
+      { slug: "/rebase", title: "Rebase branch" },
       { slug: "/merge", title: "Merge branch" },
     ],
   },

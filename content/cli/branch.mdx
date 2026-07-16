@@ -143,6 +143,55 @@ knock branch exit
 </ExampleColumn>
 </Section>
 
+<Section title="knock branch rebase <branch_name> [flags]" path="/branch/rebase">
+<ContentColumn>
+
+Rebases a branch onto the development environment (`main`), bringing in the latest changes from `main` while preserving your branch's commits. See [Rebase a branch](/version-control/branches#rebase-a-branch) for how rebasing works, including resource-level behavior and prerequisites.
+
+The command prompts for confirmation before rebasing. Branch slugs are normalized automatically (for example, `Mixed Case` becomes `mixed-case`).
+
+On success, the command prints the rebased branch slug and its `updated_at` timestamp. With `--json`, it returns the updated branch object.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Rebase the branch without confirmation."
+  />
+  <Attribute
+    name="--json"
+    type="boolean"
+    description="Format output as json."
+  />
+</Attributes>
+
+### Errors
+
+The command surfaces API errors from the Management API, including:
+
+- **`branch_rebase_blocked`**. You have unpublished changes on shared resources where `main` has moved ahead. Commit or discard the blocking drafts and try again. The error message lists the affected resources.
+- **`branch_not_found`**. The branch slug does not exist in your project.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Rebase a branch"
+knock branch rebase my-branch
+```
+
+```bash title="Rebase a branch without confirmation"
+knock branch rebase my-branch --force
+```
+
+```bash title="Rebase a branch with JSON output"
+knock branch rebase my-branch --force --json
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock branch merge <branch_name> [flags]" path="/branch/merge">
 <ContentColumn>
 
