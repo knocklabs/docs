@@ -3505,31 +3505,6 @@ components:
       type: object
       x-struct: null
       x-validate: null
-    ListPreferenceCenterPreferenceSetsResponse:
-      description: A list of preference sets for the user.
-      example:
-        - categories:
-            marketing: false
-            transactional:
-              channel_types:
-                email: false
-          channel_types:
-            email: true
-            push: false
-            sms:
-              conditions:
-                - argument: US
-                  operator: equal_to
-                  variable: recipient.country_code
-          commercial_subscribed: true
-          id: default
-          workflows: null
-      items:
-        $ref: '#/components/schemas/PreferenceSet'
-      title: ListPreferenceCenterPreferenceSetsResponse
-      type: array
-      x-struct: null
-      x-validate: null
     AuthenticationError:
       description: Authentication error response
       example:
@@ -8179,7 +8154,7 @@ paths:
             x-validate: null
         - description: Associated resources to include in the response.
           in: query
-          name: include[]
+          name: include
           required: false
           schema:
             items:
@@ -8540,7 +8515,7 @@ paths:
           example:
             - delivered
           in: query
-          name: status[]
+          name: status
           required: false
           schema:
             items:
@@ -8562,7 +8537,7 @@ paths:
           example:
             - unread
           in: query
-          name: engagement_status[]
+          name: engagement_status
           required: false
           schema:
             items:
@@ -8585,7 +8560,7 @@ paths:
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           in: query
-          name: message_ids[]
+          name: message_ids
           required: false
           schema:
             items:
@@ -8599,7 +8574,7 @@ paths:
           example:
             - workflow_123
           in: query
-          name: workflow_categories[]
+          name: workflow_categories
           required: false
           schema:
             items:
@@ -9177,7 +9152,7 @@ paths:
           example:
             - delivered
           in: query
-          name: status[]
+          name: status
           required: false
           schema:
             items:
@@ -9199,7 +9174,7 @@ paths:
           example:
             - unread
           in: query
-          name: engagement_status[]
+          name: engagement_status
           required: false
           schema:
             items:
@@ -9222,7 +9197,7 @@ paths:
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           in: query
-          name: message_ids[]
+          name: message_ids
           required: false
           schema:
             items:
@@ -9236,7 +9211,7 @@ paths:
           example:
             - workflow_123
           in: query
-          name: workflow_categories[]
+          name: workflow_categories
           required: false
           schema:
             items:
@@ -9930,46 +9905,6 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
-  /v1/preference_center/preferences:
-    get:
-      callbacks: {}
-      description: Lists all preference sets for the token holder.
-      operationId: listPreferenceCenterPreferenceSets
-      parameters: []
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                description: A list of preference sets for the user.
-                example:
-                  - categories:
-                      marketing: false
-                      transactional:
-                        channel_types:
-                          email: false
-                    channel_types:
-                      email: true
-                      push: false
-                      sms:
-                        conditions:
-                          - argument: US
-                            operator: equal_to
-                            variable: recipient.country_code
-                    commercial_subscribed: true
-                    id: default
-                    workflows: null
-                items:
-                  $ref: '#/components/schemas/PreferenceSet'
-                title: ListPreferenceCenterPreferenceSetsResponse
-                type: array
-                x-struct: null
-                x-validate: null
-          description: OK
-      summary: List preference center preference sets
-      tags:
-        - Preference center
-      x-ratelimit-tier: 4
   /v1/users/{user_id}/preferences/{id}/categories/{key}:
     put:
       callbacks: {}
@@ -10848,7 +10783,7 @@ paths:
           example:
             - delivered
           in: query
-          name: status[]
+          name: status
           required: false
           schema:
             items:
@@ -10870,7 +10805,7 @@ paths:
           example:
             - unread
           in: query
-          name: engagement_status[]
+          name: engagement_status
           required: false
           schema:
             items:
@@ -10893,7 +10828,7 @@ paths:
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           in: query
-          name: message_ids[]
+          name: message_ids
           required: false
           schema:
             items:
@@ -10907,7 +10842,7 @@ paths:
           example:
             - workflow_123
           in: query
-          name: workflow_categories[]
+          name: workflow_categories
           required: false
           schema:
             items:
@@ -11339,7 +11274,7 @@ paths:
           example:
             - my_workflow_category
           in: query
-          name: workflow_categories[]
+          name: workflow_categories
           required: false
           schema:
             items:
@@ -12112,7 +12047,7 @@ paths:
             x-validate: null
         - description: Includes preferences of the objects in the response.
           in: query
-          name: include[]
+          name: include
           required: false
           schema:
             items:
@@ -12200,7 +12135,7 @@ paths:
       parameters:
         - description: Associated resources to include in the response.
           in: query
-          name: include[]
+          name: include
           required: false
           schema:
             items:
@@ -13813,7 +13748,7 @@ paths:
       parameters:
         - description: The IDs of the tenants to delete.
           in: query
-          name: tenant_ids[]
+          name: tenant_ids
           required: true
           schema:
             items:
@@ -14914,7 +14849,7 @@ paths:
             x-validate: null
         - description: Additional fields to include in the response.
           in: query
-          name: include[]
+          name: include
           required: false
           schema:
             items:
@@ -15418,6 +15353,32 @@ paths:
           message = knock.messages.mark_as_read("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
+  /v1/users/{user_id}/preference_center/config:
+    get:
+      callbacks: {}
+      description: Returns the preference center config with environment metadata for the given user.
+      operationId: getPreferenceCenterConfig
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceCenterConfigWithMetadata'
+          description: OK
+      summary: Get preference center config
+      tags:
+        - Users
+        - Preference center
+      x-ratelimit-tier: 4
   /v1/users/{user_id}/channel_data/{channel_id}:
     delete:
       callbacks: {}
@@ -16771,23 +16732,6 @@ paths:
           )
 
           puts(response)
-  /v1/preference_center/config:
-    get:
-      callbacks: {}
-      description: Returns the preference center config with environment metadata for the token holder.
-      operationId: getPreferenceCenterConfig
-      parameters: []
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceCenterConfigWithMetadata'
-          description: OK
-      summary: Get preference center config
-      tags:
-        - Preference center
-      x-ratelimit-tier: 4
   /v1/objects/{collection}/bulk/set:
     post:
       callbacks: {}
@@ -18251,7 +18195,7 @@ paths:
             x-validate: null
         - description: Limits the results to workflow recipient runs with the given status.
           in: query
-          name: status[]
+          name: status
           required: false
           schema:
             items:
@@ -18888,7 +18832,7 @@ paths:
       parameters:
         - description: The IDs of the messages to fetch contents of.
           in: query
-          name: message_ids[]
+          name: message_ids
           required: true
           schema:
             items:
@@ -18977,60 +18921,6 @@ paths:
           response = knock.messages.batch.get_content(message_ids: ["string"])
 
           puts(response)
-  /v1/preference_center/preferences/{id}:
-    put:
-      callbacks: {}
-      description: Updates a preference set for the token holder, merging the given preferences with the existing set.
-      operationId: upsertPreferenceCenterPreferenceSet
-      parameters:
-        - description: Unique identifier for the preference set.
-          example: default
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
-      requestBody:
-        content:
-          application/json:
-            example:
-              __persistence_strategy__: merge
-              categories:
-                marketing: false
-                transactional:
-                  channel_types:
-                    email: false
-              channel_types:
-                email: true
-              channels:
-                2f641633-95d3-4555-9222-9f1eb7888a80:
-                  conditions:
-                    - argument: US
-                      operator: equal_to
-                      variable: recipient.country_code
-                aef6e715-df82-4ab6-b61e-b743e249f7b6: true
-              commercial_subscribed: true
-              workflows:
-                dinosaurs-loose:
-                  channel_types:
-                    email: false
-            schema:
-              $ref: '#/components/schemas/PreferenceSetRequest'
-        description: Params
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update preference center preference set
-      tags:
-        - Preference center
-      x-ratelimit-tier: 3
   /v1/messages/{message_id}/delivery_logs:
     get:
       callbacks: {}
