@@ -7,7 +7,7 @@ section: Managing recipients
 
 Some channel integrations require user and channel-specific data to send notifications. Push channels like APNs (Apple Push Notification Service) and FCM (Firebase Cloud Messaging) are good examples, where both require that there are device-specific tokens that target the user in a push notification. Slack is another good example, where the channel data from a Slack integration in your product is stored on a Knock [object](/concepts/objects).
 
-At Knock we call this concept <a href="/api-reference/recipients/channel_data">`ChannelData`</a>. `ChannelData` lives under a [user](/concepts/users) or an [object](/concepts/objects) and stores channel-specific data to be used when that user or object is included as a recipient on a [triggered workflow](/send-notifications/triggering-workflows).
+At Knock we call this concept <a href="/api-reference/recipients/channel_data">`ChannelData`</a>. For most channels, `ChannelData` lives under a [user](/concepts/users) or an [object](/concepts/objects) and stores channel-specific data to be used when that user or object is included as a recipient on a [triggered workflow](/send-notifications/triggering-workflows). For chat providers that support tenant-stored credentials, `ChannelData` can also live on a [tenant](/multi-tenancy/overview) to provide shared auth while the recipient stores the destination.
 
 ## Things to know about channel data
 
@@ -217,11 +217,11 @@ The `PushDevice` object is used to optionally set device-level metadata for a pu
     If you're using standard Slack OAuth with access token scopes, your `SlackConnection` schema looks like this. You'll use
     either a `channel_id` or `user_id` depending on whether you're storing connection data to message a channel or user in Slack:
 
-    | Property     | Type     | Description        |
-    | ------------ | -------- | ------------------ |
-    | access_token | `string` | A bot access token |
-    | channel_id   | `string` | A Slack channel ID |
-    | user_id      | `string` | A Slack user ID    |
+    | Property     | Type     | Description                                                                                                                            |
+    | ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+    | access_token | `string` | A bot access token. Not required when the token is [stored on a tenant](/integrations/chat/slack/overview#tenant-channel-data-requirements). |
+    | channel_id   | `string` | A Slack channel ID                                                                                                                    |
+    | user_id      | `string` | A Slack user ID                                                                                                                       |
 
     If you're using a Slack app with the `incoming-webhook` scope your `SlackConnection` schema is quite simple:
 

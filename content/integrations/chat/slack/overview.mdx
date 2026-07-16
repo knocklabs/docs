@@ -169,6 +169,15 @@ Here's an example of setting channel data on an `Object` in Knock.
   }
 />
 
+### How Slack delivery works
+
+Every Slack notification needs two things, and Knock lets them live in different places:
+
+- **Auth** — permission to post: either a bot **access token** (`xoxb-…`) from Slack's OAuth flow, or a self-contained **incoming webhook URL**. A bot token authorizes exactly one Slack workspace.
+- **Destination** — where the message goes: a `channel_id` (a channel) or a `user_id` (a direct message).
+
+The **destination** is stored on the recipient (a [`User`](/concepts/users) or [`Object`](/concepts/objects)). The **auth** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares a single connection. The two sections below cover each location.
+
 ### Recipient channel data requirements
 
 Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook or an access token Slack connection. Both will need to live under the `connections` key.
@@ -229,7 +238,9 @@ Here's an overview of the data requirements for [setting recipient channel data]
 
 ### Tenant channel data requirements
 
-When you [map a Slack workspace to a tenant](/integrations/chat/slack/sending-a-message-to-channels#key-concepts) in Knock (as our [SlackKit](/in-app-ui/react/slack-kit) components do), you'll store the access token for that workspace as `channel_data` on the tenant. Then, when you apply the `tenant` to your workflow triggers Knock will [combine that access token with the recipient's](/integrations/chat/slack/sending-a-message-to-channels#merging-channel-data) `channel_data` to send notifications to the correct Slack workspace and channel. For this implementation method, the `access_token` on the recipient's `SlackConnection[]` data above is not required.
+When you [map a Slack workspace to a tenant](/integrations/chat/slack/sending-a-message-to-channels#key-concepts) in Knock (as our [SlackKit](/in-app-ui/react/slack-kit) components do), you store that workspace's access token as `channel_data` on the tenant. At send time, when you trigger a workflow with that `tenant`, Knock takes the [destination](#how-slack-delivery-works) from the recipient's `channel_data` (the `channel_id` or `user_id`) and uses the tenant's access token for auth: the tenant provides the auth, the recipient provides the destination. If the recipient also carries an `access_token`, the tenant's takes precedence — so the `access_token` on the recipient's `SlackConnection[]` above is not required when a tenant holds one.
+
+**Do you need a tenant?** Store the token on a tenant when one Slack workspace connection should serve every recipient or object in that tenant. This keeps the workspace access token in one place while each recipient or object stores only its Slack destination (`channel_id` or `user_id`), which is useful as you add more destinations in the same workspace later. You don't need a tenant if you post to a single internal workspace (use an incoming webhook — there's no token to share) or only ever use one workspace's token and prefer to store it directly on each recipient or object. Knock never auto-creates a tenant for you (though SlackKit can, on the fly), so use one when shared workspace auth should live at the tenant level.
 
 Here's an overview of the data requirements for setting channel data when storing an access token on a tenant.
 
