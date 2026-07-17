@@ -44,7 +44,7 @@ When building a dynamic audience, you will see a real-time preview of the audien
 Changes to dynamic audience are [versioned](/version-control/commits) and [promoted](/version-control/commits#promoting-commits) to environments. These changes must be made in your environment's `main` [branch](/version-control/branches).
 
 <Callout
-  type="info"
+  type="roadmap"
   title="Additional filtering capabilities are coming soon."
   text={
     <>
@@ -74,7 +74,20 @@ Audiences integrate with workflows in two key ways. You can configure a workflow
 
 ## Audiences and tenants
 
-When adding users to static audience you can optionally include a tenant ID to power per-user, per-tenant workflows. A user can exist in an audience with multiple distinct tenants. Currently, tenant targeting is only supported for static audiences, but support for dynamic audiences is coming soon.
+<Callout
+  type="roadmap"
+  title="Tenant targeting is only supported for static audiences."
+  text={
+    <>
+      Currently, tenant targeting is only supported for static audiences, but
+      support for dynamic audiences is coming soon.
+    </>
+  }
+/>
+
+When adding users to static audience you can optionally include a tenant ID to power per-user, per-tenant notifications. When uploading an audience via CSV, the column that contains your tenant IDs should be mapped to the Knock field `tenant_id`.
+
+A user can exist in an audience with multiple distinct tenants:
 
 <Image
   src="/images/concepts/audiences/audience-member-with-multiple-tenant-ids.png"
@@ -84,9 +97,16 @@ When adding users to static audience you can optionally include a tenant ID to p
   className="rounded-md border border-gray-200"
 />
 
-When a workflow triggers from an audience entry event, the tenant ID provided for the member will be passed along to the workflow trigger. If no tenant ID is provided in the API request, the workflow will run with no tenant data. If the same user is added with multiple distinct tenants, the workflow will trigger each time by default. To configure this behavior use [trigger frequency](/send-notifications/triggering-workflows#controlling-workflow-trigger-frequency) controls.
+When a tenant is provided as part of a user's audience membership record, it will be passed as the `tenant` context on any broadcast or workflow runs that are triggered for that audience:
 
-Tenancy is also taken into account when checking audience membership. For a recipient to be considered a member of an audience during workflow execution, the tenant ID provided with the trigger data must match the user’s audience membership record. If no tenant ID was provided with the trigger, the user must have been added to the audience with no tenant ID.
+- For broadcasts, tenants that are mapped in your audience are included when the broadcast is sent. If a user is included in the audience with multiple distinct tenants, the broadcast will be sent once per tenant.
+- For workflows that are triggered from an audience entry event, the tenant ID provided for the member will be passed along to the workflow trigger. If the same user is added with multiple distinct tenants, the workflow will trigger each time by default. To configure this behavior use [trigger frequency](/send-notifications/triggering-workflows#controlling-workflow-trigger-frequency) controls.
+
+These runs will respect any tenant-specific [preferences](/multi-tenancy/per-tenant-preferences), [branding](/multi-tenancy/per-tenant-branding), and [translations](/multi-tenancy/per-tenant-translations) that have been configured for the tenant and recipient.
+
+### Conditional evaluation
+
+Tenancy is also taken into account when [audience membership conditions](/concepts/conditions#condition-types) are evaluated. For a recipient to be considered a member of an audience when a condition is evaluated, the `tenant` ID provided as context on the current broadcast or workflow run must match the user’s audience membership record. If no tenant ID was provided with the trigger, the user must have been added to the audience with no tenant ID.
 
 For more information about how audience membership is evaluated for guides eligibility, see the [guides documentation](/in-app-ui/guides/overview#working-with-tenants).
 
