@@ -25,6 +25,7 @@ import {
 import { getSidebarContent } from "../components/ui/ApiReference/helpers";
 
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
+import { convertMdxForLlm } from "../lib/mdxToLlmMarkdown";
 import {
   MAPI_REFERENCE_OVERVIEW_CONTENT,
   RESOURCE_ORDER as MAPI_RESOURCE_ORDER,
@@ -115,10 +116,17 @@ async function getMarkdownContent(slug) {
     if (fs.existsSync(markdownPath)) {
       const content = fs.readFileSync(markdownPath, "utf-8");
       const frontmatter = await parseFrontmatter(content);
+      // Resolve <Typedoc> references and convert <Attributes> components to
+      // markdown so pages built from typed components copy as real content
+      // rather than an unresolved component tag.
+      const llmContent = convertMdxForLlm(
+        content,
+        path.join(process.cwd(), "typedocs"),
+      );
       return {
         ...frontmatter,
         description: frontmatter?.description || "",
-        fullContent: content,
+        fullContent: llmContent,
       };
     } else {
       const noErrorPaths = ["/api-reference", "/mapi-reference", "/cli"];
