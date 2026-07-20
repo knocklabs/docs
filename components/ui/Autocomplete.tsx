@@ -741,7 +741,6 @@ const Autocomplete = () => {
                 variant="ghost"
                 size="1"
                 color="default"
-                iconOnly={true}
                 icon={{
                   icon: X,
                   alt: "Clear",

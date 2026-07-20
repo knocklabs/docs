@@ -750,7 +750,6 @@ function AskAiSidebar() {
           <Button
             variant="ghost"
             size="1"
-            iconOnly
             icon={{
               icon: X,
               "aria-hidden": true,
