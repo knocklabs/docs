@@ -174,7 +174,6 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
     variant="ghost"
     size="0"
     color="gray"
-    weight="light"
     px="1"
     mt="2"
     style={{

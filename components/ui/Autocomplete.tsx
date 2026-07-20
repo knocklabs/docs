@@ -745,7 +745,6 @@ const Autocomplete = () => {
                   icon: X,
                   alt: "Clear",
                   color: "gray",
-                  "aria-hidden": true,
                 }}
                 onClick={() => {
                   autocomplete.setQuery("");
