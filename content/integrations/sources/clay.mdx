@@ -29,41 +29,30 @@ This means the signing secret you configure in Knock must match the token you se
 <Steps>
   <Step title="Create the source in Knock">
     Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
-    you're in the correct environment. Select the
-    **Clay** template as the source type.
-
-    <Image
-      src="/images/integrations/sources/sources-location.png"
-      alt="The Sources page in the Knock dashboard"
-      width={2912}
-      height={1448}
-    />
-
+    you're in the correct environment. Select the **Clay** template as the
+    source type.
   </Step>
   <Step title="Select default action mappings">
-    Once you've selected **Clay** as a source, you can review the default action mappings. The default identifies a Knock user from a `lead.enriched` event using `body.email` as the user ID and maps common contact fields (`full_name`, `email`, `phone_number`, `avatar_url`) into the identify payload, plus the full row as `properties`. These are helpful defaults to get you started, but Knock can ingest any event you POST from Clay and you can adjust your mappings at any time. Click the **Connect Clay** button to continue.
-
-    <Image
-      src="/images/integrations/sources/clay/configure-default-mappings.png"
-      alt="The Clay source creation modal showing default action mappings for incoming events"
-      width={2976}
-      height={1648}
-    />
-
+    Once you've selected **Clay** as a source, you can review the default action
+    mappings. The default identifies a Knock user from a `lead.enriched` event
+    using `body.email` as the user ID and maps common contact fields
+    (`full_name`, `email`, `phone_number`, `avatar_url`) into the identify
+    payload, plus the full row as `properties`. These are helpful defaults to
+    get you started, but Knock can ingest any event you POST from Clay and you
+    can adjust your mappings at any time. Click the **Connect Clay** button to
+    continue.
   </Step>
   <Step title="Copy the source URL">
-    After creating the source, copy the event ingestion URL from the setup wizard for the environment you want to configure. You will paste this URL into the HTTP API enrichment column in Clay as the POST destination.
-
-    <Image
-      src="/images/integrations/sources/clay/copy-source-url.png"
-      alt="The Clay source setup wizard showing the event ingestion URL to copy"
-      width={2974}
-      height={1660}
-    />
-
+    After creating the source, copy the event ingestion URL from the setup
+    wizard for the environment you want to configure. You will paste this URL
+    into the HTTP API enrichment column in Clay as the POST destination.
   </Step>
   <Step title="Set a signing secret in Knock">
-    Generate a strong random string to use as your shared secret (for example, with `openssl rand -hex 32`) and paste it into the **Signing secret** field in your Knock source environment configuration. You will send this same value as a Bearer token in the `Authorization` header from Clay in the next steps.
+    Generate a strong random string to use as your shared secret (for example,
+    with `openssl rand -hex 32`) and paste it into the **Signing secret** field
+    in your Knock source environment configuration. You will send this same
+    value as a Bearer token in the `Authorization` header from Clay in the next
+    steps.
   </Step>
 </Steps>
 
@@ -124,8 +113,8 @@ Once configured, every time the HTTP API enrichment column runs on a row, Clay P
 
 Your HTTP API enrichment column can send any event name in `body.event`, so the event types you POST to Knock are up to you. The default action mapping below identifies enriched leads as Knock users; add additional mappings for any other event names you decide to send.
 
-| Event type       | Action        | Description                                                                       |
-| ---------------- | ------------- | --------------------------------------------------------------------------------- |
+| Event type      | Action        | Description                                                                  |
+| --------------- | ------------- | ---------------------------------------------------------------------------- |
 | `lead.enriched` | Identify user | Identifies a user in Knock from an enriched Clay row, keyed off `body.email` |
 
 The default identify mapping uses `body.email` as the Knock user ID and maps `body.full_name`, `body.email`, `body.phone_number`, and `body.avatar_url` to the corresponding user fields. The full row is sent as `properties`, so any additional columns you include in the request body (job title, company domain, ICP score, and so on) are stored on the Knock user and available in your templates.
@@ -134,11 +123,11 @@ The default identify mapping uses `body.email` as the Knock user ID and maps `bo
 
 Clay tables run a wide range of enrichment and research workflows. Common events worth adding as custom mappings:
 
-| Event type           | Typical action                       | Description                                                                  |
-| -------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
-| `account.enriched`   | Identify [object](/concepts/objects) | Sync an enriched company or account as a Knock object                        |
-| `lead.high_intent`   | Trigger a `new-high-intent-lead` workflow | Notify your sales team when an enriched row crosses an ICP or intent threshold |
-| `contact.updated`    | Identify user                        | Re-identify a user when Clay re-runs enrichment on an existing contact       |
+| Event type         | Typical action                            | Description                                                                    |
+| ------------------ | ----------------------------------------- | ------------------------------------------------------------------------------ |
+| `account.enriched` | Identify [object](/concepts/objects)      | Sync an enriched company or account as a Knock object                          |
+| `lead.high_intent` | Trigger a `new-high-intent-lead` workflow | Notify your sales team when an enriched row crosses an ICP or intent threshold |
+| `contact.updated`  | Identify user                             | Re-identify a user when Clay re-runs enrichment on an existing contact         |
 
 For each new event you send from Clay, add a corresponding mapping in the Knock source environment so the event is routed to the right action.
 
