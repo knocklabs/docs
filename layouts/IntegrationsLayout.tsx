@@ -5,13 +5,13 @@ import {
   parentSection,
 } from "../data/sidebars/integrationsSidebar";
 import Meta from "../components/Meta";
-import { getSidebarInfo, slugToPaths } from "../lib/content";
+import { getPathsFromRouter, getSidebarInfo } from "../lib/content";
 import { Page } from "@/components/ui/Page";
 import { useScrollToTop } from "../hooks/useScrollToTop";
 
 const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
-  let paths = slugToPaths(router.query.slug);
+  const paths = getPathsFromRouter(router);
 
   useScrollToTop(paths);
 

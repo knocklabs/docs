@@ -16,7 +16,7 @@ import {
   type SdkSpecificContent,
 } from "../data/sidebars/inAppSidebar";
 import Meta from "../components/Meta";
-import { getInAppSidebar, slugToPaths } from "../lib/content";
+import { getInAppSidebar, getPathsFromRouter } from "../lib/content";
 import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
 import { Select } from "@telegraph/select";
@@ -140,7 +140,7 @@ const InAppSidebar = ({
 
 const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
-  const paths = slugToPaths(router.query.slug);
+  const paths = getPathsFromRouter(router);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
@@ -154,7 +154,6 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const selectedSdkContent = languageMap[selectedSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
-  // @ts-expect-error we do get these, need to come back to breadcrumbs
   const { breadcrumbs, nextPage, prevPage } = useMemo(
     () => getInAppSidebar(paths, allSidebarContent, selectedSdkContent),
     [paths, allSidebarContent, selectedSdkContent],

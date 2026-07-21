@@ -12,6 +12,23 @@ export const slugToPaths = (slug: string | string[] | undefined): string[] => {
   }
 };
 
+// Converts a Next.js asPath (e.g. "/concepts/workflows?x=1#hash") to path segments
+export const asPathToPaths = (asPath: string): string[] =>
+  asPath.split("#")[0].split("?")[0].split("/").filter(Boolean);
+
+// Prefer router.query.slug when present; fall back to asPath when query is not
+// ready yet (common on the first client render of statically generated pages).
+export const getPathsFromRouter = (router: {
+  query: { slug?: string | string[] };
+  asPath: string;
+}): string[] => {
+  const fromQuery = slugToPaths(router.query.slug);
+  if (fromQuery.length > 0) {
+    return fromQuery;
+  }
+  return asPathToPaths(router.asPath);
+};
+
 // TODO: Make this generic. This is a hack right now and it won't work for arbitrary paths.
 export function getInAppSidebar(
   paths: string[],
@@ -21,6 +38,10 @@ export function getInAppSidebar(
   if (!paths.includes(selectedSdkContent.value)) {
     return getSidebarInfo(paths, allSidebarContent);
   }
+
+  // Resolve adjacent pages from the full sidebar so SDK-specific pages get
+  // next/previous navigation as well as breadcrumbs.
+  const { prevPage, nextPage } = getSidebarInfo(paths, allSidebarContent);
 
   // Get the deepest page that matches the paths
   const { section, page } = depthFirstSidebarInfo(paths, allSidebarContent);
@@ -50,6 +71,8 @@ export function getInAppSidebar(
           ]
         : []),
     ],
+    prevPage,
+    nextPage,
   };
 }
 
@@ -187,12 +210,17 @@ export const getSidebarInfo = (
     (page) => page.path === `/${paths.join("/")}`,
   );
 
-  if (flatIndex > 0) {
-    prevPage = flatSidebar[flatIndex - 1];
-  }
+  // flatIndex is -1 when the current path is not in the sidebar (including when
+  // paths is empty because router.query is not ready). Guard against treating
+  // -1 as a valid index, which would incorrectly set nextPage to the first item.
+  if (flatIndex >= 0) {
+    if (flatIndex > 0) {
+      prevPage = flatSidebar[flatIndex - 1];
+    }
 
-  if (flatIndex < flatSidebar.length - 1) {
-    nextPage = flatSidebar[flatIndex + 1];
+    if (flatIndex < flatSidebar.length - 1) {
+      nextPage = flatSidebar[flatIndex + 1];
+    }
   }
 
   return {
