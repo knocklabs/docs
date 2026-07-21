@@ -86,7 +86,6 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
         <Popover.Trigger asChild>
           <Button
             variant="ghost"
-            onClick={() => setIsOpen(true)}
             color="gray"
             icon={{
               icon: MessageCircleMore,
@@ -97,8 +96,11 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
             Send feedback
           </Button>
         </Popover.Trigger>
-        <Popover.Content style={{ padding: "0" }}>
-          <Box style={{ width: "500px", maxWidth: "95vw" }}>
+        <Popover.Content
+          initialFocus={textAreaRef}
+          style={{ padding: "0", width: "500px", maxWidth: "95vw" }}
+        >
+          <Box>
             <Box p="4" position="relative">
               <Button
                 position="absolute"
@@ -117,39 +119,20 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
               </Heading>
             </Box>
             <Box>
-              <SegmentedControl.Root
-                name="feedback-category"
-                value={feedbackEmoji}
-                onValueChange={setFeedbackEmoji}
-                p="0"
-                gap="0"
-                borderRadius="0"
-                borderLeft="0"
-                borderRight="0"
-                borderBottom="px"
-              >
-                {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji, index) => {
-                  // Flatten corners on the sides
-                  const borderRadiusAdjustments =
-                    index === 0
-                      ? "0 var(--tgph-rounded-2) var(--tgph-rounded-2) 0"
-                      : index === FEEDBACK_CATEGORIES.size - 1
-                      ? "var(--tgph-rounded-2) 0 0 var(--tgph-rounded-2)"
-                      : "";
-                  return (
-                    <SegmentedControl.Option
-                      key={emoji}
-                      value={emoji}
-                      size="2"
-                      style={{
-                        borderRadius: borderRadiusAdjustments,
-                      }}
-                    >
+              <Box px="4" pb="2">
+                <SegmentedControl.Root
+                  name="feedback-category"
+                  value={feedbackEmoji}
+                  onValueChange={setFeedbackEmoji}
+                  w="full"
+                >
+                  {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
+                    <SegmentedControl.Option key={emoji} value={emoji} size="2">
                       {emoji}
                     </SegmentedControl.Option>
-                  );
-                })}
-              </SegmentedControl.Root>
+                  ))}
+                </SegmentedControl.Root>
+              </Box>
               <Box as="form" onSubmit={(e) => handleSubmit(e)} p="4">
                 <Stack w="full" gap="4" flexDirection="column">
                   <Box>
@@ -168,12 +151,12 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
                     </Text>
                     <TextArea
                       as="textarea"
-                      autoFocus
                       value={feedbackBody}
                       onChange={(e) => setFeedbackBody(e.target.value)}
                       ref={textAreaRef}
                       placeholder="Help us improve this page."
-                      style={{ resize: "vertical" }}
+                      rows={4}
+                      style={{ resize: "none" }}
                       w="full"
                     />
                   </Box>

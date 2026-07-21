@@ -209,8 +209,8 @@ function ApiReferenceMethod({
                       key={`response-status-${index}`}
                       as="span"
                       size="1"
-                      pl="0"
                       weight="semi-bold"
+                      variant="ghost"
                     >
                       {formattedStatus}
                     </Code>

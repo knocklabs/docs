@@ -35,7 +35,7 @@ const Container = ({ children }) => {
 };
 
 const Name = ({ children }) => (
-  <Code as="span" size="1" pl="0" weight="semi-bold">
+  <Code as="span" size="1" weight="semi-bold" variant="ghost">
     {children}
   </Code>
 );
@@ -142,7 +142,13 @@ const Description = ({ children }: { children: string }) => (
         ...MDX_COMPONENTS,
         // override code elements with this style
         code: ({ children }) => (
-          <Code as="code" bg="gray-2" borderRadius="2" color="gray">
+          <Code
+            as="code"
+            bg="gray-2"
+            borderRadius="2"
+            color="gray"
+            borderColor="transparent"
+          >
             {children}
           </Code>
         ),
@@ -160,9 +166,8 @@ const Required = () => (
     size="0"
     color="red"
     px="1"
-    borderRadius="2"
     weight="regular"
-    bg="transparent"
+    variant="ghost"
   >
     Required
   </Code>
@@ -174,7 +179,6 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
     variant="ghost"
     size="0"
     color="gray"
-    weight="light"
     px="1"
     mt="2"
     style={{

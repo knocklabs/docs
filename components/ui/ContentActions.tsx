@@ -70,7 +70,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
             }}
             py="4"
             style={{
-              borderRadius: "var(--tgph-radius-2) var(--tgph-radius-2) 0 0",
+              borderRadius: "var(--tgph-rounded-2) var(--tgph-rounded-2) 0 0",
             }}
           >
             {isCopied ? "Copied!" : "Copy as Markdown"}
@@ -86,7 +86,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
             rel="noopener noreferrer"
             py="4"
             style={{
-              borderRadius: "0 0 var(--tgph-radius-2) var(--tgph-radius-2)",
+              borderRadius: "0 0 var(--tgph-rounded-2) var(--tgph-rounded-2)",
             }}
           >
             View as Markdown
