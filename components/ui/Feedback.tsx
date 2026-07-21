@@ -96,8 +96,11 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
             Send feedback
           </Button>
         </Popover.Trigger>
-        <Popover.Content style={{ padding: "0" }} initialFocus={textAreaRef}>
-          <Box style={{ width: "500px", maxWidth: "95vw" }}>
+        <Popover.Content
+          initialFocus={textAreaRef}
+          style={{ padding: "0", width: "500px", maxWidth: "95vw" }}
+        >
+          <Box>
             <Box p="4" position="relative">
               <Button
                 position="absolute"
@@ -152,7 +155,8 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
                       onChange={(e) => setFeedbackBody(e.target.value)}
                       ref={textAreaRef}
                       placeholder="Help us improve this page."
-                      style={{ resize: "vertical" }}
+                      rows={4}
+                      style={{ resize: "none" }}
                       w="full"
                     />
                   </Box>
