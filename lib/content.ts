@@ -1,17 +1,6 @@
 import { SdkSpecificContent } from "@/data/sidebars/inAppSidebar";
 import { SidebarContent, SidebarPage, SidebarSection } from "../data/types";
 
-// Converts a Next.js router slug to a paths array
-export const slugToPaths = (slug: string | string[] | undefined): string[] => {
-  if (!slug) {
-    return [];
-  } else if (typeof slug == "string") {
-    return [slug];
-  } else {
-    return slug;
-  }
-};
-
 // Converts a Next.js asPath (e.g. "/concepts/workflows?x=1#hash") to path segments
 export const asPathToPaths = (asPath: string): string[] =>
   asPath.split("#")[0].split("?")[0].split("/").filter(Boolean);
