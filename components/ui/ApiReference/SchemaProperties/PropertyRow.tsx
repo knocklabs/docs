@@ -35,7 +35,7 @@ const Container = ({ children }) => {
 };
 
 const Name = ({ children }) => (
-  <Code as="span" size="1" pl="0" weight="semi-bold">
+  <Code as="span" size="1" pl="0" weight="semi-bold" bg="transparent">
     {children}
   </Code>
 );
