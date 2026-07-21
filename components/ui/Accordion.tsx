@@ -112,6 +112,7 @@ const Accordion = ({
                       key={index}
                       as="code"
                       backgroundColor="gray-2"
+                      borderColor="transparent"
                       data-tgph-code
                       style={{
                         fontSize: "inherit",

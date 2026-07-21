@@ -142,7 +142,13 @@ const Description = ({ children }: { children: string }) => (
         ...MDX_COMPONENTS,
         // override code elements with this style
         code: ({ children }) => (
-          <Code as="code" bg="gray-2" borderRadius="2" color="gray">
+          <Code
+            as="code"
+            bg="gray-2"
+            borderRadius="2"
+            color="gray"
+            borderColor="transparent"
+          >
             {children}
           </Code>
         ),

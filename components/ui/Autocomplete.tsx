@@ -263,7 +263,7 @@ const EndpointSearchResult = ({
       <Tag size="0" color={colors[item.method as keyof typeof colors]}>
         {item.method?.toUpperCase()}
       </Tag>
-      <Code as="p" size="1" color="default" weight="regular">
+      <Code as="p" size="1" color="default" weight="regular" variant="ghost">
         {/* @ts-expect-error not sure about these algolia types */}
         {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
           (x, index) => {
