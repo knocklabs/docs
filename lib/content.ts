@@ -21,9 +21,8 @@ export const asPathToPaths = (asPath: string): string[] =>
 // can leave router.query.slug set to the /_next/data/... JSON fetch path
 // (e.g. ["_next", "data", "<buildId>", "concepts", "workflows.json"]) instead
 // of the real page slug. asPath stays correct across those transitions.
-export const getPathsFromRouter = (router: {
-  asPath: string;
-}): string[] => asPathToPaths(router.asPath);
+export const getPathsFromRouter = (router: { asPath: string }): string[] =>
+  asPathToPaths(router.asPath);
 
 // TODO: Make this generic. This is a hack right now and it won't work for arbitrary paths.
 export function getInAppSidebar(

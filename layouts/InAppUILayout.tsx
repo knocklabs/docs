@@ -157,11 +157,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
 
   const { breadcrumbs, nextPage, prevPage } = useMemo(() => {
     const pathSegments = getPathsFromRouter({ asPath: pathKey });
-    return getInAppSidebar(
-      pathSegments,
-      allSidebarContent,
-      selectedSdkContent,
-    );
+    return getInAppSidebar(pathSegments, allSidebarContent, selectedSdkContent);
   }, [pathKey, allSidebarContent, selectedSdkContent]);
 
   // Update URL state when the SDK changes
