@@ -35,7 +35,7 @@ const Container = ({ children }) => {
 };
 
 const Name = ({ children }) => (
-  <Code as="span" size="1" pl="0" weight="semi-bold" bg="transparent">
+  <Code as="span" size="1" weight="semi-bold" variant="ghost">
     {children}
   </Code>
 );
@@ -160,9 +160,8 @@ const Required = () => (
     size="0"
     color="red"
     px="1"
-    borderRadius="2"
     weight="regular"
-    bg="transparent"
+    variant="ghost"
   >
     Required
   </Code>
