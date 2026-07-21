@@ -9,13 +9,16 @@ import { Box } from "@telegraph/layout";
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
+  // Use asPath-based paths so next/prev update across client-side navigations.
+  // query.slug alone is often empty after soft nav on catch-all routes.
   const paths = getPathsFromRouter(router);
 
   const { content: sidebarContent, parentSection } = useSidebarContent();
 
+  const pathKey = paths.join("/");
   const { breadcrumbs, nextPage, prevPage } = useMemo(
     () => getSidebarInfo(paths, sidebarContent, parentSection),
-    [paths, sidebarContent, parentSection],
+    [pathKey, paths, sidebarContent, parentSection],
   );
 
   return (

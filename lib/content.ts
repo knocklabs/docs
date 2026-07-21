@@ -16,17 +16,25 @@ export const slugToPaths = (slug: string | string[] | undefined): string[] => {
 export const asPathToPaths = (asPath: string): string[] =>
   asPath.split("#")[0].split("?")[0].split("/").filter(Boolean);
 
-// Prefer router.query.slug when present; fall back to asPath when query is not
-// ready yet (common on the first client render of statically generated pages).
+// Resolve the current docs path from the router.
+// Prefer asPath: it tracks the browser URL across client-side navigations.
+// On catch-all routes, router.query.slug is often empty after soft navigation,
+// which previously made next/previous fall back to the first sidebar page.
 export const getPathsFromRouter = (router: {
   query: { slug?: string | string[] };
   asPath: string;
 }): string[] => {
-  const fromQuery = slugToPaths(router.query.slug);
-  if (fromQuery.length > 0) {
-    return fromQuery;
+  const fromAsPath = asPathToPaths(router.asPath);
+  // Ignore unresolved dynamic route patterns such as "/[...slug]" during prerender
+  const asPathIsResolved =
+    fromAsPath.length > 0 &&
+    !fromAsPath.some((segment) => segment.includes("[") || segment.includes("]"));
+
+  if (asPathIsResolved) {
+    return fromAsPath;
   }
-  return asPathToPaths(router.asPath);
+
+  return slugToPaths(router.query.slug);
 };
 
 // TODO: Make this generic. This is a hack right now and it won't work for arbitrary paths.

@@ -15,6 +15,7 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
 
   useScrollToTop(paths);
 
+  const pathKey = paths.join("/");
   const { breadcrumbs, nextPage, prevPage } = useMemo(() => {
     // Merge the first two path segments for all pages but the integrations overview
     // so that the paths match the slugs in the integrations sidebar content.
@@ -28,7 +29,7 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
     }
 
     return getSidebarInfo(sidebarPaths, INTEGRATIONS_SIDEBAR, parentSection);
-  }, [paths]);
+  }, [pathKey, paths]);
 
   return (
     <Page.Container>
