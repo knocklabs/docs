@@ -1,22 +1,24 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/router";
 import { Page } from "../components/ui/Page";
 import { useSidebarContent } from "../hooks/useSidebarContent";
 
 import Meta from "../components/Meta";
-import { getSidebarInfo, slugToPaths } from "../lib/content";
+import { getPathsFromRouter, getSidebarInfo } from "../lib/content";
 import { Box } from "@telegraph/layout";
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
-  const paths = slugToPaths(router.query.slug);
+  // Key off asPath so client-side navigations recompute adjacent pages.
+  // Do not use router.query.slug here (KNO-14307).
+  const pathKey = router.asPath.split("#")[0].split("?")[0];
 
   const { content: sidebarContent, parentSection } = useSidebarContent();
 
-  const { breadcrumbs, nextPage, prevPage } = useMemo(
-    () => getSidebarInfo(paths, sidebarContent, parentSection),
-    [paths, sidebarContent],
-  );
+  const { breadcrumbs, nextPage, prevPage } = useMemo(() => {
+    const paths = getPathsFromRouter({ asPath: pathKey });
+    return getSidebarInfo(paths, sidebarContent, parentSection);
+  }, [pathKey, sidebarContent, parentSection]);
 
   return (
     <Page.Container>
