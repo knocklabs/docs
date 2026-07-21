@@ -228,6 +228,17 @@ Here's an example of setting channel data on an `Object` in Knock.
   }
 />
 
+### How Teams delivery works
+
+When you're sending as a Microsoft Teams bot, every notification needs two things, and Knock lets them live in different places:
+
+- **Scope** — which Microsoft Entra tenant to reach: the `ms_teams_tenant_id`.
+- **Destination** — where the message goes: a `ms_teams_channel_id` (a channel) or a `ms_teams_user_id` (a direct message).
+
+The **destination** is stored on the recipient (a [`User`](/concepts/users) or [`Object`](/concepts/objects)). The **scope** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares the same Entra tenant ID. The two sections below cover each location.
+
+If you're using an incoming webhook instead of a bot, none of the above applies: the webhook URL is self-contained and requires no scope or destination.
+
 ### Recipient channel data requirements
 
 Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook URL or a Microsoft Teams bot connection. Both will need to live under the `connections` key.
@@ -263,7 +274,9 @@ An `MsTeamsConnection` can have one of two schemas, depending on whether you're 
 
 ### Tenant channel data requirements
 
-When you [map a Microsoft Entra tenant to a Knock tenant](/integrations/chat/microsoft-teams/sending-a-message-to-channels#key-concepts), you'll store the ID of the Microsoft Entra tenant as `channel_data` on the Knock tenant. Then, when you apply the Knock `tenant` to your workflow triggers, Knock will [combine that Microsoft Entra tenant ID with the recipient's](/integrations/chat/microsoft-teams/sending-a-message-to-channels#merging-channel-data) `channel_data` to send notifications to the correct Microsoft Teams channel within a Microsoft Entra tenant. For this implementation method, the `ms_teams_tenant_id` on the recipient's `MsTeamsConnection[]` data above is not required.
+When you [map a Microsoft Entra tenant to a Knock tenant](/integrations/chat/microsoft-teams/sending-a-message-to-channels#key-concepts) (as our [TeamsKit](/in-app-ui/react/teams-kit) components do), you store that Entra tenant's ID as `channel_data` on the Knock tenant. At send time, when you trigger a workflow with that `tenant`, Knock takes the [destination](#how-teams-delivery-works) from the recipient's `channel_data` (the `ms_teams_channel_id` or `ms_teams_user_id`) and uses the tenant's `ms_teams_tenant_id` for scope: the tenant provides the scope, the recipient provides the destination. If the recipient also carries an `ms_teams_tenant_id`, the tenant's takes precedence — so the `ms_teams_tenant_id` on the recipient's `MsTeamsConnection[]` above is not required when a tenant holds one.
+
+**Do you need a tenant?** Store the Entra tenant ID on a Knock tenant when one Microsoft Entra tenant connection should serve every recipient or object in that Knock tenant. This keeps the Entra tenant ID in one place while each recipient or object stores only its Teams destination (`ms_teams_channel_id` or `ms_teams_user_id`), which is useful as you add more destinations within the same Entra tenant later. You don't need a Knock tenant if you post to a single internal workspace (use an incoming webhook — there's no Entra tenant ID to share) or only ever use one Entra tenant's ID and prefer to store it directly on each recipient or object. Knock never auto-creates a `tenant` for you (though TeamsKit can, on the fly), so use one when a shared Entra tenant ID should live at the `tenant` level.
 
 Here's an overview of the data requirements for setting channel data when storing a Microsoft Entra tenant ID on a Knock tenant.
 
