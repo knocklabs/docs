@@ -140,7 +140,8 @@ const InAppSidebar = ({
 
 const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
-  const paths = getPathsFromRouter(router);
+  const pathKey = router.asPath.split("#")[0].split("?")[0];
+  const paths = getPathsFromRouter({ asPath: pathKey });
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
@@ -154,10 +155,14 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const selectedSdkContent = languageMap[selectedSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
-  const { breadcrumbs, nextPage, prevPage } = useMemo(
-    () => getInAppSidebar(paths, allSidebarContent, selectedSdkContent),
-    [paths, allSidebarContent, selectedSdkContent],
-  );
+  const { breadcrumbs, nextPage, prevPage } = useMemo(() => {
+    const pathSegments = getPathsFromRouter({ asPath: pathKey });
+    return getInAppSidebar(
+      pathSegments,
+      allSidebarContent,
+      selectedSdkContent,
+    );
+  }, [pathKey, allSidebarContent, selectedSdkContent]);
 
   // Update URL state when the SDK changes
   const handleSdkChange = (value: Language) => {

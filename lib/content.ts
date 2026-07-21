@@ -16,18 +16,14 @@ export const slugToPaths = (slug: string | string[] | undefined): string[] => {
 export const asPathToPaths = (asPath: string): string[] =>
   asPath.split("#")[0].split("?")[0].split("/").filter(Boolean);
 
-// Prefer router.query.slug when present; fall back to asPath when query is not
-// ready yet (common on the first client render of statically generated pages).
+// Resolve path segments from the router for sidebar/adjacent-page lookups.
+// Always use asPath — on the root [...slug] catch-all, client-side navigations
+// can leave router.query.slug set to the /_next/data/... JSON fetch path
+// (e.g. ["_next", "data", "<buildId>", "concepts", "workflows.json"]) instead
+// of the real page slug. asPath stays correct across those transitions.
 export const getPathsFromRouter = (router: {
-  query: { slug?: string | string[] };
   asPath: string;
-}): string[] => {
-  const fromQuery = slugToPaths(router.query.slug);
-  if (fromQuery.length > 0) {
-    return fromQuery;
-  }
-  return asPathToPaths(router.asPath);
-};
+}): string[] => asPathToPaths(router.asPath);
 
 // TODO: Make this generic. This is a hack right now and it won't work for arbitrary paths.
 export function getInAppSidebar(

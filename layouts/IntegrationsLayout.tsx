@@ -11,7 +11,8 @@ import { useScrollToTop } from "../hooks/useScrollToTop";
 
 const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
-  const paths = getPathsFromRouter(router);
+  const pathKey = router.asPath.split("#")[0].split("?")[0];
+  const paths = getPathsFromRouter({ asPath: pathKey });
 
   useScrollToTop(paths);
 
@@ -22,13 +23,17 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
     // For example, the Sources > Segment page has the following router slug:
     // ['integrations', 'sources', 'segment'] which needs to become
     // ['integrations/sources', 'segment'] so that it matches the sidebar content
-    let sidebarPaths = paths;
-    if (paths.length > 2) {
-      sidebarPaths = [`${paths[0]}/${paths[1]}`, ...paths.slice(2)];
+    const pathSegments = getPathsFromRouter({ asPath: pathKey });
+    let sidebarPaths = pathSegments;
+    if (pathSegments.length > 2) {
+      sidebarPaths = [
+        `${pathSegments[0]}/${pathSegments[1]}`,
+        ...pathSegments.slice(2),
+      ];
     }
 
     return getSidebarInfo(sidebarPaths, INTEGRATIONS_SIDEBAR, parentSection);
-  }, [paths]);
+  }, [pathKey]);
 
   return (
     <Page.Container>
