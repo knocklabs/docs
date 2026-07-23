@@ -33,10 +33,12 @@ type AgentSetupPromptProps = {
 };
 
 export const AgentSetupPrompt = ({
-  prompt = KNOCK_SETUP_PROMPT,
+  prompt,
   inApp = false,
 }: AgentSetupPromptProps) => {
   const outcomes = inApp ? IN_APP_AGENT_OUTCOMES : AGENT_OUTCOMES;
+  const resolvedPrompt =
+    prompt ?? (inApp ? KNOCK_IN_APP_SETUP_PROMPT : KNOCK_SETUP_PROMPT);
 
   return (
     <Box mt="2" rounded="3" border="px" borderColor="gray-4" bg="gray-2" p="5">
@@ -69,7 +71,7 @@ export const AgentSetupPrompt = ({
             ))}
           </Stack>
         </Stack>
-        <AgentPromptActionButton prompt={prompt} />
+        <AgentPromptActionButton prompt={resolvedPrompt} />
       </Stack>
     </Box>
   );

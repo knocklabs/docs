@@ -33,39 +33,63 @@ const MENU_ACTIONS: AgentPromptAction[] = [
 const buildCursorDeeplink = (prompt: string) => {
   const url = new URL("https://cursor.com/link/prompt");
   url.searchParams.set("text", prompt);
-  return url.toString();
+  return url;
 };
 
 const buildClaudeCodeDeeplink = (prompt: string) => {
   const url = new URL("claude://code/new");
   url.searchParams.set("q", prompt);
-  return url.toString();
+  return url;
 };
 
 const buildCodexDeeplink = (prompt: string) => {
   const url = new URL("codex://new");
   url.searchParams.set("prompt", prompt);
-  return url.toString();
+  return url;
 };
 
-const DEEPLINK_BUILDERS: Record<CodingToolValue, (prompt: string) => string> = {
+const DEEPLINK_BUILDERS: Record<CodingToolValue, (prompt: string) => URL> = {
   cursor: buildCursorDeeplink,
   claude: buildClaudeCodeDeeplink,
   codex: buildCodexDeeplink,
 };
 
+const isAllowedDeeplink = (tool: CodingToolValue, url: URL): boolean => {
+  switch (tool) {
+    case "cursor":
+      return url.protocol === "https:" && url.hostname === "cursor.com";
+    case "claude":
+      return url.protocol === "claude:";
+    case "codex":
+      return url.protocol === "codex:";
+    default:
+      return false;
+  }
+};
+
 const isCodingToolValue = (value: unknown): value is CodingToolValue =>
   typeof value === "string" && value in CODING_TOOL_BY_VALUE;
 
-const openDeeplink = (href: string) => {
-  const isHttp = href.startsWith("http://") || href.startsWith("https://");
-
-  if (isHttp) {
-    window.open(href, "_blank", "noopener,noreferrer");
+/** Open a coding-tool deeplink after allowlisting protocol (and host for https). */
+const openCodingToolDeeplink = (tool: CodingToolValue, prompt: string) => {
+  const url = DEEPLINK_BUILDERS[tool](prompt);
+  if (!isAllowedDeeplink(tool, url)) {
     return;
   }
 
-  window.location.href = href;
+  if (url.protocol === "https:") {
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  // Custom app schemes: trigger via a temporary anchor so we never assign
+  // unvalidated strings to window.location.href.
+  const anchor = document.createElement("a");
+  anchor.href = url.toString();
+  anchor.rel = "noopener noreferrer";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
 };
 
 const readStoredAction = (): AgentPromptAction => {
@@ -176,7 +200,7 @@ export const AgentPromptActionButton = ({
       return;
     }
 
-    openDeeplink(DEEPLINK_BUILDERS[action](prompt));
+    openCodingToolDeeplink(action, prompt);
   };
 
   const handlePrimaryClick = () => {

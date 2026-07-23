@@ -1,10 +1,7 @@
 import React, { type ReactNode } from "react";
 import { Tabs } from "@telegraph/tabs";
 import { Box } from "@telegraph/layout";
-import {
-  AgentSetupPrompt,
-  KNOCK_IN_APP_SETUP_PROMPT,
-} from "@/components/ui/AgentSetupPrompt";
+import { AgentSetupPrompt } from "@/components/ui/AgentSetupPrompt";
 
 type AgentFirstSetupProps = {
   children: ReactNode;
@@ -24,10 +21,7 @@ export const AgentFirstSetup = ({
       </Tabs.List>
       <Tabs.Panel value="agent">
         <Box mt="4">
-          <AgentSetupPrompt
-            inApp={inApp}
-            prompt={inApp ? KNOCK_IN_APP_SETUP_PROMPT : undefined}
-          />
+          <AgentSetupPrompt inApp={inApp} />
         </Box>
       </Tabs.Panel>
       <Tabs.Panel value="manual">
