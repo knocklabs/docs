@@ -39,14 +39,7 @@ export const AgentSetupPrompt = ({
   const outcomes = inApp ? IN_APP_AGENT_OUTCOMES : AGENT_OUTCOMES;
 
   return (
-    <Box
-      mt="2"
-      rounded="3"
-      border="px"
-      borderColor="gray-4"
-      bg="gray-2"
-      p="5"
-    >
+    <Box mt="2" rounded="3" border="px" borderColor="gray-4" bg="gray-2" p="5">
       <Stack direction="column" gap="5">
         <Stack direction="column" gap="0">
           <Text as="p" size="5" weight="medium" mb="2">

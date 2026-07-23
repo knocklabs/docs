@@ -48,10 +48,7 @@ const buildCodexDeeplink = (prompt: string) => {
   return url.toString();
 };
 
-const DEEPLINK_BUILDERS: Record<
-  CodingToolValue,
-  (prompt: string) => string
-> = {
+const DEEPLINK_BUILDERS: Record<CodingToolValue, (prompt: string) => string> = {
   cursor: buildCursorDeeplink,
   claude: buildClaudeCodeDeeplink,
   codex: buildCodexDeeplink,
@@ -127,8 +124,7 @@ export const AgentPromptActionButton = ({
 }: AgentPromptActionButtonProps) => {
   const isMounted = useIsMounted();
   const [isOpen, setIsOpen] = useState(false);
-  const [preferredTool, setPreferredTool] =
-    useState<AgentPromptAction>("copy");
+  const [preferredTool, setPreferredTool] = useState<AgentPromptAction>("copy");
   const [isCopied, copy] = useClipboard(prompt);
 
   useEffect(() => {
@@ -171,8 +167,8 @@ export const AgentPromptActionButton = ({
   const activeAction: AgentPromptAction = !isMounted
     ? "copy"
     : preferredTool === "copy" || isCodingToolValue(preferredTool)
-      ? preferredTool
-      : "copy";
+    ? preferredTool
+    : "copy";
 
   const runAction = (action: AgentPromptAction) => {
     if (action === "copy") {
@@ -217,8 +213,8 @@ export const AgentPromptActionButton = ({
           {preferredOption
             ? preferredOption.openLabel
             : isCopied
-              ? "Copied"
-              : "Copy prompt"}
+            ? "Copied"
+            : "Copy prompt"}
         </Button.Text>
       </Button.Root>
 
@@ -268,9 +264,7 @@ export const AgentPromptActionButton = ({
                   )
                 }
                 trailingIcon={
-                  isActive
-                    ? { icon: Check, "aria-hidden": true }
-                    : undefined
+                  isActive ? { icon: Check, "aria-hidden": true } : undefined
                 }
                 textProps={{ size: "3" }}
                 onClick={() => handleSelectAction(action)}
@@ -280,8 +274,8 @@ export const AgentPromptActionButton = ({
                   borderRadius: isFirst
                     ? "var(--tgph-radius-2) var(--tgph-radius-2) 0 0"
                     : isLast
-                      ? "0 0 var(--tgph-radius-2) var(--tgph-radius-2)"
-                      : 0,
+                    ? "0 0 var(--tgph-radius-2) var(--tgph-radius-2)"
+                    : 0,
                 }}
               >
                 {option ? option.openLabel : "Copy prompt"}

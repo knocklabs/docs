@@ -5,8 +5,4 @@ export {
   type CodingToolOption,
   type CodingToolValue,
 } from "./constants";
-export {
-  ClaudeBrandmark,
-  CodexBrandmark,
-  CursorBrandmark,
-} from "./brandmarks";
+export { ClaudeBrandmark, CodexBrandmark, CursorBrandmark } from "./brandmarks";
