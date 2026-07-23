@@ -7,7 +7,7 @@ type UseClipboardOptions = {
 export function useClipboard(
   content: string,
   options: UseClipboardOptions = {},
-) {
+): [boolean, () => void] {
   const { successDuration = 2000 } = options;
   const [isCopied, setCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
