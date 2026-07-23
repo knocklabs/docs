@@ -1,0 +1,261 @@
+---
+title: Wait for event function
+description: Learn more about the wait for event workflow function within Knock's notification engine.
+tags:
+  [
+    "steps",
+    "wait",
+    "events",
+    "sources",
+    "messages",
+    "audiences",
+    "recipients",
+    "functions",
+  ]
+section: Designing workflows
+---
+
+A wait for event function pauses a workflow until a matching event is received, or until a configured wait time expires. Use it when the next step in your workflow should depend on something that happens after the run starts — such as a payment completing in an external system, a message being delivered, another workflow finishing for the same recipient, an audience membership change, or a recipient property update.
+
+## How it works
+
+When a workflow run reaches a wait for event step, Knock pauses execution and registers a durable wait for the configured event. The workflow stays paused until one of the following happens:
+
+1. **A matching event is received.** Knock evaluates the event against your match conditions (when configured). If the event passes, Knock applies your **On match** action and resumes the workflow (or halts it, depending on your configuration).
+2. **The wait time expires.** If no matching event arrives before the wait time ends, Knock applies your **After wait time** action.
+
+While the workflow is paused, no downstream steps execute. This makes the wait for event function useful for coordinating notifications with product activity without building polling or state management in your application.
+
+## Event types
+
+Select an **event type** in the step settings, then configure the fields for that type.
+
+### Integration source
+
+Wait for an event from a connected [integration source](/integrations/sources/overview), such as Segment, Stripe, or a custom webhook source.
+
+Configure:
+
+- **Event.** The source event to wait for. Knock identifies the event by its event key and integration source key, which remain stable when you promote workflows between environments.
+
+Your Knock environment must have at least one configured source that has received the event you want to wait for.
+
+When a source event includes a `user_id`, Knock scopes matching to the workflow recipient for that run. Events without a recipient association can still match waits that are registered without recipient scoping.
+
+### Message
+
+Wait for a [message lifecycle event](/send-notifications/message-statuses) produced by a specific [workflow](/concepts/workflows), [broadcast](/concepts/broadcasts), or [guide](/concepts/guides) for the same recipient.
+
+Configure:
+
+- **Source type.** The kind of message source to observe: workflow, broadcast, or guide.
+- **Source.** The specific workflow, broadcast, or guide whose messages should match this wait.
+- **Message event.** The lifecycle event to wait for, such as delivered, bounced, seen, read, or link clicked.
+
+Available message events include: created, queued, sent, not sent, delivered, delivery attempted, undelivered, bounced, read, unread, seen, unseen, archived, unarchived, interacted, and link clicked.
+
+Message event waits are scoped to the workflow recipient and the selected message source. Match conditions are **required** for message events.
+
+### Workflow
+
+Wait for a workflow lifecycle event from another workflow run for the same recipient.
+
+Configure:
+
+- **Workflow.** The workflow whose lifecycle events this wait should observe.
+- **Workflow event.** Either **Started** or **Completed**.
+
+Workflow event waits are scoped to the workflow recipient and the selected workflow. Match conditions are **required** for workflow events.
+
+### Audience
+
+Wait for a [dynamic audience](/concepts/audiences) membership change for the workflow recipient.
+
+Configure:
+
+- **Audience.** The dynamic audience to watch. Static audiences are not supported for wait for event steps.
+- **Membership event.** Either **Enter** or **Exit**.
+
+### Recipient
+
+Wait for the current workflow recipient to be updated in Knock. Today, recipient waits listen for the **updated** event for that recipient (not updates for other recipients).
+
+Recipient waits have no additional configuration fields beyond the event type. Use match conditions when you only want to resume on specific property, preference, or channel data changes.
+
+## Configuring a wait for event step
+
+Beyond selecting the event type and its event-specific fields, you configure the following settings for every wait for event step.
+
+### Match conditions
+
+Match conditions filter candidate events before the workflow resumes. Knock evaluates each candidate event against these conditions. If an event does not pass, the workflow keeps waiting until a matching event arrives or the wait time expires.
+
+| Event type         | Match conditions |
+| ------------------ | ---------------- |
+| Integration source | Optional         |
+| Message            | Required         |
+| Workflow           | Required         |
+| Audience           | Optional         |
+| Recipient          | Optional         |
+
+You can build match conditions using the same [conditions builder](/concepts/conditions) used elsewhere in Knock. The following variable namespaces are available:
+
+| Namespace           | Description                                                                     |
+| ------------------- | ------------------------------------------------------------------------------- |
+| `event.*`           | The awaited event payload. Use this namespace for fields on the incoming event. |
+| `recipient.*`       | The workflow recipient.                                                         |
+| `data.*`            | The original workflow trigger payload.                                          |
+| `vars.*`            | Environment variables.                                                          |
+| `tenant.*`          | The tenant associated with the workflow run.                                    |
+| Audience membership | Check whether the recipient belongs to an audience.                             |
+| `refs.*`            | Message status from preceding channel steps in the workflow run.                |
+
+The shape of `event.*` depends on the event type:
+
+| Event type         | Example `event.*` fields                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Integration source | Fields from the source event payload (for example, properties from a Segment track event)                                      |
+| Message            | `message_id`, `event_type`, `channel_id`, `recipient`, `inserted_at`, `source.type`, `source.key`, and event-specific `data.*` |
+| Workflow           | `workflow_key`, `workflow_run_id`, `recipient`, `status`, `inserted_at`                                                        |
+| Audience           | `audience_id`, `recipient`, `transition`, `happened_at`                                                                        |
+| Recipient          | `recipient`, `event_type`, `timestamp`, `properties`, `preferences`, `knock_traits`, `channel_data`                            |
+
+### On match
+
+Controls what happens when a matching event is received before the wait time expires:
+
+- **Continue workflow.** Resume execution and proceed to the next step. This is the default.
+- **Halt workflow.** Cancel the workflow run. Use this when the awaited event means later steps should not execute — for example, canceling a reminder workflow when a user completes the action you were going to remind them about.
+
+### Wait time
+
+How long Knock waits for a matching event before timing out. The dashboard default is 15 minutes. You can configure the duration in seconds, minutes, hours, days, or weeks.
+
+A wait for event step can wait for a maximum of 30 days.
+
+### After wait time
+
+Controls what happens when the wait time expires before a matching event arrives:
+
+- **Halt workflow.** Cancel the workflow run. This is the default.
+- **Continue workflow.** Resume execution and proceed to the next step.
+
+### Step conditions
+
+Like other workflow steps, a wait for event step supports [step conditions](/designing-workflows/step-conditions) that determine whether the step executes at all when the workflow run reaches it. Step conditions are evaluated when the step runs, not when an awaited event arrives.
+
+## Downstream step output
+
+When a wait for event step resumes on a **Continue workflow** path, it writes output under `refs.<step_ref>` that downstream steps can reference:
+
+| Property           | Type    | Description                                                                     |
+| ------------------ | ------- | ------------------------------------------------------------------------------- |
+| `matched`          | boolean | `true` when a matching event claimed the wait; `false` when the wait timed out. |
+| `signal_variables` | object  | The payload from the matched event. An empty object on timeout.                 |
+
+Use `refs.<step_ref>.matched` in a downstream [branch function](/designing-workflows/branch-function) to run different logic depending on whether the event arrived in time. Use `refs.<step_ref>.signal_variables` to access fields from the matched event payload in conditions or templates.
+
+```json title="Example downstream condition"
+// Branch on whether the event matched before timeout
+refs.wait_for_payment.matched == true
+
+// Branch on a field from the matched event payload
+refs.wait_for_payment.signal_variables.status == "paid"
+```
+
+## Common patterns
+
+### Wait for an external action before sending a follow-up
+
+Trigger a workflow when a user starts a flow, add a wait for event step that listens for a completion event from an integration source (such as Segment), then send a follow-up notification only if the user does not complete the action within your wait window.
+
+Pair this with **On match: Halt workflow** and **After wait time: Continue workflow** so the workflow proceeds to your reminder step only when the completion event does not arrive in time.
+
+### Escalate when a message is not engaged
+
+Send an in-app notification, then wait for a message **seen** or **read** event from that workflow. If the wait times out, continue to an email channel step. Use match conditions on `event.*` as needed to narrow which message events resume the workflow.
+
+### Wait for a nested workflow to finish
+
+Trigger a child workflow with a [trigger workflow function](/designing-workflows/trigger-workflow-function), then wait for that workflow's **Completed** event for the same recipient before continuing in the parent workflow.
+
+### React to audience membership changes
+
+Wait for a recipient to enter or exit a dynamic audience before sending a campaign or changing notification volume. Use audience event waits when membership is driven by properties rather than an explicit API action.
+
+### Branch on event payload
+
+After the wait resolves, use a branch step with conditions on `refs.<step_ref>.signal_variables` to send different notifications based on data in the matched event.
+
+## Wait for event vs. delay
+
+Both wait for event and [delay](/designing-workflows/delay-function) functions pause a workflow, but they differ in what resumes execution:
+
+|                                       | Wait for event                                     | Delay                                        |
+| ------------------------------------- | -------------------------------------------------- | -------------------------------------------- |
+| Resumes when                          | A matching event arrives, or the wait time expires | The configured interval or timestamp elapses |
+| Depends on external or Knock activity | Yes                                                | No                                           |
+| Match conditions                      | Yes                                                | No                                           |
+
+Use a delay when you need to wait a fixed amount of time. Use wait for event when the workflow should react to a specific event.
+
+## Using workflow cancellation with wait for event steps
+
+Workflow runs paused at a wait for event step can be canceled using the [workflow cancellation API](/send-notifications/canceling-workflows), the same as runs paused at a delay, batch, or fetch step. Provide a `cancellation_key` when you trigger the workflow, then call the cancel endpoint with the same key.
+
+Canceling a paused workflow deletes the scheduled resume job and marks the durable wait as canceled. No downstream steps execute after cancellation.
+
+## Debugging wait for event steps
+
+You can inspect wait for event execution in the [workflow debugger](/send-notifications/debugging-workflows). For each workflow run, the debugger shows:
+
+- Whether the workflow is still waiting for an event, or which event was received
+- When the wait expires or expired
+- Match condition evaluations for candidate events, including the result of each evaluation
+
+When match conditions reject an incoming event, Knock logs a `wait_conditions_evaluated` event on the workflow run so you can see why the event did not resume the workflow.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What happens if multiple events arrive while the workflow is waiting?">
+    Knock claims the wait for the first event that passes your match conditions.
+    Subsequent events for the same wait are ignored because the wait has already
+    been claimed.
+  </Accordion>
+  <Accordion title="What happens if an event arrives after the wait time expires?">
+    Knock ignores events whose timestamp falls outside the wait window. If the
+    wait has already timed out and the workflow resumed or halted, late-arriving
+    events do not affect the run.
+  </Accordion>
+  <Accordion title="Do I need a source configured to use wait for event?">
+    Only when waiting for an integration source event. Message, workflow,
+    audience, and recipient event waits use events generated inside Knock and do
+    not require a connected source.
+  </Accordion>
+  <Accordion title="Why are match conditions required for message and workflow events?">
+    When the event type is message or workflow, Knock requires at least one
+    match condition. Integration source, audience, and recipient waits can omit
+    match conditions.
+  </Accordion>
+  <Accordion title="Can I use wait for event in an API-triggered workflow?">
+    Yes. The workflow trigger type does not affect the wait for event step. The
+    step listens for the configured event type independently of how the workflow
+    was triggered.
+  </Accordion>
+  <Accordion title="Can a workflow wait for its own message events?">
+    Yes. Select message as the event type, set the source type to workflow, and
+    choose the current workflow as the source. The wait matches message events
+    for the same recipient from that workflow.
+  </Accordion>
+  <Accordion title="What happens to paused workflow runs when I update the underlying workflow?">
+    Workflow recipient runs reference the workflow version that was current when
+    the run was triggered. Changes to the workflow do not affect runs that are
+    already in flight. Use the [workflow cancellation
+    API](/send-notifications/canceling-workflows) to stop a paused run after you
+    update the workflow.
+  </Accordion>
+  <Accordion title="How long can a workflow wait for an event?">
+    A wait for event step can wait for a maximum of 30 days.
+  </Accordion>
+</AccordionGroup>
