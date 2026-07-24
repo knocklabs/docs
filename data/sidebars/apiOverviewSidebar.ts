@@ -24,6 +24,7 @@ export const API_REFERENCE_OVERVIEW_CONTENT: SidebarSection[] = [
     pages: [
       { slug: "/", title: "Overview" },
       { slug: "/client-libraries", title: "Client libraries" },
+      { slug: "/openapi", title: "OpenAPI" },
       { slug: "/api-keys", title: "API keys" },
       { slug: "/authentication", title: "Authentication" },
       { slug: "/rate-limits", title: "Rate limits" },

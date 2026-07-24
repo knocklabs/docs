@@ -37,6 +37,10 @@ export const MAPI_REFERENCE_OVERVIEW_CONTENT: SidebarSection[] = [
         slug: `/client-libraries`,
       },
       {
+        title: "OpenAPI",
+        slug: `/openapi`,
+      },
+      {
         title: "Authentication",
         slug: `/authentication`,
       },
