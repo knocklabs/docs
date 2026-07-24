@@ -165,8 +165,34 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
             px="6"
             style={{ minHeight: "min(52vh, 420px)" }}
           >
-            <Stack direction="column" alignItems="center" gap="3" w="full">
-              <Heading as="h1" size="9" align="center">
+            <Stack
+              position="relative"
+              direction="column"
+              alignItems="center"
+              gap="3"
+              w="full"
+              style={{ maxWidth: "42rem" }}
+            >
+              {/* Surface veil so the grid softens under the hero copy */}
+              <Box
+                aria-hidden
+                position="absolute"
+                style={{
+                  // Overflow sides/top for a soft edge; keep bottom flush so the
+                  // CTA below stays clear of the veil.
+                  inset: "-2.5rem -2rem 0",
+                  background:
+                    "radial-gradient(ellipse 58% 110% at 50% 40%, color-mix(in srgb, var(--tgph-surface-1) 82%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 58%, transparent) 52%, transparent 80%)",
+                  pointerEvents: "none",
+                  zIndex: 0,
+                }}
+              />
+              <Heading
+                as="h1"
+                size="9"
+                align="center"
+                style={{ position: "relative", zIndex: 1 }}
+              >
                 Agent-first growth
               </Heading>
               <Text
@@ -174,7 +200,12 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 size="3"
                 color="gray"
                 align="center"
-                style={{ margin: 0, maxWidth: "36rem" }}
+                style={{
+                  margin: 0,
+                  maxWidth: "36rem",
+                  position: "relative",
+                  zIndex: 1,
+                }}
               >
                 Drive Knock from your coding agent. Build and manage product,
                 marketing, and transactional messaging in one platform.
