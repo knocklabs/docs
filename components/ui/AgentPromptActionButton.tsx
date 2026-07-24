@@ -4,7 +4,7 @@ import { Stack } from "@telegraph/layout";
 import { Popover } from "@telegraph/popover";
 import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
-import { Check, ChevronDown, Copy } from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, Copy } from "lucide-react";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import {
@@ -17,12 +17,20 @@ import {
 export const PREFERRED_CODING_TOOL_STORAGE_KEY =
   "@knocklabs/preferred-coding-tool";
 
-const PREFERRED_ACTION_CHANGE_EVENT = "knock:preferred-coding-tool-change";
+export const PREFERRED_CODING_TOOL_CHANGE_EVENT =
+  "knock:preferred-coding-tool-change";
 
-type AgentPromptAction = "copy" | CodingToolValue;
+export type AgentPromptAction = "copy" | CodingToolValue;
 
 type AgentPromptActionButtonProps = {
   prompt: string;
+  /** Defaults to solid accent (primary). Use outline for secondary. */
+  variant?: "solid" | "outline";
+  color?: "accent" | "gray";
+  /** Button size. Defaults to `"2"`. */
+  size?: "1" | "2";
+  /** When true, hide the primary button label and show only the icon. */
+  hideLabel?: boolean;
 };
 
 const MENU_ACTIONS: AgentPromptAction[] = [
@@ -71,7 +79,10 @@ const isCodingToolValue = (value: unknown): value is CodingToolValue =>
   typeof value === "string" && value in CODING_TOOL_BY_VALUE;
 
 /** Open a coding-tool deeplink after allowlisting protocol (and host for https). */
-const openCodingToolDeeplink = (tool: CodingToolValue, prompt: string) => {
+export const openCodingToolDeeplink = (
+  tool: CodingToolValue,
+  prompt: string,
+) => {
   const url = DEEPLINK_BUILDERS[tool](prompt);
   if (!isAllowedDeeplink(tool, url)) {
     return;
@@ -92,7 +103,7 @@ const openCodingToolDeeplink = (tool: CodingToolValue, prompt: string) => {
   anchor.remove();
 };
 
-const readStoredAction = (): AgentPromptAction => {
+export const readStoredAction = (): AgentPromptAction => {
   if (typeof window === "undefined") {
     return "copy";
   }
@@ -114,7 +125,7 @@ const readStoredAction = (): AgentPromptAction => {
   return "copy";
 };
 
-const persistAction = (action: AgentPromptAction) => {
+export const persistAction = (action: AgentPromptAction) => {
   try {
     window.localStorage.setItem(
       PREFERRED_CODING_TOOL_STORAGE_KEY,
@@ -126,7 +137,7 @@ const persistAction = (action: AgentPromptAction) => {
 
   // localStorage "storage" events do not fire in the same tab — notify siblings.
   window.dispatchEvent(
-    new CustomEvent<AgentPromptAction>(PREFERRED_ACTION_CHANGE_EVENT, {
+    new CustomEvent<AgentPromptAction>(PREFERRED_CODING_TOOL_CHANGE_EVENT, {
       detail: action,
     }),
   );
@@ -145,6 +156,10 @@ const attachedTriggerStyles: React.CSSProperties = {
 
 export const AgentPromptActionButton = ({
   prompt,
+  variant = "solid",
+  color = "accent",
+  size = "2",
+  hideLabel = false,
 }: AgentPromptActionButtonProps) => {
   const isMounted = useIsMounted();
   const [isOpen, setIsOpen] = useState(false);
@@ -173,14 +188,14 @@ export const AgentPromptActionButton = ({
     };
 
     window.addEventListener(
-      PREFERRED_ACTION_CHANGE_EVENT,
+      PREFERRED_CODING_TOOL_CHANGE_EVENT,
       handlePreferredActionChange,
     );
     window.addEventListener("storage", handleStorage);
 
     return () => {
       window.removeEventListener(
-        PREFERRED_ACTION_CHANGE_EVENT,
+        PREFERRED_CODING_TOOL_CHANGE_EVENT,
         handlePreferredActionChange,
       );
       window.removeEventListener("storage", handleStorage);
@@ -218,37 +233,46 @@ export const AgentPromptActionButton = ({
     ? CODING_TOOL_BY_VALUE[activeAction]
     : null;
 
+  const primaryLabel = preferredOption
+    ? preferredOption.openLabel
+    : isCopied
+    ? "Copied"
+    : "Copy prompt";
+
   return (
     <Stack direction="row" alignItems="stretch">
       <Button.Root
         type="button"
-        variant="solid"
-        color="accent"
-        size="2"
+        variant={variant}
+        color={color}
+        size={size}
         onClick={handlePrimaryClick}
+        aria-label={hideLabel ? primaryLabel : undefined}
         style={attachedPrimaryStyles}
       >
         {preferredOption ? (
-          <CodingToolIcon option={preferredOption} appearance="onAccent" />
+          <>
+            {hideLabel && (
+              <Button.Icon icon={ArrowUpRight} aria-hidden />
+            )}
+            <CodingToolIcon
+              option={preferredOption}
+              appearance={variant === "solid" ? "onAccent" : "branded"}
+            />
+          </>
         ) : (
           <Button.Icon icon={isCopied ? Check : Copy} aria-hidden />
         )}
-        <Button.Text size="2">
-          {preferredOption
-            ? preferredOption.openLabel
-            : isCopied
-            ? "Copied"
-            : "Copy prompt"}
-        </Button.Text>
+        {!hideLabel && <Button.Text size={size}>{primaryLabel}</Button.Text>}
       </Button.Root>
 
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <Button.Root
             type="button"
-            variant="solid"
-            color="accent"
-            size="2"
+            variant={variant}
+            color={color}
+            size={size}
             aria-label="Setup in coding tool"
             style={attachedTriggerStyles}
           >
