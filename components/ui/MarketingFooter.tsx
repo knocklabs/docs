@@ -97,7 +97,7 @@ export const MarketingFooter = () => (
             target="_blank"
             rel="noopener noreferrer"
             variant="ghost"
-            color="black"
+            color="accent"
             size="2"
           >
             <Button.Text>Book a demo</Button.Text>

@@ -57,10 +57,15 @@ const THEMES: Record<"light" | "dark", ThemePalette> = {
 
 function debounce<T extends (...args: never[]) => void>(fn: T, wait: number) {
   let timeout: ReturnType<typeof setTimeout> | undefined;
-  return (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => fn(...args), wait);
   };
+  debounced.cancel = () => {
+    clearTimeout(timeout);
+    timeout = undefined;
+  };
+  return debounced;
 }
 
 function createNodes(width: number, height: number): GridNode[] {
@@ -154,8 +159,8 @@ export const AnimatedDotGrid = () => {
       nodesRef.current = createNodes(width, height);
       lastTimeRef.current = 0;
       flashCounterRef.current = 0;
-      setIsInitialized(false);
-      requestAnimationFrame(() => setIsInitialized(true));
+      // Only fade in once on first measure — resizes should not reset opacity.
+      setIsInitialized(true);
     };
 
     const debouncedUpdate = debounce(updateDimensions, 250);
@@ -181,6 +186,7 @@ export const AnimatedDotGrid = () => {
     return () => {
       window.removeEventListener("load", updateDimensions);
       resizeObserver.disconnect();
+      debouncedUpdate.cancel();
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
