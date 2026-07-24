@@ -41,6 +41,8 @@ import { ContentActions } from "@/components/ui/ContentActions";
 import FeaturesMatrix from "@/components/ui/FeaturesMatrix";
 import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
 import { AgentDeeplinkButton } from "@/components/ui/AgentDeeplinkButton";
+import { AgentFirstSetup } from "@/components/ui/AgentFirstSetup";
+import { AgentSetupPrompt } from "@/components/ui/AgentSetupPrompt";
 
 const Image = ({
   className,
@@ -127,4 +129,6 @@ export const MDX_COMPONENTS = {
   FeaturesMatrix,
   PreTextDiagram,
   AgentDeeplinkButton,
+  AgentFirstSetup,
+  AgentSetupPrompt,
 };
