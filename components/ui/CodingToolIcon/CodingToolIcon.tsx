@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { Box, Stack } from "@telegraph/layout";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 import type { CodingToolOption } from "./constants";
 
@@ -33,16 +34,27 @@ const ON_ACCENT_MARK_STYLE: CSSProperties = {
   filter: "brightness(0) invert(1)",
 };
 
+const resolveThemeAwareBadge = (isDark: boolean) => ({
+  // White in light, black in dark — mark contrast follows via currentColor.
+  backgroundColor: isDark ? "#000000" : "#FFFFFF",
+  color: isDark ? "#FFFFFF" : "#000000",
+});
+
 // Brandmark for options that ship an icon; Cursor/Codex wrap the mark in a
-// colored badge so it stays readable on dark/light surfaces.
+// theme-aware badge so it stays readable on dark/light surfaces.
 export const CodingToolIcon = ({
   option,
   size = "default",
   appearance = "branded",
 }: CodingToolIconProps) => {
+  const { appearance: themeAppearance } = useTheme();
   const Icon = option.Icon;
   const iconBadge = "iconBadge" in option ? option.iconBadge : undefined;
   const sizes = ICON_SIZES[size];
+  const themeAwareBadge =
+    iconBadge && "themeAware" in iconBadge && iconBadge.themeAware
+      ? resolveThemeAwareBadge(themeAppearance === "dark")
+      : undefined;
 
   if (appearance === "onAccent") {
     return (
@@ -66,7 +78,8 @@ export const CodingToolIcon = ({
       w={sizes.badge}
       h={sizes.badge}
       style={{
-        backgroundColor: iconBadge?.backgroundColor,
+        backgroundColor: themeAwareBadge?.backgroundColor,
+        color: themeAwareBadge?.color,
         aspectRatio: "1 / 1",
         flexShrink: 0,
       }}
