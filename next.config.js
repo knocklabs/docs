@@ -71,6 +71,13 @@ const nextConfig = {
 
   async redirects() {
     return [
+      // RFC 9727: docs is a discovery host; canonical API catalog lives on knock.app.
+      // Permanent redirect (308) keeps a single source of truth for the catalog.
+      {
+        source: "/.well-known/api-catalog",
+        destination: "https://knock.app/.well-known/api-catalog",
+        permanent: true,
+      },
       {
         source: "/developer-tools/integrating-into-cicd",
         destination: "/tutorials/integrating-into-cicd",
