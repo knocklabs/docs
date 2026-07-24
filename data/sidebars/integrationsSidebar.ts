@@ -15,11 +15,11 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/amplitude", title: "Amplitude" },
       { slug: "/clerk", title: "Clerk" },
       { slug: "/posthog", title: "PostHog" },
       { slug: "/stripe", title: "Stripe" },
       { slug: "/supabase", title: "Supabase" },
+      { slug: "/amplitude", title: "Amplitude" },
       { slug: "/workos", title: "WorkOS" },
       { slug: "/segment", title: "Segment" },
       { slug: "/shopify", title: "Shopify" },
