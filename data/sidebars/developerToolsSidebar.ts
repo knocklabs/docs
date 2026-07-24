@@ -70,4 +70,8 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
     slug: `${baseSlug}/building-with-llms`,
     title: "Building with LLMs",
   },
+  {
+    slug: `${baseSlug}/agent-deep-links`,
+    title: "Agent deep links",
+  },
 ];
