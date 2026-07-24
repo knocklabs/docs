@@ -1,0 +1,248 @@
+---
+title: Amplitude source
+description: Send Amplitude events, user updates, and cohort membership changes to Knock to trigger workflows and keep users and audiences in sync.
+metaTitle: Amplitude source integration
+metaDescription: Connect Amplitude Webhooks Streaming and Cohort Webhooks to Knock to trigger workflows, identify users, and sync cohort membership to audiences.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Amplitude source enables you to send analytics events, user updates, and cohort membership changes from [Amplitude](https://amplitude.com) to Knock. Knock receives Amplitude's default webhook payloads, verifies a shared secret, identifies the incoming event type, and runs the actions you configure.
+
+You can connect either or both of Amplitude's outbound webhook integrations to the same Knock source URL:
+
+- [Webhooks Streaming](https://amplitude.com/docs/data/destination-catalog/webhooks) sends product events and user property updates as Amplitude ingests them.
+- [Cohort Webhooks](https://amplitude.com/docs/data/destination-catalog/cohort-webhooks) sends batches when users enter or exit an Amplitude cohort.
+
+Use these integrations to trigger notification workflows from product behavior, keep Knock user properties aligned with Amplitude, or use an Amplitude cohort as a [Knock audience](/concepts/audiences).
+
+## How verification works
+
+Amplitude supports custom headers but does not sign Webhooks Streaming or Cohort Webhook requests. The Knock source verifies a shared secret sent as a Bearer token in the `Authorization` header:
+
+```text
+Authorization: Bearer <your-signing-secret>
+```
+
+The signing secret in Knock must match the token configured in every Amplitude destination that sends data to the source. Treat the secret like an API key, store it somewhere safe, and rotate it if it leaks.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- An Amplitude project with access to **Data** > **Catalog** > **Destinations**.
+- A paid Amplitude plan if you want to use Cohort Webhooks.
+
+## Set up the source in Knock
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment, then select the **Amplitude** template.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+    />
+
+  </Step>
+  <Step title="Review the default action mappings">
+    The template includes mappings that identify users and add or remove cohort
+    members from Knock audiences. You can select which mappings to create and
+    change them later. Click **Connect Amplitude** to continue.
+  </Step>
+  <Step title="Copy the source URL">
+    Copy the event ingestion URL from the setup wizard for the environment you
+    want to configure. Both Amplitude webhook integrations can send to this
+    URL.
+  </Step>
+  <Step title="Set a signing secret">
+    Generate a strong random string, such as with `openssl rand -hex 32`, and
+    paste it into the **Signing secret** field in the Knock source environment.
+    You will use the same value in the `Authorization` header in Amplitude.
+  </Step>
+</Steps>
+
+## Send events and users with Webhooks Streaming
+
+Use Amplitude's **Webhook: Events · User Properties** destination to stream product events, user property updates, or both. This destination sends data as Amplitude ingests it; it does not backfill events that Amplitude received before you enabled the destination.
+
+<Steps>
+  <Step title="Create the webhook sync">
+    In Amplitude Data, open **Catalog** > **Destinations**. Search for
+    "Webhook," select **Webhook: Events · User Properties**, enter a sync name,
+    and click **Create Sync**.
+  </Step>
+  <Step title="Add the Knock URL and secret">
+    Paste the Knock source URL into the webhook URL field. Add a custom header
+    named `Authorization` with the value `Bearer <your-signing-secret>`, using
+    the secret you set in Knock.
+  </Step>
+  <Step title="Configure event forwarding">
+    Under **Send Events**, enable **Events are sent to Webhook**. Keep the
+    default Amplitude event payload, then select and filter the events you want
+    Knock to receive. Each event retains its Amplitude `event_type`, so you can
+    add a Knock action mapping for any event you send.
+  </Step>
+  <Step title="Configure user forwarding">
+    Under **Send Users**, enable **Users are sent to Webhook** if you want to
+    identify users in Knock. Keep the default Amplitude user payload. Amplitude
+    sends a user payload when it receives an event and when it receives an
+    [Identify API](https://amplitude.com/docs/apis/analytics/identify) call.
+  </Step>
+  <Step title="Enable the sync">
+    Set the destination status to **Enabled** and save it. Send a matching event
+    or Identify API update, then check the **Logs** tab on the Knock source
+    environment to confirm delivery.
+  </Step>
+</Steps>
+
+An event payload includes fields such as `event_type`, `user_id`, `event_properties`, `groups`, and a unique `uuid`:
+
+```json
+{
+  "user_id": "user_123",
+  "uuid": "bf0b9b2a-304d-11e6-934f-22000b56058f",
+  "event_type": "Order Completed",
+  "event_time": "2026-07-23T16:20:30.123Z",
+  "event_properties": {
+    "order_id": "order_789",
+    "total": 149.99
+  },
+  "groups": {
+    "workspace": "workspace_123"
+  }
+}
+```
+
+User payloads do not include `event_type`, so Knock normalizes them to `$identify`.
+
+## Sync cohorts with Cohort Webhooks
+
+Cohort Webhooks send batched membership changes to Knock. Knock maps entry batches to `cohort.entered` and exit batches to `cohort.exited`.
+
+<Steps>
+  <Step title="Create the cohort webhook destination">
+    In Amplitude Data, open **Catalog** > **Destinations**. In the **Cohorts**
+    section, select **Webhook** and create a destination.
+  </Step>
+  <Step title="Configure the destination">
+    Paste the same Knock source URL into the webhook URL field. Add an
+    `Authorization` header with the value `Bearer <your-signing-secret>`, and
+    keep the default Amplitude cohort payload. Save the destination.
+  </Step>
+  <Step title="Choose a cohort and cadence">
+    Open the cohort you want to export, click **Sync**, choose **Webhook**, and
+    select the destination you created. You can include up to 50 user
+    properties in the payload. Choose a one-time, recurring (hourly or daily),
+    or real-time sync, then click **Sync**.
+  </Step>
+</Steps>
+
+Amplitude supports [three cohort sync behaviors](https://amplitude.com/docs/data/destinations/syncs):
+
+| Cadence         | Behavior                                                                                                                                             |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One-time        | Sends the cohort membership once. Use this for a one-off campaign or test.                                                                           |
+| Hourly or daily | Recalculates the cohort on a schedule and sends membership additions and removals.                                                                   |
+| Real-time       | Sends the initial cohort population, then checks for entry and exit changes every minute. The initial population can take longer for a large cohort. |
+
+Amplitude sends cohort updates in batches with a unique `message_id`:
+
+```json
+{
+  "cohort_name": "Highly engaged users",
+  "cohort_id": "cohort_123",
+  "in_cohort": true,
+  "computed_time": "1784823900",
+  "message_id": "message_123",
+  "users": [{ "user_id": "user_123" }, { "user_id": "user_456" }]
+}
+```
+
+## Default action mappings
+
+The Amplitude template includes these mappings:
+
+| Event type       | Knock action            | Default behavior                                                                                                                                                |
+| ---------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$identify`      | Identify user           | Uses `user_id`, falling back to `device_id`, as the Knock user ID. Maps `user_properties.name`, `user_properties.email`, and the full `user_properties` object. |
+| `cohort.entered` | Add audience members    | Adds every user in the batch to the audience keyed `amplitude-<cohort_id>`. Creates the audience if it does not exist.                                          |
+| `cohort.exited`  | Remove audience members | Removes every user in the batch from the audience keyed `amplitude-<cohort_id>`.                                                                                |
+
+The cohort name can change in Amplitude, so Knock uses the stable `cohort_id` when it constructs the audience key. Cohort membership payloads must include Amplitude `user_id` values to map members to Knock users.
+
+### Align user identities
+
+Set Amplitude `user_id` to the same stable identifier you use as the Knock user ID. This keeps product events, user updates, cohort membership, and workflow recipients attached to the same Knock user. See Amplitude's [user identity documentation](https://amplitude.com/docs/get-started/identify-users) for its identity model and user ID recommendations.
+
+Amplitude can send an Identify payload with only a `device_id`. In that case, the default mapping creates or updates a Knock user keyed by that device ID. Knock does not merge that recipient with a later recipient keyed by Amplitude `user_id`, so use Amplitude `user_id` for signed-in users whenever possible.
+
+## Map product events to workflows
+
+Knock preserves the `event_type` for each streamed product event. After an event arrives, open the source's **Mappings** tab, select the event type, and create an action mapping.
+
+For the `Order Completed` example above, you could configure a **Trigger workflow** action with these fields:
+
+| Action field      | Payload path                         |
+| ----------------- | ------------------------------------ |
+| Workflow          | Select your order-completed workflow |
+| Recipients        | `body.user_id`                       |
+| Data              | `body.event_properties`              |
+| Tenant (optional) | `body.groups.workspace`              |
+
+This triggers the selected workflow for the Amplitude user and makes properties such as `order_id` and `total` available in the workflow's templates. If your events can be device-only, choose a field that always resolves to a Knock user ID or normalize the recipient in the source preprocessing script.
+
+## Map Amplitude groups to objects or tenants
+
+Amplitude group types and Knock [object collections](/concepts/objects) are customer-defined. The Amplitude template does not assume that a group such as `workspace`, `account`, or `project` should become a particular object collection or [tenant](/concepts/tenants).
+
+For an event with `groups.workspace` and `group_properties.workspace`, you can [customize the Amplitude webhook payload](https://amplitude.com/docs/data/destination-catalog/webhooks#freemarker-templating-language) to include the Knock collection name, then add a **Set object** mapping:
+
+```json
+{
+  "object_collection": "workspaces",
+  "groups": { "workspace": "workspace_123" },
+  "group_properties": {
+    "workspace": {
+      "name": "Acme Corp",
+      "plan": "enterprise"
+    }
+  }
+}
+```
+
+| Set object field  | Payload path                           |
+| ----------------- | -------------------------------------- |
+| Collection        | `body.object_collection`               |
+| Object ID         | `body.groups.workspace`                |
+| Name              | `body.group_properties.workspace.name` |
+| Custom properties | `body.group_properties.workspace`      |
+
+If your Amplitude group represents a Knock tenant instead, create a **Set tenant** mapping with `body.groups.workspace` as the tenant ID and `body.group_properties.workspace` as its properties. Adjust every path and collection name to match your Amplitude taxonomy and Knock data model.
+
+## Retries and idempotency
+
+Amplitude [retries failed event and user deliveries](https://amplitude.com/docs/data/destination-catalog/webhooks#amplitudes-retry-mechanism) nine times over four hours after the first attempt. It also retries `5xx` and `429` responses within each attempt. Cohort Webhooks can retry timed-out batches, which can produce duplicate deliveries.
+
+Knock configures idempotency for the Amplitude source using:
+
+- `body.uuid` for streamed product events.
+- `body.message_id` for cohort batches.
+- A combination of the user or device ID and `body.event_time` for user updates.
+
+Knock ignores a duplicate while its idempotency key remains in the source's idempotency window. You can change this behavior from the **Settings** tab. See [source event idempotency](/integrations/sources/overview#source-event-idempotency) for the window and key rules.
+
+## Debugging
+
+Open **Platform** > **Sources**, select the Amplitude source, and use its **Logs** tab to inspect received events and the actions they produced.
+
+Common issues include:
+
+- **Verification failed.** Confirm that Amplitude sends `Authorization: Bearer <your-signing-secret>` and that the token matches the signing secret in the current Knock environment.
+- **No events arrive.** Confirm that the Amplitude destination is enabled and that the event matches its filters. Webhooks Streaming does not send events that Amplitude ingested before you enabled the destination.
+- **An action was skipped.** Open the action log and check for a missing required field. Compare the mapping's dot-notation path with the received payload.
+- **Cohort members do not match users.** Confirm that Amplitude `user_id` values match Knock user IDs and that the cohort payload includes those IDs.
+
+You can modify the default action mappings or add mappings for any Amplitude event type. For details on field paths, preprocessing, and available actions, see the [custom source](/integrations/sources/custom) and [sources overview](/integrations/sources/overview#triggering-actions-from-source-events).
