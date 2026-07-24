@@ -327,7 +327,9 @@ export const AnimatedDotGrid = () => {
           [nearby[i], nearby[j]] = [nearby[j], nearby[i]];
         }
 
-        const affectCount = Math.floor(nearby.length * CONFIG.mouseTrailDensity);
+        const affectCount = Math.floor(
+          nearby.length * CONFIG.mouseTrailDensity,
+        );
         for (let i = 0; i < affectCount; i++) {
           const node = nodes[nearby[i]];
           node.trailInfluence = 1;

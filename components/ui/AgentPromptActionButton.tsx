@@ -252,9 +252,7 @@ export const AgentPromptActionButton = ({
       >
         {preferredOption ? (
           <>
-            {hideLabel && (
-              <Button.Icon icon={ArrowUpRight} aria-hidden />
-            )}
+            {hideLabel && <Button.Icon icon={ArrowUpRight} aria-hidden />}
             <CodingToolIcon
               option={preferredOption}
               appearance={variant === "solid" ? "onAccent" : "branded"}
