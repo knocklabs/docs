@@ -1,13 +1,12 @@
 import type { CSSProperties } from "react";
-import { Box, Stack } from "@telegraph/layout";
-import { useTheme } from "@/components/theme/ThemeProvider";
+import { Box } from "@telegraph/layout";
 
 import type { CodingToolOption } from "./constants";
 
 type CodingToolIconSize = "default" | "large";
 
-// `branded` keeps original mark colors + optional badge.
-// `onAccent` skips the badge and forces a white mark via CSS (SVGs unchanged).
+// `branded` keeps original mark colors (currentColor follows theme text).
+// `onAccent` forces a white mark via CSS for solid accent buttons.
 type CodingToolIconAppearance = "branded" | "onAccent";
 
 type CodingToolIconProps = {
@@ -17,16 +16,8 @@ type CodingToolIconProps = {
 };
 
 const ICON_SIZES = {
-  default: {
-    plain: "4" as const,
-    badge: "5" as const,
-    mark: "3" as const,
-  },
-  large: {
-    plain: "5" as const,
-    badge: "6" as const,
-    mark: "4" as const,
-  },
+  default: "4" as const,
+  large: "5" as const,
 };
 
 const ON_ACCENT_MARK_STYLE: CSSProperties = {
@@ -34,64 +25,31 @@ const ON_ACCENT_MARK_STYLE: CSSProperties = {
   filter: "brightness(0) invert(1)",
 };
 
-const resolveThemeAwareBadge = (isDark: boolean) => ({
-  // White in light, black in dark — mark contrast follows via currentColor.
-  backgroundColor: isDark ? "#000000" : "#FFFFFF",
-  color: isDark ? "#FFFFFF" : "#000000",
-});
+const BRANDED_MARK_STYLE: CSSProperties = {
+  // Cursor/Codex use currentColor; Claude keeps its hardcoded orange fill.
+  color: "var(--tgph-gray-12)",
+  aspectRatio: "1 / 1",
+};
 
-// Brandmark for options that ship an icon; Cursor/Codex wrap the mark in a
-// theme-aware badge so it stays readable on dark/light surfaces.
+// Plain brandmark — no badge. Theme contrast comes from currentColor / brand fill.
 export const CodingToolIcon = ({
   option,
   size = "default",
   appearance = "branded",
 }: CodingToolIconProps) => {
-  const { appearance: themeAppearance } = useTheme();
   const Icon = option.Icon;
-  const iconBadge = "iconBadge" in option ? option.iconBadge : undefined;
-  const sizes = ICON_SIZES[size];
-  const themeAwareBadge =
-    iconBadge && "themeAware" in iconBadge && iconBadge.themeAware
-      ? resolveThemeAwareBadge(themeAppearance === "dark")
-      : undefined;
+  const iconSize = ICON_SIZES[size];
 
-  if (appearance === "onAccent") {
-    return (
-      <Box
-        aria-hidden
-        w={sizes.plain}
-        h={sizes.plain}
-        style={ON_ACCENT_MARK_STYLE}
-      >
-        <Icon />
-      </Box>
-    );
-  }
-
-  // Always reserve a square slot so badged and plain marks align in menus.
   return (
-    <Stack
-      align="center"
-      justify="center"
-      rounded="1"
-      w={sizes.badge}
-      h={sizes.badge}
-      style={{
-        backgroundColor: themeAwareBadge?.backgroundColor,
-        color: themeAwareBadge?.color,
-        aspectRatio: "1 / 1",
-        flexShrink: 0,
-      }}
+    <Box
+      aria-hidden
+      w={iconSize}
+      h={iconSize}
+      style={
+        appearance === "onAccent" ? ON_ACCENT_MARK_STYLE : BRANDED_MARK_STYLE
+      }
     >
-      <Box
-        aria-hidden
-        w={iconBadge ? sizes.mark : sizes.plain}
-        h={iconBadge ? sizes.mark : sizes.plain}
-        style={{ aspectRatio: "1 / 1" }}
-      >
-        <Icon />
-      </Box>
-    </Stack>
+      <Icon />
+    </Box>
   );
 };

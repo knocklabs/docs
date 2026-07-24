@@ -6,10 +6,6 @@ export const CODING_TOOL_OPTIONS = [
     label: "Cursor",
     openLabel: "Setup in Cursor",
     Icon: CursorBrandmark,
-    // Theme-aware badge: white in light, black in dark (mark uses currentColor).
-    iconBadge: {
-      themeAware: true,
-    },
   },
   {
     value: "claude",
@@ -22,10 +18,6 @@ export const CODING_TOOL_OPTIONS = [
     label: "Codex",
     openLabel: "Setup in Codex",
     Icon: CodexBrandmark,
-    // Theme-aware badge: white in light, black in dark (mark uses currentColor).
-    iconBadge: {
-      themeAware: true,
-    },
   },
 ] as const;
 
