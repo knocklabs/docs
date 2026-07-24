@@ -193,7 +193,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 align="center"
                 style={{ position: "relative", zIndex: 1 }}
               >
-                Agent-first growth
+                Agent-first customer messaging
               </Heading>
               <Text
                 as="p"
@@ -207,14 +207,14 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                   zIndex: 1,
                 }}
               >
-                Drive Knock from your coding agent. Build and manage product,
-                marketing, and transactional messaging in one platform.
+                Drive Knock from your coding agent. Build, ship, and optimize
+                product, marketing, and transactional messaging in one platform.
               </Text>
             </Stack>
             <Stack direction="column" alignItems="center" gap="4">
               <CopyPromptButton
                 prompt={KNOCK_SETUP_PROMPT}
-                label="Setup with one prompt"
+                label="Get started with a prompt"
               />
               <CodingToolWordmarks prompt={KNOCK_SETUP_PROMPT} />
             </Stack>
