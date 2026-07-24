@@ -73,7 +73,7 @@ export const MarketingFooter = () => (
               />
             </svg>
           </Link>
-          <Heading as="h2" size="8" weight="medium" style={{ margin: 0 }}>
+          <Heading as="h2" size="6" weight="medium" style={{ margin: 0 }}>
             Customer engagement infrastructure for growth.
           </Heading>
         </Stack>
