@@ -9,7 +9,6 @@ Knock integrates with popular third-party platforms, enabling new functionality 
 
 - [Slack](/integrations/extensions/slack)
 - [Data warehouse sync](/integrations/extensions/data-sync)
-- [Segment](/integrations/extensions/segment)
 - [Datadog](/integrations/extensions/datadog)
 - [New Relic](/integrations/extensions/new-relic)
 - [Heap](/integrations/extensions/heap)
