@@ -1,0 +1,70 @@
+---
+title: Overriding a message's recipient connection
+description: Override where a Slack chat message is delivered from the template's settings, instead of using the recipient's stored connections.
+tags: ["slack", "chat"]
+section: Integrations > Slack
+layout: integrations
+---
+
+By default, a Slack step delivers to the [channel data](/managing-recipients/setting-channel-data) stored on the recipient. A **recipient connection override** lets a single message template deliver somewhere else — a fixed channel, a specific user, or an incoming webhook — regardless of the recipient's stored connections.
+
+This is useful when a message should go somewhere other than the recipient's configured destination: an alerts channel, an internal operations channel, or a dynamic destination you compute per-recipient with Liquid.
+
+## Setting the override
+
+In the workflow builder, open the Slack step's template, then open **Template settings** (the gear icon) and set the **Recipient connection** field.
+
+The override is stored on the message template, so it travels with the workflow when you commit and promote it across environments.
+
+## How it changes delivery
+
+The override **replaces** the recipient's connections for this message: exactly one message is delivered, to the connection you specify. If the value is empty or renders to invalid JSON at send time, the message is left undelivered with failure details you can inspect on the message.
+
+## What you can specify
+
+The override is a JSON object in one of two shapes.
+
+### Incoming webhook
+
+Post to one fixed Slack incoming webhook URL:
+
+```json
+{
+  "incoming_webhook": {
+    "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXX"
+  }
+}
+```
+
+### Channel or direct message with a bot token
+
+Send to a channel (`channel_id`) or a user's direct message (`user_id`), authenticated with a bot token:
+
+```json
+{ "channel_id": "C0123456789", "access_token": "xoxb-your-bot-token" }
+```
+
+You can leave out `access_token` and let it come from the [access token stored on the tenant](/integrations/chat/slack/overview#tenant-channel-data-requirements) you trigger the workflow with. In that case, provide only the destination:
+
+```json
+{ "channel_id": "C0123456789" }
+```
+
+## Using Liquid for dynamic destinations
+
+The value is Liquid-capable and rendered at send time, so you can route each message dynamically from workflow or recipient data:
+
+```json
+{ "channel_id": "{{ recipient.slack_channel }}" }
+```
+
+<Callout
+  type="info"
+  title="Slack only."
+  text={
+    <>
+      Recipient connection overrides are currently supported for Slack chat
+      channels.
+    </>
+  }
+/>
