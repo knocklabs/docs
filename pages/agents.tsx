@@ -171,7 +171,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
               alignItems="center"
               gap="3"
               w="full"
-              style={{ maxWidth: "42rem" }}
+              style={{ maxWidth: "52rem" }}
             >
               {/* Surface veil so the grid softens under the hero copy */}
               <Box
