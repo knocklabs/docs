@@ -180,9 +180,9 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 style={{
                   // Overflow sides/top for a soft edge; keep bottom flush so the
                   // CTA below stays clear of the veil.
-                  inset: "-2.5rem -2rem 0",
+                  inset: "-1.5rem -2rem 0",
                   background:
-                    "radial-gradient(ellipse 58% 110% at 50% 40%, color-mix(in srgb, var(--tgph-surface-1) 82%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 58%, transparent) 52%, transparent 80%)",
+                    "radial-gradient(ellipse 58% 85% at 50% 42%, color-mix(in srgb, var(--tgph-surface-1) 82%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 58%, transparent) 48%, transparent 72%)",
                   pointerEvents: "none",
                   zIndex: 0,
                 }}
