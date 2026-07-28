@@ -997,6 +997,38 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.AudienceRequest
       x-validate: null
+    InlineIdentifyUserRequest:
+      additionalProperties: false
+      description: A user recipient with optional identify properties. When email or name are provided, the user is created or updated as part of the workflow run. The collection is always `$users` and should not be sent.
+      example:
+        email: jane@example.com
+        id: user_1
+        name: Jane Doe
+      properties:
+        email:
+          description: The email address to set on the user.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The ID of the user.
+          nullable: false
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The display name to set on the user.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+      title: InlineIdentifyUserRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.InlineIdentifyUserRequest
+      x-validate: null
     Workflow:
       description: A workflow object. Read more in the [docs](https://docs.knock.app/concepts/workflows).
       example:
@@ -5124,11 +5156,14 @@ components:
         data:
           park_id: 1
         recipients:
-          - dnedry
+          - email: jane@example.com
+            id: user_1
+            name: Jane Doe
       properties:
         actor:
           anyOf:
             - $ref: '#/components/schemas/RecipientReference'
+            - $ref: '#/components/schemas/InlineIdentifyUserRequest'
             - nullable: true
               x-struct: null
               x-validate: null
@@ -5149,9 +5184,13 @@ components:
           x-struct: null
           x-validate: null
         recipients:
-          description: A list of recipients to run the workflow for.
+          description: A list of recipients to run the workflow for. Supports user IDs, object references, or inline identify user objects (id + optional email/name).
           items:
-            $ref: '#/components/schemas/RecipientReference'
+            anyOf:
+              - $ref: '#/components/schemas/RecipientReference'
+              - $ref: '#/components/schemas/InlineIdentifyUserRequest'
+            x-struct: null
+            x-validate: null
           type: array
           x-struct: null
           x-validate: null
@@ -20976,7 +21015,7 @@ paths:
 
           const response = await client.workflows.run('workflow_key', {
             environment: 'development',
-            recipients: ['dnedry'],
+            recipients: [{ id: 'user_1' }],
           });
 
           console.log(response.workflow_run_id);
@@ -20990,7 +21029,9 @@ paths:
           response = client.workflows.run(
               workflow_key="workflow_key",
               environment="development",
-              recipients=["dnedry"],
+              recipients=[{
+                  "id": "user_1"
+              }],
           )
           print(response.workflow_run_id)
         go: |
@@ -21014,7 +21055,9 @@ paths:
           		knockmapi.WorkflowRunParams{
           			Environment: "development",
           			Recipients: []knockmapi.WorkflowRunParamsRecipientUnion{{
-          				OfString: knockmapi.String("dnedry"),
+          				OfInlineIdentifyUserRequest: &knockmapi.WorkflowRunParamsRecipientInlineIdentifyUserRequest{
+          					ID: "user_1",
+          				},
           			}},
           		},
           	)
