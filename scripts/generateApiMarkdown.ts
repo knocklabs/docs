@@ -8,6 +8,7 @@ import remarkFrontmatter from "remark-frontmatter";
 import yaml from "yaml";
 import { resolveEndpointFromMethod } from "../components/ui/ApiReference/helpers";
 import { getAtPointer } from "../lib/jsonPointer";
+import { convertMultiLangCodeBlocksToMarkdown } from "../lib/mdxToLlmMarkdown";
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
 import {
   MAPI_REFERENCE_OVERVIEW_CONTENT,
@@ -47,8 +48,12 @@ function writeMarkdownFile(filePath: string, content: string) {
 
 // Clean JSX content to plain markdown
 function cleanJsxContent(content: string): string {
+  // Unfurl multi-language examples to a single preferred language first so the
+  // later JSX cleanup passes don't strip the component tags without content.
+  const withCodeBlocks = convertMultiLangCodeBlocksToMarkdown(content);
+
   return (
-    content
+    withCodeBlocks
       // Remove ContentColumn and ExampleColumn wrappers
       .replace(/<ContentColumn>/g, "")
       .replace(/<\/ContentColumn>/g, "")
@@ -98,8 +103,6 @@ function cleanJsxContent(content: string): string {
       })
       // Remove Endpoints/Endpoint components
       .replace(/<Endpoints[\s\S]*?<\/Endpoints>/g, "")
-      // Remove MultiLangCodeBlock
-      .replace(/<MultiLangCodeBlock[^>]*\/>/g, "")
       // Remove ErrorExample components
       .replace(/<ErrorExample[\s\S]*?\/>/g, "")
       // Remove RateLimit components

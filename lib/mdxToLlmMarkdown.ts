@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
+import { pickBestSnippetLanguage, snippets } from "../data/code/snippets";
 
 /**
  * Helpers for turning the custom MDX components used in our docs into plain
  * markdown for the "Copy for LLM" / llms.txt output.
  *
  * The docs render several React components that have no markdown equivalent. The
- * two that matter here are:
+ * ones that matter here are:
  *
  *   - `<Typedoc file="..." />`, which inlines an auto-generated SDK reference
  *     page from `/typedocs`. Without resolving it, an SDK component page like
@@ -14,8 +15,11 @@ import path from "path";
  *   - `<Attributes>` / `<Attribute>`, which render a property reference table.
  *     Those appear both inside the inlined typedoc content and directly in
  *     hand-written pages.
+ *   - `<MultiLangCodeBlock />`, which loads a multi-language example from
+ *     `/data/code`. We unfurl a single preferred language (Node.js by default)
+ *     rather than emitting every variant.
  *
- * We convert both to markdown so the copied content is actually useful to an
+ * We convert these to markdown so the copied content is actually useful to an
  * LLM. The attribute list format mirrors the one produced by
  * `scripts/generateApiMarkdown.ts` (`- **name** (type) *required* - description`).
  */
@@ -376,14 +380,95 @@ export const resolveTypedocReferences = (
   });
 
 /**
- * Prepares raw MDX for LLM/markdown output: inlines `<Typedoc>` references, then
- * converts the `<Attributes>` components (including any that came from the
- * inlined typedoc content) into markdown lists.
+ * Renders one multi-language snippet as a fenced markdown code block using the
+ * single preferred language for that snippet.
+ */
+const renderSnippetMarkdown = (snippetKey: string, title: string): string => {
+  const snippet = snippets[snippetKey];
+  if (!snippet) {
+    console.warn(
+      `Warning: MultiLangCodeBlock snippet not found for LLM markdown: ${snippetKey}`,
+    );
+    return "";
+  }
+
+  const language = pickBestSnippetLanguage(snippet);
+  if (!language) {
+    console.warn(
+      `Warning: MultiLangCodeBlock snippet has no languages for LLM markdown: ${snippetKey}`,
+    );
+    return "";
+  }
+
+  const code = (snippet[language] ?? "").trim();
+  const fenceInfo = title
+    ? `${language} title="${title.replace(/"/g, '\\"')}"`
+    : language;
+
+  return `\n\`\`\`${fenceInfo}\n${code}\n\`\`\`\n`;
+};
+
+/**
+ * Replaces every `<MultiLangCodeBlock />` with a single-language fenced code
+ * block. Prefers Node.js to match the docs UI default language; if that variant
+ * is missing, falls back to the first language in the shared switcher order.
+ */
+export const convertMultiLangCodeBlocksToMarkdown = (
+  content: string,
+): string => {
+  let result = content;
+  let start = result.indexOf("<MultiLangCodeBlock");
+
+  while (start !== -1) {
+    const openInnerStart = start + "<MultiLangCodeBlock".length;
+    const { end, selfClosing } = findOpeningTagEnd(result, openInnerStart);
+    const openInner = result.slice(
+      openInnerStart,
+      selfClosing ? end - 2 : end - 1,
+    );
+    const attributes = parseJsxAttributes(openInner);
+    const snippetKey = asString(attributes.snippet);
+    const title = asString(attributes.title);
+    const markdown = renderSnippetMarkdown(snippetKey, title);
+
+    let replaceEnd = end;
+    if (!selfClosing) {
+      const closeIndex = result.indexOf("</MultiLangCodeBlock>", end);
+      replaceEnd =
+        closeIndex === -1 ? end : closeIndex + "</MultiLangCodeBlock>".length;
+    }
+
+    const before = result.slice(0, start);
+    const after = result.slice(replaceEnd);
+
+    // Avoid stacking blank lines where the surrounding MDX already has them.
+    const withoutLeadingBlank =
+      markdown.startsWith("\n") && /\n[ \t]*\n[ \t]*$/.test(before)
+        ? markdown.slice(1)
+        : markdown;
+    const normalized =
+      withoutLeadingBlank.endsWith("\n") && /^[ \t]*\n/.test(after)
+        ? withoutLeadingBlank.slice(0, -1)
+        : withoutLeadingBlank;
+
+    result = before + normalized + after;
+    start = result.indexOf("<MultiLangCodeBlock", start + normalized.length);
+  }
+
+  return result;
+};
+
+/**
+ * Prepares raw MDX for LLM/markdown output: inlines `<Typedoc>` references,
+ * converts `<Attributes>` components (including any that came from the inlined
+ * typedoc content) into markdown lists, and unfurls `<MultiLangCodeBlock />`
+ * examples into a single preferred-language fenced code block.
  */
 export const convertMdxForLlm = (
   content: string,
   typedocsDir: string,
 ): string => {
   const withTypedocs = resolveTypedocReferences(content, typedocsDir);
-  return convertAttributesToMarkdown(withTypedocs);
+  const withAttributes = convertAttributesToMarkdown(withTypedocs);
+  return convertMultiLangCodeBlocksToMarkdown(withAttributes);
 };
