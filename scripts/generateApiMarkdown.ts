@@ -6,7 +6,10 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import yaml from "yaml";
-import { resolveEndpointFromMethod } from "../components/ui/ApiReference/helpers";
+import {
+  augmentSnippetsWithCurlRequest,
+  resolveEndpointFromMethod,
+} from "../components/ui/ApiReference/helpers";
 import { getAtPointer } from "../lib/jsonPointer";
 import { convertMultiLangCodeBlocksToMarkdown } from "../lib/mdxToLlmMarkdown";
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
@@ -186,6 +189,7 @@ async function generateApiReferenceMarkdownFiles(
     // Get API specs
     const openApiSpec = await readOpenApiSpec(apiType);
     const stainlessSpec = await readStainlessSpec(apiType);
+    const baseUrl = stainlessSpec.environments?.production ?? "";
 
     // Get the appropriate sidebar content and resource order
     const { overviewContent, resourceOrder } =
@@ -278,6 +282,7 @@ async function generateApiReferenceMarkdownFiles(
             methodName,
             method,
             openApiSpec,
+            baseUrl,
           );
           combinedContent += methodContent;
           resourceContent += methodContent;
@@ -305,6 +310,7 @@ async function generateApiReferenceMarkdownFiles(
             subresourceName,
             subresource,
             openApiSpec,
+            baseUrl,
           );
           combinedContent += subresourceContent;
           resourceContent += subresourceContent;
@@ -316,6 +322,7 @@ async function generateApiReferenceMarkdownFiles(
             [subresourceName],
             subresource,
             openApiSpec,
+            baseUrl,
           );
         }
       }
@@ -378,6 +385,7 @@ function generateSubresourcePages(
   subresourcePath: string[],
   subresource: any,
   openApiSpec: any,
+  baseUrl: string,
 ) {
   // Build the directory path for this subresource
   const subresourceDir = path.join(
@@ -435,6 +443,7 @@ function generateSubresourcePages(
         methodName,
         method,
         openApiSpec,
+        baseUrl,
       );
 
       if (methodContent.trim()) {
@@ -475,6 +484,7 @@ function generateSubresourcePages(
         [...subresourcePath, nestedName],
         nestedSubresource,
         openApiSpec,
+        baseUrl,
       );
     }
   }
@@ -515,10 +525,38 @@ function getResourceOverviewContent(
   return content;
 }
 
+/**
+ * Picks a single request example language for API markdown. Prefers cURL so the
+ * generated page stays language-agnostic and matches the request example the UI
+ * shows first in the language switcher. Falls back to TypeScript/Node, then the
+ * first available snippet — never every language.
+ */
+function pickBestApiRequestExample(
+  examples: Record<string, string>,
+): { language: string; code: string } | null {
+  const preferredLanguages = ["curl", "typescript", "node"];
+  for (const language of preferredLanguages) {
+    const code = examples[language]?.trim();
+    if (code) {
+      return { language, code };
+    }
+  }
+
+  for (const [language, rawCode] of Object.entries(examples)) {
+    const code = rawCode?.trim();
+    if (code) {
+      return { language, code };
+    }
+  }
+
+  return null;
+}
+
 function getMethodMarkdownContent(
   methodName: string,
   method: any,
   openApiSpec: any,
+  baseUrl: string,
 ): string {
   const [methodType, endpoint] = resolveEndpointFromMethod(
     method as string | { endpoint: string },
@@ -573,12 +611,12 @@ function getMethodMarkdownContent(
   const requestBodyContent =
     openApiOperation.requestBody?.content?.["application/json"];
   const requestBody = requestBodyContent?.schema;
+  const requestExample = requestBodyContent?.example || requestBody?.example;
   if (requestBody) {
     content += `#### Request body\n\n`;
     if (requestBody.description) {
       content += `${requestBody.description}\n\n`;
     }
-    const requestExample = requestBodyContent?.example || requestBody.example;
     if (requestExample) {
       content += `##### Example\n\n`;
       content += `\`\`\`json\n${JSON.stringify(
@@ -587,6 +625,33 @@ function getMethodMarkdownContent(
         2,
       )}\n\`\`\`\n\n`;
     }
+  }
+
+  // Unfurl the same request example the UI builds from stainless snippets +
+  // synthesized cURL, but emit only the preferred language.
+  const requestExamples = augmentSnippetsWithCurlRequest(
+    openApiOperation["x-stainless-snippets"] ?? {},
+    {
+      baseUrl,
+      methodType,
+      endpoint,
+      body: requestExample,
+    },
+  );
+  const bestRequestExample = pickBestApiRequestExample(requestExamples);
+  if (bestRequestExample) {
+    const title = `${openApiOperation.summary || methodName} (example)`;
+    // The shared curl helper always ends the Authorization header with a line
+    // continuation; strip a dangling one when there is no request body line.
+    const code =
+      bestRequestExample.language === "curl"
+        ? bestRequestExample.code.replace(/\\\s*$/, "").trim()
+        : bestRequestExample.code;
+    content += `#### Request example\n\n`;
+    content += `\`\`\`${bestRequestExample.language} title="${title.replace(
+      /"/g,
+      '\\"',
+    )}"\n${code}\n\`\`\`\n\n`;
   }
 
   // Add response information
@@ -622,6 +687,7 @@ function getSubresourceMarkdownContent(
   subresourceName: string,
   subresource: any,
   openApiSpec: any,
+  baseUrl: string,
 ): string {
   let content = "";
 
@@ -650,7 +716,12 @@ function getSubresourceMarkdownContent(
   // Add method content for subresource
   if (subresource.methods) {
     for (const [methodName, method] of Object.entries(subresource.methods)) {
-      content += getMethodMarkdownContent(methodName, method, openApiSpec);
+      content += getMethodMarkdownContent(
+        methodName,
+        method,
+        openApiSpec,
+        baseUrl,
+      );
     }
   }
 
