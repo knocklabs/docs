@@ -42,6 +42,8 @@ Your Knock environment must have at least one configured source that has receive
 
 When a source event includes a `user_id`, Knock scopes matching to the workflow recipient for that run. Events without a recipient association can still match waits that are registered without recipient scoping.
 
+Source event payload fields are available under `event.data.*`. Envelope fields such as `user_id`, `inserted_at`, and `preprocess_output` are available at the top level of `event.*`.
+
 ### Message
 
 Wait for a [message lifecycle event](/send-notifications/message-statuses) produced by a specific [workflow](/concepts/workflows), [broadcast](/concepts/broadcasts), or [guide](/concepts/guides) for the same recipient.
@@ -51,6 +53,7 @@ Configure:
 - **Source type.** The kind of message source to observe: workflow, broadcast, or guide.
 - **Source.** The specific workflow, broadcast, or guide whose messages should match this wait.
 - **Message event.** The lifecycle event to wait for, such as delivered, bounced, seen, read, or link clicked.
+- **Channel steps.** Optional. For workflow and broadcast sources, filter to messages produced by specific channel steps. Selecting a channel step writes an `event.step_ref` match condition and satisfies the match conditions requirement. Defaults to any step. For guide sources, filter by `event.step_ref` in match conditions instead.
 
 Available message events include: created, queued, sent, not sent, delivered, delivery attempted, undelivered, bounced, read, unread, seen, unseen, archived, unarchived, interacted, and link clicked.
 
@@ -90,6 +93,8 @@ Beyond selecting the event type and its event-specific fields, you configure the
 
 Match conditions filter candidate events before the workflow resumes. Knock evaluates each candidate event against these conditions. If an event does not pass, the workflow keeps waiting until a matching event arrives or the wait time expires.
 
+Knock already scopes waits to the workflow recipient for the run, so you do not need a recipient ID condition to match events to the current user.
+
 | Event type         | Match conditions |
 | ------------------ | ---------------- |
 | Integration source | Optional         |
@@ -112,13 +117,13 @@ You can build match conditions using the same [conditions builder](/concepts/con
 
 The shape of `event.*` depends on the event type:
 
-| Event type         | Example `event.*` fields                                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| Integration source | Fields from the source event payload (for example, properties from a Segment track event)                                      |
-| Message            | `message_id`, `event_type`, `channel_id`, `recipient`, `inserted_at`, `source.type`, `source.key`, and event-specific `data.*` |
-| Workflow           | `workflow_key`, `workflow_run_id`, `recipient`, `status`, `inserted_at`                                                        |
-| Audience           | `audience_id`, `recipient`, `transition`, `happened_at`                                                                        |
-| Recipient          | `recipient`, `event_type`, `timestamp`, `properties`, `preferences`, `knock_traits`, `channel_data`                            |
+| Event type         | Example `event.*` fields                                                                                                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Integration source | `data.*` (source event payload, such as properties from a Segment track event), `user_id`, `inserted_at`, `preprocess_output`, `event_gid`                                                               |
+| Message            | `message_id`, `event_type`, `channel_id`, `channel_type`, `channel_provider`, `tenant_id`, `exec_mode`, `step_ref`, `recipient`, `inserted_at`, `source.type`, `source.key`, and event-specific `data.*` |
+| Workflow           | `workflow_key`, `workflow_run_id`, `recipient`, `status`, `tenant_id`, `notify_data`, `exec_mode`, `inserted_at`                                                                                         |
+| Audience           | `audience_id`, `recipient`, `transition`, `happened_at`                                                                                                                                                  |
+| Recipient          | `recipient`, `event_type`, `timestamp`, `properties`, `preferences`, `knock_traits`, `channel_data`                                                                                                      |
 
 ### On match
 
@@ -159,8 +164,8 @@ Use `refs.<step_ref>.matched` in a downstream [branch function](/designing-workf
 // Branch on whether the event matched before timeout
 refs.wait_for_payment.matched == true
 
-// Branch on a field from the matched event payload
-refs.wait_for_payment.signal_variables.status == "paid"
+// Branch on a field from the matched integration source event payload
+refs.wait_for_payment.signal_variables.data.status == "paid"
 ```
 
 ## Common patterns
@@ -173,7 +178,7 @@ Pair this with **On match: Halt workflow** and **After wait time: Continue workf
 
 ### Escalate when a message is not engaged
 
-Send an in-app notification, then wait for a message **seen** or **read** event from that workflow. If the wait times out, continue to an email channel step. Use match conditions on `event.*` as needed to narrow which message events resume the workflow.
+Send an in-app notification, then wait for a message **seen** or **read** event from that workflow. Optionally select the channel step that sent the in-app message so the wait only resumes for that step's messages. If the wait times out, continue to an email channel step. Use match conditions on `event.*` as needed to narrow which message events resume the workflow.
 
 ### Wait for a nested workflow to finish
 
@@ -235,8 +240,10 @@ When match conditions reject an incoming event, Knock logs a `wait_conditions_ev
   </Accordion>
   <Accordion title="Why are match conditions required for message and workflow events?">
     When the event type is message or workflow, Knock requires at least one
-    match condition. Integration source, audience, and recipient waits can omit
-    match conditions.
+    match condition so the wait can narrow which events resume the run. For
+    message events from a workflow or broadcast source, selecting a channel step
+    satisfies this requirement by adding an `event.step_ref` condition.
+    Integration source, audience, and recipient waits can omit match conditions.
   </Accordion>
   <Accordion title="Can I use wait for event in an API-triggered workflow?">
     Yes. The workflow trigger type does not affect the wait for event step. The
