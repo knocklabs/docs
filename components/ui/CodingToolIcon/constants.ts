@@ -9,8 +9,8 @@ export const CODING_TOOL_OPTIONS = [
   },
   {
     value: "claude",
-    label: "Claude Code",
-    openLabel: "Setup in Claude Code",
+    label: "Claude",
+    openLabel: "Setup in Claude",
     Icon: ClaudeBrandmark,
   },
   {
