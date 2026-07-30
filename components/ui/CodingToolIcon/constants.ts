@@ -4,19 +4,19 @@ export const CODING_TOOL_OPTIONS = [
   {
     value: "cursor",
     label: "Cursor",
-    openLabel: "Setup in Cursor",
+    openLabel: "Open in Cursor",
     Icon: CursorBrandmark,
   },
   {
     value: "claude",
     label: "Claude",
-    openLabel: "Setup in Claude",
+    openLabel: "Open in Claude",
     Icon: ClaudeBrandmark,
   },
   {
     value: "codex",
     label: "Codex",
-    openLabel: "Setup in Codex",
+    openLabel: "Open in Codex",
     Icon: CodexBrandmark,
   },
 ] as const;
