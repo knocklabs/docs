@@ -59,9 +59,34 @@ const CopyPromptButton = ({
         icon: isCopied ? Check : Copy,
         "aria-hidden": true,
       }}
-      style={{ minWidth: "12.5rem", justifyContent: "center" }}
+      style={{ justifyContent: "center" }}
     >
-      {isCopied ? "Copied" : label}
+      {/* Stack both labels so the button width stays stable on copy. */}
+      <span
+        aria-live="polite"
+        style={{
+          display: "inline-grid",
+          justifyItems: "center",
+        }}
+      >
+        <span
+          style={{
+            gridArea: "1 / 1",
+            visibility: isCopied ? "hidden" : "visible",
+          }}
+        >
+          {label}
+        </span>
+        <span
+          aria-hidden={!isCopied}
+          style={{
+            gridArea: "1 / 1",
+            visibility: isCopied ? "visible" : "hidden",
+          }}
+        >
+          Copied
+        </span>
+      </span>
     </Button>
   );
 };
