@@ -271,7 +271,7 @@ export const AgentPromptActionButton = ({
             variant={variant}
             color={color}
             size={size}
-            aria-label="Setup in coding tool"
+            aria-label="Open in coding tool"
             style={attachedTriggerStyles}
           >
             <Button.Icon icon={ChevronDown} aria-hidden />
