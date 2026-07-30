@@ -38,7 +38,7 @@ export const AGENT_SKILL_CARDS: AgentSkillCard[] = [
     name: "knock-setup",
     title: "Set up Knock",
     description:
-      "Connect MCP and skills, then discover and build your first workflows.",
+      "Connect via MCP or the Knock CLI, then discover and build your first workflows.",
   },
   {
     name: "knock-lifecycle-opportunities",

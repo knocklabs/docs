@@ -130,7 +130,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
     <Page.Container>
       <Meta
         title="Agents | Knock Docs"
-        description="Set up Knock with your coding agent. Install skills, connect the MCP server, and build notification workflows."
+        description="Set up Knock with your coding agent. Install skills, connect via MCP or the Knock CLI, and build notification workflows."
       />
       <Page.Masthead
         skipHighlight
