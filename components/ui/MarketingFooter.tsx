@@ -53,11 +53,11 @@ export const MarketingFooter = () => (
           <Link
             href="https://knock.app"
             aria-label="Knock"
-            style={{ display: "inline-block", marginLeft: "-10px" }}
+            style={{ display: "inline-block" }}
           >
             <KnockWordmark width={84} />
           </Link>
-          <Heading as="h2" size="6" weight="medium" style={{ margin: 0 }}>
+          <Heading as="h2" size="4" weight="medium" style={{ margin: 0 }}>
             Customer engagement infrastructure for growth.
           </Heading>
         </Stack>
