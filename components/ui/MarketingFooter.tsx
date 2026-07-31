@@ -57,7 +57,7 @@ export const MarketingFooter = () => (
           >
             <KnockWordmark width={84} />
           </Link>
-          <Heading as="h2" size="4" weight="semi-bold" style={{ margin: 0 }}>
+          <Heading as="h2" size="4" weight="medium" style={{ margin: 0 }}>
             Customer engagement infrastructure for growth.
           </Heading>
         </Stack>
