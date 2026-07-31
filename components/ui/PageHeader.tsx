@@ -55,7 +55,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
           {/* Left section: Logo + Search (mobile only) */}
           <Stack direction="row" alignItems="flex-end" style={{ minWidth: 0 }}>
             <Stack direction="row" alignItems="flex-end" pb="1">
-              <Box as={Link} href="/" display="block" mr="2">
+              <Box as={Link} href="/" display="block" ml="2" mr="2">
                 <KnockWordmark width={67} />
               </Box>
               <Text as="span" style={{ lineHeight: "1", marginBottom: "2px" }}>
