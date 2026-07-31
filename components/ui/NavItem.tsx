@@ -1,4 +1,3 @@
-import { LucideIcon } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
 import Link from "next/link";
 import {
@@ -14,7 +13,6 @@ import { TgphComponentProps } from "@telegraph/helpers";
 type NavItemProps = {
   href: string;
   isActive: boolean;
-  icon?: LucideIcon;
   children: React.ReactNode;
   samePageRouting?: boolean;
   containerProps?: TgphComponentProps<typeof Stack>;
@@ -24,7 +22,6 @@ type NavItemProps = {
 const NavItem = ({
   href,
   isActive,
-  icon,
   children,
   containerProps = {},
   className,
@@ -62,10 +59,6 @@ const NavItem = ({
 
   return (
     <Stack
-      as={Link}
-      prefetch={false}
-      href={stripTrailingSlash(href)}
-      onClick={onClick}
       display="inline-flex"
       w="full"
       direction="row"
@@ -83,8 +76,14 @@ const NavItem = ({
       borderRadius="2"
       data-active={isActive}
       data-resource-path={stripTrailingSlash(href)}
-      icon={icon ? { icon: icon, "aria-hidden": true } : undefined}
       {...containerProps}
+      // `as` and the Link-specific props must come after the spread: the spread
+      // is typed against Stack's default (wide) element, which would otherwise
+      // widen the polymorphic element type and drop the Link props entirely.
+      as={Link}
+      prefetch={false}
+      href={stripTrailingSlash(href)}
+      onClick={onClick}
     >
       <Text
         as="span"
@@ -97,7 +96,7 @@ const NavItem = ({
             verticalAlign: "text-bottom",
             "--color": isActive ? "var(--tgph-gray-12)" : "var(--tgph-gray-11)",
             ...(textProps.style || {}),
-          } as React.CSSProperties
+          } as unknown as React.CSSProperties
         }
         {...textPropsWithoutStyle}
       >

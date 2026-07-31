@@ -717,23 +717,21 @@ const Autocomplete = () => {
         <Input
           tgphRef={inputRef}
           className="aa-Input"
-          {...(inputProps as React.DetailedHTMLProps<
-            React.InputHTMLAttributes<HTMLInputElement>,
-            HTMLInputElement
+          {...(inputProps as Omit<
+            React.DetailedHTMLProps<
+              React.InputHTMLAttributes<HTMLInputElement>,
+              HTMLInputElement
+            >,
+            // Legacy presentational HTML attributes that Telegraph reuses as
+            // token-only style props. Algolia never sets any of them.
+            "width" | "height" | "color" | "size"
           >)}
           variant="ghost"
           size="1"
           placeholder="Search"
           w="full"
           LeadingComponent={
-            <Icon
-              icon={Search}
-              alt="Search"
-              color="gray"
-              size="1"
-              mr="1"
-              aria-hidden="true"
-            />
+            <Icon icon={Search} color="gray" size="1" mr="1" aria-hidden />
           }
           TrailingComponent={
             autocompleteState?.query ? (

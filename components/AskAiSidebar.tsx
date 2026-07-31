@@ -516,7 +516,6 @@ function AskAiSidebar() {
               size="2"
               p="3"
               pb="0"
-              maxH="400px"
               bg="surface-1"
               style={{
                 fontSize: "13px",

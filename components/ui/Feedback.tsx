@@ -109,7 +109,6 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
                 variant="ghost"
                 icon={{
                   icon: X,
-                  "aria-hidden": false,
                   alt: "Close feedback menu",
                 }}
                 onClick={() => setIsOpen(false)}
@@ -121,7 +120,6 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
             <Box>
               <Box px="4" pb="2">
                 <SegmentedControl.Root
-                  name="feedback-category"
                   value={feedbackEmoji}
                   onValueChange={setFeedbackEmoji}
                   w="full"
