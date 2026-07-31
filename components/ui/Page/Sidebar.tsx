@@ -39,6 +39,7 @@ type SidebarSectionOrContent = SidebarSection | SidebarContent;
 type SidebarProps = {
   content: SidebarSectionOrContent[];
   children?: React.ReactNode;
+  scrollerRef?: React.RefObject<HTMLDivElement>;
 } & TgphComponentProps<typeof Stack>;
 
 function getOpenState(
@@ -243,7 +244,6 @@ const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
       href={slug}
       isActive={isPathTheSame(slug, activePath)}
       containerProps={{ px: "3" }}
-      // @ts-expect-error --color is a valid CSS variable
       style={{ "--color": "var(--tgph-gray-12)" }}
       className="nav-item--top-level"
     >
@@ -291,26 +291,23 @@ const FullLayout = ({ children, scrollerRef }: SidebarProps) => {
         }}
         h="full"
       >
-        <ScrollerBottomGradient
-          scrollerRef={scrollerRef}
-          managePadding={false}
-          gradientProps={{
-            px: "4",
-            height: "48",
-          }}
-        />
+        {scrollerRef && (
+          <ScrollerBottomGradient
+            scrollerRef={scrollerRef}
+            managePadding={false}
+            gradientProps={{
+              px: "4",
+              height: "48",
+            }}
+          />
+        )}
         {children}
       </Box>
     </Box>
   );
 };
 
-const ScrollContainer = ({
-  children,
-  gradientHeight = "48",
-  scrollerRef,
-  ...props
-}: SidebarProps) => {
+const ScrollContainer = ({ children, scrollerRef, ...props }: SidebarProps) => {
   const router = useRouter();
   const basePath = router.asPath.split("#")[0];
 

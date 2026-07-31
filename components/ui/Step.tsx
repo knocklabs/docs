@@ -97,7 +97,6 @@ const Step = ({
     />
     <Box py="2" position="absolute" style={{ marginLeft: "-14px" }}>
       <Stack
-        weight="semi-bold"
         alignItems="center"
         justifyContent="center"
         w="8"
@@ -105,7 +104,6 @@ const Step = ({
         borderRadius="4"
         style={{ flexShrink: 0 }}
         bg="gray-2"
-        size="2"
       >
         {stepNumber}
       </Stack>
