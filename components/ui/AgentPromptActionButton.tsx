@@ -29,6 +29,11 @@ export type AgentPromptTrackingSource =
   | "skill_card"
   | "setup_prompt";
 
+export type AgentPromptTrack = {
+  source: AgentPromptTrackingSource;
+  skillName?: string;
+};
+
 type AgentPromptActionButtonProps = {
   prompt: string;
   /** Defaults to solid accent (primary). Use outline for secondary. */
@@ -38,10 +43,8 @@ type AgentPromptActionButtonProps = {
   size?: "1" | "2";
   /** When true, hide the primary button label and show only the icon. */
   hideLabel?: boolean;
-  /** PostHog source for where this control is rendered. */
-  trackingSource?: AgentPromptTrackingSource;
-  /** Optional skill identifier when rendered on a skill card. */
-  skillName?: string;
+  /** PostHog location for where this control is rendered. */
+  track?: AgentPromptTrack;
 };
 
 const MENU_ACTIONS: AgentPromptAction[] = [
@@ -89,10 +92,19 @@ const isAllowedDeeplink = (tool: CodingToolValue, url: URL): boolean => {
 const isCodingToolValue = (value: unknown): value is CodingToolValue =>
   typeof value === "string" && value in CODING_TOOL_BY_VALUE;
 
-type CodingToolTrackingProps = {
-  source?: AgentPromptTrackingSource;
-  skill_name?: string;
+type CodingToolTrackingProps = AgentPromptTrack & {
   selection_method?: "primary" | "menu" | "wordmark";
+};
+
+const toPostHogProps = (tracking?: CodingToolTrackingProps) => {
+  if (!tracking) return {};
+
+  const { source, skillName, selection_method } = tracking;
+  return {
+    source,
+    ...(selection_method ? { selection_method } : {}),
+    ...(skillName ? { skill_name: skillName } : {}),
+  };
 };
 
 /** Track a prompt action click (copy or coding-tool) before the side effect. */
@@ -102,7 +114,7 @@ export const trackCodingToolClicked = (
 ) => {
   posthog.track("agents-coding-tool-clicked-client", {
     action,
-    ...tracking,
+    ...toPostHogProps(tracking),
   });
 };
 
@@ -121,7 +133,7 @@ export const openCodingToolDeeplink = (
 
   posthog.track("agents-coding-tool-opened-client", {
     action: tool,
-    ...tracking,
+    ...toPostHogProps(tracking),
   });
 
   if (url.protocol === "https:") {
@@ -196,8 +208,7 @@ export const AgentPromptActionButton = ({
   color = "accent",
   size = "2",
   hideLabel = false,
-  trackingSource = "setup_prompt",
-  skillName,
+  track = { source: "setup_prompt" },
 }: AgentPromptActionButtonProps) => {
   const isMounted = useIsMounted();
   const [isOpen, setIsOpen] = useState(false);
@@ -247,18 +258,13 @@ export const AgentPromptActionButton = ({
     ? preferredTool
     : "copy";
 
-  const trackingProps = {
-    source: trackingSource,
-    ...(skillName ? { skill_name: skillName } : {}),
-  };
-
   const runAction = (
     action: AgentPromptAction,
     selectionMethod: "primary" | "menu",
   ) => {
     if (action === "copy") {
       trackCodingToolClicked("copy", {
-        ...trackingProps,
+        ...track,
         selection_method: selectionMethod,
       });
       copy();
@@ -266,7 +272,7 @@ export const AgentPromptActionButton = ({
     }
 
     openCodingToolDeeplink(action, prompt, {
-      ...trackingProps,
+      ...track,
       selection_method: selectionMethod,
     });
   };

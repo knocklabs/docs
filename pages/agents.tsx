@@ -309,8 +309,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                       variant="outline"
                       size="1"
                       hideLabel
-                      trackingSource="skill_card"
-                      skillName={skill.name}
+                      track={{ source: "skill_card", skillName: skill.name }}
                     />
                   </Box>
                 </Stack>
