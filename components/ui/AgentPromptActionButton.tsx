@@ -23,15 +23,9 @@ export const PREFERRED_CODING_TOOL_CHANGE_EVENT =
 
 export type AgentPromptAction = "copy" | CodingToolValue;
 
-export type AgentPromptTrackingSource =
-  | "hero"
-  | "hero_wordmark"
-  | "skill_card"
-  | "setup_prompt";
-
-export type AgentPromptTrack = {
-  source: AgentPromptTrackingSource;
-  skillName?: string;
+type AgentPromptTrack = {
+  source: "hero" | "skill_card";
+  skill_name?: string;
 };
 
 type AgentPromptActionButtonProps = {
@@ -43,7 +37,6 @@ type AgentPromptActionButtonProps = {
   size?: "1" | "2";
   /** When true, hide the primary button label and show only the icon. */
   hideLabel?: boolean;
-  /** PostHog location for where this control is rendered. */
   track?: AgentPromptTrack;
 };
 
@@ -93,28 +86,16 @@ const isCodingToolValue = (value: unknown): value is CodingToolValue =>
   typeof value === "string" && value in CODING_TOOL_BY_VALUE;
 
 type CodingToolTrackingProps = AgentPromptTrack & {
-  selection_method?: "primary" | "menu" | "wordmark";
+  selection_method: "primary" | "menu" | "wordmark";
 };
 
-const toPostHogProps = (tracking?: CodingToolTrackingProps) => {
-  if (!tracking) return {};
-
-  const { source, skillName, selection_method } = tracking;
-  return {
-    source,
-    ...(selection_method ? { selection_method } : {}),
-    ...(skillName ? { skill_name: skillName } : {}),
-  };
-};
-
-/** Track a prompt action click (copy or coding-tool) before the side effect. */
 export const trackCodingToolClicked = (
   action: AgentPromptAction,
-  tracking?: CodingToolTrackingProps,
+  tracking: CodingToolTrackingProps,
 ) => {
   posthog.track("agents-coding-tool-clicked-client", {
     action,
-    ...toPostHogProps(tracking),
+    ...tracking,
   });
 };
 
@@ -124,31 +105,34 @@ export const openCodingToolDeeplink = (
   prompt: string,
   tracking?: CodingToolTrackingProps,
 ) => {
-  trackCodingToolClicked(tool, tracking);
+  if (tracking) {
+    trackCodingToolClicked(tool, tracking);
+  }
 
   const url = DEEPLINK_BUILDERS[tool](prompt);
   if (!isAllowedDeeplink(tool, url)) {
     return;
   }
 
-  posthog.track("agents-coding-tool-opened-client", {
-    action: tool,
-    ...toPostHogProps(tracking),
-  });
-
   if (url.protocol === "https:") {
     window.open(url.toString(), "_blank", "noopener,noreferrer");
-    return;
+  } else {
+    // Custom app schemes: trigger via a temporary anchor so we never assign
+    // unvalidated strings to window.location.href.
+    const anchor = document.createElement("a");
+    anchor.href = url.toString();
+    anchor.rel = "noopener noreferrer";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
   }
 
-  // Custom app schemes: trigger via a temporary anchor so we never assign
-  // unvalidated strings to window.location.href.
-  const anchor = document.createElement("a");
-  anchor.href = url.toString();
-  anchor.rel = "noopener noreferrer";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
+  if (tracking) {
+    posthog.track("agents-coding-tool-opened-client", {
+      action: tool,
+      ...tracking,
+    });
+  }
 };
 
 export const readStoredAction = (): AgentPromptAction => {
@@ -208,7 +192,7 @@ export const AgentPromptActionButton = ({
   color = "accent",
   size = "2",
   hideLabel = false,
-  track = { source: "setup_prompt" },
+  track,
 }: AgentPromptActionButtonProps) => {
   const isMounted = useIsMounted();
   const [isOpen, setIsOpen] = useState(false);
@@ -262,19 +246,19 @@ export const AgentPromptActionButton = ({
     action: AgentPromptAction,
     selectionMethod: "primary" | "menu",
   ) => {
+    const tracking = track
+      ? { ...track, selection_method: selectionMethod }
+      : undefined;
+
     if (action === "copy") {
-      trackCodingToolClicked("copy", {
-        ...track,
-        selection_method: selectionMethod,
-      });
+      if (tracking) {
+        trackCodingToolClicked("copy", tracking);
+      }
       copy();
       return;
     }
 
-    openCodingToolDeeplink(action, prompt, {
-      ...track,
-      selection_method: selectionMethod,
-    });
+    openCodingToolDeeplink(action, prompt, tracking);
   };
 
   const handlePrimaryClick = () => {

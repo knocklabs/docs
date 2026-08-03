@@ -127,7 +127,7 @@ const CodingToolWordmarks = ({ prompt }: { prompt: string }) => {
             p="0"
             onClick={() =>
               openCodingToolDeeplink(option.value, prompt, {
-                source: "hero_wordmark",
+                source: "hero",
                 selection_method: "wordmark",
               })
             }
@@ -309,7 +309,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                       variant="outline"
                       size="1"
                       hideLabel
-                      track={{ source: "skill_card", skillName: skill.name }}
+                      track={{ source: "skill_card", skill_name: skill.name }}
                     />
                   </Box>
                 </Stack>
