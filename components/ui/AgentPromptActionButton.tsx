@@ -114,25 +114,26 @@ export const openCodingToolDeeplink = (
     return;
   }
 
-  if (url.protocol === "https:") {
-    window.open(url.toString(), "_blank", "noopener,noreferrer");
-  } else {
-    // Custom app schemes: trigger via a temporary anchor so we never assign
-    // unvalidated strings to window.location.href.
-    const anchor = document.createElement("a");
-    anchor.href = url.toString();
-    anchor.rel = "noopener noreferrer";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-  }
-
   if (tracking) {
     posthog.track("agents-coding-tool-opened-client", {
       action: tool,
       ...tracking,
     });
   }
+
+  if (url.protocol === "https:") {
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  // Custom app schemes: trigger via a temporary anchor so we never assign
+  // unvalidated strings to window.location.href.
+  const anchor = document.createElement("a");
+  anchor.href = url.toString();
+  anchor.rel = "noopener noreferrer";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
 };
 
 export const readStoredAction = (): AgentPromptAction => {
