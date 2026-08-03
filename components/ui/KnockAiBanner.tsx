@@ -70,7 +70,7 @@ export const KnockAiBanner = ({
           style={{ zIndex: 2, minHeight: "7.5rem" }}
         >
           <Stack direction="column" gap="1" w="full">
-            <Heading as="h2" size="3" weight="semi-bold">
+            <Heading as="h2" size="3" weight="medium">
               Agent-first setup
             </Heading>
             <Text
