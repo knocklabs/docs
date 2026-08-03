@@ -7,6 +7,8 @@ import type { CSSProperties } from "react";
 
 import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
 
+import "./KnockAiBanner.css";
+
 type KnockAiBannerProps = {
   /**
    * CSS width for the subheading when the banner is wide enough.
@@ -42,12 +44,12 @@ export const KnockAiBanner = ({
           cursor: "pointer",
         }}
       >
-        <AnimatedDotGrid maskImage={false} />
+        <AnimatedDotGrid />
 
         {/* Soft on the left (copy), clearer on the right (grid). */}
         <Box
           aria-hidden
-          className="knock-ai-banner-fade"
+          className="knock-ai-banner__fade"
           position="absolute"
           style={{
             inset: 0,
@@ -75,12 +77,14 @@ export const KnockAiBanner = ({
               as="p"
               size="1"
               color="gray"
-              className="knock-ai-banner-subheading"
+              className="knock-ai-banner__subheading"
               style={
                 {
                   margin: 0,
                   ...(subheadingWidth
-                    ? { "--knock-ai-subheading-width": subheadingWidth }
+                    ? {
+                        "--knock-ai-banner-subheading-width": subheadingWidth,
+                      }
                     : {}),
                 } as CSSProperties
               }
