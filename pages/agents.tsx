@@ -35,6 +35,7 @@ import {
   fetchAgentSkills,
   type AgentSkill,
 } from "@/lib/agentSkills";
+import * as posthog from "@/lib/posthog";
 
 type AgentsPageProps = {
   skills: AgentSkill[];
@@ -54,7 +55,14 @@ const CopyPromptButton = ({
       variant="solid"
       color="accent"
       size="2"
-      onClick={copy}
+      onClick={() => {
+        posthog.track("agents-copy-prompt-clicked-client", {
+          source: "hero",
+          prompt_length: prompt.length,
+          selection_method: "primary",
+        });
+        copy();
+      }}
       icon={{
         icon: isCopied ? Check : Copy,
         "aria-hidden": true,
@@ -118,7 +126,12 @@ const CodingToolWordmarks = ({ prompt }: { prompt: string }) => {
             alignItems="center"
             bg="transparent"
             p="0"
-            onClick={() => openCodingToolDeeplink(option.value, prompt)}
+            onClick={() =>
+              openCodingToolDeeplink(option.value, prompt, {
+                source: "hero_wordmark",
+                selection_method: "wordmark",
+              })
+            }
             onMouseEnter={() => setHovered(option.value)}
             onMouseLeave={() => setHovered(null)}
             style={{
@@ -297,6 +310,8 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                       variant="outline"
                       size="1"
                       hideLabel
+                      trackingSource="skill_card"
+                      skillName={skill.name}
                     />
                   </Box>
                 </Stack>

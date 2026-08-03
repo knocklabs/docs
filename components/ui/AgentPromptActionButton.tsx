@@ -13,6 +13,7 @@ import {
   CodingToolIcon,
   type CodingToolValue,
 } from "@/components/ui/CodingToolIcon";
+import * as posthog from "@/lib/posthog";
 
 export const PREFERRED_CODING_TOOL_STORAGE_KEY =
   "@knocklabs/preferred-coding-tool";
@@ -21,6 +22,12 @@ export const PREFERRED_CODING_TOOL_CHANGE_EVENT =
   "knock:preferred-coding-tool-change";
 
 export type AgentPromptAction = "copy" | CodingToolValue;
+
+export type AgentPromptTrackingSource =
+  | "hero"
+  | "hero_wordmark"
+  | "skill_card"
+  | "setup_prompt";
 
 type AgentPromptActionButtonProps = {
   prompt: string;
@@ -31,6 +38,10 @@ type AgentPromptActionButtonProps = {
   size?: "1" | "2";
   /** When true, hide the primary button label and show only the icon. */
   hideLabel?: boolean;
+  /** PostHog source for where this control is rendered. */
+  trackingSource?: AgentPromptTrackingSource;
+  /** Optional skill identifier when rendered on a skill card. */
+  skillName?: string;
 };
 
 const MENU_ACTIONS: AgentPromptAction[] = [
@@ -78,15 +89,28 @@ const isAllowedDeeplink = (tool: CodingToolValue, url: URL): boolean => {
 const isCodingToolValue = (value: unknown): value is CodingToolValue =>
   typeof value === "string" && value in CODING_TOOL_BY_VALUE;
 
+type CodingToolTrackingProps = {
+  source?: AgentPromptTrackingSource;
+  skill_name?: string;
+  selection_method?: "primary" | "menu" | "wordmark";
+};
+
 /** Open a coding-tool deeplink after allowlisting protocol (and host for https). */
 export const openCodingToolDeeplink = (
   tool: CodingToolValue,
   prompt: string,
+  tracking?: CodingToolTrackingProps,
 ) => {
   const url = DEEPLINK_BUILDERS[tool](prompt);
   if (!isAllowedDeeplink(tool, url)) {
     return;
   }
+
+  posthog.track("agents-coding-tool-opened-client", {
+    tool,
+    prompt_length: prompt.length,
+    ...tracking,
+  });
 
   if (url.protocol === "https:") {
     window.open(url.toString(), "_blank", "noopener,noreferrer");
@@ -160,6 +184,8 @@ export const AgentPromptActionButton = ({
   color = "accent",
   size = "2",
   hideLabel = false,
+  trackingSource = "setup_prompt",
+  skillName,
 }: AgentPromptActionButtonProps) => {
   const isMounted = useIsMounted();
   const [isOpen, setIsOpen] = useState(false);
@@ -209,23 +235,39 @@ export const AgentPromptActionButton = ({
     ? preferredTool
     : "copy";
 
-  const runAction = (action: AgentPromptAction) => {
+  const trackingProps = {
+    source: trackingSource,
+    ...(skillName ? { skill_name: skillName } : {}),
+  };
+
+  const runAction = (
+    action: AgentPromptAction,
+    selectionMethod: "primary" | "menu",
+  ) => {
     if (action === "copy") {
+      posthog.track("agents-copy-prompt-clicked-client", {
+        ...trackingProps,
+        prompt_length: prompt.length,
+        selection_method: selectionMethod,
+      });
       copy();
       return;
     }
 
-    openCodingToolDeeplink(action, prompt);
+    openCodingToolDeeplink(action, prompt, {
+      ...trackingProps,
+      selection_method: selectionMethod,
+    });
   };
 
   const handlePrimaryClick = () => {
-    runAction(activeAction);
+    runAction(activeAction, "primary");
   };
 
   const handleSelectAction = (action: AgentPromptAction) => {
     setPreferredTool(action);
     persistAction(action);
-    runAction(action);
+    runAction(action, "menu");
     setIsOpen(false);
   };
 
