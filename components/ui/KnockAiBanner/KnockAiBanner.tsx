@@ -37,7 +37,7 @@ export const KnockAiBanner = ({ subheadingProps }: KnockAiBannerProps = {}) => {
     <Link
       href="/agents"
       onClick={() => {
-        posthog.track("knock-ai-banner-clicked-client", {
+        posthog.track("agents-banner-clicked-client", {
           path: router.asPath,
         });
       }}
