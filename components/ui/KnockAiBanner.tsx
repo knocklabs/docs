@@ -21,14 +21,9 @@ type KnockAiBannerProps = {
  * Skinny homepage promo for Knock AI. Dot grid shows on the right;
  * a surface-colored gradient keeps copy readable on the left.
  */
-export const KnockAiBanner = ({
-  subheadingWidth,
-}: KnockAiBannerProps = {}) => {
+export const KnockAiBanner = ({ subheadingWidth }: KnockAiBannerProps = {}) => {
   return (
-    <Link
-      href="/agents"
-      style={{ display: "block", textDecoration: "none", color: "inherit" }}
-    >
+    <Link href="/agents">
       <Box
         className="knock-ai-banner"
         position="relative"
@@ -67,7 +62,7 @@ export const KnockAiBanner = ({
           w="full"
           px="5"
           py="4"
-          style={{ zIndex: 2, minHeight: "7.5rem" }}
+          style={{ zIndex: 2 }}
         >
           <Stack direction="column" gap="1" w="full">
             <Heading as="h2" size="3" weight="medium">

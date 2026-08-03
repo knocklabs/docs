@@ -116,7 +116,6 @@ function nodeCloudOpacity(
 /**
  * Animated dot-grid hero background with mouse trail + flash accents.
  * Adapts node/flash colors for light and dark appearance; pauses offscreen.
- * Soft fades/masks belong at the call site, not here.
  */
 export const AnimatedDotGrid = () => {
   const { appearance } = useTheme();
