@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telegraph/button";
+import { TgphComponentProps } from "@telegraph/helpers";
 import { Box, Stack } from "@telegraph/layout";
 import { Heading, Text } from "@telegraph/typography";
 import { ArrowRight } from "lucide-react";
@@ -10,18 +11,22 @@ import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
 import "./KnockAiBanner.css";
 
 type KnockAiBannerProps = {
-  /**
-   * CSS width for the subheading when the banner is wide enough.
-   * Defaults to `clamp(40%, 50%, 60%)`. Narrow containers still use full width.
-   */
-  subheadingWidth?: string;
+  subheadingProps?: TgphComponentProps<typeof Text>;
 };
 
 /**
  * Skinny homepage promo for Knock AI. Dot grid shows on the right;
  * a surface-colored gradient keeps copy readable on the left.
  */
-export const KnockAiBanner = ({ subheadingWidth }: KnockAiBannerProps = {}) => {
+export const KnockAiBanner = ({ subheadingProps }: KnockAiBannerProps = {}) => {
+  const {
+    style: subheadingStyle,
+    className: subheadingClassName,
+    ...restSubheadingProps
+  } = subheadingProps ?? {};
+  const { width: subheadingWidth, ...restSubheadingStyle } = (subheadingStyle ??
+    {}) as CSSProperties;
+
   return (
     <Link href="/agents">
       <Box
@@ -72,11 +77,15 @@ export const KnockAiBanner = ({ subheadingWidth }: KnockAiBannerProps = {}) => {
               as="p"
               size="1"
               color="gray"
-              className="knock-ai-banner__subheading"
+              {...restSubheadingProps}
+              className={["knock-ai-banner__subheading", subheadingClassName]
+                .filter(Boolean)
+                .join(" ")}
               style={
                 {
                   margin: 0,
-                  ...(subheadingWidth
+                  ...restSubheadingStyle,
+                  ...(subheadingWidth != null
                     ? {
                         "--knock-ai-banner-subheading-width": subheadingWidth,
                       }
