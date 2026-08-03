@@ -17,6 +17,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/clerk", title: "Clerk" },
       { slug: "/posthog", title: "PostHog" },
+      { slug: "/amplitude", title: "Amplitude" },
       { slug: "/stripe", title: "Stripe" },
       { slug: "/supabase", title: "Supabase" },
       { slug: "/workos", title: "WorkOS" },

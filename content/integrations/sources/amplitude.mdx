@@ -1,0 +1,174 @@
+---
+title: Amplitude source
+description: Stream Amplitude behavioral events and user property updates into Knock to trigger workflows and keep recipients in sync.
+metaTitle: Amplitude source integration
+metaDescription: Connect Amplitude webhook destinations to Knock to trigger notification workflows from product analytics events and user updates.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Amplitude source enables you to receive data from <a href="https://amplitude.com/docs/data/destination-catalog/webhooks" target="_blank">Amplitude webhook destinations</a> directly in Knock. Amplitude can forward behavioral events, user property updates, and cohort membership changes to a URL you configure. Knock resolves the event type from each payload and executes the actions you map in your source environment.
+
+This integration is useful for building notifications triggered by product behavior: reaching out when a user completes onboarding, alerting your team when a high-value action occurs, or keeping Knock recipient profiles aligned with Amplitude user properties.
+
+Knock supports ingesting any event or user payload Amplitude sends, so you can map them to actions as your needs evolve.
+
+## What this integration supports
+
+| Capability | Status | Notes |
+| ---------- | ------ | ----- |
+| Behavioral events | Supported | Map Amplitude `event_type` values to workflow triggers or other actions |
+| Users | Supported | User streaming and Identify API calls map to the `user.updated` event type by default |
+| Groups | Manual mapping required | Amplitude includes `groups` and `group_properties` on events; map these to [objects](/concepts/objects) or [tenants](/concepts/tenants) with custom action mappings |
+| Cohorts | Partial | Requires a separate [Cohort Webhooks](https://amplitude.com/docs/data/destination-catalog/cohort-webhooks) destination; batch payloads need custom FreeMarker templates for reliable audience sync |
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- An Amplitude project with access to configure [Data destinations](https://amplitude.com/docs/data/destination-catalog).
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the **Amplitude** template as the
+    source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **Amplitude** as a source, review the default action
+    mappings. The default maps the `user.updated` event type to identify users
+    in Knock using Amplitude user properties. These are helpful defaults to get
+    you started, but Knock can ingest any event Amplitude sends and you can
+    adjust your mappings at any time. Click **Connect Amplitude** to continue.
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the event ingestion URL from the setup
+    wizard. You will paste this into Amplitude in the next steps.
+  </Step>
+  <Step title="Create a webhook destination in Amplitude">
+    In Amplitude, navigate to **Data** > **Destinations** and add a new
+    <a href="https://amplitude.com/docs/data/destination-catalog/webhooks" target="_blank">Webhook</a> destination
+    for event and user streaming. Paste your Knock event ingestion URL into the
+    destination endpoint field.
+  </Step>
+  <Step title="Configure event and user streaming">
+    On the webhook destination configuration page:
+
+    1. Enable **Send Events** to stream behavioral events to Knock.
+    2. Enable **Send Users** to stream user property updates and Identify API calls to Knock.
+    3. Optionally customize the payload using an Apache FreeMarker template. The default Amplitude event and user formats work with the Knock template's preprocessing script.
+
+    Select which event types and user properties to forward based on your notification use cases.
+  </Step>
+  <Step title="Optionally configure a signing secret">
+    Amplitude does not sign webhook requests by default. If you want to verify
+    inbound requests, include a shared secret in your Amplitude FreeMarker
+    template (for example, as a Bearer token in the `Authorization` header) and
+    update the preprocessing script on your Knock source to compare it against
+    the signing secret you configure in Knock.
+  </Step>
+</Steps>
+
+Once configured, Amplitude sends events and user updates to Knock based on your destination settings. You can verify that payloads are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+The Knock Amplitude template includes a default mapping for user streaming payloads:
+
+| Event type | Action | Description |
+| ---------- | ------ | ----------- |
+| `user.updated` | Identify user | Creates or updates a Knock user from Amplitude user streaming payloads using `body.user_id` and `body.user_properties` |
+
+Behavioral events use the Amplitude `event_type` field as the Knock event type (for example, `Signup Completed` or `Purchase Completed`). Add custom mappings in Knock for each event you want to trigger a workflow or other action.
+
+### Common events to add
+
+| Event type | Typical action | Description |
+| ---------- | -------------- | ----------- |
+| `Signup Completed` | Trigger a `welcome` workflow | Send onboarding messages when a user signs up |
+| `Trial Started` | Trigger a `trial-started` workflow | Notify sales or customer success when a trial begins |
+| `Purchase Completed` | Trigger an `order-confirmation` workflow | Send a receipt or fulfillment notification |
+
+For each event you forward from Amplitude, add a corresponding mapping in the Knock source environment.
+
+## How users are handled
+
+When **Send Users** is enabled on your Amplitude webhook destination, Amplitude forwards user property updates and Identify API calls to Knock. The template preprocessing script detects payloads without an `event_type` field and assigns the `user.updated` event type.
+
+The default identify mapping uses:
+
+- `body.user_id` as the Knock user ID
+- `body.user_properties.email`, `body.user_properties.name`, and `body.user_properties.phone` for standard user fields
+- `body.user_properties` as custom properties on the Knock user
+
+If your Amplitude project uses `device_id` instead of `user_id` in Identify calls, customize your Amplitude FreeMarker template to include a stable `user_id` field that matches your Knock user IDs.
+
+## How groups are handled
+
+Amplitude events can include `groups` and `group_properties` fields for account- or organization-level analytics. Knock does not include default mappings for group data because the right target depends on your product model.
+
+You can add custom action mappings to sync group data into Knock:
+
+- Map group data to [objects](/concepts/objects) using the `objects.set` action when groups represent shared resources (for example, a workspace or project).
+- Map group data to [tenants](/concepts/tenants) using the `tenants.set` action when groups represent customer organizations in a multi-tenant product.
+
+Use dot-notation paths such as `body.groups.company_id` and `body.group_properties` in your action parameter mappings.
+
+## How cohorts are handled
+
+Amplitude cohort sync uses a separate <a href="https://amplitude.com/docs/data/destination-catalog/cohort-webhooks" target="_blank">Cohort Webhooks</a> destination type from real-time event streaming. Cohort payloads include a batch of users with an `in_cohort` flag indicating membership changes.
+
+The Knock preprocessing script detects cohort payloads and assigns event types:
+
+- `cohort.member.added` when `in_cohort` is true
+- `cohort.member.removed` when `in_cohort` is false
+
+**Current limitation:** Amplitude cohort webhooks send batched user lists in a single request. Knock processes each webhook as one source event, and audience actions expect member lists in a specific format. For reliable cohort-to-audience sync, use a custom FreeMarker template in Amplitude to send one user per request, or map cohort payloads to workflow triggers that handle batch data in your application logic.
+
+To sync cohort membership into Knock [audiences](/concepts/audiences), add action mappings for `cohort.member.added` and `cohort.member.removed` after shaping your payload format. See the [sources overview](/integrations/sources/overview#triggering-actions-from-source-events) for available audience actions.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from Amplitude. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+If a single event type maps to multiple actions, Knock executes those actions in a fixed order. See [execution order for multiple mappings](/integrations/sources/overview#execution-order-for-multiple-mappings).
+
+If you need to map Amplitude events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#triggering-actions-from-source-events) in the sources overview.
+
+## Event idempotency
+
+Knock automatically configures idempotency for the Amplitude source using fields from the preprocessing script:
+
+- Behavioral events: `body.insert_id` (falls back to `body.uuid` or `body.message_id`)
+- User streaming: `body.message_id`
+- Cohort webhooks: `body.message_id`
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.
+
+## Testing and debugging
+
+1. Confirm your Amplitude destination is enabled and forwarding the event types you expect.
+2. Trigger a test event in Amplitude or use Amplitude's destination test tools if available.
+3. Open the **Logs** tab on your Knock source environment and confirm the event appears with the expected event type.
+4. If the event type shows as `unknown`, check that your payload includes `event_type` for behavioral events or matches the user streaming shape (`user_id` + `user_properties` without `event_type`).
+5. If action mappings fail, inspect the payload in the event log and verify your dot-notation paths match the actual payload structure.
+
+For custom FreeMarker templates, validate the rendered JSON in Amplitude before enabling the destination in production.
+
+## Current limitations
+
+- Amplitude does not provide built-in webhook signature verification. Use a custom header and preprocessing script if you need request verification.
+- Group data requires custom action mappings; no default object or tenant mappings are included.
+- Cohort sync via batched webhook payloads requires payload shaping for reliable audience membership updates.
+- Real-time event streaming and cohort sync require separate Amplitude destination configurations.
