@@ -22,6 +22,7 @@ import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 import {
   AgentPromptActionButton,
   openCodingToolDeeplink,
+  trackCodingToolClicked,
 } from "@/components/ui/AgentPromptActionButton";
 import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
 import { MarketingFooter } from "@/components/ui/MarketingFooter";
@@ -54,7 +55,13 @@ const CopyPromptButton = ({
       variant="solid"
       color="accent"
       size="2"
-      onClick={copy}
+      onClick={() => {
+        trackCodingToolClicked("copy", {
+          source: "hero",
+          selection_method: "primary",
+        });
+        copy();
+      }}
       icon={{
         icon: isCopied ? Check : Copy,
         "aria-hidden": true,
@@ -118,7 +125,12 @@ const CodingToolWordmarks = ({ prompt }: { prompt: string }) => {
             alignItems="center"
             bg="transparent"
             p="0"
-            onClick={() => openCodingToolDeeplink(option.value, prompt)}
+            onClick={() =>
+              openCodingToolDeeplink(option.value, prompt, {
+                source: "hero",
+                selection_method: "wordmark",
+              })
+            }
             onMouseEnter={() => setHovered(option.value)}
             onMouseLeave={() => setHovered(null)}
             style={{
@@ -297,6 +309,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                       variant="outline"
                       size="1"
                       hideLabel
+                      track={{ source: "skill_card", skill_name: skill.name }}
                     />
                   </Box>
                 </Stack>

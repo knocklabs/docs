@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Button } from "@telegraph/button";
 import { TgphComponentProps } from "@telegraph/helpers";
 import { Box, Stack } from "@telegraph/layout";
@@ -7,6 +8,7 @@ import { ArrowRight } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
+import * as posthog from "@/lib/posthog";
 
 import "./KnockAiBanner.css";
 
@@ -22,6 +24,7 @@ type KnockAiBannerProps = {
  * a surface-colored gradient keeps copy readable on the left.
  */
 export const KnockAiBanner = ({ subheadingProps }: KnockAiBannerProps = {}) => {
+  const router = useRouter();
   const {
     style: subheadingStyle,
     className: subheadingClassName,
@@ -31,7 +34,14 @@ export const KnockAiBanner = ({ subheadingProps }: KnockAiBannerProps = {}) => {
     {}) as CSSProperties;
 
   return (
-    <Link href="/agents">
+    <Link
+      href="/agents"
+      onClick={() => {
+        posthog.track("agents-banner-clicked-client", {
+          path: router.asPath,
+        });
+      }}
+    >
       <Box
         className="knock-ai-banner"
         position="relative"
