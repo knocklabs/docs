@@ -1,0 +1,2319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agents hero — interactive concepts</title>
+    <style>
+      :root {
+        --accent: #fa5902;
+        --chrome-bg: #0e0e10;
+        --chrome-fg: #e8e8ea;
+        --chrome-muted: #82828c;
+        --chrome-line: rgba(255, 255, 255, 0.09);
+        --chrome-raised: rgba(255, 255, 255, 0.045);
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+          monospace;
+        --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica,
+          Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--chrome-bg);
+        color: var(--chrome-fg);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ---------- chrome ---------- */
+
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--chrome-line);
+        background: var(--chrome-bg);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+
+      .brand {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--chrome-muted);
+        white-space: nowrap;
+      }
+
+      .brand b {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+
+      .tab {
+        appearance: none;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--chrome-muted);
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 6px 11px;
+        border-radius: 7px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition:
+          color 0.14s ease,
+          background 0.14s ease,
+          border-color 0.14s ease;
+      }
+
+      .tab:hover {
+        color: var(--chrome-fg);
+        background: var(--chrome-raised);
+      }
+
+      .tab[aria-selected="true"] {
+        color: var(--chrome-fg);
+        background: var(--chrome-raised);
+        border-color: var(--chrome-line);
+      }
+
+      .tab .num {
+        font-size: 10px;
+        opacity: 0.5;
+      }
+
+      .spacer {
+        flex: 1;
+      }
+
+      .ctl {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--chrome-muted);
+        white-space: nowrap;
+      }
+
+      .ctl label {
+        letter-spacing: 0.04em;
+      }
+
+      input[type="range"] {
+        appearance: none;
+        width: 128px;
+        height: 3px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.16);
+        outline: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        border: none;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        border: none;
+      }
+
+      .toggle {
+        appearance: none;
+        border: 1px solid var(--chrome-line);
+        background: var(--chrome-raised);
+        color: var(--chrome-muted);
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 5px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition:
+          color 0.14s ease,
+          border-color 0.14s ease;
+      }
+
+      .toggle:hover {
+        color: var(--chrome-fg);
+      }
+
+      .toggle[data-on="true"] {
+        color: var(--chrome-fg);
+        border-color: rgba(250, 89, 2, 0.5);
+      }
+
+      .val {
+        color: var(--chrome-fg);
+        min-width: 58px;
+        display: inline-block;
+      }
+
+      /* ---------- stage ---------- */
+
+      .stage {
+        position: relative;
+        width: 100%;
+        height: 460px;
+        overflow: hidden;
+        background: #191919;
+        transition: background 0.35s ease;
+      }
+
+      .stage[data-theme="light"] {
+        background: #ffffff;
+      }
+
+      .stage canvas {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          black 0%,
+          black 76%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          black 0%,
+          black 76%,
+          transparent 100%
+        );
+      }
+
+      .hero {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        padding: 0 24px;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .hero[data-hidden="true"] {
+        opacity: 0;
+      }
+
+      .hero-copy {
+        position: relative;
+        max-width: 52rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .veil {
+        position: absolute;
+        inset: -1.5rem -2rem 0;
+        pointer-events: none;
+        z-index: 0;
+        transition: opacity 0.25s ease;
+      }
+
+      .stage[data-theme="dark"] .veil {
+        background: radial-gradient(
+          ellipse 58% 85% at 50% 42%,
+          rgba(25, 25, 25, 0.82) 0%,
+          rgba(25, 25, 25, 0.58) 48%,
+          rgba(25, 25, 25, 0) 72%
+        );
+      }
+
+      .stage[data-theme="light"] .veil {
+        background: radial-gradient(
+          ellipse 58% 85% at 50% 42%,
+          rgba(255, 255, 255, 0.86) 0%,
+          rgba(255, 255, 255, 0.62) 48%,
+          rgba(255, 255, 255, 0) 72%
+        );
+      }
+
+      .veil[data-off="true"] {
+        opacity: 0;
+      }
+
+      h1 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        font-size: clamp(30px, 4.6vw, 58px);
+        line-height: 1.08;
+        letter-spacing: -0.025em;
+        font-weight: 700;
+        text-align: center;
+        color: #f5f5f5;
+      }
+
+      .sub {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        max-width: 36rem;
+        text-align: center;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #a6a6ad;
+      }
+
+      .stage[data-theme="light"] h1 {
+        color: #18181b;
+      }
+
+      .stage[data-theme="light"] .sub {
+        color: #63636b;
+      }
+
+      .cta {
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 10px 18px;
+        font-size: 14.5px;
+        font-weight: 500;
+        font-family: var(--sans);
+      }
+
+      /* ---------- notes ---------- */
+
+      .notes {
+        padding: 22px 20px 44px;
+        max-width: 1100px;
+      }
+
+      .notes h2 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .notes p {
+        margin: 0 0 14px;
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--chrome-muted);
+        max-width: 68ch;
+      }
+
+      .chips {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--chrome-muted);
+        border: 1px solid var(--chrome-line);
+        border-radius: 999px;
+        padding: 4px 10px;
+      }
+
+      .chip b {
+        color: var(--chrome-fg);
+        font-weight: 500;
+      }
+
+      .foot {
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid var(--chrome-line);
+        font-family: var(--mono);
+        font-size: 11px;
+        color: #55555e;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <div class="brand">knock <b>/agents</b> hero</div>
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="spacer"></div>
+      <div class="ctl">
+        <label for="restraint">restraint</label>
+        <input
+          id="restraint"
+          type="range"
+          min="0"
+          max="100"
+          value="25"
+          aria-label="Restraint: whisper to ambient"
+        />
+        <span class="val" id="restraintVal">whisper</span>
+      </div>
+      <div class="ctl">
+        <button class="toggle" id="themeBtn" data-on="true">dark</button>
+        <button class="toggle" id="heroBtn" data-on="true">copy</button>
+        <button class="toggle" id="veilBtn" data-on="true">veil</button>
+      </div>
+      <div class="ctl"><span class="val" id="fps">—</span></div>
+    </div>
+
+    <div class="stage" id="stage" data-theme="dark">
+      <canvas id="c"></canvas>
+      <div class="hero" id="hero">
+        <div class="hero-copy">
+          <div class="veil" id="veil"></div>
+          <h1>Agent-first customer messaging</h1>
+          <p class="sub">
+            Drive Knock from your coding agent. Build, ship, and optimize
+            product, marketing, and transactional messaging in one platform.
+          </p>
+        </div>
+        <button class="cta" tabindex="-1">Get started with a prompt</button>
+      </div>
+    </div>
+
+    <div class="notes">
+      <h2 id="noteTitle"></h2>
+      <p id="noteBody"></p>
+      <div class="chips" id="noteChips"></div>
+      <div class="foot">
+        keys &nbsp;1–5 switch concept &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h hero
+        copy &nbsp;·&nbsp; v veil &nbsp;·&nbsp; ←/→ restraint<br />
+        move the pointer over the stage to interact &nbsp;·&nbsp; click for the
+        per-concept action described above<br />
+        prototype only — prefers-reduced-motion is intentionally not honored here
+        so every concept stays visible
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+
+      /* =====================================================================
+         Shared helpers
+         ===================================================================== */
+
+      const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const rand = (a, b) => a + Math.random() * (b - a);
+      const randInt = (a, b) => Math.floor(rand(a, b + 1));
+      const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+      const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+      const easeInOut = (t) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      function hexToRgb(hex) {
+        const h = hex.replace("#", "");
+        const n = parseInt(
+          h.length === 3
+            ? h
+                .split("")
+                .map((c) => c + c)
+                .join("")
+            : h,
+          16,
+        );
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+
+      function rgba(rgb, a) {
+        return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;
+      }
+
+      function makeGlowSprite(rgb) {
+        const s = 96;
+        const cv = document.createElement("canvas");
+        cv.width = cv.height = s;
+        const g = cv.getContext("2d");
+        const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+        grd.addColorStop(0, rgba(rgb, 1));
+        grd.addColorStop(0.22, rgba(rgb, 0.55));
+        grd.addColorStop(0.55, rgba(rgb, 0.14));
+        grd.addColorStop(1, rgba(rgb, 0));
+        g.fillStyle = grd;
+        g.fillRect(0, 0, s, s);
+        return cv;
+      }
+
+      function bez(p0, p1, p2, p3, t) {
+        const mt = 1 - t;
+        const a = mt * mt * mt,
+          b = 3 * mt * mt * t,
+          c = 3 * mt * t * t,
+          d = t * t * t;
+        return {
+          x: a * p0.x + b * p1.x + c * p2.x + d * p3.x,
+          y: a * p0.y + b * p1.y + c * p2.y + d * p3.y,
+        };
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        const rr = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rr, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rr);
+        ctx.arcTo(x + w, y + h, x, y + h, rr);
+        ctx.arcTo(x, y + h, x, y, rr);
+        ctx.arcTo(x, y, x + w, y, rr);
+        ctx.closePath();
+      }
+
+      /* =====================================================================
+         Palettes
+         ===================================================================== */
+
+      const PALETTES = {
+        dark: {
+          dark: true,
+          bg: hexToRgb("#191919"),
+          grid: hexToRgb("#ffffff"),
+          gridA: 0.055,
+          dim: hexToRgb("#6f7480"),
+          text: hexToRgb("#e6e6ea"),
+          muted: hexToRgb("#8a8f99"),
+          accent: hexToRgb("#fa5902"),
+          hot: hexToRgb("#ffb27a"),
+        },
+        light: {
+          dark: false,
+          bg: hexToRgb("#ffffff"),
+          grid: hexToRgb("#000000"),
+          gridA: 0.06,
+          dim: hexToRgb("#b9bcc4"),
+          text: hexToRgb("#3f3f46"),
+          muted: hexToRgb("#8b8f98"),
+          accent: hexToRgb("#fa5902"),
+          hot: hexToRgb("#c93f00"),
+        },
+      };
+
+      /* =====================================================================
+         Concept 1 — Runner grid  (TRON, minimal)
+         ===================================================================== */
+
+      function RunnerGrid(env) {
+        const CELL = 26;
+        let cols = 0,
+          rows = 0,
+          ox = 0,
+          oy = 0;
+        let occTime = null,
+          occOwner = null;
+        let runners = [];
+        let sparks = [];
+        let nextId = 1;
+        let now = 0;
+        let refillAcc = 0;
+
+        const DIRS = [
+          [1, 0],
+          [0, 1],
+          [-1, 0],
+          [0, -1],
+        ];
+
+        function layout() {
+          cols = Math.floor(env.w / CELL) + 1;
+          rows = Math.floor(env.h / CELL) + 1;
+          ox = (env.w - (cols - 1) * CELL) / 2;
+          oy = (env.h - (rows - 1) * CELL) / 2;
+          occTime = new Float32Array(cols * rows);
+          occOwner = new Int32Array(cols * rows);
+        }
+
+        const px = (i) => ox + i * CELL;
+        const py = (j) => oy + j * CELL;
+        const inBounds = (i, j) => i >= 0 && j >= 0 && i < cols && j < rows;
+
+        function spawn(i, j, d, boosted) {
+          if (!inBounds(i, j)) return;
+          runners.push({
+            id: nextId++,
+            i,
+            j,
+            d,
+            t: 0,
+            speed: rand(46, 76) * lerp(0.72, 1.18, env.restraint),
+            trail: [{ x: px(i), y: py(j) }],
+            head: { x: px(i), y: py(j) },
+            maxTrail: rand(150, 380) * (boosted ? 1.3 : 1),
+            age: 0,
+            ttl: boosted ? rand(10, 18) : rand(9, 24),
+            fade: 1,
+            dying: false,
+            bright: boosted ? 1 : rand(0.55, 1),
+            exiting: false,
+          });
+        }
+
+        const targetCount = () => Math.round(lerp(4, 34, env.restraint));
+
+        function spawnFromEdge() {
+          const edge = randInt(0, 3);
+          if (edge === 0) spawn(0, randInt(0, rows - 1), 0, false);
+          else if (edge === 1) spawn(cols - 1, randInt(0, rows - 1), 2, false);
+          else if (edge === 2) spawn(randInt(0, cols - 1), 0, 1, false);
+          else spawn(randInt(0, cols - 1), rows - 1, 3, false);
+        }
+
+        function seed() {
+          // Seed mid-field so the hero is already populated on first paint.
+          for (let k = 0; k < targetCount(); k++) {
+            spawn(randInt(1, cols - 2), randInt(1, rows - 2), randInt(0, 3), false);
+            const r = runners[runners.length - 1];
+            if (r) r.age = rand(0, 4);
+          }
+        }
+
+        function burst(x, y, n, strength) {
+          for (let k = 0; k < n; k++) {
+            const a = rand(0, Math.PI * 2);
+            const s = rand(20, 95) * strength;
+            sparks.push({
+              x,
+              y,
+              vx: Math.cos(a) * s,
+              vy: Math.sin(a) * s,
+              life: 1,
+              decay: rand(1.4, 3),
+            });
+          }
+        }
+
+        function trailLength(r) {
+          let len = 0;
+          const pts = r.trail;
+          for (let k = pts.length - 1; k > 0; k--) {
+            len += Math.hypot(
+              pts[k].x - pts[k - 1].x,
+              pts[k].y - pts[k - 1].y,
+            );
+          }
+          return len + Math.hypot(r.head.x - pts[pts.length - 1].x, r.head.y - pts[pts.length - 1].y);
+        }
+
+        function trimTrail(r) {
+          // Drop vertices beyond maxTrail measured back from the head.
+          let len = Math.hypot(
+            r.head.x - r.trail[r.trail.length - 1].x,
+            r.head.y - r.trail[r.trail.length - 1].y,
+          );
+          let cut = -1;
+          for (let k = r.trail.length - 1; k > 0; k--) {
+            const seg = Math.hypot(
+              r.trail[k].x - r.trail[k - 1].x,
+              r.trail[k].y - r.trail[k - 1].y,
+            );
+            if (len + seg > r.maxTrail) {
+              const remain = Math.max(0, r.maxTrail - len);
+              const f = seg > 0 ? remain / seg : 0;
+              r.trail[k - 1] = {
+                x: lerp(r.trail[k].x, r.trail[k - 1].x, f),
+                y: lerp(r.trail[k].y, r.trail[k - 1].y, f),
+              };
+              cut = k - 1;
+              break;
+            }
+            len += seg;
+          }
+          if (cut > 0) r.trail = r.trail.slice(cut);
+        }
+
+        function chooseDir(r) {
+          const opts = [];
+          const straight = r.d;
+          const left = (r.d + 3) % 4;
+          const right = (r.d + 1) % 4;
+          const base = [
+            [straight, 0.62],
+            [left, 0.19],
+            [right, 0.19],
+          ];
+
+          const ptr = env.pointer;
+          for (const [d, w0] of base) {
+            const ni = r.i + DIRS[d][0];
+            const nj = r.j + DIRS[d][1];
+            let w = w0;
+
+            if (inBounds(ni, nj)) {
+              const idx = nj * cols + ni;
+              // Steer clear of cells another runner passed through recently.
+              if (occOwner[idx] !== r.id && now - occTime[idx] < 0.5) {
+                w *= 0.05;
+              }
+            }
+
+            // Pointer repulsion: bias toward directions that increase distance.
+            if (ptr.active) {
+              const cx = px(r.i),
+                cy = py(r.j);
+              const dist = Math.hypot(ptr.x - cx, ptr.y - cy);
+              const R = 150;
+              if (dist < R) {
+                const away =
+                  ((cx - ptr.x) * DIRS[d][0] + (cy - ptr.y) * DIRS[d][1]) /
+                  (dist || 1);
+                const force = (1 - dist / R) * 2.6;
+                w *= Math.max(0.05, 1 + away * force);
+              }
+            }
+
+            opts.push([d, w]);
+          }
+
+          const total = opts.reduce((s, o) => s + o[1], 0);
+          if (total < 0.06) return -1; // boxed in → terminate
+          let roll = Math.random() * total;
+          for (const [d, w] of opts) {
+            roll -= w;
+            if (roll <= 0) return d;
+          }
+          return opts[0][0];
+        }
+
+        layout();
+        seed();
+
+        return {
+          resize() {
+            layout();
+            runners = [];
+            sparks = [];
+            seed();
+          },
+
+          click(x, y) {
+            const i = clamp(Math.round((x - ox) / CELL), 0, cols - 1);
+            const j = clamp(Math.round((y - oy) / CELL), 0, rows - 1);
+            for (let d = 0; d < 4; d++) spawn(i, j, d, true);
+            burst(px(i), py(j), 16, 1.2);
+          },
+
+          update(dt) {
+            now += dt;
+
+            // Refill proportionally to the deficit so the field holds density.
+            const deficit = targetCount() - runners.filter((r) => !r.dying).length;
+            if (deficit > 0) {
+              refillAcc += dt * deficit * 1.4;
+              while (refillAcc >= 1) {
+                refillAcc -= 1;
+                spawnFromEdge();
+              }
+            } else {
+              refillAcc = 0;
+            }
+
+            for (const r of runners) {
+              r.age += dt;
+
+              if (r.dying) {
+                r.fade -= dt * 1.9;
+                // Keep the tail retracting so the trail visibly drains away.
+                r.maxTrail = Math.max(0, r.maxTrail - r.speed * dt * 1.6);
+                continue;
+              }
+
+              r.t += (r.speed * dt) / CELL;
+
+              while (r.t >= 1 && !r.dying) {
+                r.t -= 1;
+                const ni = r.i + DIRS[r.d][0];
+                const nj = r.j + DIRS[r.d][1];
+
+                if (!inBounds(ni, nj)) {
+                  // Runs off the edge: keep the head travelling, then retire.
+                  r.exiting = true;
+                  r.dying = true;
+                  break;
+                }
+
+                const idx = nj * cols + ni;
+                // Head-on collision with a runner that was here a moment ago.
+                if (occOwner[idx] !== r.id && now - occTime[idx] < 0.12) {
+                  burst(px(ni), py(nj), 12, 1);
+                  r.dying = true;
+                  const other = runners.find((o) => o.id === occOwner[idx]);
+                  if (other && !other.dying) other.dying = true;
+                  break;
+                }
+
+                r.i = ni;
+                r.j = nj;
+                occTime[idx] = now;
+                occOwner[idx] = r.id;
+                r.trail.push({ x: px(ni), y: py(nj) });
+
+                if (r.age > r.ttl) {
+                  r.dying = true;
+                  break;
+                }
+
+                const nd = chooseDir(r);
+                if (nd < 0) {
+                  burst(px(ni), py(nj), 8, 0.8);
+                  r.dying = true;
+                  break;
+                }
+                r.d = nd;
+              }
+
+              const f = clamp(r.t, 0, 1);
+              r.head = {
+                x: px(r.i) + DIRS[r.d][0] * CELL * f,
+                y: py(r.j) + DIRS[r.d][1] * CELL * f,
+              };
+              if (r.exiting) {
+                r.head.x += DIRS[r.d][0] * CELL;
+                r.head.y += DIRS[r.d][1] * CELL;
+              }
+              trimTrail(r);
+            }
+
+            runners = runners.filter(
+              (r) => r.fade > 0 && (r.trail.length > 1 || !r.dying),
+            );
+
+            for (const s of sparks) {
+              s.x += s.vx * dt;
+              s.y += s.vy * dt;
+              s.vx *= 1 - dt * 2.4;
+              s.vy *= 1 - dt * 2.4;
+              s.life -= dt * s.decay;
+            }
+            sparks = sparks.filter((s) => s.life > 0);
+          },
+
+          draw(ctx) {
+            const p = env.palette;
+            const r01 = env.restraint;
+
+            // Near-invisible substrate: dots at every intersection.
+            const gridA = lerp(0.032, 0.085, r01) * (p.dark ? 1 : 0.9);
+            ctx.fillStyle = rgba(p.grid, gridA);
+            for (let j = 0; j < rows; j++) {
+              for (let i = 0; i < cols; i++) {
+                ctx.fillRect(px(i) - 0.6, py(j) - 0.6, 1.2, 1.2);
+              }
+            }
+
+            // Pointer lifts the substrate slightly so the field feels charged.
+            const ptr = env.pointer;
+            if (ptr.active) {
+              const R = 150;
+              ctx.fillStyle = rgba(p.accent, 0.16);
+              for (let j = 0; j < rows; j++) {
+                for (let i = 0; i < cols; i++) {
+                  const d = Math.hypot(ptr.x - px(i), ptr.y - py(j));
+                  if (d < R) {
+                    const a = Math.pow(1 - d / R, 2.2);
+                    ctx.globalAlpha = a * 0.75;
+                    ctx.fillRect(px(i) - 0.9, py(j) - 0.9, 1.8, 1.8);
+                  }
+                }
+              }
+              ctx.globalAlpha = 1;
+            }
+
+            const baseA = lerp(0.55, 1, r01);
+
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            for (const r of runners) {
+              const pts = r.trail.concat([r.head]);
+              if (pts.length < 2) continue;
+
+              // Alpha ramps from tail to head so trails read as motion.
+              let acc = 0;
+              const total = Math.max(1, trailLength(r));
+              for (let k = 0; k < pts.length - 1; k++) {
+                const a0 = pts[k],
+                  a1 = pts[k + 1];
+                const seg = Math.hypot(a1.x - a0.x, a1.y - a0.y);
+                if (seg < 0.01) continue;
+                const tailF = acc / total;
+                const headF = (acc + seg) / total;
+                acc += seg;
+
+                const g = ctx.createLinearGradient(a0.x, a0.y, a1.x, a1.y);
+                const aa = (f) =>
+                  Math.pow(f, 1.6) * baseA * r.bright * r.fade * 0.85;
+                g.addColorStop(0, rgba(p.accent, aa(tailF)));
+                g.addColorStop(1, rgba(p.accent, aa(headF)));
+                ctx.strokeStyle = g;
+                ctx.lineWidth = 1.3;
+                ctx.beginPath();
+                ctx.moveTo(a0.x, a0.y);
+                ctx.lineTo(a1.x, a1.y);
+                ctx.stroke();
+              }
+
+              if (!r.dying) {
+                ctx.globalCompositeOperation = p.dark ? "lighter" : "source-over";
+                const gs = env.glowAccent;
+                const rr = 13 * lerp(0.8, 1.15, r01);
+                ctx.globalAlpha = 0.5 * r.bright * baseA;
+                ctx.drawImage(gs, r.head.x - rr, r.head.y - rr, rr * 2, rr * 2);
+                ctx.globalAlpha = 1;
+                ctx.globalCompositeOperation = "source-over";
+
+                ctx.fillStyle = rgba(p.dark ? p.hot : p.accent, 0.95 * baseA);
+                ctx.beginPath();
+                ctx.arc(r.head.x, r.head.y, 1.7, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+
+            ctx.globalCompositeOperation = p.dark ? "lighter" : "source-over";
+            for (const s of sparks) {
+              ctx.globalAlpha = clamp(s.life, 0, 1) * 0.75 * baseA;
+              const rr = 7;
+              ctx.drawImage(env.glowAccent, s.x - rr, s.y - rr, rr * 2, rr * 2);
+            }
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = "source-over";
+          },
+        };
+      }
+
+      /* =====================================================================
+         Concept 2 — Prompt → workflow assembly
+         ===================================================================== */
+
+      const PROMPTS = [
+        "notify the assignee when someone replies to their comment",
+        "batch overnight activity into one morning digest",
+        "win back users who have not logged in for 30 days",
+        "alert on-call by SMS when an incident escalates",
+      ];
+
+      const WF_NODES = [
+        { key: "trigger", label: "trigger", col: 0, row: 0 },
+        { key: "batch", label: "batch", col: 1, row: 0 },
+        { key: "branch", label: "branch", col: 2, row: 0 },
+        { key: "email", label: "email", col: 3, row: -1 },
+        { key: "inapp", label: "in-app", col: 3, row: 0 },
+        { key: "push", label: "push", col: 3, row: 1 },
+      ];
+      const WF_EDGES = [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [2, 4],
+        [2, 5],
+      ];
+
+      function PromptAssembly(env) {
+        const PHASES = [
+          ["type", 1.5],
+          ["hold", 0.45],
+          ["shatter", 0.4],
+          ["assemble", 1.15],
+          ["edges", 0.55],
+          ["pulse", 1.35],
+          ["rest", 1.5],
+          ["dissolve", 0.95],
+        ];
+
+        let phaseIdx = 0;
+        let pt = 0;
+        let prompt = pick(PROMPTS);
+        let particles = [];
+        let nodes = [];
+        let pulses = [];
+        let hoverNode = -1;
+
+        // The graph lives in a band below the hero copy so it never competes
+        // with the headline for the same pixels.
+        const bandY = () => env.h * 0.8;
+
+        function layoutNodes() {
+          const cx = env.w / 2;
+          const cy = bandY();
+          const span = Math.min(env.w * 0.86, 1060);
+          const gapX = span / 3.35;
+          const gapY = Math.min(env.h * 0.11, 44);
+          const nw = Math.min(112, gapX * 0.72);
+          const nh = 26;
+
+          nodes = WF_NODES.map((n) => {
+            const x = cx - span / 2 + n.col * gapX + nw / 2;
+            const y = cy + n.row * gapY;
+            return {
+              ...n,
+              x,
+              y,
+              w: nw,
+              h: nh,
+              appear: 0,
+              flash: 0,
+            };
+          });
+        }
+
+        function textParticles() {
+          // Sample the typed prompt into points, then fly those points into
+          // the workflow outline — the prompt literally becomes the workflow.
+          const fs = Math.max(13, Math.min(19, env.w / 62));
+          const off = document.createElement("canvas");
+          const octx = off.getContext("2d");
+          octx.font = `${fs}px ${getComputedStyle(document.body).getPropertyValue("--mono")}`;
+          const m = octx.measureText(prompt);
+          const tw = Math.ceil(m.width) + 8;
+          const th = Math.ceil(fs * 1.6);
+          off.width = tw;
+          off.height = th;
+          const o2 = off.getContext("2d");
+          o2.font = octx.font;
+          o2.textBaseline = "middle";
+          o2.fillStyle = "#fff";
+          o2.fillText(prompt, 4, th / 2);
+
+          const data = o2.getImageData(0, 0, tw, th).data;
+          const step = 3;
+          const pts = [];
+          for (let y = 0; y < th; y += step) {
+            for (let x = 0; x < tw; x += step) {
+              if (data[(y * tw + x) * 4 + 3] > 120) pts.push([x, y]);
+            }
+          }
+          for (let i = pts.length - 1; i > 0; i--) {
+            const j = randInt(0, i);
+            [pts[i], pts[j]] = [pts[j], pts[i]];
+          }
+          const capped = pts.slice(0, 900);
+
+          const originX = env.w / 2 - tw / 2;
+          const originY = bandY() - th / 2;
+
+          // Perimeter targets around each node box.
+          const targets = [];
+          for (const n of nodes) {
+            const per = 2 * (n.w + n.h);
+            const count = Math.max(24, Math.round(per / 7));
+            for (let k = 0; k < count; k++) {
+              const d = (k / count) * per;
+              let x, y;
+              if (d < n.w) {
+                x = n.x - n.w / 2 + d;
+                y = n.y - n.h / 2;
+              } else if (d < n.w + n.h) {
+                x = n.x + n.w / 2;
+                y = n.y - n.h / 2 + (d - n.w);
+              } else if (d < 2 * n.w + n.h) {
+                x = n.x + n.w / 2 - (d - n.w - n.h);
+                y = n.y + n.h / 2;
+              } else {
+                x = n.x - n.w / 2;
+                y = n.y + n.h / 2 - (d - 2 * n.w - n.h);
+              }
+              targets.push([x, y]);
+            }
+          }
+
+          particles = capped.map((p, i) => {
+            const t = targets[i % targets.length];
+            return {
+              x: originX + p[0],
+              y: originY + p[1],
+              hx: originX + p[0],
+              hy: originY + p[1],
+              vx: 0,
+              vy: 0,
+              tx: t[0] + rand(-1.4, 1.4),
+              ty: t[1] + rand(-1.4, 1.4),
+              delay: rand(0, 0.28),
+              spd: rand(3.2, 5.6),
+              a: 1,
+            };
+          });
+        }
+
+        function reset() {
+          prompt = pick(PROMPTS.filter((p) => p !== prompt));
+          layoutNodes();
+          particles = [];
+          pulses = [];
+          phaseIdx = 0;
+          pt = 0;
+        }
+
+        layoutNodes();
+
+        const phaseName = () => PHASES[phaseIdx][0];
+
+        return {
+          resize() {
+            reset();
+          },
+
+          click() {
+            reset();
+          },
+
+          update(dt) {
+            const speed = lerp(0.85, 1.2, env.restraint);
+            pt += dt * speed;
+            const dur = PHASES[phaseIdx][1];
+
+            if (pt >= dur) {
+              pt -= dur;
+              const prev = phaseName();
+              phaseIdx = (phaseIdx + 1) % PHASES.length;
+              const cur = phaseName();
+
+              if (prev === "hold" && cur === "shatter") {
+                textParticles();
+                for (const p of particles) {
+                  const a = rand(0, Math.PI * 2);
+                  const s = rand(30, 130);
+                  p.vx = Math.cos(a) * s;
+                  p.vy = Math.sin(a) * s;
+                }
+              }
+              if (cur === "pulse") {
+                pulses = [{ edge: 0, t: 0 }];
+              }
+              if (cur === "type") {
+                reset();
+              }
+            }
+
+            const ph = phaseName();
+            const ptr = env.pointer;
+
+            if (ph === "shatter") {
+              for (const p of particles) {
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.vx *= 1 - dt * 2.2;
+                p.vy *= 1 - dt * 2.2;
+              }
+            } else if (
+              ph === "assemble" ||
+              ph === "edges" ||
+              ph === "pulse" ||
+              ph === "rest"
+            ) {
+              for (const p of particles) {
+                const k = Math.min(1, p.spd * dt);
+                p.x += (p.tx - p.x) * k;
+                p.y += (p.ty - p.y) * k;
+                if (ptr.active) {
+                  const dx = p.x - ptr.x,
+                    dy = p.y - ptr.y;
+                  const d = Math.hypot(dx, dy);
+                  if (d < 90 && d > 0.001) {
+                    const f = (1 - d / 90) * 46 * dt;
+                    p.x += (dx / d) * f;
+                    p.y += (dy / d) * f;
+                  }
+                }
+              }
+              if (ph !== "assemble") {
+                for (const p of particles) p.a = Math.max(0, p.a - dt * 1.1);
+              }
+            } else if (ph === "dissolve") {
+              for (const p of particles) {
+                p.x += rand(-30, 30) * dt;
+                p.y += rand(-30, 30) * dt;
+                p.a = Math.max(0, p.a - dt * 2);
+              }
+            }
+
+            // Node reveal follows the assemble phase.
+            const revealing =
+              ph === "edges" || ph === "pulse" || ph === "rest" ||
+              (ph === "assemble" && pt / dur > 0.55);
+            for (const n of nodes) {
+              const goal = ph === "dissolve" ? 0 : revealing ? 1 : 0;
+              n.appear += (goal - n.appear) * Math.min(1, dt * 5);
+              n.flash = Math.max(0, n.flash - dt * 2.2);
+            }
+
+            // Pointer hover on a node.
+            hoverNode = -1;
+            if (ptr.active && revealing) {
+              nodes.forEach((n, i) => {
+                if (
+                  Math.abs(ptr.x - n.x) < n.w / 2 + 10 &&
+                  Math.abs(ptr.y - n.y) < n.h / 2 + 10
+                )
+                  hoverNode = i;
+              });
+            }
+
+            // Signal pulse walks the graph.
+            for (const pu of pulses) pu.t += dt * 1.7;
+            const done = pulses.filter((pu) => pu.t >= 1);
+            if (done.length) {
+              const spawned = [];
+              for (const pu of done) {
+                const [, to] = WF_EDGES[pu.edge];
+                nodes[to].flash = 1;
+                WF_EDGES.forEach((e, i) => {
+                  if (e[0] === to) spawned.push({ edge: i, t: 0 });
+                });
+              }
+              pulses = pulses.filter((pu) => pu.t < 1).concat(spawned);
+            }
+          },
+
+          draw(ctx) {
+            const p = env.palette;
+            const ph = phaseName();
+            const dur = PHASES[phaseIdx][1];
+            const A = lerp(0.42, 1, env.restraint);
+            const mono = getComputedStyle(document.body)
+              .getPropertyValue("--mono")
+              .trim();
+
+            // Typed prompt.
+            if (ph === "type" || ph === "hold") {
+              const fs = Math.max(13, Math.min(19, env.w / 62));
+              ctx.font = `${fs}px ${mono}`;
+              ctx.textBaseline = "middle";
+              const full = prompt;
+              const n =
+                ph === "hold"
+                  ? full.length
+                  : Math.floor(easeOut(pt / dur) * full.length);
+              const shown = full.slice(0, n);
+              const wTotal = ctx.measureText(full).width;
+              const x0 = env.w / 2 - wTotal / 2;
+              const y0 = bandY();
+
+              ctx.fillStyle = rgba(p.muted, 0.32 * A);
+              ctx.fillText("› ", x0 - 18, y0);
+              ctx.fillStyle = rgba(p.text, 0.62 * A);
+              ctx.fillText(shown, x0, y0);
+
+              const caretX = x0 + ctx.measureText(shown).width + 1;
+              const blink = ph === "hold" ? (Math.sin(pt * 12) > 0 ? 1 : 0.2) : 1;
+              ctx.fillStyle = rgba(p.accent, 0.9 * A * blink);
+              ctx.fillRect(caretX, y0 - fs * 0.55, 2, fs * 1.1);
+            }
+
+            // Particles.
+            if (particles.length) {
+              ctx.globalCompositeOperation = p.dark ? "lighter" : "source-over";
+              for (const q of particles) {
+                if (q.a <= 0.01) continue;
+                ctx.fillStyle = rgba(p.accent, 0.5 * q.a * A);
+                ctx.fillRect(q.x - 0.7, q.y - 0.7, 1.4, 1.4);
+              }
+              ctx.globalCompositeOperation = "source-over";
+            }
+
+            // Edges.
+            const edgeVis = nodes[0] ? nodes[0].appear : 0;
+            if (edgeVis > 0.02) {
+              WF_EDGES.forEach((e, i) => {
+                const a = nodes[e[0]],
+                  b = nodes[e[1]];
+                const x0 = a.x + a.w / 2,
+                  y0 = a.y;
+                const x1 = b.x - b.w / 2,
+                  y1 = b.y;
+                const midX = (x0 + x1) / 2;
+                const lit =
+                  hoverNode === e[0] || hoverNode === e[1] ? 1 : 0;
+
+                ctx.strokeStyle = rgba(
+                  lit ? p.accent : p.dim,
+                  (lit ? 0.55 : 0.26) * edgeVis * A,
+                );
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.bezierCurveTo(midX, y0, midX, y1, x1, y1);
+                ctx.stroke();
+
+                for (const pu of pulses) {
+                  if (pu.edge !== i) continue;
+                  const t = clamp(pu.t, 0, 1);
+                  const pos = bez(
+                    { x: x0, y: y0 },
+                    { x: midX, y: y0 },
+                    { x: midX, y: y1 },
+                    { x: x1, y: y1 },
+                    t,
+                  );
+                  ctx.globalCompositeOperation = p.dark
+                    ? "lighter"
+                    : "source-over";
+                  const rr = 11;
+                  ctx.globalAlpha = 0.75 * A;
+                  ctx.drawImage(
+                    env.glowAccent,
+                    pos.x - rr,
+                    pos.y - rr,
+                    rr * 2,
+                    rr * 2,
+                  );
+                  ctx.globalAlpha = 1;
+                  ctx.globalCompositeOperation = "source-over";
+                  ctx.fillStyle = rgba(p.dark ? p.hot : p.accent, 0.95 * A);
+                  ctx.beginPath();
+                  ctx.arc(pos.x, pos.y, 2, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+              });
+            }
+
+            // Node boxes + labels.
+            const labelA = lerp(0.35, 1, env.restraint);
+            nodes.forEach((n, i) => {
+              if (n.appear <= 0.02) return;
+              const hovered = hoverNode === i;
+              const heat = Math.max(n.flash, hovered ? 0.8 : 0);
+              const strokeA = (0.28 + heat * 0.5) * n.appear * A;
+
+              ctx.strokeStyle = rgba(heat > 0.05 ? p.accent : p.dim, strokeA);
+              ctx.lineWidth = 1;
+              roundRect(ctx, n.x - n.w / 2, n.y - n.h / 2, n.w, n.h, 6);
+              ctx.stroke();
+
+              if (heat > 0.02) {
+                ctx.fillStyle = rgba(p.accent, 0.07 * heat * n.appear);
+                ctx.fill();
+              }
+
+              ctx.font = `11px ${mono}`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillStyle = rgba(
+                heat > 0.05 ? p.accent : p.muted,
+                (0.5 + heat * 0.45) * n.appear * labelA,
+              );
+              ctx.fillText(n.label, n.x, n.y + 0.5);
+              ctx.textAlign = "left";
+            });
+          },
+        };
+      }
+
+      /* =====================================================================
+         Concept 3 — Fan-out delivery field
+         ===================================================================== */
+
+      function FanOut(env) {
+        const CHANNELS = [
+          { label: "email", glyph: "envelope" },
+          { label: "in-app", glyph: "bell" },
+          { label: "push", glyph: "device" },
+          { label: "sms", glyph: "bubble" },
+          { label: "chat", glyph: "hash" },
+        ];
+
+        let src = { x: 0, y: 0 };
+        let ends = [];
+        let packets = [];
+        let rings = [];
+        let emitAcc = 0;
+
+        function layout() {
+          const cy = env.h * 0.5;
+          src = { x: env.w * 0.13, y: cy };
+          const spread = Math.min(env.h * 0.7, 300);
+          ends = CHANNELS.map((c, i) => ({
+            ...c,
+            x: env.w * 0.8,
+            y: cy + (i - (CHANNELS.length - 1) / 2) * (spread / (CHANNELS.length - 1)),
+            flash: 0,
+            count: 0,
+          }));
+        }
+
+        function pathFor(i) {
+          const e = ends[i];
+          const dx = e.x - src.x;
+          let c1 = { x: src.x + dx * 0.42, y: src.y };
+          let c2 = { x: src.x + dx * 0.58, y: e.y };
+
+          // Pointer bends the routing — control points get pushed away.
+          const ptr = env.pointer;
+          if (ptr.active) {
+            for (const c of [c1, c2]) {
+              const ddx = c.x - ptr.x,
+                ddy = c.y - ptr.y;
+              const d = Math.hypot(ddx, ddy);
+              const R = 190;
+              if (d < R && d > 0.001) {
+                const f = Math.pow(1 - d / R, 1.8) * 120;
+                c.x += (ddx / d) * f;
+                c.y += (ddy / d) * f;
+              }
+            }
+          }
+          return [src, c1, c2, e];
+        }
+
+        function emit(i) {
+          packets.push({
+            i,
+            t: 0,
+            speed: rand(0.5, 0.78) * lerp(0.85, 1.25, env.restraint),
+            trail: [],
+          });
+        }
+
+        function drawGlyph(ctx, kind, x, y, s, color, a) {
+          ctx.strokeStyle = rgba(color, a);
+          ctx.fillStyle = rgba(color, a);
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          if (kind === "envelope") {
+            ctx.rect(x - s, y - s * 0.68, s * 2, s * 1.36);
+            ctx.moveTo(x - s, y - s * 0.68);
+            ctx.lineTo(x, y + s * 0.12);
+            ctx.lineTo(x + s, y - s * 0.68);
+          } else if (kind === "bell") {
+            ctx.moveTo(x - s * 0.85, y + s * 0.5);
+            ctx.lineTo(x + s * 0.85, y + s * 0.5);
+            ctx.moveTo(x - s * 0.62, y + s * 0.5);
+            ctx.quadraticCurveTo(x - s * 0.62, y - s * 0.9, x, y - s * 0.9);
+            ctx.quadraticCurveTo(x + s * 0.62, y - s * 0.9, x + s * 0.62, y + s * 0.5);
+            ctx.moveTo(x - s * 0.2, y + s * 0.78);
+            ctx.lineTo(x + s * 0.2, y + s * 0.78);
+          } else if (kind === "device") {
+            ctx.rect(x - s * 0.6, y - s, s * 1.2, s * 2);
+            ctx.moveTo(x - s * 0.2, y + s * 0.66);
+            ctx.lineTo(x + s * 0.2, y + s * 0.66);
+          } else if (kind === "bubble") {
+            ctx.moveTo(x - s, y - s * 0.7);
+            ctx.lineTo(x + s, y - s * 0.7);
+            ctx.lineTo(x + s, y + s * 0.35);
+            ctx.lineTo(x - s * 0.35, y + s * 0.35);
+            ctx.lineTo(x - s * 0.7, y + s * 0.9);
+            ctx.lineTo(x - s * 0.7, y + s * 0.35);
+            ctx.lineTo(x - s, y + s * 0.35);
+            ctx.closePath();
+          } else {
+            ctx.moveTo(x - s * 0.75, y - s * 0.35);
+            ctx.lineTo(x + s * 0.85, y - s * 0.35);
+            ctx.moveTo(x - s * 0.85, y + s * 0.35);
+            ctx.lineTo(x + s * 0.75, y + s * 0.35);
+            ctx.moveTo(x - s * 0.3, y - s * 0.85);
+            ctx.lineTo(x - s * 0.55, y + s * 0.85);
+            ctx.moveTo(x + s * 0.55, y - s * 0.85);
+            ctx.lineTo(x + s * 0.3, y + s * 0.85);
+          }
+          ctx.stroke();
+        }
+
+        layout();
+
+        return {
+          resize() {
+            layout();
+            packets = [];
+            rings = [];
+          },
+
+          click() {
+            for (let i = 0; i < ends.length; i++) emit(i);
+            rings.push({ x: src.x, y: src.y, r: 4, a: 1, w: 1.6 });
+          },
+
+          update(dt) {
+            const rate = lerp(0.55, 3.6, env.restraint);
+            emitAcc += dt * rate;
+            while (emitAcc >= 1) {
+              emitAcc -= 1;
+              const n = randInt(1, 3);
+              const used = new Set();
+              for (let k = 0; k < n; k++) {
+                let i = randInt(0, ends.length - 1);
+                let guard = 0;
+                while (used.has(i) && guard++ < 6) i = randInt(0, ends.length - 1);
+                used.add(i);
+                emit(i);
+              }
+              rings.push({ x: src.x, y: src.y, r: 3, a: 0.85, w: 1.3 });
+            }
+
+            for (const q of packets) {
+              q.t += q.speed * dt;
+              const [p0, p1, p2, p3] = pathFor(q.i);
+              const pos = bez(p0, p1, p2, p3, clamp(q.t, 0, 1));
+              q.trail.push(pos);
+              if (q.trail.length > 22) q.trail.shift();
+              if (q.t >= 1 && !q.landed) {
+                q.landed = true;
+                const e = ends[q.i];
+                e.flash = 1;
+                e.count++;
+                rings.push({ x: e.x, y: e.y, r: 3, a: 0.9, w: 1.4 });
+              }
+            }
+            packets = packets.filter((q) => q.t < 1.35);
+
+            for (const r of rings) {
+              r.r += dt * 62;
+              r.a -= dt * 1.35;
+            }
+            rings = rings.filter((r) => r.a > 0);
+
+            for (const e of ends) e.flash = Math.max(0, e.flash - dt * 2.1);
+          },
+
+          draw(ctx) {
+            const p = env.palette;
+            const A = lerp(0.5, 1, env.restraint);
+            const mono = getComputedStyle(document.body)
+              .getPropertyValue("--mono")
+              .trim();
+
+            // Routes.
+            const routeA = lerp(0.045, 0.16, env.restraint);
+            ctx.lineWidth = 1;
+            for (let i = 0; i < ends.length; i++) {
+              const [p0, p1, p2, p3] = pathFor(i);
+              ctx.strokeStyle = rgba(p.dim, routeA);
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+              ctx.stroke();
+            }
+
+            // Packets.
+            ctx.lineCap = "round";
+            for (const q of packets) {
+              const pts = q.trail;
+              for (let k = 1; k < pts.length; k++) {
+                const f = k / pts.length;
+                ctx.strokeStyle = rgba(p.accent, Math.pow(f, 2) * 0.6 * A);
+                ctx.lineWidth = lerp(0.6, 1.8, f);
+                ctx.beginPath();
+                ctx.moveTo(pts[k - 1].x, pts[k - 1].y);
+                ctx.lineTo(pts[k].x, pts[k].y);
+                ctx.stroke();
+              }
+              if (pts.length && q.t <= 1) {
+                const h = pts[pts.length - 1];
+                ctx.globalCompositeOperation = p.dark ? "lighter" : "source-over";
+                const rr = 12;
+                ctx.globalAlpha = 0.62 * A;
+                ctx.drawImage(env.glowAccent, h.x - rr, h.y - rr, rr * 2, rr * 2);
+                ctx.globalAlpha = 1;
+                ctx.globalCompositeOperation = "source-over";
+                ctx.fillStyle = rgba(p.dark ? p.hot : p.accent, 0.95 * A);
+                ctx.beginPath();
+                ctx.arc(h.x, h.y, 1.9, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+
+            // Rings.
+            for (const r of rings) {
+              ctx.strokeStyle = rgba(p.accent, clamp(r.a, 0, 1) * 0.5 * A);
+              ctx.lineWidth = r.w;
+              ctx.beginPath();
+              ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+
+            // Source.
+            ctx.strokeStyle = rgba(p.dim, 0.4 * A);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(src.x, src.y, 7, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = rgba(p.accent, 0.8 * A);
+            ctx.beginPath();
+            ctx.arc(src.x, src.y, 2.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            const labelA = lerp(0.3, 1, env.restraint);
+            ctx.font = `10px ${mono}`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = rgba(p.muted, 0.5 * labelA);
+            ctx.fillText("workflow.trigger", src.x, src.y + 22);
+
+            // Endpoints.
+            for (const e of ends) {
+              const heat = e.flash;
+              drawGlyph(
+                ctx,
+                e.glyph,
+                e.x,
+                e.y,
+                7,
+                heat > 0.05 ? p.accent : p.dim,
+                (0.4 + heat * 0.55) * A,
+              );
+              ctx.fillStyle = rgba(
+                heat > 0.05 ? p.accent : p.muted,
+                (0.42 + heat * 0.4) * labelA,
+              );
+              ctx.font = `10px ${mono}`;
+              ctx.fillText(e.label, e.x + 44, e.y);
+            }
+            ctx.textAlign = "left";
+          },
+        };
+      }
+
+      /* =====================================================================
+         Concept 4 — Terminal resolve / glyph field
+         ===================================================================== */
+
+      const TOKENS = [
+        "$ knock workflow run comment-reply",
+        "mcp://knock/tools",
+        "knock.workflows.trigger({ key })",
+        "skills/knock-messaging",
+        "claude mcp add --transport http knock",
+        "POST /v1/workflows/{key}/trigger",
+        "agent → knock → deliver",
+        "$ knock commit --env development",
+        "channels: email, in_app, push, sms",
+      ];
+
+      const NOISE_CHARS =
+        "abcdefghijklmnopqrstuvwxyz0123456789/{}[]()<>-_=+*#$%&@:;.,|\\~^";
+
+      function GlyphField(env) {
+        const CW = 10,
+          CH = 17,
+          FS = 12.5;
+        let cols = 0,
+          rows = 0,
+          ox = 0,
+          oy = 0;
+        let cells = [];
+        let noiseLayer = null;
+        let noiseAge = 0;
+        let reveals = [];
+        let revealAcc = 0;
+
+        function layout() {
+          cols = Math.floor(env.w / CW);
+          rows = Math.floor(env.h / CH);
+          ox = (env.w - cols * CW) / 2 + CW / 2;
+          oy = (env.h - rows * CH) / 2 + CH / 2;
+          cells = new Array(cols * rows);
+          for (let i = 0; i < cells.length; i++) {
+            cells[i] = { ch: "", target: "", lit: 0, resolve: 0, flip: 0 };
+          }
+          noiseLayer = null;
+        }
+
+        function renderNoise() {
+          const p = env.palette;
+          const cv = document.createElement("canvas");
+          cv.width = Math.max(1, Math.round(env.w * env.dpr));
+          cv.height = Math.max(1, Math.round(env.h * env.dpr));
+          const g = cv.getContext("2d");
+          g.scale(env.dpr, env.dpr);
+          const mono = getComputedStyle(document.body)
+            .getPropertyValue("--mono")
+            .trim();
+          g.font = `${FS}px ${mono}`;
+          g.textAlign = "center";
+          g.textBaseline = "middle";
+          g.fillStyle = rgba(p.dim, 1);
+          // Sparse so it reads as texture, not as a wall of text.
+          for (let j = 0; j < rows; j++) {
+            for (let i = 0; i < cols; i++) {
+              if (Math.random() > 0.2) continue;
+              g.globalAlpha = rand(0.25, 0.9);
+              g.fillText(
+                NOISE_CHARS[randInt(0, NOISE_CHARS.length - 1)],
+                ox + i * CW,
+                oy + j * CH,
+              );
+            }
+          }
+          noiseLayer = cv;
+        }
+
+        function addReveal(forceRow) {
+          const token = pick(TOKENS);
+          const len = token.length;
+          if (len + 2 > cols) return;
+          const i0 = randInt(1, cols - len - 1);
+          const j0 = forceRow != null ? forceRow : randInt(1, rows - 2);
+          const r = { i0, j0, token, t: 0, life: rand(2.6, 4.4), a: 0 };
+          for (let k = 0; k < len; k++) {
+            const idx = j0 * cols + (i0 + k);
+            if (cells[idx]) cells[idx].target = token[k];
+          }
+          reveals.push(r);
+        }
+
+        layout();
+
+        return {
+          resize() {
+            layout();
+            reveals = [];
+          },
+
+          click(x, y) {
+            const j = clamp(Math.round((y - oy) / CH), 1, Math.max(1, rows - 2));
+            addReveal(j);
+            const r = reveals[reveals.length - 1];
+            if (r) {
+              r.life = 6;
+              r.pinned = true;
+            }
+          },
+
+          update(dt) {
+            noiseAge += dt;
+            if (!noiseLayer || noiseAge > 0.55) {
+              noiseAge = 0;
+              renderNoise();
+            }
+
+            const rate = lerp(0.45, 1.8, env.restraint);
+            revealAcc += dt * rate;
+            while (revealAcc >= 1) {
+              revealAcc -= 1;
+              if (reveals.length < Math.round(lerp(2, 7, env.restraint)))
+                addReveal();
+            }
+
+            for (const r of reveals) {
+              r.t += dt;
+              const inT = clamp(r.t / 0.7, 0, 1);
+              const outT = clamp((r.t - r.life) / 0.9, 0, 1);
+              r.a = easeOut(inT) * (1 - easeInOut(outT));
+            }
+            reveals = reveals.filter((r) => r.t < r.life + 0.95);
+
+            for (const c of cells) {
+              c.lit = Math.max(0, c.lit - dt * 2.4);
+              c.resolve = Math.max(0, c.resolve - dt * 2.4);
+              c.flip -= dt;
+            }
+
+            // Reveal regions drive their own cells.
+            for (const r of reveals) {
+              for (let k = 0; k < r.token.length; k++) {
+                const idx = r.j0 * cols + (r.i0 + k);
+                const c = cells[idx];
+                if (!c) continue;
+                // Characters settle left to right.
+                const settle = clamp((r.t - 0.12 * (k / r.token.length) * 3) / 0.55, 0, 1);
+                c.lit = Math.max(c.lit, r.a);
+                c.resolve = Math.max(c.resolve, settle * r.a);
+                c.target = r.token[k];
+              }
+            }
+
+            // Pointer charges a disc of the field.
+            const ptr = env.pointer;
+            if (ptr.active) {
+              const R = 92;
+              const ci = Math.round((ptr.x - ox) / CW);
+              const cj = Math.round((ptr.y - oy) / CH);
+              const span = Math.ceil(R / CW) + 1;
+              const spanY = Math.ceil(R / CH) + 1;
+              for (let j = cj - spanY; j <= cj + spanY; j++) {
+                if (j < 0 || j >= rows) continue;
+                for (let i = ci - span; i <= ci + span; i++) {
+                  if (i < 0 || i >= cols) continue;
+                  const d = Math.hypot(ox + i * CW - ptr.x, oy + j * CH - ptr.y);
+                  if (d > R) continue;
+                  const c = cells[j * cols + i];
+                  const f = Math.pow(1 - d / R, 1.5);
+                  c.lit = Math.max(c.lit, f);
+                  if (c.target) c.resolve = Math.max(c.resolve, f);
+                }
+              }
+            }
+
+            for (const c of cells) {
+              if (c.lit > 0.02 && (c.flip <= 0 || !c.ch)) {
+                c.ch = NOISE_CHARS[randInt(0, NOISE_CHARS.length - 1)];
+                c.flip = rand(0.03, 0.11);
+              }
+            }
+          },
+
+          draw(ctx) {
+            const p = env.palette;
+            const A = lerp(0.55, 1, env.restraint);
+            const mono = getComputedStyle(document.body)
+              .getPropertyValue("--mono")
+              .trim();
+
+            if (noiseLayer) {
+              ctx.globalAlpha = lerp(0.05, 0.12, env.restraint);
+              ctx.drawImage(noiseLayer, 0, 0, env.w, env.h);
+              ctx.globalAlpha = 1;
+            }
+
+            ctx.font = `${FS}px ${mono}`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            for (let j = 0; j < rows; j++) {
+              for (let i = 0; i < cols; i++) {
+                const c = cells[j * cols + i];
+                if (c.lit <= 0.03) continue;
+                const x = ox + i * CW;
+                const y = oy + j * CH;
+                const resolved = c.resolve > 0.62 && c.target;
+                const glyph = resolved ? c.target : c.ch || " ";
+                if (glyph === " ") continue;
+
+                if (resolved) {
+                  ctx.fillStyle = rgba(p.accent, clamp(c.resolve, 0, 1) * 0.95 * A);
+                } else {
+                  ctx.fillStyle = rgba(
+                    p.text,
+                    clamp(c.lit, 0, 1) * (p.dark ? 0.62 : 0.5) * A,
+                  );
+                }
+                ctx.fillText(glyph, x, y);
+              }
+            }
+
+            // Soft underline under settled tokens so they read as a line.
+            for (const r of reveals) {
+              if (r.a < 0.2) continue;
+              const x0 = ox + r.i0 * CW - CW / 2;
+              const x1 = x0 + r.token.length * CW;
+              const y = oy + r.j0 * CH + CH * 0.55;
+              const g = ctx.createLinearGradient(x0, 0, x1, 0);
+              g.addColorStop(0, rgba(p.accent, 0));
+              g.addColorStop(0.5, rgba(p.accent, 0.3 * r.a * A));
+              g.addColorStop(1, rgba(p.accent, 0));
+              ctx.fillStyle = g;
+              ctx.fillRect(x0, y, x1 - x0, 1);
+            }
+
+            ctx.textAlign = "left";
+          },
+        };
+      }
+
+      /* =====================================================================
+         Concept 5 — Tool-call constellation
+         ===================================================================== */
+
+      function Constellation(env) {
+        const SPEC = [
+          { label: "cli", r: 0.62, a0: 0.2, spd: 0.16 },
+          { label: "mcp", r: 0.88, a0: 1.35, spd: -0.11 },
+          { label: "skills", r: 0.7, a0: 2.6, spd: 0.13 },
+          { label: "agent", r: 1.0, a0: 3.6, spd: -0.09 },
+          { label: "api", r: 0.8, a0: 4.6, spd: 0.15 },
+          { label: "dashboard", r: 1.08, a0: 5.6, spd: -0.07 },
+        ];
+
+        let center = { x: 0, y: 0 };
+        let rx = 0,
+          ry = 0,
+          base = 0;
+        let nodes = [];
+        let calls = [];
+        let rings = [];
+        let callAcc = 0;
+        let t = 0;
+        let hover = -1;
+
+        function layout() {
+          // Hub sits below the hero copy so the spokes visibly converge on
+          // something instead of disappearing under the veil.
+          center = { x: env.w / 2, y: env.h * 0.72 };
+          // Wide, flat ellipses so the constellation fills the hero band.
+          rx = Math.min(env.w * 0.42, 600);
+          ry = env.h * 0.26;
+          base = Math.min(rx, ry);
+          nodes = SPEC.map((s) => ({
+            ...s,
+            ang: s.a0,
+            x: 0,
+            y: 0,
+            hx: 0,
+            hy: 0,
+            dx: 0,
+            dy: 0,
+            vx: 0,
+            vy: 0,
+            flash: 0,
+          }));
+        }
+
+        function fire(i) {
+          calls.push({ i, t: 0, dir: 1, speed: rand(1.5, 2.3) });
+        }
+
+        layout();
+
+        return {
+          resize() {
+            layout();
+            calls = [];
+            rings = [];
+          },
+
+          click() {
+            for (let i = 0; i < nodes.length; i++) fire(i);
+          },
+
+          update(dt) {
+            t += dt;
+            const ptr = env.pointer;
+
+            for (const n of nodes) {
+              n.ang += n.spd * dt * lerp(0.6, 1.15, env.restraint);
+              // Elliptical orbit, flattened so it fits a wide hero band.
+              n.hx = center.x + Math.cos(n.ang) * rx * n.r;
+              n.hy =
+                center.y +
+                Math.sin(n.ang) * ry * n.r +
+                Math.sin(t * 0.7 + n.a0) * 4;
+
+              // Spring the displacement back to zero, with the pointer as a well.
+              let fx = -n.dx * 26;
+              let fy = -n.dy * 26;
+              if (ptr.active) {
+                const cx = n.hx + n.dx,
+                  cy = n.hy + n.dy;
+                const ddx = ptr.x - cx,
+                  ddy = ptr.y - cy;
+                const d = Math.hypot(ddx, ddy);
+                const R = 220;
+                if (d < R && d > 0.001) {
+                  const g = Math.pow(1 - d / R, 1.6) * 420;
+                  fx += (ddx / d) * g;
+                  fy += (ddy / d) * g;
+                }
+              }
+              n.vx = (n.vx + fx * dt) * (1 - dt * 3.6);
+              n.vy = (n.vy + fy * dt) * (1 - dt * 3.6);
+              n.dx += n.vx * dt;
+              n.dy += n.vy * dt;
+              n.x = n.hx + n.dx;
+              n.y = n.hy + n.dy;
+              n.flash = Math.max(0, n.flash - dt * 1.8);
+            }
+
+            hover = -1;
+            if (ptr.active) {
+              let best = 34;
+              nodes.forEach((n, i) => {
+                const d = Math.hypot(ptr.x - n.x, ptr.y - n.y);
+                if (d < best) {
+                  best = d;
+                  hover = i;
+                }
+              });
+            }
+
+            const rate = lerp(0.55, 2.6, env.restraint);
+            callAcc += dt * rate;
+            while (callAcc >= 1) {
+              callAcc -= 1;
+              fire(hover >= 0 && Math.random() < 0.6 ? hover : randInt(0, nodes.length - 1));
+            }
+
+            for (const c of calls) {
+              c.t += c.speed * dt;
+              if (c.t >= 1) {
+                if (c.dir === 1) {
+                  c.dir = -1;
+                  c.t = 0;
+                  c.speed = rand(1.6, 2.4);
+                  rings.push({ x: center.x, y: center.y, r: 5, a: 0.85 });
+                } else {
+                  nodes[c.i].flash = 1;
+                  c.done = true;
+                }
+              }
+            }
+            calls = calls.filter((c) => !c.done);
+
+            for (const r of rings) {
+              r.r += dt * 78;
+              r.a -= dt * 1.5;
+            }
+            rings = rings.filter((r) => r.a > 0);
+          },
+
+          draw(ctx) {
+            const p = env.palette;
+            const A = lerp(0.5, 1, env.restraint);
+            const labelA = lerp(0.22, 1, env.restraint);
+            const mono = getComputedStyle(document.body)
+              .getPropertyValue("--mono")
+              .trim();
+
+            // Spokes.
+            ctx.lineWidth = 1;
+            nodes.forEach((n, i) => {
+              const lit = hover === i ? 1 : 0;
+              ctx.strokeStyle = rgba(
+                lit ? p.accent : p.dim,
+                (lit ? 0.34 : 0.11) * A,
+              );
+              ctx.beginPath();
+              ctx.moveTo(center.x, center.y);
+              ctx.lineTo(n.x, n.y);
+              ctx.stroke();
+            });
+
+            // Proximity links between neighbours.
+            for (let i = 0; i < nodes.length; i++) {
+              for (let j = i + 1; j < nodes.length; j++) {
+                const d = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+                const R = base * 1.5;
+                if (d > R) continue;
+                ctx.strokeStyle = rgba(p.dim, Math.pow(1 - d / R, 2) * 0.16 * A);
+                ctx.beginPath();
+                ctx.moveTo(nodes[i].x, nodes[i].y);
+                ctx.lineTo(nodes[j].x, nodes[j].y);
+                ctx.stroke();
+              }
+            }
+
+            // Rings at the hub.
+            for (const r of rings) {
+              ctx.strokeStyle = rgba(p.accent, clamp(r.a, 0, 1) * 0.45 * A);
+              ctx.lineWidth = 1.3;
+              ctx.beginPath();
+              ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+
+            // Travelling calls.
+            ctx.globalCompositeOperation = p.dark ? "lighter" : "source-over";
+            for (const c of calls) {
+              const n = nodes[c.i];
+              const from = c.dir === 1 ? n : center;
+              const to = c.dir === 1 ? center : n;
+              const tt = easeInOut(clamp(c.t, 0, 1));
+              const x = lerp(from.x, to.x, tt);
+              const y = lerp(from.y, to.y, tt);
+              const rr = 11;
+              ctx.globalAlpha = 0.6 * A;
+              ctx.drawImage(env.glowAccent, x - rr, y - rr, rr * 2, rr * 2);
+              // Short comet tail.
+              const bt = clamp(tt - 0.06, 0, 1);
+              ctx.globalAlpha = 0.3 * A;
+              const bx = lerp(from.x, to.x, bt);
+              const by = lerp(from.y, to.y, bt);
+              ctx.drawImage(env.glowAccent, bx - rr * 0.7, by - rr * 0.7, rr * 1.4, rr * 1.4);
+            }
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = "source-over";
+
+            for (const c of calls) {
+              const n = nodes[c.i];
+              const from = c.dir === 1 ? n : center;
+              const to = c.dir === 1 ? center : n;
+              const tt = easeInOut(clamp(c.t, 0, 1));
+              ctx.fillStyle = rgba(p.dark ? p.hot : p.accent, 0.95 * A);
+              ctx.beginPath();
+              ctx.arc(lerp(from.x, to.x, tt), lerp(from.y, to.y, tt), 2, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            // Hub — glow first so it reads through the hero veil.
+            ctx.globalCompositeOperation = p.dark ? "lighter" : "source-over";
+            ctx.globalAlpha = (0.3 + 0.1 * Math.sin(t * 1.6)) * A;
+            ctx.drawImage(env.glowAccent, center.x - 26, center.y - 26, 52, 52);
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = "source-over";
+
+            ctx.strokeStyle = rgba(p.dim, 0.4 * A);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, 9, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = rgba(p.accent, 0.85 * A);
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Nodes.
+            ctx.font = `10.5px ${mono}`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            nodes.forEach((n, i) => {
+              const heat = Math.max(n.flash, hover === i ? 1 : 0);
+              ctx.strokeStyle = rgba(heat > 0.05 ? p.accent : p.dim, (0.35 + heat * 0.5) * A);
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.arc(n.x, n.y, 4.5, 0, Math.PI * 2);
+              ctx.stroke();
+              if (heat > 0.03) {
+                ctx.fillStyle = rgba(p.accent, 0.6 * heat * A);
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+              }
+              ctx.fillStyle = rgba(
+                heat > 0.05 ? p.accent : p.muted,
+                (0.4 + heat * 0.5) * Math.max(labelA, heat),
+              );
+              ctx.fillText(n.label, n.x, n.y - 15);
+            });
+            ctx.textAlign = "left";
+          },
+        };
+      }
+
+      /* =====================================================================
+         Registry + harness
+         ===================================================================== */
+
+      const CONCEPTS = [
+        {
+          id: "runners",
+          name: "runner grid",
+          factory: RunnerGrid,
+          title: "1 — Runner grid",
+          body: "Your idea. A near-invisible dot lattice; light runners travel it, turning only at right angles. Each runner reads an occupancy map before it turns, so they visibly swerve to avoid one another's fresh trails. Some run off the edge, some age out mid-field, and two that meet head-on annihilate in a small spark burst. The pointer does two things at once: it charges the lattice underneath it, and it biases every nearby turn decision away from itself, so runners bend around your cursor rather than teleport.",
+          chips: ["hover <b>pushes runners away</b>", "click <b>spawns four runners</b>", "canvas 2D"],
+        },
+        {
+          id: "prompt",
+          name: "prompt → workflow",
+          factory: PromptAssembly,
+          title: "2 — Prompt → workflow assembly",
+          body: "The literal claim of the page, animated. A prompt types itself in monospace, shatters into particles sampled from its own glyphs, and those particles fly into the outline of a workflow: trigger → batch → branch → email / in-app / push. Edges draw, a signal walks the graph, then the whole thing dissolves and a different prompt begins. This is the only concept that states the product thesis rather than gesturing at it — which is also its risk behind a headline.",
+          chips: ["hover <b>pushes particles, lights nodes</b>", "click <b>restarts with a new prompt</b>", "text-sampled particles"],
+        },
+        {
+          id: "fanout",
+          name: "fan-out",
+          factory: FanOut,
+          title: "3 — Fan-out delivery field",
+          body: "One trigger, many channels. Packets leave a single source and travel bezier routes out to email, in-app, push, SMS, and chat endpoints, which flash and ring on arrival. The pointer is an obstacle in the field: route control points bend away from it, so moving through the middle visibly re-routes live traffic around your cursor. Calmest of the five at rest, and the one that most obviously reads as \"messaging\".",
+          chips: ["hover <b>bends the routes</b>", "click <b>fires to every channel</b>", "canvas 2D"],
+        },
+        {
+          id: "glyphs",
+          name: "terminal resolve",
+          factory: GlyphField,
+          title: "4 — Terminal resolve",
+          body: "A faint monospace field of noise. Every so often a region settles left-to-right out of the noise into a real token — <code>$ knock workflow run comment-reply</code>, <code>mcp://knock/tools</code> — holds, then decays back. The pointer resolves whatever it passes over, so dragging across the hero pulls readable commands out of static. Cheapest to run of the five, and the most native to a docs page; also the most likely to compete with the headline for reading attention.",
+          chips: ["hover <b>resolves glyphs under the cursor</b>", "click <b>pins a command to that row</b>", "offscreen noise layer"],
+        },
+        {
+          id: "constellation",
+          name: "constellation",
+          factory: Constellation,
+          title: "5 — Tool-call constellation",
+          body: "The agent surface area as a system. CLI, MCP, skills, agent, API, and dashboard orbit a Knock hub on flattened ellipses; each periodically fires a call inward, the hub pulses, and a response travels back out. Proximity links fade in between neighbours. The pointer is a gravity well — nodes are pulled off their orbits and spring back — and hovering a node raises its call rate.",
+          chips: ["hover <b>bends orbits, boosts traffic</b>", "click <b>every node calls at once</b>", "spring physics"],
+        },
+      ];
+
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d");
+      const stage = document.getElementById("stage");
+      const tabsEl = document.getElementById("tabs");
+      const restraintEl = document.getElementById("restraint");
+      const restraintVal = document.getElementById("restraintVal");
+      const themeBtn = document.getElementById("themeBtn");
+      const heroBtn = document.getElementById("heroBtn");
+      const veilBtn = document.getElementById("veilBtn");
+      const heroEl = document.getElementById("hero");
+      const veilEl = document.getElementById("veil");
+      const fpsEl = document.getElementById("fps");
+      const noteTitle = document.getElementById("noteTitle");
+      const noteBody = document.getElementById("noteBody");
+      const noteChips = document.getElementById("noteChips");
+
+      const env = {
+        w: 0,
+        h: 0,
+        dpr: 1,
+        restraint: 0.25,
+        themeKey: "dark",
+        palette: PALETTES.dark,
+        pointer: { x: 0, y: 0, active: false },
+        glowAccent: null,
+        glowDim: null,
+      };
+
+      function rebuildSprites() {
+        env.glowAccent = makeGlowSprite(env.palette.accent);
+        env.glowDim = makeGlowSprite(env.palette.dim);
+      }
+
+      let current = null;
+      let currentIdx = 0;
+
+      function mount(idx) {
+        currentIdx = idx;
+        const c = CONCEPTS[idx];
+        current = c.factory(env);
+        noteTitle.textContent = c.title;
+        noteBody.innerHTML = c.body;
+        noteChips.innerHTML = c.chips.map((t) => `<span class="chip">${t}</span>`).join("");
+        [...tabsEl.children].forEach((el, i) =>
+          el.setAttribute("aria-selected", String(i === idx)),
+        );
+      }
+
+      CONCEPTS.forEach((c, i) => {
+        const b = document.createElement("button");
+        b.className = "tab";
+        b.setAttribute("role", "tab");
+        b.innerHTML = `<span class="num">${i + 1}</span>${c.name}`;
+        b.addEventListener("click", () => mount(i));
+        tabsEl.appendChild(b);
+      });
+
+      function resize() {
+        const rect = stage.getBoundingClientRect();
+        env.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        env.w = rect.width;
+        env.h = rect.height;
+        canvas.width = Math.round(env.w * env.dpr);
+        canvas.height = Math.round(env.h * env.dpr);
+        ctx.setTransform(env.dpr, 0, 0, env.dpr, 0, 0);
+        if (current && current.resize) current.resize();
+      }
+
+      stage.addEventListener("pointermove", (e) => {
+        const r = stage.getBoundingClientRect();
+        env.pointer.x = e.clientX - r.left;
+        env.pointer.y = e.clientY - r.top;
+        env.pointer.active = true;
+      });
+      stage.addEventListener("pointerleave", () => {
+        env.pointer.active = false;
+      });
+      stage.addEventListener("pointerdown", (e) => {
+        const r = stage.getBoundingClientRect();
+        if (current && current.click)
+          current.click(e.clientX - r.left, e.clientY - r.top);
+      });
+
+      function restraintLabel(v) {
+        if (v < 0.18) return "whisper";
+        if (v < 0.42) return "quiet";
+        if (v < 0.68) return "present";
+        if (v < 0.88) return "ambient";
+        return "loud";
+      }
+
+      restraintEl.addEventListener("input", () => {
+        env.restraint = restraintEl.value / 100;
+        restraintVal.textContent = restraintLabel(env.restraint);
+      });
+      env.restraint = restraintEl.value / 100;
+      restraintVal.textContent = restraintLabel(env.restraint);
+
+      function setTheme(key) {
+        env.themeKey = key;
+        env.palette = PALETTES[key];
+        stage.dataset.theme = key;
+        themeBtn.textContent = key;
+        themeBtn.dataset.on = String(key === "dark");
+        rebuildSprites();
+      }
+
+      themeBtn.addEventListener("click", () =>
+        setTheme(env.themeKey === "dark" ? "light" : "dark"),
+      );
+
+      let heroOn = true;
+      heroBtn.addEventListener("click", () => {
+        heroOn = !heroOn;
+        heroEl.dataset.hidden = String(!heroOn);
+        heroBtn.dataset.on = String(heroOn);
+      });
+
+      let veilOn = true;
+      veilBtn.addEventListener("click", () => {
+        veilOn = !veilOn;
+        veilEl.dataset.off = String(!veilOn);
+        veilBtn.dataset.on = String(veilOn);
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT") return;
+        const k = e.key.toLowerCase();
+        if (k >= "1" && k <= String(CONCEPTS.length)) mount(Number(k) - 1);
+        else if (k === "t") themeBtn.click();
+        else if (k === "h") heroBtn.click();
+        else if (k === "v") veilBtn.click();
+        else if (k === "arrowleft" || k === "arrowright") {
+          const d = k === "arrowleft" ? -5 : 5;
+          restraintEl.value = clamp(Number(restraintEl.value) + d, 0, 100);
+          restraintEl.dispatchEvent(new Event("input"));
+        }
+      });
+
+      window.addEventListener("resize", resize);
+
+      setTheme("dark");
+      resize();
+      mount(0);
+
+      let last = performance.now();
+      let fpsSmooth = 60;
+      let fpsTick = 0;
+
+      function frame(now) {
+        const dt = Math.min(0.05, (now - last) / 1000) || 0.016;
+        last = now;
+
+        fpsSmooth = fpsSmooth * 0.92 + (1 / dt) * 0.08;
+        fpsTick += dt;
+        if (fpsTick > 0.4) {
+          fpsTick = 0;
+          fpsEl.textContent = `${Math.round(fpsSmooth)} fps`;
+        }
+
+        ctx.clearRect(0, 0, env.w, env.h);
+        if (current) {
+          current.update(dt);
+          current.draw(ctx);
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>
