@@ -11,7 +11,10 @@ import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
 import "./KnockAiBanner.css";
 
 type KnockAiBannerProps = {
-  subheadingProps?: TgphComponentProps<typeof Text>;
+  subheadingProps?: Omit<
+    TgphComponentProps<typeof Text<"p">>,
+    "as" | "children"
+  >;
 };
 
 /**
