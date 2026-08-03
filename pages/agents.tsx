@@ -158,7 +158,6 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
         description="Set up Knock with your coding agent. Install skills, connect the MCP server, and build notification workflows."
       />
       <Page.Masthead
-        skipHighlight
         mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
       />
 
@@ -177,7 +176,21 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
           overflow="hidden"
           style={{ minHeight: "min(52vh, 420px)" }}
         >
-          <AnimatedDotGrid />
+          {/* Soft bottom fade into the page surface behind the hero */}
+          <Box
+            aria-hidden
+            position="absolute"
+            style={{
+              inset: 0,
+              pointerEvents: "none",
+              maskImage:
+                "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
+            }}
+          >
+            <AnimatedDotGrid />
+          </Box>
 
           <Stack
             position="relative"
