@@ -22,6 +22,7 @@ import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 import {
   AgentPromptActionButton,
   openCodingToolDeeplink,
+  trackCodingToolClicked,
 } from "@/components/ui/AgentPromptActionButton";
 import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
 import { MarketingFooter } from "@/components/ui/MarketingFooter";
@@ -35,7 +36,6 @@ import {
   fetchAgentSkills,
   type AgentSkill,
 } from "@/lib/agentSkills";
-import * as posthog from "@/lib/posthog";
 
 type AgentsPageProps = {
   skills: AgentSkill[];
@@ -56,9 +56,8 @@ const CopyPromptButton = ({
       color="accent"
       size="2"
       onClick={() => {
-        posthog.track("agents-copy-prompt-clicked-client", {
+        trackCodingToolClicked("copy", prompt, {
           source: "hero",
-          prompt_length: prompt.length,
           selection_method: "primary",
         });
         copy();
