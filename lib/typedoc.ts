@@ -1,4 +1,4 @@
-import { sync as globSync } from "glob";
+import { glob } from "glob";
 import fs from "fs";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
@@ -14,9 +14,7 @@ export interface TypedocPage {
 }
 
 export async function getAllTypedocs() {
-  // glob@7 returns a Glob instance from `glob()` when no callback is passed;
-  // use sync so we always get a string[].
-  const typedocs = globSync("typedocs/**/*.mdx");
+  const typedocs = await glob("typedocs/**/*.mdx");
 
   const typedocMdx = await Promise.all(
     typedocs.map(async (typedoc): Promise<TypedocPage> => {
