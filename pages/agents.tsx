@@ -56,7 +56,7 @@ const CopyPromptButton = ({
       color="accent"
       size="2"
       onClick={() => {
-        trackCodingToolClicked("copy", prompt, {
+        trackCodingToolClicked("copy", {
           source: "hero",
           selection_method: "primary",
         });

@@ -98,12 +98,10 @@ type CodingToolTrackingProps = {
 /** Track a prompt action click (copy or coding-tool) before the side effect. */
 export const trackCodingToolClicked = (
   action: AgentPromptAction,
-  prompt: string,
   tracking?: CodingToolTrackingProps,
 ) => {
   posthog.track("agents-coding-tool-clicked-client", {
     action,
-    prompt_length: prompt.length,
     ...tracking,
   });
 };
@@ -114,7 +112,7 @@ export const openCodingToolDeeplink = (
   prompt: string,
   tracking?: CodingToolTrackingProps,
 ) => {
-  trackCodingToolClicked(tool, prompt, tracking);
+  trackCodingToolClicked(tool, tracking);
 
   const url = DEEPLINK_BUILDERS[tool](prompt);
   if (!isAllowedDeeplink(tool, url)) {
@@ -123,7 +121,6 @@ export const openCodingToolDeeplink = (
 
   posthog.track("agents-coding-tool-opened-client", {
     action: tool,
-    prompt_length: prompt.length,
     ...tracking,
   });
 
@@ -260,7 +257,7 @@ export const AgentPromptActionButton = ({
     selectionMethod: "primary" | "menu",
   ) => {
     if (action === "copy") {
-      trackCodingToolClicked("copy", prompt, {
+      trackCodingToolClicked("copy", {
         ...trackingProps,
         selection_method: selectionMethod,
       });
