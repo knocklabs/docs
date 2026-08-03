@@ -113,11 +113,18 @@ function nodeCloudOpacity(
   return Math.min(1, falloff * cloudIntensity);
 }
 
+type AnimatedDotGridProps = {
+  /** Soft mask over the canvas. Defaults to a bottom fade for hero use. */
+  maskImage?: string | false;
+};
+
 /**
  * Animated dot-grid hero background with mouse trail + flash accents.
  * Adapts node/flash colors for light and dark appearance; pauses offscreen.
  */
-export const AnimatedDotGrid = () => {
+export const AnimatedDotGrid = ({
+  maskImage = "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
+}: AnimatedDotGridProps = {}) => {
   const { appearance } = useTheme();
   const themeKey = appearance === "dark" ? "dark" : "light";
   const palette = THEMES[themeKey];
@@ -421,11 +428,12 @@ export const AnimatedDotGrid = () => {
           height: "100%",
           opacity: isInitialized ? 1 : 0,
           transition: "opacity 1s ease",
-          // Soft bottom fade into the page surface behind the hero
-          maskImage:
-            "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
+          ...(maskImage
+            ? {
+                maskImage,
+                WebkitMaskImage: maskImage,
+              }
+            : {}),
         }}
       />
     </div>

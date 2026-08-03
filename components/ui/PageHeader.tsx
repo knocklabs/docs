@@ -17,6 +17,7 @@ type PageHeaderProps = {
 const TAB_ROUTES: Array<{ prefix: string; tab: string }> = [
   { prefix: "/in-app-ui", tab: "in-app-ui" },
   { prefix: "/developer-tools", tab: "developer-tools" },
+  { prefix: "/agents", tab: "agents" },
   { prefix: "/api-reference", tab: "api-reference" },
   { prefix: "/mapi-reference", tab: "mapi-reference" },
   { prefix: "/cli", tab: "cli-reference" },
@@ -175,6 +176,9 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               href="/developer-tools/overview"
             >
               Developer tools
+            </Tabs.Tab>
+            <Tabs.Tab value="agents" as={Link} href="/agents">
+              Agents
             </Tabs.Tab>
             <Tabs.Tab value="tutorials" as={Link} href="/tutorials/overview">
               Tutorials

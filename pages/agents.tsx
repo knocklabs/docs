@@ -158,7 +158,6 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
         description="Set up Knock with your coding agent. Install skills, connect the MCP server, and build notification workflows."
       />
       <Page.Masthead
-        skipHighlight
         mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
       />
 
