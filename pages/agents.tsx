@@ -241,15 +241,17 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 as="h1"
                 size="9"
                 align="center"
+                className="agents-hero__heading"
                 style={{ position: "relative", zIndex: 1 }}
               >
-                Agent-first customer messaging
+                Agent-first customer&nbsp;messaging
               </Heading>
               <Text
                 as="p"
                 size="3"
                 color="gray"
                 align="center"
+                className="agents-hero__subheading"
                 style={{
                   margin: 0,
                   maxWidth: "36rem",
