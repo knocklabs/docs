@@ -1,6 +1,8 @@
 # Handoff — `/agents` hero design
 
-**Local-only working notes. Delete before opening a PR.** See [Before opening a PR](#before-opening-a-pr).
+**Local-only. This file and `prototypes/` are both stripped before opening a
+PR** — see [Before opening a PR](#before-opening-a-pr). Only changes to real app
+code (`components/`, `pages/`) are meant to ship.
 
 Worktree: `.claude/worktrees/agents-hero-design`
 Branch: `worktree-agents-hero-design`, based on `origin/main` @ `86962994`
@@ -147,14 +149,23 @@ Both galleries: no console errors, 120fps, dark and light.
 
 ## Before opening a PR
 
+Neither this file nor the prototypes ship. Strip both in one commit:
+
 ```bash
-git rm HANDOFF.md && git commit -m "chore: drop local handoff notes"
+git rm -r HANDOFF.md prototypes/ && git commit -m "chore: drop local prototypes and notes"
 ```
 
-GitHub's Files-changed view is a `base…head` diff, so a file added and later
-removed on the branch does not appear in it. The repo squash-merges, so it never
-reaches `main` either. It remains in this branch's local history, and would be
+GitHub's Files-changed view is a `base…head` diff, so files added and later
+removed on the branch do not appear in it. The repo squash-merges, so they never
+reach `main` either. They remain in this branch's local history, and would be
 visible to anyone opening the PR's **Commits** tab.
 
-Also decide whether `prototypes/` ships at all — it's throwaway exploration and
-probably should not land in the docs repo.
+**Do this last.** Once stripped, the galleries are gone from the working tree —
+recoverable with `git show f44d6d0f:prototypes/agents-hero/runners.html` or by
+checking out the commit before the strip, but not sitting there to open. If the
+design isn't settled, don't strip yet.
+
+After stripping, the PR should contain only real app code — expect changes to
+`components/ui/AnimatedDotGrid.tsx` (or its replacement) and possibly
+`pages/agents.tsx`. If `git diff origin/main --stat` shows anything under
+`prototypes/`, the strip didn't take.
