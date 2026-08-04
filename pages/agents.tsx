@@ -244,7 +244,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 className="agents-hero__heading"
                 style={{ position: "relative", zIndex: 1 }}
               >
-                Agent-first customer{"\u00A0"}messaging
+                Agent-first customer&nbsp;messaging
               </Heading>
               <Text
                 as="p"
