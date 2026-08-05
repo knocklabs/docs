@@ -745,6 +745,19 @@
           }
         }
 
+        // Moving a runner between planes has to undo the depth speed falloff it
+        // already carries before applying the new one, so the multiplier rides on
+        // the runner rather than being recomputed from a plane index that may no
+        // longer match the current `planes`. Spawn, the runtime adoption in
+        // update(), and merge (which pulls a survivor forward) all need exactly
+        // this arithmetic.
+        function setPlane(r, z, nPlanes, spread) {
+          const mul = HeroLaw.planeStyle(z, nPlanes, spread).speedMul;
+          r.speed *= mul / r.speedMul;
+          r.speedMul = mul;
+          r.z = z;
+        }
+
         function spawn(i, j, d, boosted) {
           if (!inBounds(i, j)) return null;
           const p = P();
@@ -784,6 +797,7 @@
             dying: false,
             accent: isAccent,
             z: zPicked,
+            speedMul: 1,
             mass: 1,
             bright: boosted ? 1 : rand(0.6, 1),
             target: tgt,
@@ -791,7 +805,7 @@
           };
           // `speed` is set inside the literal, so the depth falloff is applied
           // once here rather than threading the plane style through the literal.
-          r.speed *= HeroLaw.planeStyle(r.z, nPlanes, p.planeSpread).speedMul;
+          setPlane(r, zPicked, nPlanes, p.planeSpread);
           runners.push(r);
           return r;
         }
@@ -1044,6 +1058,7 @@
           update(dt) {
             now += dt;
             const p = P();
+            const nPlanes = clamp(p.planes, 1, 3);
 
             const deficit =
               targetCount() - runners.filter((r) => !r.dying).length;
@@ -1057,6 +1072,16 @@
 
             for (const r of runners) {
               r.age += dt;
+
+              // Lowering `planes` at runtime would otherwise strand runners on
+              // planes the draw loop no longer visits: still advancing, still
+              // claiming occupancy, still bursting on collision, but invisible —
+              // so the field shows collision sparks and endpoint flashes with no
+              // source for up to a full ttl. Pull them forward instead of
+              // retiring them: a mass die-off on every downward drag of the
+              // control reads as a bug, and forward is the direction the law
+              // moves things anyway.
+              if (r.z >= nPlanes) setPlane(r, nPlanes - 1, nPlanes, p.planeSpread);
 
               if (r.dying) {
                 r.fade -= dt * 1.9;
