@@ -1011,13 +1011,16 @@
             Math.random() < p.forkRate
           ) {
             const nPlanes = clamp(p.planes, 1, 3);
-            const [pm, cm] = HeroLaw.forkMasses(r.mass);
-            r.mass = pm;
             // The child leaves perpendicular, so the split is legible as a branch
             // rather than a wobble.
             const childDir = (r.d + (Math.random() < 0.5 ? 1 : 3)) % 4;
             const child = spawn(ni, nj, childDir, false);
             if (child) {
+              // Debit the parent's mass only once the child is confirmed to
+              // exist — spawn() can return null (out of bounds), and halving
+              // r.mass before that check would leak mass into nothing.
+              const [pm, cm] = HeroLaw.forkMasses(r.mass);
+              r.mass = pm;
               child.mass = cm;
               // Resolve the child's plane through setPlane — the only path that
               // keeps its speed rescale exact — before deciding accent, since
