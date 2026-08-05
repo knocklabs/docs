@@ -12,9 +12,13 @@ test("merge conserves mass", () => {
   assert.equal(L.mergeMass(0.5, 0.25), 0.75);
 });
 
-test("merge pulls the survivor to the frontmost plane", () => {
-  assert.equal(L.mergePlane(2, 0), 0);
-  assert.equal(L.mergePlane(1, 2), 1);
+test("merge pulls the survivor one plane forward of the meeting", () => {
+  assert.equal(L.mergePlane(2, 2), 1);
+  assert.equal(L.mergePlane(1, 1), 0);
+});
+
+test("merge pull-forward floors at the front plane", () => {
+  assert.equal(L.mergePlane(0, 0), 0);
 });
 
 test("fork child recedes one plane only when dropping", () => {

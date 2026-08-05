@@ -10,8 +10,12 @@ const HeroLaw = (function () {
   const forkMasses = (mass) => [mass / 2, mass / 2];
   const mergeMass = (a, b) => a + b;
 
-  // Merge pulls the survivor forward, fork pushes the child back.
-  const mergePlane = (za, zb) => Math.min(za, zb);
+  // Merge pulls the survivor one plane forward of where the meeting
+  // happened (floored at the front): collision detection only ever fires
+  // between two runners already on the same plane, so a plain min() of the
+  // two would be a no-op every time. Stepping forward from that shared
+  // plane is what makes the pull-forward visible.
+  const mergePlane = (za, zb) => Math.max(0, Math.min(za, zb) - 1);
   const forkChildPlane = (z, planes, drop) =>
     drop ? Math.min(z + 1, planes - 1) : z;
 
