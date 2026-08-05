@@ -674,6 +674,10 @@
           [0, -1],
         ];
 
+        // Depth is capped at three planes: past that the back ones stop
+        // reading as distance and just add noise.
+        const PLANE_MAX = 3;
+
         let cols = 0,
           rows = 0,
           ox = 0,
@@ -694,6 +698,7 @@
         const px = (i) => ox + i * cell;
         const py = (j) => oy + j * cell;
         const inBounds = (i, j) => i >= 0 && j >= 0 && i < cols && j < rows;
+        const occIdx = (i, j, z) => z * cols * rows + j * cols + i;
 
         function layout() {
           cell = P().cell;
@@ -701,8 +706,10 @@
           rows = Math.floor(env.h / cell) + 1;
           ox = (env.w - (cols - 1) * cell) / 2;
           oy = (env.h - (rows - 1) * cell) / 2;
-          occTime = new Float32Array(cols * rows);
-          occOwner = new Int32Array(cols * rows);
+          // Occupancy is per plane: crossing runners on different planes are at
+          // different depths and must not collide.
+          occTime = new Float32Array(cols * rows * PLANE_MAX);
+          occOwner = new Int32Array(cols * rows * PLANE_MAX);
 
           etchCv = document.createElement("canvas");
           etchCv.width = Math.max(1, Math.round(env.w * env.dpr));
@@ -741,7 +748,20 @@
         function spawn(i, j, d, boosted) {
           if (!inBounds(i, j)) return null;
           const p = P();
-          const isAccent = Math.random() < p.accentRatio || boosted;
+          const nPlanes = clamp(p.planes, 1, 3);
+          const zPicked = (() => {
+            // Weight toward the front so the plane carrying the accent stays the
+            // busiest and the back reads as distance rather than clutter.
+            const roll = Math.random();
+            if (nPlanes === 1) return 0;
+            if (nPlanes === 2) return roll < 0.62 ? 0 : 1;
+            return roll < 0.5 ? 0 : roll < 0.8 ? 1 : 2;
+          })();
+          // Depth drives colour: accent lives at the front. At planes:1 every
+          // runner is front-plane, so accentRatio governs alone — round 2's model.
+          const isAccent =
+            boosted ||
+            ((nPlanes === 1 || zPicked === 0) && Math.random() < p.accentRatio);
           const tgt =
             p.targets && targets.length && Math.random() < 0.75
               ? targets[randInt(0, targets.length - 1)]
@@ -763,12 +783,15 @@
             fade: 1,
             dying: false,
             accent: isAccent,
-            z: 0,
+            z: zPicked,
             mass: 1,
             bright: boosted ? 1 : rand(0.6, 1),
             target: tgt,
             exiting: false,
           };
+          // `speed` is set inside the literal, so the depth falloff is applied
+          // once here rather than threading the plane style through the literal.
+          r.speed *= HeroLaw.planeStyle(r.z, nPlanes, p.planeSpread).speedMul;
           runners.push(r);
           return r;
         }
@@ -838,7 +861,8 @@
             let w = w0;
 
             if (inBounds(ni, nj)) {
-              const idx = nj * cols + ni;
+              // Only this runner's own plane counts as busy.
+              const idx = occIdx(ni, nj, r.z);
               if (occOwner[idx] !== r.id && now - occTime[idx] < 0.5) w *= 0.05;
               if (pointerBlocked(ni, nj)) w *= 0.002;
             }
@@ -944,7 +968,7 @@
             return;
           }
 
-          const idx = nj * cols + ni;
+          const idx = occIdx(ni, nj, r.z);
           if (occOwner[idx] !== r.id && now - occTime[idx] < 0.12) {
             burst(px(ni), py(nj), 12, 1, r.accent);
             r.dying = true;
@@ -1112,126 +1136,16 @@
             const r01 = env.restraint;
             const baseA = lerp(0.55, 1, r01);
             const colFor = (r) => (r.accent ? pal.accent : pal.neutral);
-
-            /* substrate ------------------------------------------------- */
-            if (p.substrate === "dots") {
-              ctx.fillStyle = rgba(pal.grid, lerp(0.032, 0.085, r01));
-              for (let j = 0; j < rows; j++)
-                for (let i = 0; i < cols; i++)
-                  ctx.fillRect(px(i) - 0.6, py(j) - 0.6, 1.2, 1.2);
-            } else if (p.substrate === "lines") {
-              ctx.strokeStyle = rgba(pal.grid, lerp(0.022, 0.05, r01));
-              ctx.lineWidth = 1;
-              ctx.beginPath();
-              for (let i = 0; i < cols; i++) {
-                ctx.moveTo(px(i) + 0.5, 0);
-                ctx.lineTo(px(i) + 0.5, env.h);
-              }
-              for (let j = 0; j < rows; j++) {
-                ctx.moveTo(0, py(j) + 0.5);
-                ctx.lineTo(env.w, py(j) + 0.5);
-              }
-              ctx.stroke();
-            }
-
-            /* pointer field --------------------------------------------- */
+            const nPlanes = clamp(p.planes, 1, 3);
             const ptr = env.pointer;
-            if (ptr.active && p.pointerMode !== "off") {
-              if (p.pointerMode === "block") {
-                // Render the forbidden zone so the obstruction is legible.
-                const R = 72;
-                ctx.strokeStyle = rgba(pal.accent, 0.22);
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(ptr.x, ptr.y, R, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.fillStyle = rgba(pal.accent, 0.05);
-                ctx.fill();
-                for (let j = 0; j < rows; j++)
-                  for (let i = 0; i < cols; i++) {
-                    if (!pointerBlocked(i, j)) continue;
-                    ctx.fillStyle = rgba(pal.accent, 0.4);
-                    ctx.fillRect(px(i) - 1, py(j) - 1, 2, 2);
-                  }
-              } else if (p.substrate !== "none") {
-                const R = 150;
-                ctx.fillStyle = rgba(pal.accent, 0.16);
-                for (let j = 0; j < rows; j++)
-                  for (let i = 0; i < cols; i++) {
-                    const d = Math.hypot(ptr.x - px(i), ptr.y - py(j));
-                    if (d >= R) continue;
-                    ctx.globalAlpha = Math.pow(1 - d / R, 2.2) * 0.75;
-                    ctx.fillRect(px(i) - 0.9, py(j) - 0.9, 1.8, 1.8);
-                  }
-                ctx.globalAlpha = 1;
-              }
-            }
 
-            /* endpoints ------------------------------------------------- */
-            for (const t of targets) {
-              const x = px(t.i),
-                y = py(t.j);
-              const heat = t.flash;
-              if (heat > 0.02) {
-                ctx.globalCompositeOperation = pal.dark
-                  ? "lighter"
-                  : "source-over";
-                ctx.globalAlpha = heat * 0.6;
-                ctx.drawImage(env.glowAccent, x - 20, y - 20, 40, 40);
-                ctx.globalAlpha = 1;
-                ctx.globalCompositeOperation = "source-over";
-              }
-              ctx.strokeStyle = rgba(
-                heat > 0.05 ? pal.accent : pal.dim,
-                (0.5 + heat * 0.45) * baseA,
-              );
-              ctx.lineWidth = 1;
-              ctx.strokeRect(x - 4, y - 4, 8, 8);
-              ctx.fillStyle = rgba(
-                heat > 0.05 ? pal.accent : pal.dim,
-                (0.2 + heat * 0.7) * baseA,
-              );
-              ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
-              for (const ring of t.rings) {
-                ctx.strokeStyle = rgba(pal.accent, clamp(ring.a, 0, 1) * 0.5);
-                ctx.beginPath();
-                ctx.arc(x, y, ring.r, 0, Math.PI * 2);
-                ctx.stroke();
-              }
-            }
-
-            /* etch residue ---------------------------------------------- */
-            if (p.etch && etchCtx) {
-              etchCtx.globalCompositeOperation = "destination-out";
-              etchCtx.fillStyle = `rgba(0,0,0,${p.etchDecay})`;
-              etchCtx.fillRect(0, 0, env.w, env.h);
-              etchCtx.globalCompositeOperation = "source-over";
-              etchCtx.lineCap = "round";
-              etchCtx.lineWidth = 1;
-              for (const r of runners) {
-                if (r.dying) continue;
-                const last = r.trail[r.trail.length - 1];
-                // Residue needs more weight on white than it does on black.
-                etchCtx.strokeStyle = rgba(colFor(r), pal.dark ? 0.32 : 0.55);
-                etchCtx.beginPath();
-                etchCtx.moveTo(last.x, last.y);
-                etchCtx.lineTo(r.head.x, r.head.y);
-                etchCtx.stroke();
-              }
-              ctx.globalAlpha = lerp(0.5, 0.95, r01);
-              ctx.drawImage(etchCv, 0, 0, env.w, env.h);
-              ctx.globalAlpha = 1;
-            }
-
-            /* trails ---------------------------------------------------- */
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-
+            /* trail batching constants ---------------------------------- */
             // One Path2D per (tier, accent, fade-bucket, glow-bucket). Solid strokes,
             // no gradients: the taper now comes from splitting each trail into a few
             // fade buckets rather than a gradient object per segment. Rebuilt every
             // frame so batches never leak stale segments across runners that die or
-            // respawn.
+            // respawn. The batch map itself lives inside the plane loop, since each
+            // plane strokes at its own dim and softness.
             const FADE_BUCKETS = 8;
             // Reconstructing an exact mass from a quantized tier is lossy, so each
             // tier gets one representative mass instead. Tier 3 (HeroLaw.massTier's
@@ -1249,120 +1163,274 @@
             const GLOW_BUCKETS = 4;
             const glowBucket = (v) =>
               Math.min(GLOW_BUCKETS - 1, Math.max(0, Math.floor(v * GLOW_BUCKETS)));
-            const batches = new Map();
             const batchKey = (tier, accent, fb, gb) =>
               tier * 1000 + (accent ? 500 : 0) + fb * 10 + gb;
 
-            function addSeg(tier, accent, fb, gb, a0, a1) {
-              const key = batchKey(tier, accent, fb, gb);
-              let b = batches.get(key);
-              if (!b) {
-                b = { path: new Path2D(), tier, accent, fb, gb };
-                batches.set(key, b);
-              }
-              b.path.moveTo(a0.x, a0.y);
-              b.path.lineTo(a1.x, a1.y);
-            }
-
-            for (const r of runners) {
-              const col = colFor(r);
-              const dimF = r.accent ? 1 : 0.62;
-              const pts = r.trail.concat([r.head]);
-              if (pts.length < 2) continue;
-              const total = Math.max(1, trailLength(r));
-
-              if (p.trailStyle === "segments") {
-                // One bar per lattice segment, with a gap at each node.
-                let acc = 0;
-                for (let k = 0; k < pts.length - 1; k++) {
-                  const a0 = pts[k],
-                    a1 = pts[k + 1];
-                  const seg = Math.hypot(a1.x - a0.x, a1.y - a0.y);
-                  if (seg < 0.01) continue;
-                  acc += seg;
-                  const f = acc / total;
-                  const inset = Math.min(3, seg * 0.22);
-                  const ux = (a1.x - a0.x) / seg,
-                    uy = (a1.y - a0.y) / seg;
-                  ctx.strokeStyle = rgba(
-                    col,
-                    Math.pow(f, 1.5) * baseA * r.bright * r.fade * 0.8 * dimF,
-                  );
-                  ctx.lineWidth = 1.6;
-                  ctx.beginPath();
-                  ctx.moveTo(a0.x + ux * inset, a0.y + uy * inset);
-                  ctx.lineTo(a1.x - ux * inset, a1.y - uy * inset);
-                  ctx.stroke();
-                }
-              } else {
-                // Bucket into the shared batches instead of stroking here: a
-                // per-segment gradient allocation is the cost this task removes.
-                const tier = HeroLaw.massTier(r.mass);
-                // Same brightness/fade value for every segment of this runner this
-                // frame, so bucket it once rather than per segment.
-                const gb = glowBucket(r.bright * r.fade);
-                let acc = 0;
-                for (let k = 0; k < pts.length - 1; k++) {
-                  const a0 = pts[k],
-                    a1 = pts[k + 1];
-                  const seg = Math.hypot(a1.x - a0.x, a1.y - a0.y);
-                  if (seg < 0.01) continue;
-                  // Fade bucket from the segment midpoint: 0 is the tail, 4 the head.
-                  const f = (acc + seg / 2) / total;
-                  const fb = Math.min(
-                    FADE_BUCKETS - 1,
-                    Math.floor(f * FADE_BUCKETS),
-                  );
-                  addSeg(tier, r.accent, fb, gb, a0, a1);
-                  acc += seg;
-                }
-              }
-
-              if (!r.dying) {
-                if (p.headGlow > 0.01) {
-                  ctx.globalCompositeOperation = pal.dark
-                    ? "lighter"
-                    : "source-over";
-                  const rr = 13 * lerp(0.8, 1.15, r01);
-                  ctx.globalAlpha = 0.5 * r.bright * baseA * p.headGlow * dimF;
-                  ctx.drawImage(
-                    r.accent ? env.glowAccent : env.glowNeutral,
-                    r.head.x - rr,
-                    r.head.y - rr,
-                    rr * 2,
-                    rr * 2,
-                  );
-                  ctx.globalAlpha = 1;
-                  ctx.globalCompositeOperation = "source-over";
-                }
-                ctx.fillStyle = rgba(
-                  r.accent ? (pal.dark ? pal.hot : pal.accent) : col,
-                  0.95 * baseA * dimF,
+            /* planes, back to front ------------------------------------- */
+            // Each plane draws its own lattice, trails and heads, so a nearer
+            // plane always overlaps a further one. At planes:1 the transform is
+            // identity and st.dim is 1, so the sequence below is byte-for-byte
+            // round 2's draw order.
+            for (let z = nPlanes - 1; z >= 0; z--) {
+              const st = HeroLaw.planeStyle(z, nPlanes, p.planeSpread);
+              const planeA = baseA * st.dim;
+              ctx.save();
+              // Scale about the stage centre so the back planes sit "further in".
+              ctx.translate(env.w / 2, env.h / 2);
+              ctx.scale(st.scale, st.scale);
+              ctx.translate(-env.w / 2, -env.h / 2);
+              // Parallax: only the back planes move, so the front-plane pads never
+              // drift off their anchors.
+              if (z > 0 && ptr.active && p.parallax > 0) {
+                const depth = z / (nPlanes - 1);
+                ctx.translate(
+                  (ptr.x - env.w / 2) * -0.012 * p.parallax * depth,
+                  (ptr.y - env.h / 2) * -0.012 * p.parallax * depth,
                 );
-                ctx.beginPath();
-                ctx.arc(r.head.x, r.head.y, 1.7, 0, Math.PI * 2);
-                ctx.fill();
               }
-            }
 
-            // Stroke each ribbon batch once: a handful of discrete alpha steps
-            // stands in for the smooth per-segment gradient taper, and a handful
-            // of glow steps stand in for the continuous r.bright * r.fade modulation
-            // round 2 applied per runner (so dying runners still fade out instead of
-            // popping when they're removed).
-            for (const b of batches.values()) {
-              const col = b.accent ? pal.accent : pal.neutral;
-              const dimF = b.accent ? 1 : 0.62;
-              const fade = (b.fb + 1) / FADE_BUCKETS;
-              const glow = (b.gb + 1) / GLOW_BUCKETS;
-              ctx.strokeStyle = rgba(col, baseA * dimF * fade * fade * glow);
-              ctx.lineWidth = HeroLaw.widthForMass(
-                TIER_REP_MASS[b.tier],
-                1.3,
-                p.massCurve,
-              );
+              /* substrate ----------------------------------------------- */
+              if (p.substrate === "dots") {
+                ctx.fillStyle = rgba(pal.grid, lerp(0.032, 0.085, r01) * st.dim);
+                for (let j = 0; j < rows; j++)
+                  for (let i = 0; i < cols; i++)
+                    ctx.fillRect(px(i) - 0.6, py(j) - 0.6, 1.2, 1.2);
+              } else if (p.substrate === "lines") {
+                ctx.strokeStyle = rgba(pal.grid, lerp(0.022, 0.05, r01) * st.dim);
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for (let i = 0; i < cols; i++) {
+                  ctx.moveTo(px(i) + 0.5, 0);
+                  ctx.lineTo(px(i) + 0.5, env.h);
+                }
+                for (let j = 0; j < rows; j++) {
+                  ctx.moveTo(0, py(j) + 0.5);
+                  ctx.lineTo(env.w, py(j) + 0.5);
+                }
+                ctx.stroke();
+              }
+
+              // Pointer field, endpoints and etch residue belong to the field as
+              // a whole, not to a depth. They ride the front plane so they keep
+              // round 2's position in the stack and never get dimmed or scaled.
+              if (z === 0) {
+                /* pointer field ----------------------------------------- */
+                if (ptr.active && p.pointerMode !== "off") {
+                  if (p.pointerMode === "block") {
+                    // Render the forbidden zone so the obstruction is legible.
+                    const R = 72;
+                    ctx.strokeStyle = rgba(pal.accent, 0.22);
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(ptr.x, ptr.y, R, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.fillStyle = rgba(pal.accent, 0.05);
+                    ctx.fill();
+                    for (let j = 0; j < rows; j++)
+                      for (let i = 0; i < cols; i++) {
+                        if (!pointerBlocked(i, j)) continue;
+                        ctx.fillStyle = rgba(pal.accent, 0.4);
+                        ctx.fillRect(px(i) - 1, py(j) - 1, 2, 2);
+                      }
+                  } else if (p.substrate !== "none") {
+                    const R = 150;
+                    ctx.fillStyle = rgba(pal.accent, 0.16);
+                    for (let j = 0; j < rows; j++)
+                      for (let i = 0; i < cols; i++) {
+                        const d = Math.hypot(ptr.x - px(i), ptr.y - py(j));
+                        if (d >= R) continue;
+                        ctx.globalAlpha = Math.pow(1 - d / R, 2.2) * 0.75;
+                        ctx.fillRect(px(i) - 0.9, py(j) - 0.9, 1.8, 1.8);
+                      }
+                    ctx.globalAlpha = 1;
+                  }
+                }
+
+                /* endpoints --------------------------------------------- */
+                for (const t of targets) {
+                  const x = px(t.i),
+                    y = py(t.j);
+                  const heat = t.flash;
+                  if (heat > 0.02) {
+                    ctx.globalCompositeOperation = pal.dark
+                      ? "lighter"
+                      : "source-over";
+                    ctx.globalAlpha = heat * 0.6;
+                    ctx.drawImage(env.glowAccent, x - 20, y - 20, 40, 40);
+                    ctx.globalAlpha = 1;
+                    ctx.globalCompositeOperation = "source-over";
+                  }
+                  ctx.strokeStyle = rgba(
+                    heat > 0.05 ? pal.accent : pal.dim,
+                    (0.5 + heat * 0.45) * baseA,
+                  );
+                  ctx.lineWidth = 1;
+                  ctx.strokeRect(x - 4, y - 4, 8, 8);
+                  ctx.fillStyle = rgba(
+                    heat > 0.05 ? pal.accent : pal.dim,
+                    (0.2 + heat * 0.7) * baseA,
+                  );
+                  ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+                  for (const ring of t.rings) {
+                    ctx.strokeStyle = rgba(
+                      pal.accent,
+                      clamp(ring.a, 0, 1) * 0.5,
+                    );
+                    ctx.beginPath();
+                    ctx.arc(x, y, ring.r, 0, Math.PI * 2);
+                    ctx.stroke();
+                  }
+                }
+
+                /* etch residue ------------------------------------------ */
+                if (p.etch && etchCtx) {
+                  etchCtx.globalCompositeOperation = "destination-out";
+                  etchCtx.fillStyle = `rgba(0,0,0,${p.etchDecay})`;
+                  etchCtx.fillRect(0, 0, env.w, env.h);
+                  etchCtx.globalCompositeOperation = "source-over";
+                  etchCtx.lineCap = "round";
+                  etchCtx.lineWidth = 1;
+                  for (const r of runners) {
+                    if (r.dying) continue;
+                    const last = r.trail[r.trail.length - 1];
+                    // Residue needs more weight on white than it does on black.
+                    etchCtx.strokeStyle = rgba(
+                      colFor(r),
+                      pal.dark ? 0.32 : 0.55,
+                    );
+                    etchCtx.beginPath();
+                    etchCtx.moveTo(last.x, last.y);
+                    etchCtx.lineTo(r.head.x, r.head.y);
+                    etchCtx.stroke();
+                  }
+                  ctx.globalAlpha = lerp(0.5, 0.95, r01);
+                  ctx.drawImage(etchCv, 0, 0, env.w, env.h);
+                  ctx.globalAlpha = 1;
+                }
+              }
+
+              /* trails -------------------------------------------------- */
               ctx.lineCap = "round";
-              ctx.stroke(b.path);
+              ctx.lineJoin = "round";
+
+              const batches = new Map();
+              const addSeg = (tier, accent, fb, gb, a0, a1) => {
+                const key = batchKey(tier, accent, fb, gb);
+                let b = batches.get(key);
+                if (!b) {
+                  b = { path: new Path2D(), tier, accent, fb, gb };
+                  batches.set(key, b);
+                }
+                b.path.moveTo(a0.x, a0.y);
+                b.path.lineTo(a1.x, a1.y);
+              };
+
+              for (const r of runners) {
+                if (r.z !== z) continue;
+                const col = colFor(r);
+                const dimF = r.accent ? 1 : 0.62;
+                const pts = r.trail.concat([r.head]);
+                if (pts.length < 2) continue;
+                const total = Math.max(1, trailLength(r));
+
+                if (p.trailStyle === "segments") {
+                  // One bar per lattice segment, with a gap at each node.
+                  let acc = 0;
+                  for (let k = 0; k < pts.length - 1; k++) {
+                    const a0 = pts[k],
+                      a1 = pts[k + 1];
+                    const seg = Math.hypot(a1.x - a0.x, a1.y - a0.y);
+                    if (seg < 0.01) continue;
+                    acc += seg;
+                    const f = acc / total;
+                    const inset = Math.min(3, seg * 0.22);
+                    const ux = (a1.x - a0.x) / seg,
+                      uy = (a1.y - a0.y) / seg;
+                    ctx.strokeStyle = rgba(
+                      col,
+                      Math.pow(f, 1.5) * planeA * r.bright * r.fade * 0.8 * dimF,
+                    );
+                    ctx.lineWidth = 1.6 + st.soften;
+                    ctx.beginPath();
+                    ctx.moveTo(a0.x + ux * inset, a0.y + uy * inset);
+                    ctx.lineTo(a1.x - ux * inset, a1.y - uy * inset);
+                    ctx.stroke();
+                  }
+                } else {
+                  // Bucket into the shared batches instead of stroking here: a
+                  // per-segment gradient allocation is the cost this task removes.
+                  const tier = HeroLaw.massTier(r.mass);
+                  // Same brightness/fade value for every segment of this runner this
+                  // frame, so bucket it once rather than per segment.
+                  const gb = glowBucket(r.bright * r.fade);
+                  let acc = 0;
+                  for (let k = 0; k < pts.length - 1; k++) {
+                    const a0 = pts[k],
+                      a1 = pts[k + 1];
+                    const seg = Math.hypot(a1.x - a0.x, a1.y - a0.y);
+                    if (seg < 0.01) continue;
+                    // Fade bucket from the segment midpoint: 0 is the tail, 4 the head.
+                    const f = (acc + seg / 2) / total;
+                    const fb = Math.min(
+                      FADE_BUCKETS - 1,
+                      Math.floor(f * FADE_BUCKETS),
+                    );
+                    addSeg(tier, r.accent, fb, gb, a0, a1);
+                    acc += seg;
+                  }
+                }
+
+                if (!r.dying) {
+                  if (p.headGlow > 0.01) {
+                    ctx.globalCompositeOperation = pal.dark
+                      ? "lighter"
+                      : "source-over";
+                    const rr = 13 * lerp(0.8, 1.15, r01);
+                    ctx.globalAlpha =
+                      0.5 * r.bright * planeA * p.headGlow * dimF;
+                    ctx.drawImage(
+                      r.accent ? env.glowAccent : env.glowNeutral,
+                      r.head.x - rr,
+                      r.head.y - rr,
+                      rr * 2,
+                      rr * 2,
+                    );
+                    ctx.globalAlpha = 1;
+                    ctx.globalCompositeOperation = "source-over";
+                  }
+                  ctx.fillStyle = rgba(
+                    r.accent ? (pal.dark ? pal.hot : pal.accent) : col,
+                    0.95 * planeA * dimF,
+                  );
+                  ctx.beginPath();
+                  ctx.arc(r.head.x, r.head.y, 1.7, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+              }
+
+              // Stroke each ribbon batch once: a handful of discrete alpha steps
+              // stands in for the smooth per-segment gradient taper, and a handful
+              // of glow steps stand in for the continuous r.bright * r.fade modulation
+              // round 2 applied per runner (so dying runners still fade out instead of
+              // popping when they're removed). Softness widens the stroke as it dims,
+              // which is what reads as defocus rather than as a thinner line.
+              for (const b of batches.values()) {
+                const col = b.accent ? pal.accent : pal.neutral;
+                const dimF = b.accent ? 1 : 0.62;
+                const fade = (b.fb + 1) / FADE_BUCKETS;
+                const glow = (b.gb + 1) / GLOW_BUCKETS;
+                ctx.strokeStyle = rgba(col, planeA * dimF * fade * fade * glow);
+                ctx.lineWidth =
+                  HeroLaw.widthForMass(
+                    TIER_REP_MASS[b.tier],
+                    1.3,
+                    p.massCurve,
+                  ) + st.soften;
+                ctx.lineCap = "round";
+                ctx.stroke(b.path);
+              }
+
+              ctx.restore();
             }
 
             /* sparks ---------------------------------------------------- */
