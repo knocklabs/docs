@@ -972,6 +972,10 @@
           return true;
         }
 
+        // Forking can only run away if it is allowed to. The cap is absolute;
+        // forkRate cannot exceed it.
+        const runnerCap = () => Math.round(lerp(10, 90, env.restraint));
+
         function advanceCell(r) {
           const ni = r.i + DIRS[r.d][0];
           const nj = r.j + DIRS[r.d][1];
@@ -998,6 +1002,38 @@
           r.trail.push({ x: px(ni), y: py(nj) });
 
           if (arriveAt(r, ni, nj)) return;
+
+          const p = P();
+          if (
+            p.forkRate > 0 &&
+            runners.length < runnerCap() &&
+            r.mass > 0.06 &&
+            Math.random() < p.forkRate
+          ) {
+            const nPlanes = clamp(p.planes, 1, 3);
+            const [pm, cm] = HeroLaw.forkMasses(r.mass);
+            r.mass = pm;
+            // The child leaves perpendicular, so the split is legible as a branch
+            // rather than a wobble.
+            const childDir = (r.d + (Math.random() < 0.5 ? 1 : 3)) % 4;
+            const child = spawn(ni, nj, childDir, false);
+            if (child) {
+              child.mass = cm;
+              // Resolve the child's plane through setPlane — the only path that
+              // keeps its speed rescale exact — before deciding accent, since
+              // the accent gate depends on where the child lands.
+              const childZ = HeroLaw.forkChildPlane(
+                r.z,
+                nPlanes,
+                Math.random() < p.forkDrop,
+              );
+              setPlane(child, childZ, nPlanes, p.planeSpread);
+              child.accent =
+                nPlanes === 1 || child.z === 0 ? r.accent : false;
+              child.target = r.target;
+              burst(px(ni), py(nj), 4, 0.45, child.accent);
+            }
+          }
 
           if (r.age > r.ttl) {
             r.dying = true;
