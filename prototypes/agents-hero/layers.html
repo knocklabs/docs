@@ -550,6 +550,7 @@
         forkRate: 0,
         forkDrop: 0.5,
         mergeWindow: 0.12,
+        merge: false,
         massCurve: 0.55,
         claimMass: 0.9,
         parallax: 0,
@@ -986,11 +987,37 @@
             return;
           }
 
+          const p = P();
           const idx = occIdx(ni, nj, r.z);
-          if (occOwner[idx] !== r.id && now - occTime[idx] < 0.12) {
+          if (occOwner[idx] !== r.id && now - occTime[idx] < p.mergeWindow) {
+            const other = runners.find((o) => o.id === occOwner[idx]);
+            if (p.merge && other && !other.dying) {
+              const nPlanes = clamp(p.planes, 1, 3);
+              // Head-on meetings still annihilate; everything else converges.
+              // Without that exception, a merged survivor would immediately
+              // reverse into its own trail.
+              const headOn = (other.d + 2) % 4 === r.d;
+              if (!headOn) {
+                other.mass = HeroLaw.mergeMass(other.mass, r.mass);
+                const zNew = HeroLaw.mergePlane(other.z, r.z);
+                if (zNew !== other.z) {
+                  // Pulled forward: setPlane is the only path that keeps the
+                  // speed rescale exact off the multiplier stored at spawn.
+                  setPlane(other, zNew, nPlanes, p.planeSpread);
+                }
+                // Resolve the plane before the accent gate so it reads the
+                // survivor's final plane, not the one it merged from.
+                if (nPlanes === 1 || other.z === 0)
+                  other.accent = other.accent || r.accent;
+                other.bright = 1;
+                if (!other.target && r.target) other.target = r.target;
+                burst(px(ni), py(nj), 9, 0.8, other.accent);
+                r.dying = true;
+                return;
+              }
+            }
             burst(px(ni), py(nj), 12, 1, r.accent);
             r.dying = true;
-            const other = runners.find((o) => o.id === occOwner[idx]);
             if (other && !other.dying) other.dying = true;
             return;
           }
@@ -1003,7 +1030,6 @@
 
           if (arriveAt(r, ni, nj)) return;
 
-          const p = P();
           if (
             p.forkRate > 0 &&
             runners.length < runnerCap() &&
