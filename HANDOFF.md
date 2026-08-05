@@ -72,9 +72,15 @@ live (pitch, speed, trail, accent ratio, substrate, pointer mode).
 6. **Wall** — cursor is a hard forbidden zone rather than a soft bias. Runners
    route around it; interaction is discoverable in one pass.
 
-`stepped`, `etch`, and `targets` are **preset-only** — not reachable from the live
-controls, so cross-combinations (clocked + reserve, etch + delivery) don't exist
-as tabs yet. Exposing them as toggles is a small change if those combos matter.
+Every parameter is exposed live, including `stepped`, `etch`, `targets`, and
+trail style — so any preset can be crossed with any other. Two combinations that
+have no tab and are worth a look: **reserve + clocked** (gray segmented circuit,
+orange only on events) and **delivery + etch** (accumulated routes converging on
+endpoints, like a delivery map drawing itself).
+
+Toggling mid-run is handled rather than ignored: turning `targets` off nulls the
+destination on runners already in flight so none seeks a phantom, and cycling
+`etch` clears the residue buffer instead of resurrecting old traces.
 
 ## Decisions made
 

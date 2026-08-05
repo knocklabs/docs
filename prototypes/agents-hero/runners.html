@@ -419,6 +419,18 @@
           <option value="off">off</option>
         </select>
       </div>
+      <div class="ctl">
+        <label for="trailStyle">trails</label>
+        <select id="trailStyle">
+          <option value="ribbon">ribbon</option>
+          <option value="segments">segments</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <button class="toggle" id="steppedBtn" data-on="false">stepped</button>
+        <button class="toggle" id="etchBtn" data-on="false">etch</button>
+        <button class="toggle" id="targetsBtn" data-on="false">targets</button>
+      </div>
       <div class="spacer"></div>
       <div class="ctl">
         <button class="toggle" id="resetBtn" data-on="false">
@@ -450,7 +462,8 @@
         keys &nbsp;1–6 switch variation &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h
         hero copy &nbsp;·&nbsp; v veil &nbsp;·&nbsp; r reset params<br />
         every variation runs the same engine — the tabs are presets, the second
-        row is the live parameter set<br />
+        row is the full live parameter set, so any preset can be crossed with any
+        other (clocked + reserve, etch + delivery, …)<br />
         click the stage to spawn runners from that intersection
       </div>
     </div>
@@ -969,6 +982,23 @@
             seed();
           },
 
+          // Toggling `targets` mid-run: place or clear endpoints, and fix up
+          // runners already in flight so none keeps seeking a phantom.
+          retarget() {
+            placeTargets();
+            for (const r of runners) {
+              if (!P().targets) r.target = null;
+              else if (!r.target && targets.length && Math.random() < 0.75)
+                r.target = targets[randInt(0, targets.length - 1)];
+            }
+          },
+
+          // Toggling `etch` off then on should start from a clean buffer
+          // rather than resurrecting residue from before.
+          clearEtch() {
+            if (etchCtx) etchCtx.clearRect(0, 0, env.w, env.h);
+          },
+
           click(x, y) {
             const i = clamp(Math.round((x - ox) / cell), 0, cols - 1);
             const j = clamp(Math.round((y - oy) / cell), 0, rows - 1);
@@ -1347,6 +1377,14 @@
         );
         document.getElementById("substrate").value = env.params.substrate;
         document.getElementById("pointer").value = env.params.pointerMode;
+        document.getElementById("trailStyle").value = env.params.trailStyle;
+        document.getElementById("steppedBtn").dataset.on = String(
+          env.params.stepped,
+        );
+        document.getElementById("etchBtn").dataset.on = String(env.params.etch);
+        document.getElementById("targetsBtn").dataset.on = String(
+          env.params.targets,
+        );
         document.getElementById("cellVal").textContent = env.params.cell;
         document.getElementById("speedVal").textContent = env.params.speed;
         document.getElementById("trailVal").textContent = env.params.trail;
@@ -1446,6 +1484,22 @@
       document.getElementById("pointer").addEventListener("change", (e) => {
         env.params.pointerMode = e.target.value;
       });
+      document.getElementById("trailStyle").addEventListener("change", (e) => {
+        env.params.trailStyle = e.target.value;
+      });
+
+      function bindFlag(btnId, key, after) {
+        const el = document.getElementById(btnId);
+        el.addEventListener("click", () => {
+          env.params[key] = !env.params[key];
+          el.dataset.on = String(env.params[key]);
+          if (after && scene) after();
+        });
+      }
+
+      bindFlag("steppedBtn", "stepped");
+      bindFlag("etchBtn", "etch", () => scene.clearEtch());
+      bindFlag("targetsBtn", "targets", () => scene.retarget());
 
       const themeBtn = document.getElementById("themeBtn");
       function setTheme(key) {
