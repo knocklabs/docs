@@ -29,6 +29,11 @@ dependencies and no build step. Neither is imported by the app.
 | `prototypes/agents-hero/index.html` | Round 1 — five distinct hero concepts |
 | `prototypes/agents-hero/runners.html` | Round 2 — six variations on the winning concept |
 
+Round 3 is designed but not built. See
+`docs/superpowers/specs/2026-08-05-agents-hero-layered-signals-design.md` —
+layered depth planes with fork/merge mechanics, targeting
+`prototypes/agents-hero/layers.html`.
+
 Open either directly (`open prototypes/agents-hero/runners.html`). Both overlay
 the real hero copy, veil, and CTA so legibility can be judged in place.
 
@@ -158,7 +163,7 @@ Both galleries: no console errors, 120fps, dark and light.
 Neither this file nor the prototypes ship. Strip both in one commit:
 
 ```bash
-git rm -r HANDOFF.md prototypes/ && git commit -m "chore: drop local prototypes and notes"
+git rm -r HANDOFF.md prototypes/ docs/superpowers/ && git commit -m "chore: drop local prototypes and notes"
 ```
 
 GitHub's Files-changed view is a `base…head` diff, so files added and later
