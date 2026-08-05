@@ -73,4 +73,5 @@ const HeroLaw = (function () {
   };
 })();
 
+if (typeof window !== "undefined") window.HeroLaw = HeroLaw;
 if (typeof module !== "undefined" && module.exports) module.exports = HeroLaw;
