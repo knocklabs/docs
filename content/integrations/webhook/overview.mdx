@@ -46,7 +46,7 @@ You'll also need to build the actual webhook request that you want your webhook 
 
 To start building your webhook request, navigate to your webhook channel and click "Edit webhook."
 
-You'll now be looking at the webhook channel configuration page. The webhook channel behaves just like our fetch function, it sends a request to the endpoint you define with the headers, params, and body payload you provide.
+You'll now be looking at the webhook channel configuration page. You build a webhook request the same way you build a [fetch function](/designing-workflows/fetch-function) request: you define the endpoint, method, headers, params, and body payload, and you can use liquid in each of those fields.
 
 To learn how to build a webhook request in detail, you can read [our fetch function documentation](/designing-workflows/fetch-function).
 
@@ -82,6 +82,39 @@ When you add your webhook channel to a workflow, it will use the webhook request
 Editing a webhook step's template, such as changing the URL or body, creates 'channel setting overrides,' replacing the default environment settings with your changes. Any template modifications will include the entire template (URL, headers, params, and body) in the overrides. These overrides apply to all environments where the step is promoted.
 
 To reset a webhook step to its channel default, click "Reset to default channel settings."
+
+## Error handling and retries
+
+Knock treats any webhook channel response outside the `2xx` range, along with connection errors and timeouts, as a failed send. Knock waits up to 50 seconds for a response before treating the request as a timeout.
+
+Most failures are retried according to the retry logic documented [here](/send-notifications/delivering-notifications#retry-logic), for a maximum of 8 attempts. Webhook channel sends use a small list of statuses that indicate a request will never succeed; everything else is considered retryable.
+
+### Non-retryable responses
+
+Knock will not retry a webhook send when your endpoint responds with:
+
+| Status | Meaning            |
+| ------ | ------------------ |
+| `401`  | Unauthorized       |
+| `403`  | Forbidden          |
+| `404`  | Not found          |
+| `405`  | Method not allowed |
+
+<br />
+Knock also fails without retrying when it cannot build or issue the request at all.
+These cases include a malformed URL, a URL that uses a scheme other than `https`,
+and a hostname that does not resolve.
+
+In each of these cases, the message's delivery status moves to `undelivered` after the first attempt. Read more about message delivery statuses [here](/send-notifications/message-statuses#delivery-status).
+
+### Retryable responses
+
+Every other failure is retried, including:
+
+- **Client errors.** `4xx`-status responses other than those listed above, most notably `400 Bad Request`, `409 Conflict`, `422 Unprocessable Entity`, and `429 Too Many Requests`.
+- **Server errors.** Any `5xx` level HTTP status code.
+- **Redirects.** Any `3xx` level HTTP status code. Knock does not follow redirects, so these responses are always treated as retryable failures.
+- **Connection errors and timeouts.** This includes any request that does not receive a response within 50 seconds.
 
 ## Securing your webhooks
 
