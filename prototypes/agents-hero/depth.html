@@ -1675,11 +1675,13 @@
               // Bow/tilt: canvas transforms are affine, so the non-affine
               // warp is faked by compositing the layer in horizontal strips,
               // each at its own bowScale width. 32 strips keeps the
-              // stair-step on vertical lines under the defocus blur. The
-              // front plane (kz = 0) always takes the single-blit fast path.
+              // stair-step on vertical lines under the defocus blur. Bow
+              // reaches the front plane too (bowScale floors its depth), so
+              // the fast path only applies with bow off — tilt alone still
+              // skips it at kz = 0 because the front plane never leans.
               const kz =
                 nPlanes > 1 ? (z / (nPlanes - 1)) * p.planeSpread : 0;
-              if (kz > 0 && (p.bow > 0 || p.tilt !== 0)) {
+              if (p.bow > 0 || (kz > 0 && p.tilt !== 0)) {
                 const STRIPS = 32;
                 const srcH = layerCv[z].height / STRIPS;
                 const dstH = env.h / STRIPS;
@@ -1723,10 +1725,11 @@
                 sdx = HeroCine.parallaxShift(ptr.x, env.w / 2, p.parallax, s.ps);
                 sdy = HeroCine.parallaxShift(ptr.y, env.h / 2, p.parallax, s.ps);
               }
-              // Same bow warp as the composited layer the burst belongs to.
+              // Same bow warp as the composited layer the burst belongs to
+              // (front-plane bursts included — bowScale floors their depth).
               let sx = s.x + sdx;
               const sy = s.y + sdy;
-              if (s.pk > 0 && (p.bow > 0 || p.tilt !== 0)) {
+              if (p.bow > 0 || (s.pk > 0 && p.tilt !== 0)) {
                 sx =
                   env.w / 2 +
                   (sx - env.w / 2) *
@@ -1882,8 +1885,9 @@
               : 0;
           // Bow/tilt warps the composited layers, so halo x-positions must
           // pass through the same bowScale or glow slides off its trace.
+          // Bow reaches k = 0 (the front plane) via bowScale's depth floor.
           const warpX = (x, y, k) =>
-            k > 0 && (p.bow > 0 || p.tilt !== 0)
+            p.bow > 0 || (k > 0 && p.tilt !== 0)
               ? env.w / 2 +
                 (x - env.w / 2) *
                   HeroCine.bowScale((y / env.h) * 2 - 1, k, p.bow, p.tilt)
@@ -1919,12 +1923,14 @@
             bctx.drawImage(r.accent ? env.glowAccent : env.glowNeutral, sx - rr, sy - rr, rr * 2, rr * 2);
           }
 
-          // Lit pads and their rings.
+          // Lit pads and their rings. Pads ride the front plane, which now
+          // bows too — warp the glow with it (k = 0 takes bowScale's floor).
           for (const t of targets) {
             const heat = Math.max(t.flash, t.lit * 0.55);
             if (heat < 0.05) continue;
             bctx.globalAlpha = heat;
-            bctx.drawImage(env.glowAccent, px(t.i) - 22, py(t.j) - 22, 44, 44);
+            const tx = warpX(px(t.i), py(t.j), 0);
+            bctx.drawImage(env.glowAccent, tx - 22, py(t.j) - 22, 44, 44);
           }
 
           // Fresh vias flare briefly. Their sharp rings render inside the

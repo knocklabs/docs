@@ -91,17 +91,22 @@ test("parallaxShift: anchored at the front, grows with depth, pushes away from t
   assert.equal(Cine.parallaxShift(900, 640, 0, 0.8), 0); // dial at zero
 });
 
-// Round 4.6/4.7: bow/tilt warp. Front plane must stay untouched — the
-// copy, pads, and etch all ride it. Bow is one-sided by ruling: the viewer
+// Round 4.6/4.7: bow/tilt warp. Bow is one-sided by ruling — the viewer
 // looks at the TOP section of a sphere, so only the top edge curves away
-// and the bottom half stays planar.
-test("bowScale: identity at the front and at zero dials, bows the top only, leans with tilt", () => {
-  assert.equal(Cine.bowScale(1, 0, 1, 1), 1); // front plane: identity
+// and the bottom half stays planar — and it reaches the FRONT plane via a
+// floored depth (the stack is nested sphere sections). Tilt stays strictly
+// per-depth: the front plane never leans, so the copy's backdrop cannot
+// shear.
+test("bowScale: bows the top only, front plane included, leans with tilt", () => {
   assert.equal(Cine.bowScale(-0.8, 0.5, 0, 0), 1); // dials at zero: identity
   assert.ok(Cine.bowScale(-1, 0.5, 1, 0) < 1); // bow pulls the top edge away
+  const front = Cine.bowScale(-1, 0, 1, 0);
+  assert.ok(front < 1); // the front plane bows too
+  assert.ok(front > Cine.bowScale(-1, 1, 1, 0)); // but less than the back
   assert.equal(Cine.bowScale(0, 0.5, 1, 0), 1); // centre line untouched
   assert.equal(Cine.bowScale(0.6, 0.5, 1, 0), 1); // bottom half stays planar
   assert.equal(Cine.bowScale(1, 0.5, 1, 0), 1); // including the bottom edge
+  assert.equal(Cine.bowScale(-1, 0, 0, 1), 1); // tilt alone: front plane pinned
   const top = Cine.bowScale(-1, 0.5, 0, 1);
   const bottom = Cine.bowScale(1, 0.5, 0, 1);
   assert.ok(top < 1 && bottom > 1); // positive tilt leans the top away

@@ -58,20 +58,26 @@ const HeroCine = (function () {
   const parallaxShift = (pointer, center, parallax, scale) =>
     (center - pointer) * PARALLAX_GAIN * parallax * (1 - scale);
 
-  // Per-depth bow and tilt: a composite-time horizontal warp that curves a
-  // deep plane away from the viewer so it stops reading as flat cardboard.
-  // v is the vertical position in [-1, 1] (top = -1), k the plane's depth
-  // (planeStyle's k, so the front plane at k=0 is always identity). `bow`
-  // pulls only the TOP edge away — the viewer is looking at the top
-  // section of a sphere, so curvature grows toward the top and the bottom
-  // half stays planar (the quadratic term is zero at v=0 with zero slope,
-  // so the halves join without a crease). `tilt` leans the whole plane
-  // (positive = top-away). Returns the strip's horizontal scale; the draw
-  // side slices the layer into strips and the bright pass warps halo
-  // positions through the same function so glow stays on its trace.
+  // Per-depth bow and tilt: a composite-time horizontal warp that curves
+  // the planes away from the viewer so they stop reading as flat
+  // cardboard. v is the vertical position in [-1, 1] (top = -1), k the
+  // plane's depth (planeStyle's k). `bow` pulls only the TOP edge away —
+  // the viewer is looking at the top section of a sphere, so curvature
+  // grows toward the top and the bottom half stays planar (the quadratic
+  // term is zero at v=0 with zero slope, so the halves join without a
+  // crease). The stack is nested sphere sections, so the FRONT plane
+  // curves too: the bow term rides a floored depth, BOW_FRONT + the rest
+  // by k, rather than vanishing at k=0. `tilt` stays strictly per-depth
+  // (front plane never leans) so the copy's backdrop cannot shear.
+  // Returns the strip's horizontal scale; the draw side slices each layer
+  // into strips and the bright pass warps halo positions through the same
+  // function so glow stays on its trace.
+  const BOW_FRONT = 0.45;
   const bowScale = (v, k, bow, tilt) =>
     clamp(
-      1 - k * (bow * 0.22 * (v < 0 ? v * v : 0) - tilt * 0.18 * v),
+      1 -
+        (BOW_FRONT + (1 - BOW_FRONT) * k) * bow * 0.22 * (v < 0 ? v * v : 0) +
+        k * tilt * 0.18 * v,
       0.5,
       1.25,
     );

@@ -275,16 +275,20 @@ Two changes on Krisna's direction after reviewing 4.5:
   — Krisna's ruling: the viewer is looking at the *top section* of a
   sphere, so curvature grows toward the top and the bottom half stays
   planar (the quadratic term hits v=0 with zero slope, so the halves join
-  without a crease). Tilt leans the whole plane (positive = top-away).
-  Verified per-strip on `deep`: widths grade 923px at the top edge to full
-  1032px at the vertical centre, constant below. Canvas
-  transforms are affine, so the warp is faked at composite: back layers
-  blit in 32 horizontal strips, each at its own bowScale width; the front
-  plane (k = 0) always takes the single-blit fast path, so copy, pads, and
-  etch are untouched. Bright-pass halos, via flares, and sparks pass their
-  positions through the same function (sparks now carry `pk`, their plane's
-  bowScale depth, next to `ps`). `deep` ships `bow: 0.6`; other presets ride
-  the 0.35 default.
+  without a crease). **The bow reaches the front plane too** (a later
+  ruling in the same round): the stack is nested sphere sections, so the
+  bow term rides a floored depth — `BOW_FRONT (0.45) + the rest by k` —
+  instead of vanishing at k = 0. Tilt stays strictly per-depth (positive =
+  top-away) so the copy's backdrop can never shear. Verified per-strip on
+  `deep`: back plane grades 915px at the top edge to full 1032px at the
+  vertical centre, front plane 974→1032, both constant below centre.
+  Canvas transforms are affine, so the warp is faked at composite: every
+  layer blits in 32 horizontal strips at its own bowScale width whenever
+  `bow > 0` (with bow off, tilt alone still lets the front plane
+  single-blit). Bright-pass halos, via flares, sparks, and pad glows pass
+  their positions through the same function (sparks carry `pk`, their
+  plane's bowScale depth, next to `ps`). `deep` ships `bow: 0.6`; other
+  presets ride the 0.35 default.
 
 Verified: 27 tests pass (bowScale identity/symmetry/lean guards, flipped
 parallax sign). Sweeps on `layered` and `deep` clean at 120fps both
