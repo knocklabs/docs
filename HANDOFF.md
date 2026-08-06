@@ -271,8 +271,13 @@ Two changes on Krisna's direction after reviewing 4.5:
 - **Per-depth bow and tilt.** Two new composite-time dials
   (`bow`, default 0.35; `tilt`, default 0, range −1..1).
   `HeroCine.bowScale(v, k, bow, tilt)` returns a horizontal scale per
-  vertical position: bow pulls both edges of a deep plane away
-  (section-of-a-sphere read), tilt leans it (positive = top-away). Canvas
+  vertical position: bow curves **only the top edge** of a deep plane away
+  — Krisna's ruling: the viewer is looking at the *top section* of a
+  sphere, so curvature grows toward the top and the bottom half stays
+  planar (the quadratic term hits v=0 with zero slope, so the halves join
+  without a crease). Tilt leans the whole plane (positive = top-away).
+  Verified per-strip on `deep`: widths grade 923px at the top edge to full
+  1032px at the vertical centre, constant below. Canvas
   transforms are affine, so the warp is faked at composite: back layers
   blit in 32 horizontal strips, each at its own bowScale width; the front
   plane (k = 0) always takes the single-blit fast path, so copy, pads, and

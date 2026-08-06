@@ -62,13 +62,19 @@ const HeroCine = (function () {
   // deep plane away from the viewer so it stops reading as flat cardboard.
   // v is the vertical position in [-1, 1] (top = -1), k the plane's depth
   // (planeStyle's k, so the front plane at k=0 is always identity). `bow`
-  // pulls both edges away symmetrically — the section-of-a-sphere read —
-  // and `tilt` leans the plane (positive = top-away). Returns the strip's
-  // horizontal scale; the draw side slices the layer into strips and the
-  // bright pass warps halo positions through the same function so glow
-  // stays on its trace.
+  // pulls only the TOP edge away — the viewer is looking at the top
+  // section of a sphere, so curvature grows toward the top and the bottom
+  // half stays planar (the quadratic term is zero at v=0 with zero slope,
+  // so the halves join without a crease). `tilt` leans the whole plane
+  // (positive = top-away). Returns the strip's horizontal scale; the draw
+  // side slices the layer into strips and the bright pass warps halo
+  // positions through the same function so glow stays on its trace.
   const bowScale = (v, k, bow, tilt) =>
-    clamp(1 - k * (bow * 0.22 * v * v - tilt * 0.18 * v), 0.5, 1.25);
+    clamp(
+      1 - k * (bow * 0.22 * (v < 0 ? v * v : 0) - tilt * 0.18 * v),
+      0.5,
+      1.25,
+    );
 
   // Atmospheric temperature: back planes cool toward slate. k=0 identity.
   const COOL = [110, 122, 146];
