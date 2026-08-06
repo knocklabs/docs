@@ -552,7 +552,12 @@
         mergeWindow: 0.12,
         merge: false,
         massCurve: 0.55,
-        claimMass: 0.9,
+        // Base spawn mass is 1 (see spawn()), so a gate at or below 1 lets an
+        // untouched, never-forked, never-merged runner claim a pad on its own
+        // — measured directly: at 0.9 most claims carried mass exactly 1.
+        // 1.05 sits just past that floor so only a genuine merge (which sums
+        // two masses) can clear it.
+        claimMass: 1.05,
         parallax: 0,
       };
 
@@ -724,25 +729,11 @@
         function placeTargets() {
           targets = [];
           if (!P().targets) return;
-          // Keep endpoints out of the band the hero copy occupies.
-          const guard = {
-            x0: env.w * 0.18,
-            x1: env.w * 0.82,
-            y0: env.h * 0.24,
-            y1: env.h * 0.66,
-          };
-          let guardTries = 0;
-          while (targets.length < 7 && guardTries < 400) {
-            guardTries++;
-            const i = randInt(2, cols - 3);
-            const j = randInt(2, rows - 3);
-            const x = px(i),
-              y = py(j);
-            if (x > guard.x0 && x < guard.x1 && y > guard.y0 && y < guard.y1)
-              continue;
-            if (targets.some((t) => Math.abs(t.i - i) + Math.abs(t.j - j) < 6))
-              continue;
-            targets.push({ i, j, flash: 0, rings: [] });
+          // Deterministic, derived from the copy's bounding box. Round 2 placed
+          // these randomly, which made the composition differ on every load and
+          // come out lopsided.
+          for (const a of HeroLaw.padAnchors(env.w, env.h, cell, ox, oy)) {
+            targets.push({ i: a.i, j: a.j, flash: 0, lit: 0, rings: [] });
           }
         }
 
@@ -963,10 +954,14 @@
         }
 
         function arriveAt(r, ni, nj) {
-          // Endpoint reached — flash, ring, retire the runner.
           const t = r.target;
           if (!t || t.i !== ni || t.j !== nj) return false;
+          // Arrival is earned: only a front-plane runner that has converged
+          // enough to clear the mass gate can claim a pad. Anything lighter
+          // passes through and keeps going.
+          if (!HeroLaw.canClaim(r, P().claimMass)) return false;
           t.flash = 1;
+          t.lit = 1;
           t.rings.push({ r: 3, a: 0.9 });
           burst(px(ni), py(nj), 10, 0.85, r.accent);
           r.dying = true;
@@ -1212,6 +1207,7 @@
 
             for (const t of targets) {
               t.flash = Math.max(0, t.flash - dt * 1.6);
+              t.lit = Math.max(0, t.lit - dt * 0.125);
               for (const ring of t.rings) {
                 ring.r += dt * 54;
                 ring.a -= dt * 1.3;
@@ -1340,7 +1336,7 @@
                 for (const t of targets) {
                   const x = px(t.i),
                     y = py(t.j);
-                  const heat = t.flash;
+                  const heat = Math.max(t.flash, t.lit * 0.55);
                   if (heat > 0.02) {
                     ctx.globalCompositeOperation = pal.dark
                       ? "lighter"
