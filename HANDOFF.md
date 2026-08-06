@@ -98,8 +98,9 @@ faint, so the accumulated board carries a depth gradient of its own.
 Keys `1`–`5` switch presets, `t` theme, `h` hero copy, `v` veil, `r` resets the
 current preset. The full parameter set (planes, plane spread, fork rate/drop,
 merge window, mass curve, claim mass, parallax, plus everything round 2
-exposed) is live in the second control row, so any preset can be pushed past
-its tab.
+exposed) is live in the column to the right of the stage, so any preset can be
+pushed past its tab. Under 900px that column stacks back into rows below the
+canvas.
 
 1. **Flat** — round 2's engine unchanged, one plane, no fork/merge beyond the
    old collision. The control every other tab is judged against.
@@ -134,6 +135,21 @@ Canvas 2D was chosen despite the open budget because nothing needed a shader yet
 and staying 2D means the winner ports back into `AnimatedDotGrid.tsx` almost
 directly. If a look genuinely needs WebGL — true bloom, volumetric fields, huge
 particle counts — that's still on the table for a single concept.
+
+### Round 3 rulings — do not undo these without knowing why
+
+Each of these overrode the written plan mid-build, for a reason that is not
+obvious from reading the code. They look like arbitrary constants; they aren't.
+
+| Ruling | Why it exists |
+| --- | --- |
+| `merge` defaults to **`false`** | Without an off switch, `planes: 1` no longer equals round 2 and the parity control is gone. `flat` pins it explicitly so a preset edit can't silently break it. |
+| `claimMass` must stay **above 1.00** | Base spawn mass is exactly `1`. At `0.9` — the plan's original value — never-merged runners claimed pads and "arrival is earned" was simply false. Shipped at `1.05`; `converge` uses `1.02`. **Lowering this to make pads fire more re-opens the hole.** |
+| `mergePlane` is `max(0, min(za,zb) - 1)`, not `min` | Collision detection is same-plane-only, so `min` of two equal planes never moved anything — the come-forward branch was unreachable dead code and the design's payoff could not happen. |
+| Trail width pinned to **1.3px at mass 1** | Via `TIER_REP_MASS[3] === 1`, which makes width curve-independent at base mass. This is what holds parity against round 2. `law.test.js` guards both halves of the dependency. |
+| Ribbon alpha uses bucket **midpoints**, `pow(fade, 1.6)`, and `* 0.85` | Reconstructed from round 2's formula. An earlier version drifted **32.6% brighter** — invisible to eye comparison across a stochastic field, caught only by measuring mean ink. If you touch this, measure it. |
+| Etch is **depth-scaled**, not front-plane-only | A boolean front-plane guard left residue sparse and lopsided at three planes, since only ~half the runners are front-plane. Every plane now writes, scaled by its own dim factor. |
+| `setPlane()` is the **only** writer of `r.z` | It rescales speed from the multiplier stored on the runner, so a runtime `planeSpread` change never desynchronizes. A second assignment path breaks that silently. |
 
 ## Open questions
 
@@ -246,23 +262,45 @@ the real page uses `--tgph-surface-1`.
 ## Verifying visually
 
 No browser tooling in this repo, but Playwright's Chromium is already cached
-locally. The screenshot harness used during this work:
+locally, and a self-contained scratch install already exists at
+`.claude/worktrees/scratch-shoot`. Point Node at it inline — shell state does
+not persist between tool calls:
 
 ```bash
-cd <scratchpad> && npm i playwright-core@1.56.0
+NODE_PATH=/Users/krisnasorathia/Code/docs/.claude/worktrees/scratch-shoot/node_modules
 ```
+
+⚠️ **Do not run a bare `npm i` in this tree.** npm walks up to the nearest
+ancestor `package.json`, which is the real docs repo — it will install into
+`package.json` and `yarn.lock` for real. This happened once during round 3 and
+had to be reverted. If a fresh scratch dir is ever needed, run `npm init -y`
+inside it *before* installing anything.
+
+Three things every Playwright script here must get right:
 
 ```js
+// 1. Without executablePath, playwright-core consults its own browser
+//    registry and fails. This cost an agent an entire session.
 chromium.launch({
   executablePath:
-    "~/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/" +
+    process.env.HOME +
+    "/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/" +
     "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
 });
+
+// 2. `window.env` is UNDEFINED. `env` is a script-scope const, reachable in
+//    page.evaluate only as a bare identifier. This is how you drive any
+//    parameter that has no UI control, or set one without a slider drag.
+await page.evaluate((o) => {
+  for (const k in o) env.params[k] = o[k];
+}, { planes: 3, merge: true, forkRate: 0.05 });
+
+// 3. Screenshot #stage, not the page.
 ```
 
-Screenshot `#stage`, not the page. Park the pointer **inside** the stage before
-capturing or pointer behavior won't appear — the stage sits below two toolbars,
-so use `boundingBox()` rather than guessing coordinates.
+Park the pointer **inside** the stage before capturing or pointer behavior
+won't appear — the stage sits below the tab bar, so use `boundingBox()` rather
+than guessing coordinates.
 
 Round 3 packages this as `prototypes/agents-hero/shoot.js`:
 
