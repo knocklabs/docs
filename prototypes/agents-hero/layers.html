@@ -46,6 +46,119 @@
         border-bottom: 1px solid var(--chrome-line);
       }
 
+      /* Stage and notes on the left, the full parameter set as a column on
+         the right. The column scrolls on its own so a short viewport never
+         pushes the stage below the fold. */
+      .main {
+        display: flex;
+        align-items: stretch;
+        min-height: calc(100vh - 47px);
+      }
+
+      .content {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .side {
+        flex: 0 0 248px;
+        width: 248px;
+        border-left: 1px solid var(--chrome-line);
+        background: var(--chrome-bg);
+        max-height: calc(100vh - 47px);
+        overflow-y: auto;
+      }
+
+      /* In the column a .bar is a stacked group, not a flex row. */
+      .side .bar {
+        display: block;
+        padding: 14px 16px;
+      }
+
+      .side .bar:last-child {
+        border-bottom: none;
+      }
+
+      /* Label left, value right, control spanning the full width beneath. */
+      .side .ctl {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 4px 8px;
+        margin-bottom: 12px;
+        white-space: normal;
+      }
+
+      .side .ctl:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Explicit placement: source order is label, control, value — but the
+         value belongs beside the label, not on a row of its own. */
+      .side .ctl > label {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .side .ctl > .val {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .side .ctl input[type="range"],
+      .side .ctl select {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+      }
+
+      /* Flag toggles and reset have no label to pair with, so the button
+         takes the whole row. */
+      .side .ctl > .toggle:only-child {
+        grid-column: 1 / -1;
+        width: 100%;
+        text-align: left;
+      }
+
+      .side .val {
+        min-width: 0;
+      }
+
+      /* Below this the column would crush the stage, so put it back under
+         the canvas as rows. */
+      @media (max-width: 900px) {
+        .main {
+          display: block;
+          min-height: 0;
+        }
+
+        .side {
+          width: auto;
+          max-height: none;
+          border-left: none;
+          border-top: 1px solid var(--chrome-line);
+        }
+
+        .side .bar {
+          display: flex;
+        }
+
+        .side .ctl {
+          display: flex;
+          margin-bottom: 0;
+          white-space: nowrap;
+        }
+
+        .side .ctl input[type="range"] {
+          width: 92px;
+        }
+
+        .side .ctl select,
+        .side .ctl > .toggle:only-child {
+          width: auto;
+        }
+      }
+
       .brand {
         font-family: var(--mono);
         font-size: 11px;
@@ -376,143 +489,147 @@
       </div>
     </div>
 
-    <div class="bar">
-      <div class="ctl">
-        <label for="restraint">restraint</label>
-        <input id="restraint" type="range" min="0" max="100" value="30" />
-        <span class="val" id="restraintVal">quiet</span>
-      </div>
-      <div class="ctl">
-        <label for="cell">pitch</label>
-        <input id="cell" type="range" min="14" max="56" value="26" />
-        <span class="val" id="cellVal">26</span>
-      </div>
-      <div class="ctl">
-        <label for="speed">speed</label>
-        <input id="speed" type="range" min="20" max="160" value="60" />
-        <span class="val" id="speedVal">60</span>
-      </div>
-      <div class="ctl">
-        <label for="trail">trail</label>
-        <input id="trail" type="range" min="40" max="700" value="260" />
-        <span class="val" id="trailVal">260</span>
-      </div>
-      <div class="ctl">
-        <label for="accent">accent</label>
-        <input id="accent" type="range" min="0" max="100" value="100" />
-        <span class="val" id="accentVal">100%</span>
-      </div>
-      <div class="ctl">
-        <label for="substrate">grid</label>
-        <select id="substrate">
-          <option value="dots">dots</option>
-          <option value="lines">lines</option>
-          <option value="none">none</option>
-        </select>
-      </div>
-      <div class="ctl">
-        <label for="pointer">pointer</label>
-        <select id="pointer">
-          <option value="repel">repel</option>
-          <option value="block">block</option>
-          <option value="attract">attract</option>
-          <option value="off">off</option>
-        </select>
-      </div>
-      <div class="ctl">
-        <label for="trailStyle">trails</label>
-        <select id="trailStyle">
-          <option value="ribbon">ribbon</option>
-          <option value="segments">segments</option>
-        </select>
-      </div>
-      <div class="ctl">
-        <button class="toggle" id="steppedBtn" data-on="false">stepped</button>
-        <button class="toggle" id="etchBtn" data-on="false">etch</button>
-        <button class="toggle" id="targetsBtn" data-on="false">targets</button>
-        <button class="toggle" id="mergeBtn" data-on="false">merge</button>
-      </div>
-      <div class="spacer"></div>
-      <div class="ctl">
-        <button class="toggle" id="resetBtn" data-on="false">
-          reset to preset
-        </button>
-      </div>
-    </div>
-
-    <div class="bar">
-      <div class="ctl">
-        <label for="planes">planes</label>
-        <input id="planes" type="range" min="1" max="3" step="1" value="1" />
-        <span class="val" id="planesVal">1</span>
-      </div>
-      <div class="ctl">
-        <label for="planeSpread">spread</label>
-        <input id="planeSpread" type="range" min="0" max="100" value="50" />
-        <span class="val" id="planeSpreadVal">0.50</span>
-      </div>
-      <div class="ctl">
-        <label for="forkRate">fork rate</label>
-        <input id="forkRate" type="range" min="0" max="20" value="0" />
-        <span class="val" id="forkRateVal">0.00</span>
-      </div>
-      <div class="ctl">
-        <label for="forkDrop">fork drop</label>
-        <input id="forkDrop" type="range" min="0" max="100" value="50" />
-        <span class="val" id="forkDropVal">0.50</span>
-      </div>
-      <div class="ctl">
-        <label for="mergeWindow">merge window</label>
-        <input id="mergeWindow" type="range" min="4" max="30" value="12" />
-        <span class="val" id="mergeWindowVal">0.12</span>
-      </div>
-      <div class="ctl">
-        <label for="massCurve">mass curve</label>
-        <input id="massCurve" type="range" min="20" max="120" value="55" />
-        <span class="val" id="massCurveVal">0.55</span>
-      </div>
-      <div class="ctl">
-        <label for="claimMass">claim mass</label>
-        <input id="claimMass" type="range" min="40" max="200" value="105" />
-        <span class="val" id="claimMassVal">1.05</span>
-      </div>
-      <div class="ctl">
-        <label for="parallax">parallax</label>
-        <input id="parallax" type="range" min="0" max="30" value="0" />
-        <span class="val" id="parallaxVal">0.0</span>
-      </div>
-    </div>
-
-    <div class="stage" id="stage" data-theme="dark">
-      <canvas id="c"></canvas>
-      <div class="hero" id="hero">
-        <div class="hero-copy">
-          <div class="veil" id="veil"></div>
-          <h1>Agent-first customer messaging</h1>
-          <p class="sub">
-            Drive Knock from your coding agent. Build, ship, and optimize
-            product, marketing, and transactional messaging in one platform.
-          </p>
+    <div class="main">
+      <div class="content">
+      <div class="stage" id="stage" data-theme="dark">
+        <canvas id="c"></canvas>
+        <div class="hero" id="hero">
+          <div class="hero-copy">
+            <div class="veil" id="veil"></div>
+            <h1>Agent-first customer messaging</h1>
+            <p class="sub">
+              Drive Knock from your coding agent. Build, ship, and optimize
+              product, marketing, and transactional messaging in one platform.
+            </p>
+          </div>
+          <button class="cta" tabindex="-1">Get started with a prompt</button>
         </div>
-        <button class="cta" tabindex="-1">Get started with a prompt</button>
       </div>
-    </div>
 
-    <div class="notes">
-      <h2 id="noteTitle"></h2>
-      <p id="noteBody"></p>
-      <div class="chips" id="noteChips"></div>
-      <div class="foot">
-        keys &nbsp;1–5 switch variation &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h
-        hero copy &nbsp;·&nbsp; v veil &nbsp;·&nbsp; r reset params<br />
-        every variation runs the same engine — the tabs are presets, the two
-        control rows above are the full live parameter set, so any preset can
-        be crossed with any other (converge + circuit, diverge + layered,
-        …)<br />
-        click the stage to spawn runners from that intersection
+      <div class="notes">
+        <h2 id="noteTitle"></h2>
+        <p id="noteBody"></p>
+        <div class="chips" id="noteChips"></div>
+        <div class="foot">
+          keys &nbsp;1–5 switch variation &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h
+          hero copy &nbsp;·&nbsp; v veil &nbsp;·&nbsp; r reset params<br />
+          every variation runs the same engine — the tabs are presets, the
+          parameter column is that set exposed live, so any preset can be
+          crossed with any other (converge + circuit, diverge + layered,
+          …)<br />
+          click the stage to spawn runners from that intersection
+        </div>
       </div>
-    </div>
+      </div>
+      <aside class="side">
+        <div class="bar">
+          <div class="ctl">
+            <label for="restraint">restraint</label>
+            <input id="restraint" type="range" min="0" max="100" value="30" />
+            <span class="val" id="restraintVal">quiet</span>
+          </div>
+          <div class="ctl">
+            <label for="cell">pitch</label>
+            <input id="cell" type="range" min="14" max="56" value="26" />
+            <span class="val" id="cellVal">26</span>
+          </div>
+          <div class="ctl">
+            <label for="speed">speed</label>
+            <input id="speed" type="range" min="20" max="160" value="60" />
+            <span class="val" id="speedVal">60</span>
+          </div>
+          <div class="ctl">
+            <label for="trail">trail</label>
+            <input id="trail" type="range" min="40" max="700" value="260" />
+            <span class="val" id="trailVal">260</span>
+          </div>
+          <div class="ctl">
+            <label for="accent">accent</label>
+            <input id="accent" type="range" min="0" max="100" value="100" />
+            <span class="val" id="accentVal">100%</span>
+          </div>
+          <div class="ctl">
+            <label for="substrate">grid</label>
+            <select id="substrate">
+              <option value="dots">dots</option>
+              <option value="lines">lines</option>
+              <option value="none">none</option>
+            </select>
+          </div>
+          <div class="ctl">
+            <label for="pointer">pointer</label>
+            <select id="pointer">
+              <option value="repel">repel</option>
+              <option value="block">block</option>
+              <option value="attract">attract</option>
+              <option value="off">off</option>
+            </select>
+          </div>
+          <div class="ctl">
+            <label for="trailStyle">trails</label>
+            <select id="trailStyle">
+              <option value="ribbon">ribbon</option>
+              <option value="segments">segments</option>
+            </select>
+          </div>
+          <div class="ctl">
+            <button class="toggle" id="steppedBtn" data-on="false">stepped</button>
+            <button class="toggle" id="etchBtn" data-on="false">etch</button>
+            <button class="toggle" id="targetsBtn" data-on="false">targets</button>
+            <button class="toggle" id="mergeBtn" data-on="false">merge</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="ctl">
+            <button class="toggle" id="resetBtn" data-on="false">
+              reset to preset
+            </button>
+          </div>
+        </div>
 
+        <div class="bar">
+          <div class="ctl">
+            <label for="planes">planes</label>
+            <input id="planes" type="range" min="1" max="3" step="1" value="1" />
+            <span class="val" id="planesVal">1</span>
+          </div>
+          <div class="ctl">
+            <label for="planeSpread">spread</label>
+            <input id="planeSpread" type="range" min="0" max="100" value="50" />
+            <span class="val" id="planeSpreadVal">0.50</span>
+          </div>
+          <div class="ctl">
+            <label for="forkRate">fork rate</label>
+            <input id="forkRate" type="range" min="0" max="20" value="0" />
+            <span class="val" id="forkRateVal">0.00</span>
+          </div>
+          <div class="ctl">
+            <label for="forkDrop">fork drop</label>
+            <input id="forkDrop" type="range" min="0" max="100" value="50" />
+            <span class="val" id="forkDropVal">0.50</span>
+          </div>
+          <div class="ctl">
+            <label for="mergeWindow">merge window</label>
+            <input id="mergeWindow" type="range" min="4" max="30" value="12" />
+            <span class="val" id="mergeWindowVal">0.12</span>
+          </div>
+          <div class="ctl">
+            <label for="massCurve">mass curve</label>
+            <input id="massCurve" type="range" min="20" max="120" value="55" />
+            <span class="val" id="massCurveVal">0.55</span>
+          </div>
+          <div class="ctl">
+            <label for="claimMass">claim mass</label>
+            <input id="claimMass" type="range" min="40" max="200" value="105" />
+            <span class="val" id="claimMassVal">1.05</span>
+          </div>
+          <div class="ctl">
+            <label for="parallax">parallax</label>
+            <input id="parallax" type="range" min="0" max="30" value="0" />
+            <span class="val" id="parallaxVal">0.0</span>
+          </div>
+        </div>
+      </aside>
+    </div>
     <script src="law.js"></script>
     <script>
       "use strict";
