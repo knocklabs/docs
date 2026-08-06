@@ -722,7 +722,6 @@
         targets: false,
         headGlow: 1,
         turnBias: 0.62,
-        restraint: 0.3,
         planes: 1,
         planeSpread: 0.5,
         forkRate: 0,
@@ -1625,30 +1624,118 @@
             // Advance the law before first paint so t=0 is a composed image
             // — trails mid-flight, maybe a via or two — rather than a grid
             // warming up. Sparks are cleared so the frame doesn't open on an
-            // explosion; vias and etch keep their accumulated state.
+            // explosion; vias keep their accumulated state, and the etch
+            // buffers are stepped alongside the law so residue is already
+            // laid down at t=0 instead of starting from a blank field.
             const step = 1 / 60;
-            for (let t = 0; t < seconds; t += step) api.update(step);
+            for (let t = 0; t < seconds; t += step) {
+              api.update(step);
+              stepEtch();
+            }
             sparks = [];
           },
         };
         return api;
+
+        // Etch *simulation*: decay both buffers, then lay this frame's
+        // residue segment for every live runner. Separated from the
+        // composite in drawPlaneContent so presim can run it headlessly.
+        function stepEtch() {
+          const p = P();
+          if (!p.etch || !etchCtx) return;
+          const pal = env.palette;
+          const nPlanes = clamp(p.planes, 1, 3);
+          // Residue rides the front plane (z === 0), so it takes the
+          // uncooled neutral, exactly as drawPlaneContent computed it.
+          const neutral = HeroCine.coolShift(pal.neutral, 0);
+          const colFor = (r) => (r.accent ? pal.accent : neutral);
+
+          etchCtx.globalCompositeOperation = "destination-out";
+          etchCtx.fillStyle = `rgba(0,0,0,${p.etchDecay})`;
+          etchCtx.fillRect(0, 0, env.w, env.h);
+          etchCtx.globalCompositeOperation = "source-over";
+          etchCtx.lineCap = "round";
+          etchCtx.lineWidth = 1;
+          // The hot buffer decays far faster than the cold buffer, so
+          // it only ever shows the freshest residue — a warm leading
+          // edge riding on top of the slow-cooling permanent trace.
+          etchHotCtx.globalCompositeOperation = "destination-out";
+          etchHotCtx.fillStyle = `rgba(0,0,0,${Math.min(1, p.etchDecay * 14)})`;
+          etchHotCtx.fillRect(0, 0, env.w, env.h);
+          etchHotCtx.globalCompositeOperation = "source-over";
+          etchHotCtx.lineCap = "round";
+          for (const r of runners) {
+            if (r.dying) continue;
+            // Every plane writes residue, but the problem was never
+            // depth writing at all — it was every plane writing at
+            // *full* alpha, which turns to mud. Scale each write by
+            // the runner's own plane dim factor, the same falloff
+            // already driving trails and heads, so back planes lay
+            // down faint residue and the front lays down strong
+            // residue. At planes:1 the dim factor is exactly 1, so
+            // this reduces to the original single-plane write.
+            const last = r.trail[r.trail.length - 1];
+            const rst = HeroLaw.planeStyle(r.z, nPlanes, p.planeSpread);
+            // Runner coordinates are unscaled lattice coordinates; the
+            // live trail is drawn inside the plane's scale-about-centre
+            // transform, but the composited etch image is drawn at
+            // identity. Mirror that transform here or a back-plane
+            // runner lays residue tens of pixels off its own trail.
+            // At planes:1 the scale is exactly 1, so this is identity.
+            const writeResidue = (g, style, width) => {
+              g.save();
+              g.translate(env.w / 2, env.h / 2);
+              g.scale(rst.scale, rst.scale);
+              g.translate(-env.w / 2, -env.h / 2);
+              g.strokeStyle = style;
+              g.lineWidth = width;
+              g.beginPath();
+              g.moveTo(last.x, last.y);
+              g.lineTo(r.head.x, r.head.y);
+              g.stroke();
+              g.restore();
+            };
+            // Residue needs more weight on white than it does on black.
+            writeResidue(
+              etchCtx,
+              rgba(colFor(r), (pal.dark ? 0.32 : 0.55) * rst.dim),
+              1,
+            );
+            writeResidue(
+              etchHotCtx,
+              pal.dark
+                ? rgba(r.accent ? pal.hot : pal.accent, 0.5 * rst.dim)
+                : rgba(pal.accent, 0.4 * rst.dim),
+              1.4,
+            );
+          }
+        }
 
         // Everything that should glow, drawn once into the ¼-res buffer in
         // plain stage coordinates. Blur comes free from the two resamples.
         function drawBrightPass(bctx) {
           const p = P();
           const nPlanes = clamp(p.planes, 1, 3);
+          // Clear in canvas pixels: bloomCv.width is a rounded ¼ of env.w,
+          // so clearing env.w×env.h under the ¼ transform can leave an
+          // uncleared sub-pixel column when the rounding goes up.
+          bctx.setTransform(1, 0, 0, 1, 0, 0);
+          bctx.clearRect(0, 0, bloomCv.width, bloomCv.height);
           bctx.setTransform(0.25, 0, 0, 0.25, 0, 0);
-          bctx.clearRect(0, 0, env.w, env.h);
 
           for (const r of runners) {
             if (r.dying) continue;
-            const split = HeroCine.layerSplit(r.zf, nPlanes);
-            const frontness = 1 - split.lo / Math.max(1, nPlanes - 1);
+            // Depth is continuous (zf), so bloom must sample it continuously
+            // — keying off the integer plane index made alpha and halo size
+            // pop as a runner crossed a plane boundary.
+            const zc = clamp(r.zf, 0, nPlanes - 1);
+            const frontness = 1 - zc / Math.max(1, nPlanes - 1);
             // Signal heads: accent always, neutral only when heavy.
             const tier = HeroLaw.massTier(r.mass);
             if (!r.accent && tier < 4) continue;
-            const st = HeroLaw.planeStyle(split.lo, nPlanes, p.planeSpread);
+            // planeStyle is linear in z, so evaluating it at the fractional
+            // depth gives the interpolated scale directly.
+            const st = HeroLaw.planeStyle(zc, nPlanes, p.planeSpread);
             const sx = env.w / 2 + (r.head.x - env.w / 2) * st.scale;
             const sy = env.h / 2 + (r.head.y - env.h / 2) * st.scale;
             bctx.globalAlpha = 0.7 * r.bright * frontness;
@@ -1664,11 +1751,16 @@
             bctx.drawImage(env.glowAccent, px(t.i) - 22, py(t.j) - 22, 44, 44);
           }
 
-          // Fresh vias flare briefly.
+          // Fresh vias flare briefly. Their sharp rings render inside the
+          // plane transform, so the flare has to take the same scale-about-
+          // centre or a back-plane via blooms away from its own ring.
           for (const v of vias) {
             if (v.age > 1.2 || !v.accent) continue;
             bctx.globalAlpha = (1 - v.age / 1.2) * 0.6;
-            bctx.drawImage(env.glowAccent, px(v.i) - 10, py(v.j) - 10, 20, 20);
+            const vs = HeroLaw.planeStyle(v.z, nPlanes, p.planeSpread).scale;
+            const vx = env.w / 2 + (px(v.i) - env.w / 2) * vs;
+            const vy = env.h / 2 + (py(v.j) - env.h / 2) * vs;
+            bctx.drawImage(env.glowAccent, vx - 10, vy - 10, 20, 20);
           }
 
           // Sparks are already glow sprites; brighten them through bloom.
@@ -1777,69 +1869,10 @@
 
             /* etch residue ------------------------------------------ */
             if (p.etch && etchCtx) {
-              etchCtx.globalCompositeOperation = "destination-out";
-              etchCtx.fillStyle = `rgba(0,0,0,${p.etchDecay})`;
-              etchCtx.fillRect(0, 0, env.w, env.h);
-              etchCtx.globalCompositeOperation = "source-over";
-              etchCtx.lineCap = "round";
-              etchCtx.lineWidth = 1;
-              // The hot buffer decays far faster than the cold buffer, so
-              // it only ever shows the freshest residue — a warm leading
-              // edge riding on top of the slow-cooling permanent trace.
-              etchHotCtx.globalCompositeOperation = "destination-out";
-              etchHotCtx.fillStyle = `rgba(0,0,0,${Math.min(1, p.etchDecay * 14)})`;
-              etchHotCtx.fillRect(0, 0, env.w, env.h);
-              etchHotCtx.globalCompositeOperation = "source-over";
-              etchHotCtx.lineCap = "round";
-              for (const r of runners) {
-                if (r.dying) continue;
-                // Every plane writes residue, but the problem was never
-                // depth writing at all — it was every plane writing at
-                // *full* alpha, which turns to mud. Scale each write by
-                // the runner's own plane dim factor, the same falloff
-                // already driving trails and heads, so back planes lay
-                // down faint residue and the front lays down strong
-                // residue. At planes:1 the dim factor is exactly 1, so
-                // this reduces to the original single-plane write.
-                const last = r.trail[r.trail.length - 1];
-                const rst = HeroLaw.planeStyle(
-                  r.z,
-                  nPlanes,
-                  p.planeSpread,
-                );
-                // Runner coordinates are unscaled lattice coordinates; the
-                // live trail is drawn inside the plane's scale-about-centre
-                // transform, but the composited etch image is drawn at
-                // identity. Mirror that transform here or a back-plane
-                // runner lays residue tens of pixels off its own trail.
-                // At planes:1 the scale is exactly 1, so this is identity.
-                const writeResidue = (g, style, width) => {
-                  g.save();
-                  g.translate(env.w / 2, env.h / 2);
-                  g.scale(rst.scale, rst.scale);
-                  g.translate(-env.w / 2, -env.h / 2);
-                  g.strokeStyle = style;
-                  g.lineWidth = width;
-                  g.beginPath();
-                  g.moveTo(last.x, last.y);
-                  g.lineTo(r.head.x, r.head.y);
-                  g.stroke();
-                  g.restore();
-                };
-                // Residue needs more weight on white than it does on black.
-                writeResidue(
-                  etchCtx,
-                  rgba(colFor(r), (pal.dark ? 0.32 : 0.55) * rst.dim),
-                  1,
-                );
-                writeResidue(
-                  etchHotCtx,
-                  pal.dark
-                    ? rgba(r.accent ? pal.hot : pal.accent, 0.5 * rst.dim)
-                    : rgba(pal.accent, 0.4 * rst.dim),
-                  1.4,
-                );
-              }
+              // Simulation (decay + residue writes) lives in stepEtch so
+              // presim can accumulate residue without drawing; the
+              // composite below stays here, in the same stack position.
+              stepEtch();
               lctx.globalAlpha = lerp(0.5, 0.95, r01);
               lctx.drawImage(etchCv, 0, 0, env.w, env.h);
               lctx.globalAlpha = 1;
@@ -1917,7 +1950,7 @@
                   // Trunks carry a bright core inside the wide stroke — the
                   // "lit conductor" read that makes mass legible at a glance.
                   lctx.strokeStyle = rgba(
-                    r.accent ? pal.hot : pal.neutral,
+                    r.accent ? pal.hot : neutral,
                     Math.pow(f, 1.5) *
                       planeA *
                       r.bright *
@@ -2013,7 +2046,7 @@
               // Trunks carry a bright core inside the wide stroke — the
               // "lit conductor" read that makes mass legible at a glance.
               lctx.strokeStyle = rgba(
-                b.accent ? pal.hot : pal.neutral,
+                b.accent ? pal.hot : neutral,
                 Math.pow(fade, 1.6) * planeA * glow * 0.5,
               );
               lctx.lineWidth = 1.2;
@@ -2026,7 +2059,6 @@
             if (v.z !== z) continue;
             const a = HeroCine.viaAlpha(v.age, p.viaLife);
             if (a <= 0.01) continue;
-            const st = HeroLaw.planeStyle(z, nPlanes, p.planeSpread);
             if (v.kind === "pad") {
               lctx.fillStyle = rgba(
                 v.accent ? pal.accent : pal.dim,
