@@ -845,6 +845,10 @@
           layerCtx = [],
           latticeCv = [],
           RES = [1, 0.5, 0.32];
+        let bloomCv = null,
+          bloomCtx = null,
+          bloomCv2 = null,
+          bloomCtx2 = null;
         let nextId = 1;
         let now = 0;
         let refillAcc = 0;
@@ -916,6 +920,15 @@
             layerCtx.push(cv.getContext("2d"));
             latticeCv.push(null); // built lazily per (plane, substrate, theme)
           }
+
+          bloomCv = document.createElement("canvas");
+          bloomCv.width = Math.max(1, Math.round(env.w * 0.25));
+          bloomCv.height = Math.max(1, Math.round(env.h * 0.25));
+          bloomCtx = bloomCv.getContext("2d");
+          bloomCv2 = document.createElement("canvas");
+          bloomCv2.width = Math.max(1, Math.round(env.w * 0.125));
+          bloomCv2.height = Math.max(1, Math.round(env.h * 0.125));
+          bloomCtx2 = bloomCv2.getContext("2d");
 
           placeTargets();
         }
@@ -1008,7 +1021,10 @@
           // runner is front-plane, so accentRatio governs alone — round 2's model.
           const isAccent =
             boosted ||
-            ((nPlanes === 1 || zPicked === 0) && Math.random() < p.accentRatio);
+            ((nPlanes === 1 || zPicked === 0) &&
+              Math.random() <
+                p.accentRatio *
+                  HeroCine.grade(env.restraint, p.bloom, p.fog).accentScale);
           const tgt =
             p.targets && targets.length && Math.random() < 0.75
               ? targets[randInt(0, targets.length - 1)]
@@ -1574,8 +1590,70 @@
             }
             ctx.globalAlpha = 1;
             ctx.globalCompositeOperation = "source-over";
+
+            /* bloom ---------------------------------------------------- */
+            if (gr.bloomAlpha > 0.01) {
+              drawBrightPass(bloomCtx);
+              // Two resamples ≈ a cheap gaussian: ¼ → ⅛ → composite at full.
+              bloomCtx2.setTransform(1, 0, 0, 1, 0, 0);
+              bloomCtx2.clearRect(0, 0, bloomCv2.width, bloomCv2.height);
+              bloomCtx2.drawImage(bloomCv, 0, 0, bloomCv2.width, bloomCv2.height);
+              // Additive bloom dies on white: the light theme composites the
+              // same buffer as soft colored halos instead.
+              ctx.globalCompositeOperation = pal.dark ? "lighter" : "source-over";
+              ctx.globalAlpha = gr.bloomAlpha * (pal.dark ? 1 : 0.35);
+              ctx.drawImage(bloomCv2, 0, 0, env.w, env.h);
+              ctx.globalAlpha = 1;
+              ctx.globalCompositeOperation = "source-over";
+            }
           },
         };
+
+        // Everything that should glow, drawn once into the ¼-res buffer in
+        // plain stage coordinates. Blur comes free from the two resamples.
+        function drawBrightPass(bctx) {
+          const p = P();
+          const nPlanes = clamp(p.planes, 1, 3);
+          bctx.setTransform(0.25, 0, 0, 0.25, 0, 0);
+          bctx.clearRect(0, 0, env.w, env.h);
+
+          for (const r of runners) {
+            if (r.dying) continue;
+            const split = HeroCine.layerSplit(r.zf, nPlanes);
+            const frontness = 1 - split.lo / Math.max(1, nPlanes - 1);
+            // Signal heads: accent always, neutral only when heavy.
+            const tier = HeroLaw.massTier(r.mass);
+            if (!r.accent && tier < 4) continue;
+            const st = HeroLaw.planeStyle(split.lo, nPlanes, p.planeSpread);
+            const sx = env.w / 2 + (r.head.x - env.w / 2) * st.scale;
+            const sy = env.h / 2 + (r.head.y - env.h / 2) * st.scale;
+            bctx.globalAlpha = 0.7 * r.bright * frontness;
+            const rr = r.accent ? 14 : 9;
+            bctx.drawImage(r.accent ? env.glowAccent : env.glowNeutral, sx - rr, sy - rr, rr * 2, rr * 2);
+          }
+
+          // Lit pads and their rings.
+          for (const t of targets) {
+            const heat = Math.max(t.flash, t.lit * 0.55);
+            if (heat < 0.05) continue;
+            bctx.globalAlpha = heat;
+            bctx.drawImage(env.glowAccent, px(t.i) - 22, py(t.j) - 22, 44, 44);
+          }
+
+          // Fresh vias flare briefly.
+          for (const v of vias) {
+            if (v.age > 1.2 || !v.accent) continue;
+            bctx.globalAlpha = (1 - v.age / 1.2) * 0.6;
+            bctx.drawImage(env.glowAccent, px(v.i) - 10, py(v.j) - 10, 20, 20);
+          }
+
+          // Sparks are already glow sprites; brighten them through bloom.
+          for (const s of sparks) {
+            bctx.globalAlpha = clamp(s.life, 0, 1) * 0.6;
+            bctx.drawImage(s.accent ? env.glowAccent : env.glowNeutral, s.x - 8, s.y - 8, 16, 16);
+          }
+          bctx.globalAlpha = 1;
+        }
 
         /* -------------------------------------------------------------- */
         /* one depth slice, painted into its own layer at that layer's     */
