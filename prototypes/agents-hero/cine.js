@@ -46,6 +46,17 @@ const HeroCine = (function () {
     return Math.min(1, age / 0.25) * (1 - t * t);
   }
 
+  // One camera for scale and parallax. A plane whose perspective scale is
+  // s sits at depth Z = Z0/s; translating the camera laterally by c and
+  // re-anchoring so the front plane stays pinned under the copy shifts
+  // that plane on screen by c * (1 - s). Positive output moves WITH the
+  // pointer — the front plane is the anchor and the deeper world slides
+  // behind it. Round 4 moved back planes *against* the pointer with a
+  // magnitude unrelated to their scale, so the two depth cues disagreed.
+  const PARALLAX_GAIN = 0.055;
+  const parallaxShift = (pointer, center, parallax, scale) =>
+    (pointer - center) * PARALLAX_GAIN * parallax * (1 - scale);
+
   // Atmospheric temperature: back planes cool toward slate. k=0 identity.
   const COOL = [110, 122, 146];
   const coolShift = (rgb, k) => [
@@ -78,6 +89,7 @@ const HeroCine = (function () {
     approach,
     traceWidth,
     grade,
+    parallaxShift,
     viaAlpha,
     coolShift,
     mulberry32,

@@ -76,3 +76,18 @@ test("spawnWeight: suppressed inside the copy band, full in the margins", () => 
   assert.equal(Cine.spawnWeight(0.95, 0.5), 1); // right margin
   assert.equal(Cine.spawnWeight(0.5, 0.9), 1); // below the band
 });
+
+// Round 4.5: parallax and scale come from one camera. The front plane
+// (scale 1) is the anchor and never moves; a deeper plane slides WITH the
+// pointer, further planes more — the round-4 version moved back planes
+// against the pointer at a magnitude unrelated to their scale, so the two
+// depth cues disagreed under mouse movement.
+test("parallaxShift: anchored at the front, grows with depth, moves with the pointer", () => {
+  assert.equal(Cine.parallaxShift(900, 640, 1, 1), 0); // front plane pinned
+  const mid = Cine.parallaxShift(900, 640, 1, 0.9);
+  const back = Cine.parallaxShift(900, 640, 1, 0.8);
+  assert.ok(mid > 0); // pointer right of centre -> shifts right
+  assert.ok(back > mid); // deeper plane rides further
+  assert.ok(Cine.parallaxShift(300, 640, 1, 0.8) < 0); // and left goes left
+  assert.equal(Cine.parallaxShift(900, 640, 0, 0.8), 0); // dial at zero
+});

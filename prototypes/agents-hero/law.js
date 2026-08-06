@@ -31,11 +31,19 @@ const HeroLaw = (function () {
   }
 
   // Depth cues. z=0 is identity so planes:1 collapses to round 2 exactly.
+  // Scale is a real perspective projection, not a linear nudge: a plane at
+  // normalized depth k sits at camera distance (1 + PERSP * k) relative to
+  // the front plane, so its screen scale is the reciprocal. Round 4's
+  // linear 1 - 0.09k topped out at a 9% shrink — below perceptual
+  // threshold, which left defocus blur as the only size cue and made back
+  // runners read *larger* than front ones. parallaxShift (cine.js) derives
+  // its offset from this same scale so both cues come from one camera.
+  const PERSP = 0.5;
   function planeStyle(z, planes, spread) {
     const depth = planes > 1 ? z / (planes - 1) : 0;
     const k = depth * spread;
     return {
-      scale: 1 - 0.09 * k,
+      scale: 1 / (1 + PERSP * k),
       dim: 1 - 0.82 * k,
       soften: 2.1 * k,
       speedMul: 1 - 0.45 * k,

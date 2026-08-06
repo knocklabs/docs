@@ -203,6 +203,60 @@ frames: no console errors on any preset, and no runner shows a double-image
 ghost at 2s or 25s on any capture — every cross-fade settles rather than
 leaving two copies on adjacent layers.
 
+### Round 4.5 — depth-cue coherence pass (in `depth.html`)
+
+Krisna's read on round 4: blurred/bloomed back runners appeared **larger**
+than crisp front runners — worst when both were accent orange — so depth
+inverted, and pointer parallax made the planes feel like sliding flats
+rather than one 3D scene. Diagnosis: the renderer had no working *size*
+cue, so defocus blur became the size cue, backwards. Three causes, three
+fixes, law untouched:
+
+- **Perspective scale is now real.** `planeStyle` (`law.js`) used
+  `scale: 1 - 0.09k` — a 4–8% shrink at shipped spreads, below perceptual
+  threshold. Now `scale: 1 / (1 + 0.5k)`: back plane ≈ 0.82 at `layered`,
+  ≈ 0.70 at `deep`. Trails, heads, and the cached lattice all render inside
+  the plane transform, so pitch and stroke width recede together for free.
+  `buildLattice` gained **overscan** (the visible world rect at scale `s`
+  is wider than the stage by `1/s − 1`, plus a 24px world-space margin) so
+  the shrink leaves no blank rim on back planes.
+- **Bloom is projected geometry.** `drawBrightPass` halo radii were
+  depth-constant (`14 / 9` px, only *alpha* fell off) — the main
+  inversion. Radii now multiply by the fractional-depth `st.scale`, as do
+  via flares.
+- **One camera for scale and parallax.** `HeroCine.parallaxShift` derives
+  the composite offset from the same perspective scale
+  (`(ptr − center) * 0.055 * parallax * (1 − scale)`), replacing round 4's
+  `−0.012 * depth`. Sign flipped by derivation, not taste: pinning the
+  front plane under the copy while the camera translates slides the deeper
+  world **with** the pointer, magnitude exactly `c(1 − s)`. Bright-pass
+  halos and via flares take the same offset so glow can no longer drag off
+  its trace at the stage edge.
+
+Verified: 26 tests pass (two new — perceptible-shrink guard in
+`law.test.js`, `parallaxShift` sign/anchor/growth in `cine.test.js`);
+`shoot.js` sweeps on `layered` and `deep` clean at 120fps, both widths,
+both themes, and light still reads as the same design. A stress run
+(`substrate: lines`, `planeSpread: 1`, `parallax: 2`, pointer parked at
+both stage edges) shows no lattice rim in the corners and the back grids
+displacing under a pinned front grid; an 8-frame motion burst at 200ms
+spacing shows cross-fades settling with no doubled traces.
+
+Notes for the port:
+
+- Anything that changes `planeSpread`, substrate, restraint, or theme
+  must call `scene.clearLatticeCache()` — the cache bakes the perspective
+  scale, and a live-mutated param without the clear renders the old grid
+  under rescaled trails (bit the round-4.5 stress harness itself).
+- The parallax offset shifts the whole composited layer canvas, so the
+  trailing stage edge exposes a stripe with no back-plane content — at
+  most ~17px on `deep` with the pointer at the extreme edge. Invisible
+  under fog and the page mask today; if `parallax` or `PARALLAX_GAIN`
+  ever rises, either grow the layer canvases past the stage or accept a
+  wider stripe.
+- `planeStyle.soften` is now confirmed dead in `depth.html` (round-3
+  leftover); drop it during the port.
+
 ## Decisions made
 
 | Question | Answer |
@@ -327,6 +381,9 @@ port, and none is visible at the shipped presets.
 - **Sparks correct for plane scale but not for pointer parallax.** The draw
   loop also applies a small parallax translate to back planes; spark spawn
   points do not account for it. Sub-pixel at the shipped `parallax` values.
+  **Resolved in round 4.5** — the new parallax magnitudes made the offset
+  reach ~17px, so sparks now carry their spawn plane's scale (`s.ps`) and
+  both spark draw sites apply `parallaxShift` and scale their radii.
 - **`planeSpread` at maximum is near-invisible on the light theme** — plane 2's
   dim reaches 0.18 by construction. No preset ships above 0.5, so this is the
   control behaving as specified at an extreme rather than a defect.

@@ -87,6 +87,18 @@ test("plane style falls off monotonically with depth", () => {
   assert.ok(a.soften < b.soften && b.soften < c.soften);
 });
 
+// Round 4.5: the linear 1 - 0.09k scale capped the back-plane shrink at 9%
+// — below perceptual threshold, which left defocus blur as the only size
+// cue and inverted the depth read (blurred back runners looked bigger than
+// crisp front ones). The perspective form must shrink the back plane
+// visibly at the shipped spreads.
+test("back-plane perspective shrink is perceptible", () => {
+  assert.ok(L.planeStyle(2, 3, 0.45).scale < 0.85); // layered's spread
+  assert.ok(L.planeStyle(2, 3, 0.85).scale < 0.75); // deep's spread
+  // ...but never so hard the field collapses toward the centre.
+  assert.ok(L.planeStyle(2, 3, 1).scale > 0.6);
+});
+
 test("only front-plane runners above the mass gate can claim a pad", () => {
   assert.equal(L.canClaim({ z: 0, mass: 1 }, 0.9), true);
   assert.equal(L.canClaim({ z: 0, mass: 0.5 }, 0.9), false);

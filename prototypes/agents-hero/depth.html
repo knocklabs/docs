@@ -1005,22 +1005,31 @@
           const st = HeroLaw.planeStyle(z, clamp(p.planes, 1, 3), p.planeSpread);
           const depth = z / Math.max(1, PLANE_MAX - 1);
           const gridCol = HeroCine.coolShift(env.palette.grid, depth * 0.6);
+          // Overscan: scaled about centre, a plane at scale s shows a world
+          // rect wider than the stage by (1/s - 1), and the parallax offset
+          // slides a few more pixels into view. Without the extra cells the
+          // back planes would carry a blank rim. The margin is world-space,
+          // so 24px comfortably covers the shipped parallax range.
+          const mx = (env.w * (1 / st.scale - 1)) / 2 + 24;
+          const my = (env.h * (1 / st.scale - 1)) / 2 + 24;
+          const iPad = Math.ceil(mx / cell);
+          const jPad = Math.ceil(my / cell);
           if (p.substrate === "dots") {
             g.fillStyle = rgba(gridCol, lerp(0.032, 0.085, env.restraint) * st.dim);
-            for (let j = 0; j < rows; j++)
-              for (let i = 0; i < cols; i++)
+            for (let j = -jPad; j < rows + jPad; j++)
+              for (let i = -iPad; i < cols + iPad; i++)
                 g.fillRect(px(i) - 0.6, py(j) - 0.6, 1.2, 1.2);
           } else if (p.substrate === "lines") {
             g.strokeStyle = rgba(gridCol, lerp(0.022, 0.05, env.restraint) * st.dim);
             g.lineWidth = 1;
             g.beginPath();
-            for (let i = 0; i < cols; i++) {
-              g.moveTo(px(i) + 0.5, 0);
-              g.lineTo(px(i) + 0.5, env.h);
+            for (let i = -iPad; i < cols + iPad; i++) {
+              g.moveTo(px(i) + 0.5, -my);
+              g.lineTo(px(i) + 0.5, env.h + my);
             }
-            for (let j = 0; j < rows; j++) {
-              g.moveTo(0, py(j) + 0.5);
-              g.lineTo(env.w, py(j) + 0.5);
+            for (let j = -jPad; j < rows + jPad; j++) {
+              g.moveTo(-mx, py(j) + 0.5);
+              g.lineTo(env.w + mx, py(j) + 0.5);
             }
             g.stroke();
           }
@@ -1185,6 +1194,11 @@
               life: 1,
               decay: rand(1.4, 3),
               accent: accent !== false,
+              // Kept so the draw sites can apply the plane's parallax
+              // offset: round 4's shifts were sub-pixel, round 4.5's reach
+              // ~17px at the stage edge on deep, enough to visibly detach
+              // a back-plane burst from its collision point.
+              ps: scale,
             });
           }
         }
@@ -1630,15 +1644,19 @@
               lctx.restore();
 
               /* composite this depth slice, back to front ---------------- */
-              // Parallax moved from the per-plane transform to the composite
-              // offset: the whole layer (lattice included) rides it, and the
-              // front plane never moves so pads stay anchored.
+              // Parallax rides the composite offset so the whole layer
+              // (lattice included) moves and the front plane stays anchored
+              // under the copy. The offset is derived from the same
+              // perspective scale that sizes the plane (one camera, two
+              // cues), which is why back planes move WITH the pointer:
+              // pinning the front plane against a lateral camera move slides
+              // the deeper world in the camera's direction.
               let dx = 0,
                 dy = 0;
               if (z > 0 && ptr.active && p.parallax > 0) {
-                const depth = z / (nPlanes - 1);
-                dx = (ptr.x - env.w / 2) * -0.012 * p.parallax * depth;
-                dy = (ptr.y - env.h / 2) * -0.012 * p.parallax * depth;
+                const s = HeroLaw.planeStyle(z, nPlanes, p.planeSpread).scale;
+                dx = HeroCine.parallaxShift(ptr.x, env.w / 2, p.parallax, s);
+                dy = HeroCine.parallaxShift(ptr.y, env.h / 2, p.parallax, s);
               }
               ctx.drawImage(layerCv[z], dx, dy, env.w, env.h);
 
@@ -1655,11 +1673,17 @@
             ctx.globalCompositeOperation = pal.dark ? "lighter" : "source-over";
             for (const s of sparks) {
               ctx.globalAlpha = clamp(s.life, 0, 1) * 0.75 * baseA;
-              const rr = 7;
+              const rr = 7 * s.ps;
+              let sdx = 0,
+                sdy = 0;
+              if (ptr.active && p.parallax > 0 && s.ps < 1) {
+                sdx = HeroCine.parallaxShift(ptr.x, env.w / 2, p.parallax, s.ps);
+                sdy = HeroCine.parallaxShift(ptr.y, env.h / 2, p.parallax, s.ps);
+              }
               ctx.drawImage(
                 s.accent ? env.glowAccent : env.glowNeutral,
-                s.x - rr,
-                s.y - rr,
+                s.x - rr + sdx,
+                s.y - rr + sdy,
                 rr * 2,
                 rr * 2,
               );
@@ -1786,6 +1810,20 @@
           bctx.clearRect(0, 0, bloomCv.width, bloomCv.height);
           bctx.setTransform(0.25, 0, 0, 0.25, 0, 0);
 
+          // Halos must ride the same composite parallax as the layer their
+          // trace lives on, or a pointer at the stage edge drags a trunk's
+          // glow off its own stroke. Zero at the front plane (scale 1), so
+          // pads and front heads are untouched.
+          const ptr = env.pointer;
+          const parX = (scale) =>
+            ptr.active && p.parallax > 0
+              ? HeroCine.parallaxShift(ptr.x, env.w / 2, p.parallax, scale)
+              : 0;
+          const parY = (scale) =>
+            ptr.active && p.parallax > 0
+              ? HeroCine.parallaxShift(ptr.y, env.h / 2, p.parallax, scale)
+              : 0;
+
           for (const r of runners) {
             if (r.dying) continue;
             // Depth is continuous (zf), so bloom must sample it continuously
@@ -1799,10 +1837,15 @@
             // planeStyle is linear in z, so evaluating it at the fractional
             // depth gives the interpolated scale directly.
             const st = HeroLaw.planeStyle(zc, nPlanes, p.planeSpread);
-            const sx = env.w / 2 + (r.head.x - env.w / 2) * st.scale;
-            const sy = env.h / 2 + (r.head.y - env.h / 2) * st.scale;
+            const sx = env.w / 2 + (r.head.x - env.w / 2) * st.scale + parX(st.scale);
+            const sy = env.h / 2 + (r.head.y - env.h / 2) * st.scale + parY(st.scale);
             bctx.globalAlpha = 0.7 * r.bright * frontness;
-            const rr = r.accent ? 14 : 9;
+            // The halo is projected geometry like everything else: a head
+            // one plane back glows smaller, not just dimmer. A constant
+            // radius here was the main size-cue inversion — a deep accent
+            // head carried the same 14px glow as a front one, and blur made
+            // it read as *nearer*.
+            const rr = (r.accent ? 14 : 9) * st.scale;
             bctx.drawImage(r.accent ? env.glowAccent : env.glowNeutral, sx - rr, sy - rr, rr * 2, rr * 2);
           }
 
@@ -1821,15 +1864,23 @@
             if (v.age > 1.2 || !v.accent) continue;
             bctx.globalAlpha = (1 - v.age / 1.2) * 0.6;
             const vs = HeroLaw.planeStyle(v.z, nPlanes, p.planeSpread).scale;
-            const vx = env.w / 2 + (px(v.i) - env.w / 2) * vs;
-            const vy = env.h / 2 + (py(v.j) - env.h / 2) * vs;
-            bctx.drawImage(env.glowAccent, vx - 10, vy - 10, 20, 20);
+            const vx = env.w / 2 + (px(v.i) - env.w / 2) * vs + parX(vs);
+            const vy = env.h / 2 + (py(v.j) - env.h / 2) * vs + parY(vs);
+            const vr = 10 * vs;
+            bctx.drawImage(env.glowAccent, vx - vr, vy - vr, vr * 2, vr * 2);
           }
 
           // Sparks are already glow sprites; brighten them through bloom.
           for (const s of sparks) {
             bctx.globalAlpha = clamp(s.life, 0, 1) * 0.6;
-            bctx.drawImage(s.accent ? env.glowAccent : env.glowNeutral, s.x - 8, s.y - 8, 16, 16);
+            const sr = 8 * s.ps;
+            bctx.drawImage(
+              s.accent ? env.glowAccent : env.glowNeutral,
+              s.x - sr + parX(s.ps),
+              s.y - sr + parY(s.ps),
+              sr * 2,
+              sr * 2,
+            );
           }
           bctx.globalAlpha = 1;
         }
