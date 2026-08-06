@@ -77,17 +77,32 @@ test("spawnWeight: suppressed inside the copy band, full in the margins", () => 
   assert.equal(Cine.spawnWeight(0.5, 0.9), 1); // below the band
 });
 
-// Round 4.5: parallax and scale come from one camera. The front plane
-// (scale 1) is the anchor and never moves; a deeper plane slides WITH the
-// pointer, further planes more — the round-4 version moved back planes
-// against the pointer at a magnitude unrelated to their scale, so the two
-// depth cues disagreed under mouse movement.
-test("parallaxShift: anchored at the front, grows with depth, moves with the pointer", () => {
+// Round 4.5/4.6: parallax magnitude comes from the camera (c * (1 - s),
+// front plane pinned), but the direction is Krisna's ruling: the pointer
+// PUSHES deeper planes away rather than dragging them along — the cursor
+// repels the field. Deeper planes are pushed further.
+test("parallaxShift: anchored at the front, grows with depth, pushes away from the pointer", () => {
   assert.equal(Cine.parallaxShift(900, 640, 1, 1), 0); // front plane pinned
   const mid = Cine.parallaxShift(900, 640, 1, 0.9);
   const back = Cine.parallaxShift(900, 640, 1, 0.8);
-  assert.ok(mid > 0); // pointer right of centre -> shifts right
-  assert.ok(back > mid); // deeper plane rides further
-  assert.ok(Cine.parallaxShift(300, 640, 1, 0.8) < 0); // and left goes left
+  assert.ok(mid < 0); // pointer right of centre -> deep planes pushed left
+  assert.ok(back < mid); // deeper plane pushed further
+  assert.ok(Cine.parallaxShift(300, 640, 1, 0.8) > 0); // pointer left pushes right
   assert.equal(Cine.parallaxShift(900, 640, 0, 0.8), 0); // dial at zero
+});
+
+// Round 4.6: bow/tilt warp. Front plane must stay untouched — the copy,
+// pads, and etch all ride it — and the warp must be symmetric for bow,
+// leaning for tilt.
+test("bowScale: identity at the front and at zero dials, bows and leans with depth", () => {
+  assert.equal(Cine.bowScale(1, 0, 1, 1), 1); // front plane: identity
+  assert.equal(Cine.bowScale(-0.8, 0.5, 0, 0), 1); // dials at zero: identity
+  const edge = Cine.bowScale(1, 0.5, 1, 0);
+  assert.ok(edge < 1); // bow pulls edges away
+  assert.equal(Cine.bowScale(-1, 0.5, 1, 0), edge); // symmetrically
+  assert.ok(Cine.bowScale(0, 0.5, 1, 0) === 1); // centre line untouched
+  const top = Cine.bowScale(-1, 0.5, 0, 1);
+  const bottom = Cine.bowScale(1, 0.5, 0, 1);
+  assert.ok(top < 1 && bottom > 1); // positive tilt leans the top away
+  assert.ok(Cine.bowScale(1, 1, 1.5, 1) >= 0.5); // clamped, never collapses
 });

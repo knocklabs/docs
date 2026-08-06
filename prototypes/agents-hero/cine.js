@@ -46,16 +46,29 @@ const HeroCine = (function () {
     return Math.min(1, age / 0.25) * (1 - t * t);
   }
 
-  // One camera for scale and parallax. A plane whose perspective scale is
-  // s sits at depth Z = Z0/s; translating the camera laterally by c and
-  // re-anchoring so the front plane stays pinned under the copy shifts
-  // that plane on screen by c * (1 - s). Positive output moves WITH the
-  // pointer — the front plane is the anchor and the deeper world slides
-  // behind it. Round 4 moved back planes *against* the pointer with a
-  // magnitude unrelated to their scale, so the two depth cues disagreed.
+  // One camera for scale and parallax: the offset magnitude is c * (1 - s),
+  // exactly the screen displacement of a plane at scale s when the camera
+  // translates by c with the front plane pinned under the copy. The SIGN is
+  // a judged override of that derivation: the physical camera slides the
+  // deep world WITH the pointer, but Krisna preferred the pointer *pushing*
+  // the deeper planes away — it reads as the cursor repelling the field,
+  // matching the pointer-bias interaction story. Magnitude stays
+  // scale-derived so the cues remain coherent; only the direction is art.
   const PARALLAX_GAIN = 0.055;
   const parallaxShift = (pointer, center, parallax, scale) =>
-    (pointer - center) * PARALLAX_GAIN * parallax * (1 - scale);
+    (center - pointer) * PARALLAX_GAIN * parallax * (1 - scale);
+
+  // Per-depth bow and tilt: a composite-time horizontal warp that curves a
+  // deep plane away from the viewer so it stops reading as flat cardboard.
+  // v is the vertical position in [-1, 1] (top = -1), k the plane's depth
+  // (planeStyle's k, so the front plane at k=0 is always identity). `bow`
+  // pulls both edges away symmetrically — the section-of-a-sphere read —
+  // and `tilt` leans the plane (positive = top-away). Returns the strip's
+  // horizontal scale; the draw side slices the layer into strips and the
+  // bright pass warps halo positions through the same function so glow
+  // stays on its trace.
+  const bowScale = (v, k, bow, tilt) =>
+    clamp(1 - k * (bow * 0.22 * v * v - tilt * 0.18 * v), 0.5, 1.25);
 
   // Atmospheric temperature: back planes cool toward slate. k=0 identity.
   const COOL = [110, 122, 146];
@@ -90,6 +103,7 @@ const HeroCine = (function () {
     traceWidth,
     grade,
     parallaxShift,
+    bowScale,
     viaAlpha,
     coolShift,
     mulberry32,

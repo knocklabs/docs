@@ -225,13 +225,12 @@ fixes, law untouched:
   inversion. Radii now multiply by the fractional-depth `st.scale`, as do
   via flares.
 - **One camera for scale and parallax.** `HeroCine.parallaxShift` derives
-  the composite offset from the same perspective scale
-  (`(ptr − center) * 0.055 * parallax * (1 − scale)`), replacing round 4's
-  `−0.012 * depth`. Sign flipped by derivation, not taste: pinning the
-  front plane under the copy while the camera translates slides the deeper
-  world **with** the pointer, magnitude exactly `c(1 − s)`. Bright-pass
+  the composite offset from the same perspective scale, replacing round 4's
+  `−0.012 * depth` with a magnitude of exactly `c(1 − s)`. Bright-pass
   halos and via flares take the same offset so glow can no longer drag off
-  its trace at the stage edge.
+  its trace at the stage edge. Round 4.5 shipped the physically-derived
+  direction (deep planes slide with the pointer); **round 4.6 flipped it on
+  Krisna's ruling** — see below.
 
 Verified: 26 tests pass (two new — perceptible-shrink guard in
 `law.test.js`, `parallaxShift` sign/anchor/growth in `cine.test.js`);
@@ -256,6 +255,39 @@ Notes for the port:
   wider stripe.
 - `planeStyle.soften` is now confirmed dead in `depth.html` (round-3
   leftover); drop it during the port.
+
+### Round 4.6 — pointer-push parallax and per-depth bow/tilt (in `depth.html`)
+
+Two changes on Krisna's direction after reviewing 4.5:
+
+- **Parallax direction is a design ruling, not physics.** The pointer now
+  *pushes* deeper planes away instead of dragging them along —
+  `parallaxShift` is `(center − ptr) * 0.055 * parallax * (1 − scale)`.
+  The magnitude stays camera-derived (`c(1 − s)`, front plane pinned) so
+  the cues stay coherent; only the sign is taste. It reads as the cursor
+  repelling the field, which matches the pointer-bias interaction story.
+  The cine test pins the direction — don't "fix" it back to the physical
+  sign without a new ruling.
+- **Per-depth bow and tilt.** Two new composite-time dials
+  (`bow`, default 0.35; `tilt`, default 0, range −1..1).
+  `HeroCine.bowScale(v, k, bow, tilt)` returns a horizontal scale per
+  vertical position: bow pulls both edges of a deep plane away
+  (section-of-a-sphere read), tilt leans it (positive = top-away). Canvas
+  transforms are affine, so the warp is faked at composite: back layers
+  blit in 32 horizontal strips, each at its own bowScale width; the front
+  plane (k = 0) always takes the single-blit fast path, so copy, pads, and
+  etch are untouched. Bright-pass halos, via flares, and sparks pass their
+  positions through the same function (sparks now carry `pk`, their plane's
+  bowScale depth, next to `ps`). `deep` ships `bow: 0.6`; other presets ride
+  the 0.35 default.
+
+Verified: 27 tests pass (bowScale identity/symmetry/lean guards, flipped
+parallax sign). Sweeps on `layered` and `deep` clean at 120fps both
+widths/themes — the strip compositing costs nothing measurable. A
+drawImage-instrumentation check on `deep` counted 32 strips × 2 back
+planes per frame with widths grading 923→1032px, matching the formula.
+Note for tuning: bow is invisible on the `dots` substrate at default
+restraint in a still — judge it live, or with `substrate: lines`.
 
 ## Decisions made
 
