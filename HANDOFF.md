@@ -205,6 +205,28 @@ particle counts — that's still on the table for a single concept.
   `r.target` on a failed claim, or only assign a target to a runner that
   already clears the gate.
 
+## Known minor issues, judged acceptable
+
+Reviewed and deliberately left alone. Recorded because two of them bear on the
+port, and none is visible at the shipped presets.
+
+- **The substrate lattice redraws in full per plane** — roughly 2,850
+  `fillRect` calls at 1280px, cell 26, three planes. Measured at 120–123fps
+  against a 58fps bar, so it is headroom rather than a problem. It is the
+  largest per-plane cost in the draw path, and the first thing to look at if
+  the runner cap or the plane count ever rises.
+- **`clamp(p.planes, 1, 3)` hard-codes `3`** at several sites where a
+  `PLANE_MAX` constant already exists. They agree today. If `PLANE_MAX` were
+  ever lowered without touching the clamps, `occIdx` would index past its
+  allocation and collision detection would silently stop working on the
+  orphaned plane. Worth reconciling during the port.
+- **Sparks correct for plane scale but not for pointer parallax.** The draw
+  loop also applies a small parallax translate to back planes; spark spawn
+  points do not account for it. Sub-pixel at the shipped `parallax` values.
+- **`planeSpread` at maximum is near-invisible on the light theme** — plane 2's
+  dim reaches 0.18 by construction. No preset ships above 0.5, so this is the
+  control behaving as specified at an extreme rather than a defect.
+
 ## Porting back
 
 The target is `components/ui/AnimatedDotGrid.tsx`, used only by
