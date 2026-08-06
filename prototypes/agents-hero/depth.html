@@ -835,6 +835,8 @@
         let targets = [];
         let etchCv = null,
           etchCtx = null;
+        let etchHotCv = null,
+          etchHotCtx = null;
         let layerCv = [],
           layerCtx = [],
           latticeCv = [],
@@ -889,6 +891,12 @@
           etchCv.height = Math.max(1, Math.round(env.h * env.dpr));
           etchCtx = etchCv.getContext("2d");
           etchCtx.setTransform(env.dpr, 0, 0, env.dpr, 0, 0);
+
+          etchHotCv = document.createElement("canvas");
+          etchHotCv.width = Math.max(1, Math.round(env.w * env.dpr));
+          etchHotCv.height = Math.max(1, Math.round(env.h * env.dpr));
+          etchHotCtx = etchHotCv.getContext("2d");
+          etchHotCtx.setTransform(env.dpr, 0, 0, env.dpr, 0, 0);
 
           // Per-plane offscreen layers. Front plane at full DPR; back planes
           // at reduced resolution — the upscale on composite IS the defocus,
@@ -1401,6 +1409,7 @@
           // rather than resurrecting residue from before.
           clearEtch() {
             if (etchCtx) etchCtx.clearRect(0, 0, env.w, env.h);
+            if (etchHotCtx) etchHotCtx.clearRect(0, 0, env.w, env.h);
           },
 
           // The lattice bakes substrate, theme palette and restraint. Any of
@@ -1774,6 +1783,14 @@
               etchCtx.globalCompositeOperation = "source-over";
               etchCtx.lineCap = "round";
               etchCtx.lineWidth = 1;
+              // The hot buffer decays far faster than the cold buffer, so
+              // it only ever shows the freshest residue — a warm leading
+              // edge riding on top of the slow-cooling permanent trace.
+              etchHotCtx.globalCompositeOperation = "destination-out";
+              etchHotCtx.fillStyle = `rgba(0,0,0,${Math.min(1, p.etchDecay * 14)})`;
+              etchHotCtx.fillRect(0, 0, env.w, env.h);
+              etchHotCtx.globalCompositeOperation = "source-over";
+              etchHotCtx.lineCap = "round";
               for (const r of runners) {
                 if (r.dying) continue;
                 // Every plane writes residue, but the problem was never
@@ -1790,30 +1807,50 @@
                   nPlanes,
                   p.planeSpread,
                 );
-                // Residue needs more weight on white than it does on black.
-                etchCtx.strokeStyle = rgba(
-                  colFor(r),
-                  (pal.dark ? 0.32 : 0.55) * rst.dim,
-                );
                 // Runner coordinates are unscaled lattice coordinates; the
                 // live trail is drawn inside the plane's scale-about-centre
                 // transform, but the composited etch image is drawn at
                 // identity. Mirror that transform here or a back-plane
                 // runner lays residue tens of pixels off its own trail.
                 // At planes:1 the scale is exactly 1, so this is identity.
-                etchCtx.save();
-                etchCtx.translate(env.w / 2, env.h / 2);
-                etchCtx.scale(rst.scale, rst.scale);
-                etchCtx.translate(-env.w / 2, -env.h / 2);
-                etchCtx.beginPath();
-                etchCtx.moveTo(last.x, last.y);
-                etchCtx.lineTo(r.head.x, r.head.y);
-                etchCtx.stroke();
-                etchCtx.restore();
+                const writeResidue = (g, style, width) => {
+                  g.save();
+                  g.translate(env.w / 2, env.h / 2);
+                  g.scale(rst.scale, rst.scale);
+                  g.translate(-env.w / 2, -env.h / 2);
+                  g.strokeStyle = style;
+                  g.lineWidth = width;
+                  g.beginPath();
+                  g.moveTo(last.x, last.y);
+                  g.lineTo(r.head.x, r.head.y);
+                  g.stroke();
+                  g.restore();
+                };
+                // Residue needs more weight on white than it does on black.
+                writeResidue(
+                  etchCtx,
+                  rgba(colFor(r), (pal.dark ? 0.32 : 0.55) * rst.dim),
+                  1,
+                );
+                writeResidue(
+                  etchHotCtx,
+                  pal.dark
+                    ? rgba(r.accent ? pal.hot : pal.accent, 0.5 * rst.dim)
+                    : rgba(pal.accent, 0.4 * rst.dim),
+                  1.4,
+                );
               }
               lctx.globalAlpha = lerp(0.5, 0.95, r01);
               lctx.drawImage(etchCv, 0, 0, env.w, env.h);
               lctx.globalAlpha = 1;
+
+              lctx.globalCompositeOperation = pal.dark
+                ? "lighter"
+                : "source-over";
+              lctx.globalAlpha = lerp(0.5, 0.95, r01);
+              lctx.drawImage(etchHotCv, 0, 0, env.w, env.h);
+              lctx.globalAlpha = 1;
+              lctx.globalCompositeOperation = "source-over";
             }
           }
 
