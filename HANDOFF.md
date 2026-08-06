@@ -218,7 +218,7 @@ obvious from reading the code. They look like arbitrary constants; they aren't.
 | `merge` defaults to **`false`** | Without an off switch, `planes: 1` no longer equals round 2 and the parity control is gone. `flat` pins it explicitly so a preset edit can't silently break it. |
 | `claimMass` must stay **above 1.00** | Base spawn mass is exactly `1`. At `0.9` — the plan's original value — never-merged runners claimed pads and "arrival is earned" was simply false. Shipped at `1.05`; `converge` uses `1.02`. **Lowering this to make pads fire more re-opens the hole.** |
 | `mergePlane` is `max(0, min(za,zb) - 1)`, not `min` | Collision detection is same-plane-only, so `min` of two equal planes never moved anything — the come-forward branch was unreachable dead code and the design's payoff could not happen. |
-| Trail width pinned to **1.3px at mass 1** | Via `TIER_REP_MASS[3] === 1`, which makes width curve-independent at base mass. This is what holds parity against round 2. `law.test.js` guards both halves of the dependency. |
+| Trail width pinned to **1.3px at mass 1** | Via `TIER_REP_MASS[3] === 1`, which makes width curve-independent at base mass. This is what holds parity against round 2. `law.test.js` guards both halves of the dependency. **Round 3 only — superseded in round 4** by the `traceWidth` ladder (`cine.js`): mass 1 now strokes 2.6px, and `TIER_REP_MASS`/`massCurve` no longer exist in `depth.html`. |
 | Ribbon alpha uses bucket **midpoints**, `pow(fade, 1.6)`, and `* 0.85` | Reconstructed from round 2's formula. An earlier version drifted **32.6% brighter** — invisible to eye comparison across a stochastic field, caught only by measuring mean ink. If you touch this, measure it. |
 | Etch is **depth-scaled**, not front-plane-only | A boolean front-plane guard left residue sparse and lopsided at three planes, since only ~half the runners are front-plane. Every plane now writes, scaled by its own dim factor. |
 | `setPlane()` is the **only** writer of `r.z` | It rescales speed from the multiplier stored on the runner, so a runtime `planeSpread` change never desynchronizes. A second assignment path breaks that silently. |
@@ -230,6 +230,11 @@ obvious from reading the code. They look like arbitrary constants; they aren't.
   CTA the only orange on the page, which matches how the rest of the docs treat
   the accent; etch is more distinctive but its look depends on dwell time, so a
   3-second visitor sees almost nothing and a screenshot isn't representative.
+- **The `quiet` preset's story is aspirational.** Its copy says "graded down to
+  round-3 restraint", but presets cannot set restraint: it lives on `env`, driven
+  by the slider, so every preset renders at `0.3`. `quiet` differs only through
+  `bloom`, `fog` and `accentRatio`. The port has to decide what restraint value
+  ships and whether restraint should become a per-preset param.
 - **Delivery's endpoints are placed randomly** outside the copy's bounding box, so
   the composition differs on every load and is occasionally lopsided. If that
   direction survives, placement should become deliberate.
