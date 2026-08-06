@@ -613,11 +613,6 @@
             <span class="val" id="mergeWindowVal">0.12</span>
           </div>
           <div class="ctl">
-            <label for="massCurve">mass curve</label>
-            <input id="massCurve" type="range" min="20" max="120" value="55" />
-            <span class="val" id="massCurveVal">0.55</span>
-          </div>
-          <div class="ctl">
             <label for="claimMass">claim mass</label>
             <input id="claimMass" type="range" min="40" max="200" value="105" />
             <span class="val" id="claimMassVal">1.05</span>
@@ -734,7 +729,6 @@
         forkDrop: 0.5,
         mergeWindow: 0.12,
         merge: false,
-        massCurve: 0.55,
         // Base spawn mass is 1 (see spawn()), so a gate at or below 1 lets an
         // untouched, never-forked, never-merged runner claim a pad on its own
         // — measured directly: at 0.9 most claims carried mass exactly 1.
@@ -867,14 +861,6 @@
         // respawn. The batch map itself lives inside drawPlaneContent, since each
         // plane strokes at its own dim.
         const FADE_BUCKETS = 8;
-        // Reconstructing an exact mass from a quantized tier is lossy, so each
-        // tier gets one representative mass instead. Tier 3 (HeroLaw.massTier's
-        // range for mass 1) is pinned to exactly 1 — the unmerged baseline every
-        // runner currently has — so widthForMass(1, 1.3, curve) === 1.3 for any
-        // curve, matching round 2's constant 1.3px trail width exactly at
-        // planes: 1. Tiers on either side get representative masses inside their
-        // own range so width still grows/shrinks monotonically with tier.
-        const TIER_REP_MASS = [0.06, 0.2, 0.5, 1, 2.4];
         // Round 2 modulated trail alpha per-runner by r.bright (spawn variance)
         // and r.fade (death fade-out). Batching collapses runners into shared
         // strokes, so that continuous modulation is quantized into a few glow
@@ -1358,6 +1344,8 @@
             r.dying = true;
             return;
           }
+          if (nd !== r.d && HeroLaw.massTier(r.mass) >= 4)
+            vias.push({ i: ni, j: nj, z: r.z, age: 0, accent: r.accent, kind: "pad" });
           r.d = nd;
         }
 
@@ -1717,11 +1705,13 @@
               const x = px(t.i),
                 y = py(t.j);
               const heat = Math.max(t.flash, t.lit * 0.55);
-              if (heat > 0.02) {
+              {
+                // Idle glow always renders, even unlit, so terminals read as
+                // sockets rather than only lighting up on contact.
                 lctx.globalCompositeOperation = pal.dark
                   ? "lighter"
                   : "source-over";
-                lctx.globalAlpha = heat * 0.6;
+                lctx.globalAlpha = 0.12 + heat * 0.6;
                 lctx.drawImage(env.glowAccent, x - 20, y - 20, 40, 40);
                 lctx.globalAlpha = 1;
                 lctx.globalCompositeOperation = "source-over";
@@ -1731,6 +1721,7 @@
                 (0.5 + heat * 0.45) * baseA,
               );
               lctx.lineWidth = 1;
+              lctx.strokeRect(x - 6, y - 6, 12, 12);
               lctx.strokeRect(x - 4, y - 4, 8, 8);
               lctx.fillStyle = rgba(
                 heat > 0.05 ? pal.accent : pal.dim,
@@ -1851,20 +1842,33 @@
                     dimF,
                 );
                 // Trace weight <- mass, the first row of the derivation
-                // table. Quantized through the same tier representatives
-                // the ribbon batches use so the two styles agree on what
-                // a given mass weighs; at mass 1 (the unmerged baseline)
-                // this is exactly round 2's constant 1.6.
-                lctx.lineWidth =
-                  HeroLaw.widthForMass(
-                    TIER_REP_MASS[HeroLaw.massTier(r.mass)],
-                    1.6,
-                    p.massCurve,
-                  );
+                // table. Quantized through the shared width ladder so the
+                // two trail styles agree on what a given mass weighs.
+                lctx.lineWidth = HeroCine.traceWidth(HeroLaw.massTier(r.mass));
                 lctx.beginPath();
                 lctx.moveTo(a0.x + ux * inset, a0.y + uy * inset);
                 lctx.lineTo(a1.x - ux * inset, a1.y - uy * inset);
                 lctx.stroke();
+                if (HeroLaw.massTier(r.mass) >= 4) {
+                  // Trunks carry a bright core inside the wide stroke — the
+                  // "lit conductor" read that makes mass legible at a glance.
+                  lctx.strokeStyle = rgba(
+                    r.accent ? pal.hot : pal.neutral,
+                    Math.pow(f, 1.5) *
+                      planeA *
+                      r.bright *
+                      r.fade *
+                      zAlpha *
+                      0.8 *
+                      dimF *
+                      0.6,
+                  );
+                  lctx.lineWidth = 1.2;
+                  lctx.beginPath();
+                  lctx.moveTo(a0.x + ux * inset, a0.y + uy * inset);
+                  lctx.lineTo(a1.x - ux * inset, a1.y - uy * inset);
+                  lctx.stroke();
+                }
               }
             } else {
               // Bucket into the shared batches instead of stroking here: a
@@ -1938,22 +1942,35 @@
               col,
               Math.pow(fade, 1.6) * planeA * dimF * glow * 0.85,
             );
-            lctx.lineWidth =
-              HeroLaw.widthForMass(
-                TIER_REP_MASS[b.tier],
-                1.3,
-                p.massCurve,
-              );
+            lctx.lineWidth = HeroCine.traceWidth(b.tier);
             lctx.lineCap = "round";
             lctx.stroke(b.path);
+            if (b.tier >= 4) {
+              // Trunks carry a bright core inside the wide stroke — the
+              // "lit conductor" read that makes mass legible at a glance.
+              lctx.strokeStyle = rgba(
+                b.accent ? pal.hot : pal.neutral,
+                Math.pow(fade, 1.6) * planeA * glow * 0.5,
+              );
+              lctx.lineWidth = 1.2;
+              lctx.stroke(b.path);
+            }
           }
 
           /* via rings: fork/merge events mark the board ------------- */
           for (const v of vias) {
-            if (v.z !== z || v.kind !== "via") continue;
+            if (v.z !== z) continue;
             const a = HeroCine.viaAlpha(v.age, p.viaLife);
             if (a <= 0.01) continue;
             const st = HeroLaw.planeStyle(z, nPlanes, p.planeSpread);
+            if (v.kind === "pad") {
+              lctx.fillStyle = rgba(
+                v.accent ? pal.accent : pal.dim,
+                a * 0.5 * st.dim * baseA,
+              );
+              lctx.fillRect(px(v.i) - 2, py(v.j) - 2, 4, 4);
+              continue;
+            }
             lctx.strokeStyle = rgba(
               v.accent ? pal.accent : pal.dim,
               a * 0.55 * st.dim * baseA,
@@ -2065,11 +2082,6 @@
         );
         document.getElementById("mergeWindowVal").textContent =
           env.params.mergeWindow.toFixed(2);
-        document.getElementById("massCurve").value = Math.round(
-          env.params.massCurve * 100,
-        );
-        document.getElementById("massCurveVal").textContent =
-          env.params.massCurve.toFixed(2);
         document.getElementById("claimMass").value = Math.round(
           env.params.claimMass * 100,
         );
@@ -2213,7 +2225,6 @@
         ["forkRate", "forkRate", "forkRateVal", 100],
         ["forkDrop", "forkDrop", "forkDropVal", 100],
         ["mergeWindow", "mergeWindow", "mergeWindowVal", 100],
-        ["massCurve", "massCurve", "massCurveVal", 100],
         ["claimMass", "claimMass", "claimMassVal", 100],
         ["parallax", "parallax", "parallaxVal", 10],
         ["zEase", "zEase", "zEaseVal", 100],
