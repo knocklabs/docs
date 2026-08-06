@@ -1378,20 +1378,29 @@
                   etchCtx.lineWidth = 1;
                   for (const r of runners) {
                     if (r.dying) continue;
-                    // Front plane only. Residue from all three turns to mud and fogs the
-                    // depth cues the planes exist to create.
-                    if (r.z === 0) {
-                      const last = r.trail[r.trail.length - 1];
-                      // Residue needs more weight on white than it does on black.
-                      etchCtx.strokeStyle = rgba(
-                        colFor(r),
-                        pal.dark ? 0.32 : 0.55,
-                      );
-                      etchCtx.beginPath();
-                      etchCtx.moveTo(last.x, last.y);
-                      etchCtx.lineTo(r.head.x, r.head.y);
-                      etchCtx.stroke();
-                    }
+                    // Every plane writes residue, but the problem was never
+                    // depth writing at all — it was every plane writing at
+                    // *full* alpha, which turns to mud. Scale each write by
+                    // the runner's own plane dim factor, the same falloff
+                    // already driving trails and heads, so back planes lay
+                    // down faint residue and the front lays down strong
+                    // residue. At planes:1 the dim factor is exactly 1, so
+                    // this reduces to the original single-plane write.
+                    const last = r.trail[r.trail.length - 1];
+                    const rDim = HeroLaw.planeStyle(
+                      r.z,
+                      nPlanes,
+                      p.planeSpread,
+                    ).dim;
+                    // Residue needs more weight on white than it does on black.
+                    etchCtx.strokeStyle = rgba(
+                      colFor(r),
+                      (pal.dark ? 0.32 : 0.55) * rDim,
+                    );
+                    etchCtx.beginPath();
+                    etchCtx.moveTo(last.x, last.y);
+                    etchCtx.lineTo(r.head.x, r.head.y);
+                    etchCtx.stroke();
                   }
                   ctx.globalAlpha = lerp(0.5, 0.95, r01);
                   ctx.drawImage(etchCv, 0, 0, env.w, env.h);
