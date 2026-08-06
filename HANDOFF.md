@@ -28,14 +28,13 @@ dependencies and no build step. Neither is imported by the app.
 | --- | --- |
 | `prototypes/agents-hero/index.html` | Round 1 — five distinct hero concepts |
 | `prototypes/agents-hero/runners.html` | Round 2 — six variations on the winning concept |
+| `prototypes/agents-hero/layers.html` | Round 3 — layered depth with fork/merge |
+| `prototypes/agents-hero/law.js` | Pure law arithmetic, tested via `node --test` |
+| `prototypes/agents-hero/shoot.js` | Screenshot harness (needs `NODE_PATH` — see below) |
 
-Round 3 is designed but not built. See
-`docs/superpowers/specs/2026-08-05-agents-hero-layered-signals-design.md` —
-layered depth planes with fork/merge mechanics, targeting
-`prototypes/agents-hero/layers.html`.
-
-Open either directly (`open prototypes/agents-hero/runners.html`). Both overlay
-the real hero copy, veil, and CTA so legibility can be judged in place.
+Open any of the three directly (`open prototypes/agents-hero/layers.html`). All
+three overlay the real hero copy, veil, and CTA so legibility can be judged in
+place.
 
 ### Round 1 — five concepts (`index.html`)
 
@@ -87,6 +86,37 @@ Toggling mid-run is handled rather than ignored: turning `targets` off nulls the
 destination on runners already in flight so none seeks a phantom, and cycling
 `etch` clears the residue buffer instead of resurrecting old traces.
 
+### Round 3 — layered depth with fork/merge (`layers.html`)
+
+Same lattice-runner engine as round 2, extended to up to three depth planes.
+Runners fork (mass halves, child recedes a plane) and merge (mass sums,
+survivor comes forward a plane); only a front-plane runner heavy enough to
+have converged can claim one of four deterministic endpoint pads, which stay
+lit for roughly 8 seconds. Front-plane residue accumulates when `etch` is on.
+Keys `1`–`5` switch presets, `t` theme, `h` hero copy, `v` veil, `r` resets the
+current preset. The full parameter set (planes, plane spread, fork rate/drop,
+merge window, mass curve, claim mass, parallax, plus everything round 2
+exposed) is live in the second control row, so any preset can be pushed past
+its tab.
+
+1. **Flat** — round 2's engine unchanged, one plane, no fork/merge beyond the
+   old collision. The control every other tab is judged against.
+2. **Layered** — the law at its defaults: fork and fall back, converge and
+   come forward, accent lives at the front. The recommendation.
+3. **Converge** — merge dominates; traffic funnels into a few heavy trunks
+   that arrive at pads often. Tests whether earned arrival actually pays off.
+4. **Diverge** — the opposite pole; forks dominate, the field spreads back
+   into depth, arrivals are rare. Not a shipping candidate on its own — it
+   marks the far end of the range from converge.
+5. **Circuit** — stepped motion, segmented trails, front-plane etch on; the
+   same law read as a circuit board fabricating itself.
+
+The tabs are presets over one parameterized engine, same as round 2 — they
+exist to bound the design space (flat as the floor, converge/diverge as the
+two poles, circuit as a stylistic variant) rather than to enumerate final
+candidates. The shippable setting is expected to land somewhere between
+converge and diverge; see open questions.
+
 ## Decisions made
 
 | Question | Answer |
@@ -118,6 +148,40 @@ particle counts — that's still on the table for a single concept.
 - `prefers-reduced-motion` is deliberately **not** honored in the prototypes so
   every concept stays visible. The real component must honor it — the existing
   `AnimatedDotGrid` does.
+- **Where between converge and diverge the shipped setting sits.** This is the
+  question round 3 exists to answer and it is still open. Layered (the
+  defaults) sits closer to converge than to diverge and is the current
+  recommendation, but nobody has picked a final `forkRate`/`mergeWindow` pair.
+- **Depth census on converge holds up over a long session.** Sampling
+  `converge` at 5s/15s/30s with temporary per-plane instrumentation gave
+  `{plane0, plane1, plane2}` counts of `[9,3,2]`, `[6,2,4]`, `[8,4,2]` (total
+  runners 14, 12, 14). All three planes stay populated through 30s — the field
+  does not drift to the front even under the merge-heaviest preset.
+- **Mobile (390px) is legible but thin.** On `layered` and `circuit` at 390px
+  the front/back plane distinction is still visible (brighter near-white/orange
+  lines up close, fainter gray lines further back) and the four pads land in
+  the corners, clear of the copy band, same as at 1280px. But at 390px only a
+  sliver of lattice is visible outside the copy block, so the layered depth
+  reads as a few scattered lines rather than a full field — this is a real
+  thinning, not a break. Worth a look before shipping mobile as-is.
+- **2s frames stand alone; 25s frames show real accumulation.** Reshooting with
+  the theme-reset fix below, the 2s frames on both `layered` and `circuit`
+  already read as deliberate, balanced compositions — a few trails and one or
+  two lit accents distributed around the copy, not a blank or half-drawn
+  canvas. The 25s frames clearly add on top of that: pads carry lit rings from
+  claimed arrivals, and `circuit`'s etch has grown into a dense accumulated
+  board. The two timestamps are visibly different, which they were not before
+  the harness fix (see below).
+- **Etch depth legibility (circuit, 25s): reads as fine, not a problem.**
+  Back-plane residue is dimmer than front-plane residue (the etch write is
+  scaled by the same per-plane dim factor as trails and heads), so there is a
+  real gradient in the accumulated board, not a flat wash. But because
+  spawning is front-weighted and accent color only shows up on the front
+  plane, the eye is drawn to the live front-plane runners for depth far more
+  than to the residue gradient — the accumulated trace reads as "circuitry"
+  rather than as three distinct depths on its own. That is an acceptable
+  trade for this look: circuit's chip metaphor doesn't need the residue itself
+  to carry depth as long as the live signals do.
 
 ## Porting back
 
@@ -156,7 +220,24 @@ Screenshot `#stage`, not the page. Park the pointer **inside** the stage before
 capturing or pointer behavior won't appear — the stage sits below two toolbars,
 so use `boundingBox()` rather than guessing coordinates.
 
-Both galleries: no console errors, 120fps, dark and light.
+Round 3 packages this as `prototypes/agents-hero/shoot.js`:
+
+```bash
+NODE_PATH=<scratchpad>/node_modules node prototypes/agents-hero/shoot.js \
+  prototypes/agents-hero/layers.html /tmp/out <presetIndex>
+```
+
+It captures both widths (1280, 390), both themes, and both timestamps (2s,
+25s), and fails loudly on any console error. It reloads the page between
+themes so each theme's clock starts at zero — an earlier version pressed `t`
+mid-run instead, which meant the "light" 2s/25s captures were actually taken
+at roughly +27s/+50s of accumulated animation, silently invalidating any
+2s-vs-25s comparison for that theme. `boundingBox()` also now throws a clear
+error if `#stage` isn't found rather than crashing on a null dereference.
+
+Both galleries: no console errors, 120fps, dark and light. Round 3's sweep
+(all five presets, both widths): no console errors on any preset, FPS
+readouts 120–123 at both widths — well clear of the 58fps bar.
 
 ## Before opening a PR
 
