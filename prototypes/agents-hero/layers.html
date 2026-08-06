@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agents hero — runner grid variations</title>
+    <title>Agents hero — round 3, layered signals</title>
     <style>
       :root {
         --accent: #fa5902;
@@ -365,7 +365,7 @@
   </head>
   <body>
     <div class="bar">
-      <div class="brand">runner grid <b>variations</b></div>
+      <div class="brand">round 3 · layered <b>signals</b></div>
       <div class="tabs" id="tabs" role="tablist"></div>
       <div class="spacer"></div>
       <div class="ctl">
@@ -506,7 +506,7 @@
         keys &nbsp;1–5 switch variation &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h
         hero copy &nbsp;·&nbsp; v veil &nbsp;·&nbsp; r reset params<br />
         every variation runs the same engine — the tabs are presets, the two
-        control rows below are the full live parameter set, so any preset can
+        control rows above are the full live parameter set, so any preset can
         be crossed with any other (converge + circuit, diverge + layered,
         …)<br />
         click the stage to spawn runners from that intersection
@@ -697,11 +697,11 @@
             trail: 200,
             parallax: 1,
           },
-          body: "The chip reading of the same law. Motion quantizes to the lattice, trails break at every node, and front-plane residue accumulates a board that draws itself. Three depths of etched circuitry with live signals running the top layer.",
+          body: "The chip reading of the same law. Motion quantizes to the lattice, trails break at every node, and every plane leaves residue — scaled by its own depth, so the front etches strong and the back etches faint — accumulating a board that draws itself. Three depths of etched circuitry with live signals running the top layer.",
           chips: [
             "stepped motion",
             "segment trails",
-            "front-plane etch",
+            "depth-scaled etch",
             "reads as <b>fabrication</b>",
           ],
         },
@@ -827,7 +827,6 @@
             fade: 1,
             dying: false,
             accent: isAccent,
-            z: zPicked,
             speedMul: 1,
             mass: 1,
             bright: boosted ? 1 : rand(0.6, 1),
@@ -863,13 +862,30 @@
           }
         }
 
-        function burst(x, y, n, strength, accent) {
+        // Sparks are drawn outside the plane loop, at identity — but the
+        // coordinates handed in are unscaled lattice coordinates, and a
+        // runner behind the front plane draws inside a scale-about-centre
+        // transform. Convert at spawn so a back-plane collision sparks on top
+        // of the trails that caused it rather than off to one side. `z` is
+        // the plane the event happened on; at planes:1 the scale is exactly
+        // 1 and this is a no-op.
+        function burst(x, y, n, strength, accent, z) {
+          const p = P();
+          const scale = HeroLaw.planeStyle(
+            z || 0,
+            clamp(p.planes, 1, 3),
+            p.planeSpread,
+          ).scale;
+          // Short-circuit at scale 1 so the front plane (and all of planes:1)
+          // is bit-exact, not merely equal to within a rounding error.
+          const sx = scale === 1 ? x : env.w / 2 + (x - env.w / 2) * scale;
+          const sy = scale === 1 ? y : env.h / 2 + (y - env.h / 2) * scale;
           for (let k = 0; k < n; k++) {
             const a = rand(0, Math.PI * 2);
             const s = rand(20, 95) * strength;
             sparks.push({
-              x,
-              y,
+              x: sx,
+              y: sy,
               vx: Math.cos(a) * s,
               vy: Math.sin(a) * s,
               life: 1,
@@ -998,11 +1014,15 @@
           // Arrival is earned: only a front-plane runner that has converged
           // enough to clear the mass gate can claim a pad. Anything lighter
           // passes through and keeps going.
+          // WARNING: base spawn mass is exactly 1, so claimMass must stay
+          // ABOVE 1 (shipped default 1.05). Lowering it to 1 or below — e.g.
+          // toward 0.7 to make pads fire more often — lets a never-merged
+          // runner claim a pad and quietly makes "arrival is earned" false.
           if (!HeroLaw.canClaim(r, P().claimMass)) return false;
           t.flash = 1;
           t.lit = 1;
           t.rings.push({ r: 3, a: 0.9 });
-          burst(px(ni), py(nj), 10, 0.85, r.accent);
+          burst(px(ni), py(nj), 10, 0.85, r.accent, r.z);
           r.dying = true;
           return true;
         }
@@ -1045,12 +1065,12 @@
                   other.accent = other.accent || r.accent;
                 other.bright = 1;
                 if (!other.target && r.target) other.target = r.target;
-                burst(px(ni), py(nj), 9, 0.8, other.accent);
+                burst(px(ni), py(nj), 9, 0.8, other.accent, r.z);
                 r.dying = true;
                 return;
               }
             }
-            burst(px(ni), py(nj), 12, 1, r.accent);
+            burst(px(ni), py(nj), 12, 1, r.accent, r.z);
             r.dying = true;
             if (other && !other.dying) other.dying = true;
             return;
@@ -1094,7 +1114,7 @@
               child.accent =
                 nPlanes === 1 || child.z === 0 ? r.accent : false;
               child.target = r.target;
-              burst(px(ni), py(nj), 4, 0.45, child.accent);
+              burst(px(ni), py(nj), 4, 0.45, child.accent, r.z);
             }
           }
 
@@ -1105,7 +1125,7 @@
 
           const nd = chooseDir(r);
           if (nd < 0) {
-            burst(px(ni), py(nj), 8, 0.8, r.accent);
+            burst(px(ni), py(nj), 8, 0.8, r.accent, r.z);
             r.dying = true;
             return;
           }
@@ -1151,7 +1171,7 @@
             const i = clamp(Math.round((x - ox) / cell), 0, cols - 1);
             const j = clamp(Math.round((y - oy) / cell), 0, rows - 1);
             for (let d = 0; d < 4; d++) spawn(i, j, d, true);
-            burst(px(i), py(j), 16, 1.2, true);
+            burst(px(i), py(j), 16, 1.2, true, 0);
           },
 
           update(dt) {
@@ -1180,6 +1200,10 @@
               // retiring them: a mass die-off on every downward drag of the
               // control reads as a bug, and forward is the direction the law
               // moves things anyway.
+              // Belt-and-braces now: the `planes` slider rebuilds the scene
+              // and clears runners, so nothing currently reaches this branch.
+              // Keep it — anything that later changes `planes` without a
+              // rebuild would strand runners exactly this way.
               if (r.z >= nPlanes) setPlane(r, nPlanes - 1, nPlanes, p.planeSpread);
 
               if (r.dying) {
@@ -1426,20 +1450,31 @@
                     // residue. At planes:1 the dim factor is exactly 1, so
                     // this reduces to the original single-plane write.
                     const last = r.trail[r.trail.length - 1];
-                    const rDim = HeroLaw.planeStyle(
+                    const rst = HeroLaw.planeStyle(
                       r.z,
                       nPlanes,
                       p.planeSpread,
-                    ).dim;
+                    );
                     // Residue needs more weight on white than it does on black.
                     etchCtx.strokeStyle = rgba(
                       colFor(r),
-                      (pal.dark ? 0.32 : 0.55) * rDim,
+                      (pal.dark ? 0.32 : 0.55) * rst.dim,
                     );
+                    // Runner coordinates are unscaled lattice coordinates; the
+                    // live trail is drawn inside the plane's scale-about-centre
+                    // transform, but the composited etch image is drawn at
+                    // identity. Mirror that transform here or a back-plane
+                    // runner lays residue tens of pixels off its own trail.
+                    // At planes:1 the scale is exactly 1, so this is identity.
+                    etchCtx.save();
+                    etchCtx.translate(env.w / 2, env.h / 2);
+                    etchCtx.scale(rst.scale, rst.scale);
+                    etchCtx.translate(-env.w / 2, -env.h / 2);
                     etchCtx.beginPath();
                     etchCtx.moveTo(last.x, last.y);
                     etchCtx.lineTo(r.head.x, r.head.y);
                     etchCtx.stroke();
+                    etchCtx.restore();
                   }
                   ctx.globalAlpha = lerp(0.5, 0.95, r01);
                   ctx.drawImage(etchCv, 0, 0, env.w, env.h);
@@ -1488,7 +1523,17 @@
                       col,
                       Math.pow(f, 1.5) * planeA * r.bright * r.fade * 0.8 * dimF,
                     );
-                    ctx.lineWidth = 1.6 + st.soften;
+                    // Trace weight <- mass, the first row of the derivation
+                    // table. Quantized through the same tier representatives
+                    // the ribbon batches use so the two styles agree on what
+                    // a given mass weighs; at mass 1 (the unmerged baseline)
+                    // this is exactly round 2's constant 1.6.
+                    ctx.lineWidth =
+                      HeroLaw.widthForMass(
+                        TIER_REP_MASS[HeroLaw.massTier(r.mass)],
+                        1.6,
+                        p.massCurve,
+                      ) + st.soften;
                     ctx.beginPath();
                     ctx.moveTo(a0.x + ux * inset, a0.y + uy * inset);
                     ctx.lineTo(a1.x - ux * inset, a1.y - uy * inset);
@@ -1555,9 +1600,17 @@
               for (const b of batches.values()) {
                 const col = b.accent ? pal.accent : pal.neutral;
                 const dimF = b.accent ? 1 : 0.62;
-                const fade = (b.fb + 1) / FADE_BUCKETS;
-                const glow = (b.gb + 1) / GLOW_BUCKETS;
-                ctx.strokeStyle = rgba(col, planeA * dimF * fade * fade * glow);
+                // Bucket *midpoints*, not upper edges: an upper-edge
+                // representative biases every quantized value bright (bright
+                // 0.65 would render at 0.75). The exponent and the 0.85
+                // constant are round 2's, unchanged — the whole point of the
+                // batch is to approximate that taper, not to restate it.
+                const fade = (b.fb + 0.5) / FADE_BUCKETS;
+                const glow = (b.gb + 0.5) / GLOW_BUCKETS;
+                ctx.strokeStyle = rgba(
+                  col,
+                  Math.pow(fade, 1.6) * planeA * dimF * glow * 0.85,
+                );
                 ctx.lineWidth =
                   HeroLaw.widthForMass(
                     TIER_REP_MASS[b.tier],
@@ -1620,38 +1673,6 @@
 
       let scene = null;
       let presetIdx = 0;
-
-      const CONTROLS = [
-        { id: "restraint", key: null, fmt: (v) => restraintLabel(v / 100) },
-        { id: "cell", key: "cell", fmt: (v) => String(v) },
-        { id: "speed", key: "speed", fmt: (v) => String(v) },
-        { id: "trail", key: "trail", fmt: (v) => String(v) },
-        { id: "accent", key: "accentRatio", fmt: (v) => `${v}%` },
-        { id: "planes", key: "planes", fmt: (v) => String(v) },
-        {
-          id: "planeSpread",
-          key: "planeSpread",
-          fmt: (v) => (v / 100).toFixed(2),
-        },
-        { id: "forkRate", key: "forkRate", fmt: (v) => (v / 100).toFixed(2) },
-        { id: "forkDrop", key: "forkDrop", fmt: (v) => (v / 100).toFixed(2) },
-        {
-          id: "mergeWindow",
-          key: "mergeWindow",
-          fmt: (v) => (v / 100).toFixed(2),
-        },
-        {
-          id: "massCurve",
-          key: "massCurve",
-          fmt: (v) => (v / 100).toFixed(2),
-        },
-        {
-          id: "claimMass",
-          key: "claimMass",
-          fmt: (v) => (v / 100).toFixed(2),
-        },
-        { id: "parallax", key: "parallax", fmt: (v) => (v / 10).toFixed(1) },
-      ];
 
       function restraintLabel(v) {
         if (v < 0.18) return "whisper";

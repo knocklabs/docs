@@ -46,12 +46,35 @@ test("mass tiers are quantized integers in 0..4", () => {
   assert.deepEqual([...tiers].sort((a, b) => a - b), tiers);
 });
 
+// The 1.3px trail-width parity guarantee against round 2 rests on two facts
+// spread across two files: massTier(1) === 3 in law.js, and TIER_REP_MASS[3]
+// === 1 in layers.html. Together they make widthForMass(1, base, curve) ===
+// base for any massCurve. Nudging a TIER_EDGES value across 1 would silently
+// change every trail's width, so pin the tier here.
+test("mass 1 sits in tier 3, the width-calibration anchor", () => {
+  assert.equal(L.massTier(1), 3);
+  for (const c of [0.2, 0.55, 1, 1.2])
+    assert.equal(L.widthForMass(1, 1.3, c), 1.3);
+});
+
 test("front plane style is identity", () => {
   const s = L.planeStyle(0, 3, 0.5);
   assert.equal(s.scale, 1);
   assert.equal(s.dim, 1);
   assert.equal(s.speedMul, 1);
   assert.equal(s.soften, 0);
+});
+
+// planes:1 is the parity control the whole branch is judged against: at one
+// plane every depth cue must collapse to identity, not just z=0 of three.
+test("a single plane collapses to identity", () => {
+  for (const spread of [0, 0.5, 1]) {
+    const s = L.planeStyle(0, 1, spread);
+    assert.equal(s.scale, 1);
+    assert.equal(s.dim, 1);
+    assert.equal(s.speedMul, 1);
+    assert.equal(s.soften, 0);
+  }
 });
 
 test("plane style falls off monotonically with depth", () => {
@@ -68,6 +91,11 @@ test("only front-plane runners above the mass gate can claim a pad", () => {
   assert.equal(L.canClaim({ z: 0, mass: 1 }, 0.9), true);
   assert.equal(L.canClaim({ z: 0, mass: 0.5 }, 0.9), false);
   assert.equal(L.canClaim({ z: 1, mass: 8 }, 0.9), false);
+  // 0.9 above is arithmetic, not a sanctioned setting: base spawn mass is
+  // exactly 1, so a gate at 0.9 lets a never-merged runner claim a pad. The
+  // shipped gate is 1.05 and must stay above 1 — only a merge clears it.
+  assert.equal(L.canClaim({ z: 0, mass: 1 }, 1.05), false);
+  assert.equal(L.canClaim({ z: 0, mass: 2 }, 1.05), true);
 });
 
 test("pad anchors are deterministic, snapped, and clear of the copy band", () => {

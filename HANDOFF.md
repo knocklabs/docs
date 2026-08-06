@@ -92,7 +92,9 @@ Same lattice-runner engine as round 2, extended to up to three depth planes.
 Runners fork (mass halves, child recedes a plane) and merge (mass sums,
 survivor comes forward a plane); only a front-plane runner heavy enough to
 have converged can claim one of four deterministic endpoint pads, which stay
-lit for roughly 8 seconds. Front-plane residue accumulates when `etch` is on.
+lit for roughly 8 seconds. With `etch` on, every plane leaves residue, scaled
+by that plane's own dim factor — the front etches strong, the back etches
+faint, so the accumulated board carries a depth gradient of its own.
 Keys `1`–`5` switch presets, `t` theme, `h` hero copy, `v` veil, `r` resets the
 current preset. The full parameter set (planes, plane spread, fork rate/drop,
 merge window, mass curve, claim mass, parallax, plus everything round 2
@@ -108,7 +110,7 @@ its tab.
 4. **Diverge** — the opposite pole; forks dominate, the field spreads back
    into depth, arrivals are rare. Not a shipping candidate on its own — it
    marks the far end of the range from converge.
-5. **Circuit** — stepped motion, segmented trails, front-plane etch on; the
+5. **Circuit** — stepped motion, segmented trails, depth-scaled etch on; the
    same law read as a circuit board fabricating itself.
 
 The tabs are presets over one parameterized engine, same as round 2 — they
@@ -182,6 +184,26 @@ particle counts — that's still on the table for a single concept.
   rather than as three distinct depths on its own. That is an acceptable
   trade for this look: circuit's chip metaphor doesn't need the residue itself
   to carry depth as long as the live signals do.
+
+- **Accent never reaches a converged trunk.** Accent is decided once, at spawn,
+  and only a front-plane spawn can get it (`spawn()` in `layers.html`). A merge
+  survivor pulled forward to `z === 0` inherits accent only if one of its
+  parents already had it, and a back-plane runner is never accent by
+  construction — so a heavy trunk that converged its way to the front can stay
+  permanently gray. Nothing grants accent after spawn. "Accent lives at the
+  front" is therefore true of *spawns* but not of the trunks the design most
+  wants marked. Re-rolling `accentRatio` when a merge pulls a survivor forward
+  would fix it; whether that reads as intent or as flicker is a design call,
+  not a bug fix, so it was left alone.
+- **Sub-threshold runners loiter at pads they cannot claim.** A runner that
+  reaches its pad but fails the `claimMass` gate keeps `r.target` set, and
+  `chooseDir` still weights toward that target by 3.2x, so it circles a pad it
+  can never take. Benign at the shipped presets, where merges are frequent
+  enough that most seekers eventually qualify. It goes bad at `planes: 1` with
+  `targets` on and `merge` off: no runner can ever gain mass, no pad can ever
+  fire, and traffic piles onto four dead nodes. Options if it matters: clear
+  `r.target` on a failed claim, or only assign a target to a runner that
+  already clears the gate.
 
 ## Porting back
 
