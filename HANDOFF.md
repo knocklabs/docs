@@ -134,9 +134,10 @@ replaces the renderer.
 
 Spec: `docs/superpowers/specs/2026-08-06-agents-hero-cinematic-renderer-design.md`
 Plan: `docs/superpowers/plans/2026-08-06-agents-hero-cinematic-renderer.md`
-Ledger: `.superpowers/sdd/2026-08-06-agents-hero-cinematic-renderer/progress.md`
+Ledger: deleted after the plan completed — the record is this branch's git
+history (`git log 88eafd99..`).
 
-Keys `1`–`3` switch presets, `t` theme, `h` hero copy, `v` veil, `r` resets the
+Keys `1`–`6` switch presets, `t` theme, `h` hero copy, `v` veil, `r` resets the
 current preset. The parameter column to the right of the stage carries round 3's
 full set plus the four new renderer dials (`zEase`, `bloom`, `fog`, `viaLife`).
 
@@ -147,6 +148,16 @@ full set plus the four new renderer dials (`zEase`, `bloom`, `fog`, `viaLife`).
 3. **Quiet** — the same field graded down to round-3 restraint (`bloom: 0.15`,
    `fog: 0.25`, `accentRatio: 0.4`). The comparison floor and the light-theme
    sanity check: if the design only works luminous, this tab shows it.
+4. **Converge** — round 3's merge-heavy pole under the new light (`forkRate
+   0.02`, `mergeWindow 0.2`, `claimMass 1.02`). Heavy bloom-cored trunks,
+   frequent earned arrivals. One end of the tuning axis; 4 ↔ 1 ↔ 5 spans it.
+5. **Weave** — the dense reading (`cell 22`, `trail 320`, `forkRate 0.10`,
+   `bloom 1.2`). Fork-driven fullness toward the runner cap. Because the cap
+   rides the env-level restraint slider (see the open question below), this
+   tab shows its character best with restraint pulled up toward 60–70%.
+6. **Deep** — depth as the subject (`planeSpread 0.85`, `fog 0.9`, `zEase
+   0.7`, `parallax 1.6`). Atmosphere-forward; most of the field sits behind
+   the glass with the accented front plane skimming it.
 
 What changed against round 3:
 
