@@ -26,28 +26,38 @@ const preset = Number(presetArg || 0);
     });
     page.on("pageerror", (e) => errors.push(`[${width}] ${e.message}`));
 
-    await page.goto("file://" + path.resolve(file));
-    await page.waitForTimeout(300);
-    await page.keyboard.press(String(preset + 1));
-
-    const stage = page.locator("#stage");
-    // The stage sits below two toolbars, so the pointer must be placed from
-    // its measured box. Guessing coordinates misses it and pointer behaviour
-    // never appears in the capture.
-    const box = await stage.boundingBox();
-    await page.mouse.move(box.x + box.width * 0.62, box.y + box.height * 0.5);
-
+    let fps = "";
     for (const theme of ["dark", "light"]) {
+      // Reload between themes so each theme's clock starts at zero — a
+      // single load-then-press-t sequence would give the second theme's
+      // captures a head start of whatever elapsed before the switch.
+      await page.goto("file://" + path.resolve(file));
+      await page.waitForTimeout(300);
+      await page.keyboard.press(String(preset + 1));
       if (theme === "light") await page.keyboard.press("t");
+
+      const stage = page.locator("#stage");
+      // The stage sits below two toolbars, so the pointer must be placed
+      // from its measured box. Guessing coordinates misses it and pointer
+      // behaviour never appears in the capture.
+      const box = await stage.boundingBox();
+      if (!box) {
+        throw new Error(
+          `[${width}/${theme}] #stage.boundingBox() returned null — ` +
+            `element not visible/attached, cannot park the pointer.`,
+        );
+      }
+      await page.mouse.move(box.x + box.width * 0.62, box.y + box.height * 0.5);
+
       for (const at of [2000, 25000]) {
         await page.waitForTimeout(at === 2000 ? 2000 : 23000);
         await stage.screenshot({
           path: `${outDir}/${width}-${theme}-${at / 1000}s.png`,
         });
       }
-    }
 
-    const fps = await page.locator("#fps").textContent();
+      fps = await page.locator("#fps").textContent();
+    }
     console.log(`width ${width}: fps readout = ${fps.trim()}`);
     await page.close();
   }
