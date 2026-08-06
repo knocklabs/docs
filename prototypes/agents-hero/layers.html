@@ -430,12 +430,56 @@
         <button class="toggle" id="steppedBtn" data-on="false">stepped</button>
         <button class="toggle" id="etchBtn" data-on="false">etch</button>
         <button class="toggle" id="targetsBtn" data-on="false">targets</button>
+        <button class="toggle" id="mergeBtn" data-on="false">merge</button>
       </div>
       <div class="spacer"></div>
       <div class="ctl">
         <button class="toggle" id="resetBtn" data-on="false">
           reset to preset
         </button>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div class="ctl">
+        <label for="planes">planes</label>
+        <input id="planes" type="range" min="1" max="3" step="1" value="1" />
+        <span class="val" id="planesVal">1</span>
+      </div>
+      <div class="ctl">
+        <label for="planeSpread">spread</label>
+        <input id="planeSpread" type="range" min="0" max="100" value="50" />
+        <span class="val" id="planeSpreadVal">0.50</span>
+      </div>
+      <div class="ctl">
+        <label for="forkRate">fork rate</label>
+        <input id="forkRate" type="range" min="0" max="20" value="0" />
+        <span class="val" id="forkRateVal">0.00</span>
+      </div>
+      <div class="ctl">
+        <label for="forkDrop">fork drop</label>
+        <input id="forkDrop" type="range" min="0" max="100" value="50" />
+        <span class="val" id="forkDropVal">0.50</span>
+      </div>
+      <div class="ctl">
+        <label for="mergeWindow">merge window</label>
+        <input id="mergeWindow" type="range" min="4" max="30" value="12" />
+        <span class="val" id="mergeWindowVal">0.12</span>
+      </div>
+      <div class="ctl">
+        <label for="massCurve">mass curve</label>
+        <input id="massCurve" type="range" min="20" max="120" value="55" />
+        <span class="val" id="massCurveVal">0.55</span>
+      </div>
+      <div class="ctl">
+        <label for="claimMass">claim mass</label>
+        <input id="claimMass" type="range" min="40" max="200" value="105" />
+        <span class="val" id="claimMassVal">1.05</span>
+      </div>
+      <div class="ctl">
+        <label for="parallax">parallax</label>
+        <input id="parallax" type="range" min="0" max="30" value="0" />
+        <span class="val" id="parallaxVal">0.0</span>
       </div>
     </div>
 
@@ -459,7 +503,7 @@
       <p id="noteBody"></p>
       <div class="chips" id="noteChips"></div>
       <div class="foot">
-        keys &nbsp;1–6 switch variation &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h
+        keys &nbsp;1–5 switch variation &nbsp;·&nbsp; t theme &nbsp;·&nbsp; h
         hero copy &nbsp;·&nbsp; v veil &nbsp;·&nbsp; r reset params<br />
         every variation runs the same engine — the tabs are presets, the second
         row is the full live parameter set, so any preset can be crossed with any
@@ -563,107 +607,101 @@
 
       const PRESETS = [
         {
-          id: "baseline",
-          name: "baseline",
-          title: "1 — Baseline",
-          params: {},
-          body: "Concept 1 as you saw it, unchanged, so every other tab has something to be judged against. Continuous motion, tapered accent ribbons, dot substrate, soft pointer repulsion. The reference, not the recommendation.",
+          id: "flat",
+          name: "flat",
+          title: "1 — Flat",
+          params: { planes: 1, forkRate: 0, parallax: 0, merge: false },
+          body: "Round 2's engine, unchanged: one plane, no forking, no merging beyond the old collision. The control. Every other tab is judged against this, and if it ever stops looking like round 2 something has regressed.",
+          chips: ["single plane", "no fork/merge", "the <b>control</b>"],
+        },
+        {
+          id: "layered",
+          name: "layered",
+          title: "2 — Layered",
+          params: {
+            planes: 3,
+            planeSpread: 0.5,
+            forkRate: 0.05,
+            forkDrop: 0.5,
+            mergeWindow: 0.14,
+            merge: true,
+            parallax: 1,
+            targets: true,
+            accentRatio: 0.7,
+          },
+          body: "The law at its defaults. Signals fork and fall back, converge and come forward, and the ones that have gathered enough mass claim a pad. Accent lives at the front, so orange marks what is closest and most active. This is the recommendation.",
           chips: [
-            "ribbon trails",
-            "continuous motion",
-            "all-accent",
-            "pointer <b>repels</b>",
+            "three planes",
+            "fork <b>and</b> merge",
+            "accent at the front",
+            "pads gated on mass",
           ],
         },
         {
-          id: "clocked",
-          name: "clocked",
-          title: "2 — Clocked",
+          id: "converge",
+          name: "converge",
+          title: "3 — Converge",
           params: {
+            planes: 3,
+            forkRate: 0.02,
+            mergeWindow: 0.2,
+            merge: true,
+            targets: true,
+            // Base spawn mass is 1 and the gate must stay above it (see the
+            // claimMass comment in DEFAULTS) or a never-merged runner can
+            // claim a pad on its own. 1.02 is the smallest step past that
+            // floor, so this merge-heavy preset clears it on nearly every
+            // genuine merge — arrivals stay frequent without reopening the
+            // gate the default (1.05) was raised to close.
+            claimMass: 1.02,
+            parallax: 1,
+            accentRatio: 0.8,
+          },
+          body: "Merge dominates. Traffic funnels into a few heavy trunks that arrive often, and the field reads as a delivery network resolving. Tests whether the earned-arrival payoff actually lands — if convergence does not feel like a reward here, it will not anywhere.",
+          chips: ["merge > fork", "heavy trunks", "frequent arrivals"],
+        },
+        {
+          id: "diverge",
+          name: "diverge",
+          title: "4 — Diverge",
+          params: {
+            planes: 3,
+            forkRate: 0.11,
+            forkDrop: 0.75,
+            mergeWindow: 0.08,
+            merge: true,
+            targets: true,
+            parallax: 1.4,
+            accentRatio: 0.6,
+          },
+          body: "The opposite pole. Forks dominate, the field spreads and recedes into depth, and arrivals are rare enough to be an event. Useful less as a candidate than as the far end of the range — the shippable setting is somewhere between this and converge.",
+          chips: ["fork > merge", "field recedes", "rare arrivals"],
+        },
+        {
+          id: "circuit",
+          name: "circuit",
+          title: "5 — Circuit",
+          params: {
+            planes: 3,
+            forkRate: 0.06,
+            mergeWindow: 0.16,
+            merge: true,
             stepped: true,
             stepHold: 0.14,
             trailStyle: "segments",
+            etch: true,
+            substrate: "none",
+            targets: true,
             speed: 92,
-            trail: 220,
+            trail: 200,
+            parallax: 1,
           },
-          body: "Movement quantized to the lattice. A runner eases across exactly one cell, pauses on the intersection, then commits to its next direction — so turns land on a beat instead of sliding through. Trails render as discrete lit segments with a gap at every node, which makes the grid legible as a circuit rather than a surface. This is the most machine-like reading of your idea, and the one that most clearly says <i>a program is executing</i>.",
+          body: "The chip reading of the same law. Motion quantizes to the lattice, trails break at every node, and front-plane residue accumulates a board that draws itself. Three depths of etched circuitry with live signals running the top layer.",
           chips: [
             "stepped motion",
             "segment trails",
-            "reads as <b>execution</b>",
-            "pointer <b>repels</b>",
-          ],
-        },
-        {
-          id: "reserve",
-          name: "reserve",
-          title: "3 — Accent in reserve",
-          params: {
-            accentRatio: 0.14,
-            trail: 320,
-            speed: 52,
-            headGlow: 0.55,
-          },
-          body: "Most runners are neutral gray hairlines. Orange is spent only where something <i>happens</i>: the occasional accent runner, and every collision, termination, and pointer interaction. The effect is that the hero looks almost monochrome until you engage with it, then rewards you with color. Closest to how the rest of the docs use the brand accent — sparingly, as signal.",
-          chips: [
-            "14% accent runners",
-            "orange = <b>events only</b>",
-            "editorial restraint",
-            "pointer <b>repels</b>",
-          ],
-        },
-        {
-          id: "delivery",
-          name: "delivery",
-          title: "4 — Delivery runs",
-          params: {
-            targets: true,
-            accentRatio: 0.55,
-            trail: 240,
-            speed: 72,
-          },
-          body: "The mechanic carries the product story. Runners enter from the edges bound for endpoint nodes scattered across the lattice; they path toward their target while still swerving around each other, and on arrival the endpoint flashes and rings. Some never make it — they collide, or age out mid-route. It is the fan-out concept's meaning expressed in the runner-grid's language, with no labels and no diagram.",
-          chips: [
-            "runners have <b>destinations</b>",
-            "arrival flashes",
-            "some fail en route",
-            "pointer <b>repels</b>",
-          ],
-        },
-        {
-          id: "etch",
-          name: "etch",
-          title: "5 — Etch",
-          params: {
-            etch: true,
-            substrate: "none",
-            trail: 130,
-            speed: 66,
-            accentRatio: 0.5,
-          },
-          body: "No visible grid. Runners leave a persistent residue that decays over about a minute, so the hero slowly accumulates a faint circuit of everywhere anything has been, with only the live heads bright. The lattice is implied entirely by the traces. Warmest and least sterile of the set; also the only one whose look depends on how long the visitor has been on the page.",
-          chips: [
-            "persistent residue",
-            "grid is <b>implied</b>",
-            "state builds over time",
-            "pointer <b>repels</b>",
-          ],
-        },
-        {
-          id: "wall",
-          name: "wall",
-          title: "6 — Wall",
-          params: {
-            pointerMode: "block",
-            trail: 300,
-            speed: 66,
-          },
-          body: "Same field, different pointer contract. Instead of a soft bias, the cursor marks a hard forbidden zone: those cells are simply unavailable, and runners route around the obstruction — sometimes doubling back, sometimes dead-ending against it. The avoidance is unmistakable rather than merely suggested, which makes the interactivity discoverable in one pass instead of three.",
-          chips: [
-            "cursor is an <b>obstacle</b>",
-            "hard routing",
-            "legible interaction",
-            "pointer <b>blocks</b>",
+            "front-plane etch",
+            "reads as <b>fabrication</b>",
           ],
         },
       ];
@@ -1588,6 +1626,30 @@
         { id: "speed", key: "speed", fmt: (v) => String(v) },
         { id: "trail", key: "trail", fmt: (v) => String(v) },
         { id: "accent", key: "accentRatio", fmt: (v) => `${v}%` },
+        { id: "planes", key: "planes", fmt: (v) => String(v) },
+        {
+          id: "planeSpread",
+          key: "planeSpread",
+          fmt: (v) => (v / 100).toFixed(2),
+        },
+        { id: "forkRate", key: "forkRate", fmt: (v) => (v / 100).toFixed(2) },
+        { id: "forkDrop", key: "forkDrop", fmt: (v) => (v / 100).toFixed(2) },
+        {
+          id: "mergeWindow",
+          key: "mergeWindow",
+          fmt: (v) => (v / 100).toFixed(2),
+        },
+        {
+          id: "massCurve",
+          key: "massCurve",
+          fmt: (v) => (v / 100).toFixed(2),
+        },
+        {
+          id: "claimMass",
+          key: "claimMass",
+          fmt: (v) => (v / 100).toFixed(2),
+        },
+        { id: "parallax", key: "parallax", fmt: (v) => (v / 10).toFixed(1) },
       ];
 
       function restraintLabel(v) {
@@ -1620,11 +1682,52 @@
         document.getElementById("targetsBtn").dataset.on = String(
           env.params.targets,
         );
+        document.getElementById("mergeBtn").dataset.on = String(
+          env.params.merge,
+        );
         document.getElementById("cellVal").textContent = env.params.cell;
         document.getElementById("speedVal").textContent = env.params.speed;
         document.getElementById("trailVal").textContent = env.params.trail;
         document.getElementById("accentVal").textContent =
           Math.round(env.params.accentRatio * 100) + "%";
+
+        document.getElementById("planes").value = env.params.planes;
+        document.getElementById("planesVal").textContent = env.params.planes;
+        document.getElementById("planeSpread").value = Math.round(
+          env.params.planeSpread * 100,
+        );
+        document.getElementById("planeSpreadVal").textContent =
+          env.params.planeSpread.toFixed(2);
+        document.getElementById("forkRate").value = Math.round(
+          env.params.forkRate * 100,
+        );
+        document.getElementById("forkRateVal").textContent =
+          env.params.forkRate.toFixed(2);
+        document.getElementById("forkDrop").value = Math.round(
+          env.params.forkDrop * 100,
+        );
+        document.getElementById("forkDropVal").textContent =
+          env.params.forkDrop.toFixed(2);
+        document.getElementById("mergeWindow").value = Math.round(
+          env.params.mergeWindow * 100,
+        );
+        document.getElementById("mergeWindowVal").textContent =
+          env.params.mergeWindow.toFixed(2);
+        document.getElementById("massCurve").value = Math.round(
+          env.params.massCurve * 100,
+        );
+        document.getElementById("massCurveVal").textContent =
+          env.params.massCurve.toFixed(2);
+        document.getElementById("claimMass").value = Math.round(
+          env.params.claimMass * 100,
+        );
+        document.getElementById("claimMassVal").textContent =
+          env.params.claimMass.toFixed(2);
+        document.getElementById("parallax").value = Math.round(
+          env.params.parallax * 10,
+        );
+        document.getElementById("parallaxVal").textContent =
+          env.params.parallax.toFixed(1);
       }
 
       function mount(idx) {
@@ -1713,6 +1816,31 @@
           e.target.value + "%";
       });
 
+      // Planes changes plane assignment for every runner, so it needs a
+      // scene rebuild just like pitch (cell) does.
+      document.getElementById("planes").addEventListener("input", (e) => {
+        env.params.planes = Number(e.target.value);
+        document.getElementById("planesVal").textContent = env.params.planes;
+        if (scene) scene.rebuild();
+      });
+
+      for (const [id, key, valId, divisor] of [
+        ["planeSpread", "planeSpread", "planeSpreadVal", 100],
+        ["forkRate", "forkRate", "forkRateVal", 100],
+        ["forkDrop", "forkDrop", "forkDropVal", 100],
+        ["mergeWindow", "mergeWindow", "mergeWindowVal", 100],
+        ["massCurve", "massCurve", "massCurveVal", 100],
+        ["claimMass", "claimMass", "claimMassVal", 100],
+        ["parallax", "parallax", "parallaxVal", 10],
+      ]) {
+        document.getElementById(id).addEventListener("input", (e) => {
+          const v = Number(e.target.value) / divisor;
+          env.params[key] = v;
+          document.getElementById(valId).textContent =
+            divisor === 10 ? v.toFixed(1) : v.toFixed(2);
+        });
+      }
+
       document.getElementById("substrate").addEventListener("change", (e) => {
         env.params.substrate = e.target.value;
       });
@@ -1735,6 +1863,7 @@
       bindFlag("steppedBtn", "stepped");
       bindFlag("etchBtn", "etch", () => scene.clearEtch());
       bindFlag("targetsBtn", "targets", () => scene.retarget());
+      bindFlag("mergeBtn", "merge");
 
       const themeBtn = document.getElementById("themeBtn");
       function setTheme(key) {
