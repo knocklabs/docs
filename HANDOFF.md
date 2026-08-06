@@ -334,9 +334,25 @@ Round 4 added these, each reviewed at the task that found it and left:
 - **`writeResidue` allocates a closure per runner per frame**, and a redundant
   `etchCtx.lineWidth = 1` is left at the top of the etch block. Both are
   cosmetic against a 120fps measurement.
+- **`quiet` on the light theme at 25s is the faintest frame in the whole
+  sweep.** Two restraint dials stack: `bloom: 0.15` on top of the light
+  theme's lower contrast. That is the preset behaving as the comparison floor
+  rather than a light-theme defect — `layered` and `circuit` both read well on
+  light. But `quiet` is only judged as a floor, never as a candidate. **If it
+  is ever considered for shipping, look at it on light first**, because that
+  is the frame where it is thinnest.
+- **Round 4's transition-legibility check is stills-only.** Fork-sink and
+  merge-surface were verified live in Task 4; the final sweep could only
+  re-check them from frames, because `shoot.js` cannot capture two frames
+  300ms apart. What that rules out is a stuck or unsettled cross-fade — zero
+  console errors across all three presets, and no doubled or ghosted trace in
+  any of the 24 captures. What it cannot show is the transition in motion.
+  **If the cross-fade, `zEase`, or the layer draw path is touched again,
+  verify it live in the browser rather than trusting a sweep.**
 
-Two of these — the `PLANE_MAX`/`nPlanes` divergence and the per-frame closure —
-are worth cleaning up in the port rather than in the prototype.
+Three of these — the `PLANE_MAX`/`nPlanes` divergence, the per-frame closure,
+and the live transition check — are worth handling during the port rather than
+in the prototype.
 
 ## Porting back
 
@@ -412,7 +428,7 @@ at roughly +27s/+50s of accumulated animation, silently invalidating any
 2s-vs-25s comparison for that theme. `boundingBox()` also now throws a clear
 error if `#stage` isn't found rather than crashing on a null dereference.
 
-Both galleries: no console errors, 120fps, dark and light. Round 3's sweep
+All four galleries: no console errors, 120fps, dark and light. Round 3's sweep
 (all five presets, both widths): no console errors on any preset, FPS
 readouts 120–123 at both widths — well clear of the 58fps bar.
 
