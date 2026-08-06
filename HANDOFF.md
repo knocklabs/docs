@@ -277,8 +277,12 @@ Two changes on Krisna's direction after reviewing 4.5:
   planar (the quadratic term hits v=0 with zero slope, so the halves join
   without a crease). **The bow reaches the front plane too** (a later
   ruling in the same round): the stack is nested sphere sections, so the
-  bow term rides a floored depth — `BOW_FRONT (0.45) + the rest by k` —
-  instead of vanishing at k = 0. Tilt stays strictly per-depth (positive =
+  bow term rides a floored depth — the front plane's share of the bow —
+  instead of vanishing at k = 0. That share is its own dial, **`bowFront`**
+  (default 0.45): 0 restores back-planes-only bow and lets the front layer
+  single-blit again, 1 bows the front as hard as the back. `bowScale`
+  takes it as an optional fifth argument and falls back to the 0.45 floor
+  when omitted. Tilt stays strictly per-depth (positive =
   top-away) so the copy's backdrop can never shear. Verified per-strip on
   `deep`: back plane grades 915px at the top edge to full 1032px at the
   vertical centre, front plane 974→1032, both constant below centre.

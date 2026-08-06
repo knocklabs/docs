@@ -66,21 +66,26 @@ const HeroCine = (function () {
   // grows toward the top and the bottom half stays planar (the quadratic
   // term is zero at v=0 with zero slope, so the halves join without a
   // crease). The stack is nested sphere sections, so the FRONT plane
-  // curves too: the bow term rides a floored depth, BOW_FRONT + the rest
-  // by k, rather than vanishing at k=0. `tilt` stays strictly per-depth
-  // (front plane never leans) so the copy's backdrop cannot shear.
-  // Returns the strip's horizontal scale; the draw side slices each layer
-  // into strips and the bright pass warps halo positions through the same
-  // function so glow stays on its trace.
+  // curves too: the bow term rides a floored depth, `front` + the rest by
+  // k, rather than vanishing at k=0. `front` is the front plane's share of
+  // the bow (0 = back planes only, 1 = the front bows as hard as the
+  // back); it defaults to BOW_FRONT so callers without an opinion get the
+  // shipped floor. `tilt` stays strictly per-depth (front plane never
+  // leans) so the copy's backdrop cannot shear. Returns the strip's
+  // horizontal scale; the draw side slices each layer into strips and the
+  // bright pass warps halo positions through the same function so glow
+  // stays on its trace.
   const BOW_FRONT = 0.45;
-  const bowScale = (v, k, bow, tilt) =>
-    clamp(
+  const bowScale = (v, k, bow, tilt, front) => {
+    const fb = front === undefined ? BOW_FRONT : front;
+    return clamp(
       1 -
-        (BOW_FRONT + (1 - BOW_FRONT) * k) * bow * 0.22 * (v < 0 ? v * v : 0) +
+        (fb + (1 - fb) * k) * bow * 0.22 * (v < 0 ? v * v : 0) +
         k * tilt * 0.18 * v,
       0.5,
       1.25,
     );
+  };
 
   // Atmospheric temperature: back planes cool toward slate. k=0 identity.
   const COOL = [110, 122, 146];

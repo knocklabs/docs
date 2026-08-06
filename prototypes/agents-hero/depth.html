@@ -648,6 +648,11 @@
             <span class="val" id="bowVal">0.35</span>
           </div>
           <div class="ctl">
+            <label for="bowFront">bow front</label>
+            <input id="bowFront" type="range" min="0" max="100" value="45" />
+            <span class="val" id="bowFrontVal">0.45</span>
+          </div>
+          <div class="ctl">
             <label for="tilt">tilt</label>
             <input id="tilt" type="range" min="-100" max="100" value="0" />
             <span class="val" id="tiltVal">0.00</span>
@@ -751,7 +756,8 @@
         fog: 0.6, // atmospheric fade toward bg per depth slice
         viaLife: 10, // seconds a fork/merge via ring persists
         // Round 4.6 renderer params: composite-time warp per depth.
-        bow: 0.35, // curves deep planes away at top/bottom — sphere-section read
+        bow: 0.35, // curves the top edge away — top-of-a-sphere read
+        bowFront: 0.45, // front plane's share of the bow; 0 = back only
         tilt: 0, // leans deep planes (positive = top-away); -1..1
       };
 
@@ -1681,13 +1687,18 @@
               // skips it at kz = 0 because the front plane never leans.
               const kz =
                 nPlanes > 1 ? (z / (nPlanes - 1)) * p.planeSpread : 0;
-              if (p.bow > 0 || (kz > 0 && p.tilt !== 0)) {
+              // The front plane single-blits when nothing can warp it:
+              // bow off, bow's front share at zero, or tilt alone (tilt
+              // never touches kz = 0).
+              const bowsHere =
+                p.bow > 0 && (kz > 0 || p.bowFront > 0);
+              if (bowsHere || (kz > 0 && p.tilt !== 0)) {
                 const STRIPS = 32;
                 const srcH = layerCv[z].height / STRIPS;
                 const dstH = env.h / STRIPS;
                 for (let si = 0; si < STRIPS; si++) {
                   const v = ((si + 0.5) / STRIPS) * 2 - 1;
-                  const f = HeroCine.bowScale(v, kz, p.bow, p.tilt);
+                  const f = HeroCine.bowScale(v, kz, p.bow, p.tilt, p.bowFront);
                   const w = env.w * f;
                   ctx.drawImage(
                     layerCv[z],
@@ -1738,6 +1749,7 @@
                       s.pk,
                       p.bow,
                       p.tilt,
+                      p.bowFront,
                     );
               }
               ctx.drawImage(
@@ -1890,7 +1902,13 @@
             p.bow > 0 || (k > 0 && p.tilt !== 0)
               ? env.w / 2 +
                 (x - env.w / 2) *
-                  HeroCine.bowScale((y / env.h) * 2 - 1, k, p.bow, p.tilt)
+                  HeroCine.bowScale(
+                    (y / env.h) * 2 - 1,
+                    k,
+                    p.bow,
+                    p.tilt,
+                    p.bowFront,
+                  )
               : x;
 
           for (const r of runners) {
@@ -2407,6 +2425,11 @@
         document.getElementById("bow").value = Math.round(env.params.bow * 100);
         document.getElementById("bowVal").textContent =
           env.params.bow.toFixed(2);
+        document.getElementById("bowFront").value = Math.round(
+          env.params.bowFront * 100,
+        );
+        document.getElementById("bowFrontVal").textContent =
+          env.params.bowFront.toFixed(2);
         document.getElementById("tilt").value = Math.round(
           env.params.tilt * 100,
         );
@@ -2532,8 +2555,10 @@
         ["bloom", "bloom", "bloomVal", 100],
         ["fog", "fog", "fogVal", 100],
         ["viaLife", "viaLife", "viaLifeVal", 10],
-        // bow/tilt are composite-time only — no lattice cache clear needed.
+        // bow/bowFront/tilt are composite-time only — no lattice cache
+        // clear needed.
         ["bow", "bow", "bowVal", 100],
+        ["bowFront", "bowFront", "bowFrontVal", 100],
         ["tilt", "tilt", "tiltVal", 100],
       ]) {
         document.getElementById(id).addEventListener("input", (e) => {

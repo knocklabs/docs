@@ -112,3 +112,18 @@ test("bowScale: bows the top only, front plane included, leans with tilt", () =>
   assert.ok(top < 1 && bottom > 1); // positive tilt leans the top away
   assert.ok(Cine.bowScale(-1, 1, 1.5, 1) >= 0.5); // clamped, never collapses
 });
+
+// The front share is a dial: 0 restores back-planes-only bow, 1 bows the
+// front as hard as the back, and omitting it keeps the shipped floor.
+test("bowScale: the front share dial spans back-only to uniform", () => {
+  assert.equal(Cine.bowScale(-1, 0, 1, 0, 0), 1); // 0: front plane planar
+  assert.ok(Cine.bowScale(-1, 0.5, 1, 0, 0) < 1); // ...but the back still bows
+  assert.equal(
+    Cine.bowScale(-1, 0, 1, 0, 1),
+    Cine.bowScale(-1, 1, 1, 0, 1),
+  ); // 1: uniform across depth
+  assert.equal(
+    Cine.bowScale(-1, 0, 1, 0),
+    Cine.bowScale(-1, 0, 1, 0, 0.45),
+  ); // omitted = the shipped 0.45 floor
+});
