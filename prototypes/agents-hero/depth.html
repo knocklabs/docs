@@ -2065,8 +2065,18 @@
         if (scene) scene.rebuild();
       });
 
+      // Spread feeds HeroLaw.planeStyle, and the cached lattice bakes both
+      // st.dim (its alpha) and st.scale (its transform). Dragging spread has
+      // to drop the cache or the grid stays frozen at the old depth while the
+      // trails on top of it rescale live.
+      document.getElementById("planeSpread").addEventListener("input", (e) => {
+        env.params.planeSpread = Number(e.target.value) / 100;
+        document.getElementById("planeSpreadVal").textContent =
+          env.params.planeSpread.toFixed(2);
+        if (scene) scene.clearLatticeCache();
+      });
+
       for (const [id, key, valId, divisor] of [
-        ["planeSpread", "planeSpread", "planeSpreadVal", 100],
         ["forkRate", "forkRate", "forkRateVal", 100],
         ["forkDrop", "forkDrop", "forkDropVal", 100],
         ["mergeWindow", "mergeWindow", "mergeWindowVal", 100],
