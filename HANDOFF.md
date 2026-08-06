@@ -21,20 +21,25 @@ here is wired into the Next.js app yet.
 
 ## Current state
 
-Two standalone prototype galleries, both self-contained HTML with no
-dependencies and no build step. Neither is imported by the app.
+Four standalone prototype galleries, all self-contained HTML with no
+dependencies and no build step. None is imported by the app.
 
 | File | What it is |
 | --- | --- |
 | `prototypes/agents-hero/index.html` | Round 1 — five distinct hero concepts |
 | `prototypes/agents-hero/runners.html` | Round 2 — six variations on the winning concept |
 | `prototypes/agents-hero/layers.html` | Round 3 — layered depth with fork/merge |
+| `prototypes/agents-hero/depth.html` | Round 4 — the cinematic renderer over round 3's law |
 | `prototypes/agents-hero/law.js` | Pure law arithmetic, tested via `node --test` |
+| `prototypes/agents-hero/cine.js` | Pure round-4 render arithmetic (`HeroCine`), tested |
+| `prototypes/agents-hero/law.test.js` | 14 law tests |
+| `prototypes/agents-hero/cine.test.js` | 10 cine tests |
 | `prototypes/agents-hero/shoot.js` | Screenshot harness (needs `NODE_PATH` — see below) |
 
-Open any of the three directly (`open prototypes/agents-hero/layers.html`). All
-three overlay the real hero copy, veil, and CTA so legibility can be judged in
-place.
+Open any of them directly (`open prototypes/agents-hero/depth.html`). All four
+overlay the real hero copy, veil, and CTA so legibility can be judged in place.
+`depth.html` is the current front runner; `layers.html` is kept as the
+before-picture the round-4 grade is judged against.
 
 ### Round 1 — five concepts (`index.html`)
 
@@ -119,6 +124,73 @@ exist to bound the design space (flat as the floor, converge/diverge as the
 two poles, circuit as a stylistic variant) rather than to enumerate final
 candidates. The shippable setting is expected to land somewhere between
 converge and diverge; see open questions.
+
+### Round 4 — cinematic depth renderer (`depth.html`)
+
+Round 3 answered the law question and failed the look question: three planes of
+identically crisp 1px hairlines, separated only by brightness, read as **"a
+couple of grids"** rather than as depth. Round 4 keeps that law untouched and
+replaces the renderer.
+
+Spec: `docs/superpowers/specs/2026-08-06-agents-hero-cinematic-renderer-design.md`
+Plan: `docs/superpowers/plans/2026-08-06-agents-hero-cinematic-renderer.md`
+Ledger: `.superpowers/sdd/2026-08-06-agents-hero-cinematic-renderer/progress.md`
+
+Keys `1`–`3` switch presets, `t` theme, `h` hero copy, `v` veil, `r` resets the
+current preset. The parameter column to the right of the stage carries round 3's
+full set plus the four new renderer dials (`zEase`, `bloom`, `fog`, `viaLife`).
+
+1. **Layered** — three planes at the renderer's defaults, accent-heavy. The
+   recommendation, and the surface the converge/diverge tuning gets decided on.
+2. **Circuit** — stepped motion, segmented trails, hot-then-cold etch. Fresh
+   residue glows and cools into a permanent trace as the board accumulates.
+3. **Quiet** — the same field graded down to round-3 restraint (`bloom: 0.15`,
+   `fog: 0.25`, `accentRatio: 0.4`). The comparison floor and the light-theme
+   sanity check: if the design only works luminous, this tab shows it.
+
+What changed against round 3:
+
+- **Per-plane layer canvases with a cached lattice.** Each plane draws into its
+  own offscreen canvas so a whole plane can be filtered at once. The substrate
+  lattice is rendered once per plane and blitted, replacing round 3's ~2,850
+  `fillRect` calls per frame.
+- **Resample defocus, fog, and temperature.** Back planes are drawn at reduced
+  resolution and scaled up (a cheap, real defocus rather than a blur filter),
+  faded toward the background by `fog`, and cooled by `coolShift`. Depth now
+  reads as three focal treatments, not three brightnesses.
+- **Continuous `zf` with via rings.** Depth is a float, not an integer plane.
+  A runner crossing planes cross-fades between two layers over `zEase` seconds
+  and leaves a via ring at the crossing point that persists for `viaLife`. Forks
+  visibly sink; merges visibly surface.
+- **Bloom.** A quarter-res bright pass, composited additively on dark and as
+  soft halos on light, so the front plane and lit terminals carry glow.
+- **Trace hierarchy.** A discrete width ladder plus trunk cores, turn pads, and
+  lit terminals. **`massCurve` was removed entirely** — round 3's continuous
+  mass→width curve is gone, and `traceWidth`'s ladder is the only width source.
+  Anything still referencing `massCurve` is round-3 code.
+- **Seeded weighted composition and a 4s presim.** Spawn weight is suppressed
+  inside the copy band and full in the margins, driven by a seeded `mulberry32`,
+  and the scene runs 4 simulated seconds before the first painted frame — so a
+  cold load opens on a composed field rather than an empty one.
+- **Hot-then-cold etch.** Residue is written hot and cools into the permanent
+  trace, instead of round 3's single-temperature write.
+
+**Round 3's "reads flat" verdict is resolved.** Judged against the spec's four
+eyeball gates on the final sweep (all three presets, both widths, both themes,
+2s and 25s):
+
+| Gate | Verdict |
+| --- | --- |
+| 1. Depth reads | **Pass.** Side by side with a freshly shot round-3 `layered` frame, the difference is not subtle: round 3's back planes are the same hard hairlines dimmed, round 4's are soft, fogged, cool patches under crisp bloom-lit front traces. It no longer reads as stacked grids. |
+| 2. 2s frames stand alone | **Pass** on all three presets, both widths, both themes. Margins are populated, the composition is balanced left and right, and the copy band stays clear. The presim is doing its job. |
+| 3. Light theme is the same design | **Pass.** Light reads as the same field, not a washed-out export — the halo bloom substitutes for the additive pass, and the fogged back planes survive as visible soft rectangles. `layered` arguably reads stronger on light than on dark. |
+| 4. Quiet demonstrates the grade dial | **Pass.** Recognizably the same field at round-3 restraint: crisper, flatter, less glow, but the same depth structure. The dial spans the range it was built to span. |
+
+Transition legibility (fork sinks, merge surfaces) was verified live during
+Task 4. Tasks 5–8 changed the draw path, so it was re-checked on the final
+frames: no console errors on any preset, and no runner shows a double-image
+ghost at 2s or 25s on any capture — every cross-fade settles rather than
+leaving two copies on adjacent layers.
 
 ## Decisions made
 
@@ -243,6 +315,29 @@ port, and none is visible at the shipped presets.
   dim reaches 0.18 by construction. No preset ships above 0.5, so this is the
   control behaving as specified at an extreme rather than a defect.
 
+Round 4 added these, each reviewed at the task that found it and left:
+
+- **`viaAlpha`'s pop-in uses an absolute 0.25s**, so a ring whose `viaLife` is
+  under 0.25s would never reach full alpha. Unreachable at the shipped
+  `viaLife` range of 2–20.
+- **`PLANE_MAX` and `nPlanes` diverge in the cooling math at `planes: 2`.**
+  They agree at the shipped `planes: 3`. Worth unifying on `nPlanes` during the
+  port.
+- **Dragging the restraint slider rebuilds every lattice per input event** —
+  no debounce. Imperceptible in practice; it is a dev control, not a runtime
+  path.
+- **A dead `latticeCv = [null, null, null]` assignment survives in `layout()`.**
+  Layers are always allocated for `PLANE_MAX` regardless.
+- **`drawBrightPass` draws back-plane vias unscaled**, so a halo can sit
+  slightly off its ring at high `planeSpread`. Invisible once the pass is
+  blurred from 1/4 to 1/8 res.
+- **`writeResidue` allocates a closure per runner per frame**, and a redundant
+  `etchCtx.lineWidth = 1` is left at the top of the etch block. Both are
+  cosmetic against a 120fps measurement.
+
+Two of these — the `PLANE_MAX`/`nPlanes` divergence and the per-frame closure —
+are worth cleaning up in the port rather than in the prototype.
+
 ## Porting back
 
 The target is `components/ui/AnimatedDotGrid.tsx`, used only by
@@ -320,6 +415,13 @@ error if `#stage` isn't found rather than crashing on a null dereference.
 Both galleries: no console errors, 120fps, dark and light. Round 3's sweep
 (all five presets, both widths): no console errors on any preset, FPS
 readouts 120–123 at both widths — well clear of the 58fps bar.
+
+Round 4's final sweep (`depth.html`, all three presets, both widths): no
+console errors on any preset, FPS readouts **120–121** at both widths. The
+layer canvases, bloom pass, and cached lattice cost nothing measurable against
+round 3 — the cache pays for the pass. `node --test prototypes/agents-hero/*.test.js`
+runs 24 tests (14 law, 10 cine), all passing. Note the glob: `node --test` on
+the bare directory tries to load it as a module and fails.
 
 ## Before opening a PR
 
