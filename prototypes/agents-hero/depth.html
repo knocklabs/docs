@@ -837,6 +837,7 @@
           occOwner = null;
         let runners = [];
         let sparks = [];
+        let vias = [];
         let targets = [];
         let etchCv = null,
           etchCtx = null;
@@ -1031,6 +1032,7 @@
             accent: isAccent,
             speedMul: 1,
             mass: 1,
+            zf: 0,
             bright: boosted ? 1 : rand(0.6, 1),
             target: tgt,
             exiting: false,
@@ -1038,6 +1040,7 @@
           // `speed` is set inside the literal, so the depth falloff is applied
           // once here rather than threading the plane style through the literal.
           setPlane(r, zPicked, nPlanes, p.planeSpread);
+          r.zf = r.z;
           runners.push(r);
           return r;
         }
@@ -1255,11 +1258,14 @@
               const headOn = (other.d + 2) % 4 === r.d;
               if (!headOn) {
                 other.mass = HeroLaw.mergeMass(other.mass, r.mass);
+                const zOld = other.z;
                 const zNew = HeroLaw.mergePlane(other.z, r.z);
-                if (zNew !== other.z) {
+                if (zNew !== zOld) {
                   // Pulled forward: setPlane is the only path that keeps the
                   // speed rescale exact off the multiplier stored at spawn.
                   setPlane(other, zNew, nPlanes, p.planeSpread);
+                  // Surface visibly from the depth the meeting happened at.
+                  vias.push({ i: ni, j: nj, z: zOld, age: 0, accent: other.accent, kind: "via" });
                 }
                 // Resolve the plane before the accent gate so it reads the
                 // survivor's final plane, not the one it merged from.
@@ -1313,6 +1319,11 @@
                 Math.random() < p.forkDrop,
               );
               setPlane(child, childZ, nPlanes, p.planeSpread);
+              // The child is born AT the parent's depth and visibly sinks to
+              // its own — the transition is the point of round 4.
+              child.zf = r.z;
+              if (child.z !== r.z)
+                vias.push({ i: ni, j: nj, z: r.z, age: 0, accent: r.accent, kind: "via" });
               child.accent =
                 nPlanes === 1 || child.z === 0 ? r.accent : false;
               child.target = r.target;
@@ -1342,6 +1353,7 @@
             layout();
             runners = [];
             sparks = [];
+            vias = [];
             seed();
           },
 
@@ -1349,6 +1361,7 @@
             layout();
             runners = [];
             sparks = [];
+            vias = [];
             seed();
           },
 
@@ -1414,6 +1427,11 @@
               // Keep it — anything that later changes `planes` without a
               // rebuild would strand runners exactly this way.
               if (r.z >= nPlanes) setPlane(r, nPlanes - 1, nPlanes, p.planeSpread);
+
+              // Render depth chases law depth. p.zEase seconds per plane of
+              // travel; approach() terminates exactly so settled runners
+              // draw into a single layer with no residual cross-fade.
+              r.zf = HeroCine.approach(r.zf, r.z, dt / Math.max(0.05, p.zEase));
 
               if (r.dying) {
                 r.fade -= dt * 1.9;
@@ -1486,6 +1504,10 @@
               }
               t.rings = t.rings.filter((ring) => ring.a > 0);
             }
+
+            for (const v of vias) v.age += dt;
+            vias = vias.filter((v) => v.age < p.viaLife);
+            if (vias.length > 80) vias = vias.slice(vias.length - 80);
           },
 
           draw(ctx) {
@@ -1716,7 +1738,11 @@
           };
 
           for (const r of runners) {
-            if (r.z !== z) continue;
+            const split = HeroCine.layerSplit(r.zf, nPlanes);
+            let zAlpha;
+            if (split.lo === z) zAlpha = 1 - split.wHi;
+            else if (split.hi === z && split.wHi > 0) zAlpha = split.wHi;
+            else continue;
             const col = colFor(r);
             const dimF = r.accent ? 1 : 0.62;
             const pts = r.trail.concat([r.head]);
@@ -1738,7 +1764,13 @@
                   uy = (a1.y - a0.y) / seg;
                 lctx.strokeStyle = rgba(
                   col,
-                  Math.pow(f, 1.5) * planeA * r.bright * r.fade * 0.8 * dimF,
+                  Math.pow(f, 1.5) *
+                    planeA *
+                    r.bright *
+                    r.fade *
+                    zAlpha *
+                    0.8 *
+                    dimF,
                 );
                 // Trace weight <- mass, the first row of the derivation
                 // table. Quantized through the same tier representatives
@@ -1762,7 +1794,7 @@
               const tier = HeroLaw.massTier(r.mass);
               // Same brightness/fade value for every segment of this runner this
               // frame, so bucket it once rather than per segment.
-              const gb = glowBucket(r.bright * r.fade);
+              const gb = glowBucket(r.bright * r.fade * zAlpha);
               let acc = 0;
               for (let k = 0; k < pts.length - 1; k++) {
                 const a0 = pts[k],
@@ -1787,7 +1819,7 @@
                   : "source-over";
                 const rr = 13 * lerp(0.8, 1.15, r01);
                 lctx.globalAlpha =
-                  0.5 * r.bright * planeA * p.headGlow * dimF;
+                  0.5 * r.bright * planeA * p.headGlow * dimF * zAlpha;
                 lctx.drawImage(
                   r.accent ? env.glowAccent : env.glowNeutral,
                   r.head.x - rr,
@@ -1800,7 +1832,7 @@
               }
               lctx.fillStyle = rgba(
                 r.accent ? (pal.dark ? pal.hot : pal.accent) : col,
-                0.95 * planeA * dimF,
+                0.95 * planeA * dimF * zAlpha,
               );
               lctx.beginPath();
               lctx.arc(r.head.x, r.head.y, 1.7, 0, Math.PI * 2);
@@ -1836,6 +1868,29 @@
               );
             lctx.lineCap = "round";
             lctx.stroke(b.path);
+          }
+
+          /* via rings: fork/merge events mark the board ------------- */
+          for (const v of vias) {
+            if (v.z !== z || v.kind !== "via") continue;
+            const a = HeroCine.viaAlpha(v.age, p.viaLife);
+            if (a <= 0.01) continue;
+            const st = HeroLaw.planeStyle(z, nPlanes, p.planeSpread);
+            lctx.strokeStyle = rgba(
+              v.accent ? pal.accent : pal.dim,
+              a * 0.55 * st.dim * baseA,
+            );
+            lctx.lineWidth = 1;
+            lctx.beginPath();
+            lctx.arc(px(v.i), py(v.j), 3.2, 0, Math.PI * 2);
+            lctx.stroke();
+            lctx.fillStyle = rgba(
+              v.accent ? pal.accent : pal.dim,
+              a * 0.3 * st.dim * baseA,
+            );
+            lctx.beginPath();
+            lctx.arc(px(v.i), py(v.j), 1.1, 0, Math.PI * 2);
+            lctx.fill();
           }
         }
       }
