@@ -1,0 +1,105 @@
+---
+title: "Sender domain migration"
+description: "Learn how to warm up a new sending domain and protect deliverability by routing traffic gradually with channel groups."
+tags:
+  [
+    "email",
+    "domain",
+    "domain warming",
+    "channel groups",
+    "migration",
+    "deliverability",
+    "audiences",
+  ]
+section: Tutorials
+---
+
+Brands may need to migrate their sending domain during a rebrand, a product consolidation, or another event that triggers a domain shift. A domain that's never sent email — whether newly registered or one you've owned but haven't used for sending — has no established reputation with inbox providers. A domain acquired from a previous owner may carry a reputation of its own, good or bad, from whatever it was used for before. In any of these cases, cutting over abruptly puts your deliverability at risk: messages that used to land in the inbox can start landing in spam or get throttled entirely.
+
+This tutorial covers how to cut over to a new sending domain gradually and safely using Knock. You'll set up the new domain as a new email [channel](/integrations/overview) in your Knock account, create a [channel group](/integrations/overview#channel-groups) containing both your new and existing email channels, and set conditions on the channel group to route traffic between the two. These conditions may be based on a combination of [audience](/concepts/audiences) membership, recipient properties, trigger data, and allowlisted workflow keys. You'll use the channel group to ramp up traffic to the new domain gradually, retiring the old domain after deliverability on the new domain has been established.
+
+## Prerequisites
+
+This tutorial assumes you already have a Knock account with a configured [email provider](/integrations/email/overview) sending your production traffic, and that your new sending domain is set up and verified with a provider. SPF, DKIM, and DMARC should already be configured and passing for the new domain.
+
+You'll also need access to the [Management API](/developer-tools/management-api) to create and configure your [channel group](/integrations/overview#channel-groups), and the [Knock CLI](/cli/overview) to update your workflows in bulk.
+
+## Domain warming schedule
+
+Plan out your warming schedule before you start routing any traffic. Use Knock's [email domain warmup calculator](https://knock.app/tools/email-domain-warmup-calculator) to generate a schedule that's appropriately sized to your volume. As a general rule, plan for roughly 30 days to reach full volume, starting at a low daily volume and increasing it gradually as deliverability holds up at each stage. Spread each day's volume evenly across your sending window rather than sending it all in a single burst.
+
+You can implement your channel group routing before your domain warming schedule begins. Keep your channel group conditions set to route 100% of traffic to your existing domain's channel until you're ready to begin migrating.
+
+## Traffic routing mechanisms
+
+When planning your migration, decide which controls you'll use to route each workflow recipient run between domains. We recommend a combination of recipient-based controls and workflow allowlisting, giving you fine-grained control over what moves and when.
+
+- **Route traffic based on recipient attributes.** Consider targeting your most engaged users early in the domain warming process. Segment your priority recipients into an [audience](/concepts/audiences). This could be a static audience you add to over time, or a dynamic audience based on user properties. Reference this audience in your channel group conditions to route emails to these recipients through the new domain.
+
+- **Route traffic on a per-workflow basis.** To keep all traffic for your most critical workflows like password resets routed to your established domain, include a workflow allowlist in your channel group configuration. Gate critical workflows until you've built confidence in the new domain's reputation. Referencing an [environment variable](/concepts/variables) as the allowlist rather than hardcoding workflow keys into the condition enables you to update which workflows are included without editing the channel group itself.
+
+We recommend considering a combination of engagement and criticality when determining the order in which workflows should be migrated to the new domain:
+
+1. **High-engagement, low-criticality workflows first.** For example, an alert or digest that recipients open often but where the business doesn't break if a message is delayed or missed.
+2. **High-engagement, high-criticality workflows next.** Password resets and account notifications are highly engaged with, but their criticality means you should wait until you've validated the new domain's reputation on lower-stakes traffic first.
+3. **High-volume, low-engagement workflows last.** Digests or notifications with a large recipient base but low open rates carry the most reputation risk per message and benefit most from a domain that's already established.
+
+## Set up traffic routing
+
+<Steps titleSize="h3">
+  <Step title="Create a new email channel">
+    Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Integrations</strong> > <strong>Channels</strong></a> in your dashboard and add a new [email channel](/integrations/email/overview) configured with your new domain as the sender. The new domain should be properly configured with your provider and passing SPF, DKIM, and DMARC checks before sending any production traffic through it.
+  </Step>
+  <Step title="Implement control mechanisms">
+    Before creating your channel group, set up the [controls](#traffic-routing-mechanisms) you'll use to manage the flow of traffic between domains. This might include createing a rollout [audience](/concepts/audiences) or saving an [environment variable](/concepts/variables) to hold your workflow allowlist. You'll reference these in the channel group's conditions, updating your control mechanism (e.g., add users to an audience) over time to increase traffic.
+
+    We recommend starting with values that keep production traffic from matching those conditions, ensuring nothing routes to the new domain until you're ready.
+
+  </Step>
+  <Step title="Create a channel group">
+    Using the [Management API](/developer-tools/management-api), create a channel group that contains both your existing domain's channel and your new domain's channel.
+
+    Set the group's operator to `any` so it routes through the first matching channel only and order the rules with the most specific condition first:
+
+    1. An `if` rule that routes to the new domain's channel when a workflow recipient run matches your rollout criteria.
+    2. An `always` rule that falls back to your existing domain's channel for everyone else.
+
+  </Step>
+  <Step title="Update your workflows">
+    After your channel group has been created, update each workflow's email step to reference the [channel group](/designing-workflows/channel-step) instead of your original email channel. With the channel group in place, all email steps will defer to your channel group conditions for routing. No other updates are required at the workflow level.
+
+    This is an account-wide change across every workflow that sends email, so we recommend making the udpate programmatically with the [Knock CLI](/cli/overview). Use [`knock workflow pull`](/cli/workflow/pull) to download your workflows locally, update each email step to reference the channel group's key, then use [`knock workflow push`](/cli/workflow/push) to apply the change across all of them.
+
+    Note that any traffic routing enabled on the channel group will immediately go into effect after this update. We recommend keeping all traffic routed to your existing domain's channel while you make this change, so you can validate it before any behavior actually shifts.
+
+  </Step>
+  <Step title="Manage routing">
+    When you're ready to begin routing traffic to the new domain, expand your rollout using whatever mechanism you set up in the previous step. As deliverability holds up at each stage of your warming schedule, continue expanding it to route a larger share of traffic to the new domain.
+
+    After each traffic increase, check spam complaint and bounce rates. If performance softens, hold at the current volume for a few days before continuing. If it deteriorates materially, scale back the rollout the same way, routing a larger share of traffic back to your existing domain.
+
+  </Step>
+</Steps>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Do I need to change my email templates for the new domain?">
+    No. The channel group sits between your workflow and the underlying
+    channels, so the same template renders and sends regardless of which domain
+    the channel group routes to. If your templates reference the sending domain
+    directly (for example, in a template-level `from` field), review those
+    references before starting the migration.
+  </Accordion>
+  <Accordion title="What happens to link tracking and the preference center during the migration?">
+    Knock's [custom domains](/manage-your-account/custom-domains) feature
+    controls the domain used for link tracking and the hosted preference center,
+    and is configured independently of your sending channels.
+  </Accordion>
+  <Accordion title="Can I roll back if I see deliverability problems on the new domain?">
+    Yes. Because your workflows reference the channel group rather than a
+    specific channel, you can adjust the routing rules to stop sending traffic
+    to your new domain at any time. All email steps will fall back to your
+    original domain's channel.
+  </Accordion>
+</AccordionGroup>
