@@ -474,9 +474,28 @@ in the prototype.
 
 ## Porting back
 
-The target is `components/ui/AnimatedDotGrid.tsx`, used only by
-`pages/agents.tsx`. Things the existing component does that the prototypes do
-not, and that must be carried over:
+**Done (2026-08-07).** `components/ui/AnimatedDotGrid.tsx` now contains the
+round-4 engine with Krisna's tuned settings baked in as a `SETTINGS`
+constant (`restraint 0.69`, `cell 20`, `planes 3`, `planeSpread 1`,
+`forkRate 0.16`, `mergeWindow 0.16`, `claimMass 2`, `zEase 1`,
+`bloom 1.5`, `fog 1`, `viaLife 8`, `accentRatio 0.6`, pointer attract).
+Subsystems that shipped as "off" in that dump — etch, stepped motion,
+segment trails, pointer parallax, bow/tilt, block/repel pointer — were
+omitted from the port rather than carried as dead code; the prototypes
+remain the reference if any come back. Port-time cleanups applied:
+single `PLANES` constant (no `PLANE_MAX`/`nPlanes` split), `soften`
+dropped, no per-frame closures. Carried over from the old component:
+`useTheme()` palette, IntersectionObserver pause, ResizeObserver +
+debounce, one-time fade-in, 55% bottom mask. New: fog resolves
+`--tgph-surface-1` at runtime so back planes fade toward the real page
+surface; `prefers-reduced-motion` renders the 4s-presim frame once and
+never animates (verified: identical screenshots 1.5s apart). Verified on
+a dev server: dark/light × 1280/390 at 2s and 25s, zero console errors;
+6-frame motion burst shows cross-fades settling with no doubled traces.
+`yarn type-check` passes; Prettier applied (eslint ignores
+`components/` by repo config).
+
+What the old `AnimatedDotGrid` did, for reference — all carried over:
 
 - `useTheme()` from `@/components/theme/ThemeProvider` for the light/dark palette
   (prototypes hardcode both palettes and a manual toggle).
