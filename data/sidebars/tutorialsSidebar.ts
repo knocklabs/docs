@@ -57,6 +57,10 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Email template migration",
   },
   {
+    slug: `${baseSlug}/sender-domain-migration`,
+    title: "Sender domain migration",
+  },
+  {
     slug: `${baseSlug}/guides-in-vue`,
     title: "Guides in Vue.js",
   },
