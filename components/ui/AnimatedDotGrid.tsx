@@ -23,8 +23,11 @@ import { useTheme } from "@/components/theme/ThemeProvider";
 /* ------------------------------------------------------------------ */
 
 const SETTINGS = {
-  /** Overall energy: drives runner count, cap, and ink alpha. 0–1. */
-  restraint: 0.69,
+  /** Overall energy: drives runner count, cap, and ink alpha. 0–1.
+   *  Tuned at 0.69, brought down after team feedback that the field ran
+   *  busy — this also clamps the early fork froth a fresh field opens
+   *  with, since the runner cap scales with it. */
+  restraint: 0.6,
   /** Lattice cell size, px. */
   cell: 20,
   /** Base runner speed, px/s (each runner spawns at 0.78–1.28×). */

@@ -207,7 +207,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                   // CTA below stays clear of the veil.
                   inset: "-1.5rem -2rem 0",
                   background:
-                    "radial-gradient(ellipse 58% 85% at 50% 42%, color-mix(in srgb, var(--tgph-surface-1) 82%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 58%, transparent) 48%, transparent 72%)",
+                    "radial-gradient(ellipse 58% 85% at 50% 42%, color-mix(in srgb, var(--tgph-surface-1) 88%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 65%, transparent) 48%, transparent 75%)",
                   pointerEvents: "none",
                   zIndex: 0,
                 }}
