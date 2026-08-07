@@ -63,11 +63,12 @@ const SETTINGS = {
   pointerForce: 2.6,
   /** Simulated seconds run before the first painted frame. */
   presim: 4,
-  /** Entry: the field wakes up rather than switching on. Runner density
-   *  and simulation speed start at these floors and ease (cubic out) to
-   *  full over `duration` seconds of live time. Reduced-motion scenes
-   *  skip the intro — their single still should be the full field. */
-  intro: { duration: 3.5, density: 0.35, timeScale: 0.2 },
+  /** Entry: the field wakes up rather than switching on. Runner density,
+   *  simulation speed, and ink (layer/spark/bloom brightness) start at
+   *  these floors and ease (cubic out) to full over `duration` seconds
+   *  of live time. Reduced-motion scenes skip the intro — their single
+   *  still should be the full field at full brightness. */
+  intro: { duration: 3.5, density: 0.35, timeScale: 0.2, ink: 0.3 },
   /** Pad lifecycle: a pad completes after `quota` earned claims, plays a
    *  done cascade, fades out, and a successor fades in at another slot
    *  after `respawnDelay`. Fades are in seconds. */
@@ -1225,6 +1226,7 @@ function createScene(env: SceneEnv, intro: boolean) {
     const pal = env.palette;
     const baseA = lerp(0.55, 1, SETTINGS.restraint);
     const gr = grade();
+    const introInk = lerp(SETTINGS.intro.ink, 1, introE());
 
     // Each plane paints into its own offscreen layer, then composites
     // back to front with fog between slices. Back layers are allocated
@@ -1243,7 +1245,13 @@ function createScene(env: SceneEnv, intro: boolean) {
       drawPlaneContent(lctx, z);
       lctx.restore();
 
+      // Intro ink: the whole field brightens as it wakes. Layers, sparks,
+      // and bloom all ride the same envelope, so the first runners emerge
+      // dim and the shine develops with the population. 1 outside the
+      // intro (and always 1 for reduced-motion scenes).
+      ctx.globalAlpha = introInk;
       ctx.drawImage(layerCv[z], 0, 0, env.w, env.h);
+      ctx.globalAlpha = 1;
 
       // Fog accumulates over depth: each slice fades everything already
       // composited toward the background before the nearer slice draws —
@@ -1257,7 +1265,7 @@ function createScene(env: SceneEnv, intro: boolean) {
     /* sparks ---------------------------------------------------------- */
     ctx.globalCompositeOperation = pal.dark ? "lighter" : "source-over";
     for (const s of sparks) {
-      ctx.globalAlpha = clamp(s.life, 0, 1) * 0.75 * baseA;
+      ctx.globalAlpha = clamp(s.life, 0, 1) * 0.75 * baseA * introInk;
       const rr = 7 * s.ps;
       ctx.drawImage(
         s.accent ? env.glowAccent : env.glowNeutral,
@@ -1280,7 +1288,7 @@ function createScene(env: SceneEnv, intro: boolean) {
       // Additive bloom dies on white: the light theme composites the same
       // buffer as soft colored halos instead.
       ctx.globalCompositeOperation = pal.dark ? "lighter" : "source-over";
-      ctx.globalAlpha = gr.bloomAlpha * (pal.dark ? 1 : 0.35);
+      ctx.globalAlpha = gr.bloomAlpha * (pal.dark ? 1 : 0.35) * introInk;
       ctx.drawImage(bloomCv2, 0, 0, env.w, env.h);
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
@@ -1554,7 +1562,7 @@ export const AnimatedDotGrid = () => {
           width: "100%",
           height: "100%",
           opacity: isInitialized ? 1 : 0,
-          transition: "opacity 1s ease",
+          transition: "opacity 2.5s ease-out",
           // Soft bottom fade into the page surface behind the hero
           maskImage:
             "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
