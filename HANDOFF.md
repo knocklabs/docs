@@ -509,6 +509,22 @@ entirely so their single still is the complete field (re-verified:
 identical frames 1.5s apart). Entry sequence verified live at
 0.5s/1s/2s/3s/4.5s/7s: sparse → filling → tuned density, no errors.
 
+**Pad lifecycle (added after the port).** Krisna expected pad placement to
+vary per reload and proposed completion semantics. The fix separates what
+round 2's random placement had fused: where pads MAY go is curated
+(`PAD_SLOTS`, ~10 anchors in 5 regions, all clear of the copy band and
+veil), which are active is random — one pad per region, picked fresh per
+load, so reloads vary but can never stack a side or hide a pad under the
+veil. Lifecycle (`SETTINGS.pads`): a pad completes after `quota` (3)
+earned claims, plays a brighter ring cascade, fades out (1.2s), and a
+successor fades in (0.8s) at an unused slot preferring an unoccupied
+region after a 1s delay. Runners seeking a retiring pad are released to
+wander (the documented-safe behavior); spawns only target live pads.
+Presim reseeds the pad set afterward so a visitor never lands
+mid-retirement and the reduced-motion still shows a steady board.
+Verified live: pad arrangements differ across fresh loads, sockets
+migrate across a 90s dwell (retire/respawn observed), no page errors.
+
 What the old `AnimatedDotGrid` did, for reference — all carried over:
 
 - `useTheme()` from `@/components/theme/ThemeProvider` for the light/dark palette

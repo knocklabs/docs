@@ -68,6 +68,10 @@ const SETTINGS = {
    *  full over `duration` seconds of live time. Reduced-motion scenes
    *  skip the intro — their single still should be the full field. */
   intro: { duration: 3.5, density: 0.35, timeScale: 0.2 },
+  /** Pad lifecycle: a pad completes after `quota` earned claims, plays a
+   *  done cascade, fades out, and a successor fades in at another slot
+   *  after `respawnDelay`. Fades are in seconds. */
+  pads: { count: 4, quota: 3, fadeIn: 0.8, fadeOut: 1.2, respawnDelay: 1 },
 } as const;
 
 const PLANES = SETTINGS.planes;
@@ -157,13 +161,22 @@ function planeStyle(z: number) {
 const canClaim = (z: number, mass: number) =>
   z === 0 && mass >= SETTINGS.claimMass;
 
-/** Deterministic pad placement derived from the copy's bounding box:
- *  three down the right margin, one lower-left for asymmetry. */
-const PAD_FRACTIONS: Array<[number, number]> = [
-  [0.9, 0.2],
-  [0.93, 0.44],
-  [0.88, 0.78],
-  [0.11, 0.83],
+/** Curated pad anchor slots, all derived from the copy's bounding box and
+ *  clear of the copy band. Placement separates two things the old random
+ *  placement fused: where pads MAY go is curated (these slots), which are
+ *  active is random — one pad per region, so a reload varies but can
+ *  never stack pads on one side or drop one under the veil. */
+const PAD_SLOTS: Array<{ fx: number; fy: number; region: number }> = [
+  { fx: 0.9, fy: 0.2, region: 0 }, // right-top
+  { fx: 0.85, fy: 0.12, region: 0 },
+  { fx: 0.93, fy: 0.44, region: 1 }, // right-mid
+  { fx: 0.88, fy: 0.55, region: 1 },
+  { fx: 0.88, fy: 0.78, region: 2 }, // right-low
+  { fx: 0.94, fy: 0.68, region: 2 },
+  { fx: 0.11, fy: 0.83, region: 3 }, // left-low
+  { fx: 0.16, fy: 0.74, region: 3 },
+  { fx: 0.08, fy: 0.3, region: 4 }, // left-top
+  { fx: 0.13, fy: 0.14, region: 4 },
 ];
 
 /** One grading function so restraint, bloom, fog, and accent allocation
@@ -258,6 +271,12 @@ type Target = {
   flash: number;
   lit: number;
   rings: Array<{ r: number; a: number }>;
+  /** Lifecycle: fade in → live → (quota reached) fade out and retire. */
+  state: "in" | "live" | "out";
+  alpha: number;
+  claims: number;
+  region: number;
+  slot: number;
 };
 
 type Via = {
@@ -356,13 +375,50 @@ function createScene(env: SceneEnv, intro: boolean) {
   const introE = () =>
     1 - Math.pow(1 - clamp(introClock / SETTINGS.intro.duration, 0, 1), 3);
 
-  const targets: Target[] = PAD_FRACTIONS.map(([fx, fy]) => ({
-    i: clamp(Math.round((env.w * fx - ox) / cell), 1, cols - 2),
-    j: clamp(Math.round((env.h * fy - oy) / cell), 1, rows - 2),
-    flash: 0,
-    lit: 0,
-    rings: [],
-  }));
+  /* pads ------------------------------------------------------------ */
+  let targets: Target[] = [];
+  // Countdown per retired pad until its successor fades in.
+  let padTimers: number[] = [];
+
+  /** Spawn a pad at an unused slot, preferring a region with no active
+   *  pad so attention migrates instead of piling up. `initial` pads
+   *  arrive already live; successors fade in. */
+  function spawnPad(initial: boolean) {
+    const used = new Set(targets.map((t) => t.slot));
+    const activeRegions = new Set(
+      targets.filter((t) => t.state !== "out").map((t) => t.region),
+    );
+    const open = PAD_SLOTS.map((s, idx) => ({ s, idx })).filter(
+      (c) => !used.has(c.idx),
+    );
+    if (!open.length) return;
+    const fresh = open.filter((c) => !activeRegions.has(c.s.region));
+    const pool = fresh.length ? fresh : open;
+    const pick = pool[randInt(0, pool.length - 1)];
+    targets.push({
+      i: clamp(Math.round((env.w * pick.s.fx - ox) / cell), 1, cols - 2),
+      j: clamp(Math.round((env.h * pick.s.fy - oy) / cell), 1, rows - 2),
+      flash: 0,
+      lit: 0,
+      rings: [],
+      state: initial ? "live" : "in",
+      alpha: initial ? 1 : 0,
+      claims: 0,
+      region: pick.s.region,
+      slot: pick.idx,
+    });
+  }
+
+  /** Fresh pad set: one per region, random slot within it (this is where
+   *  reload-to-reload variety comes from). */
+  function seedPads() {
+    targets = [];
+    padTimers = [];
+    for (let k = 0; k < SETTINGS.pads.count; k++) spawnPad(true);
+  }
+  seedPads();
+
+  const livePads = () => targets.filter((t) => t.state !== "out");
 
   /* per-plane offscreen layers ------------------------------------- */
   // Front plane at full DPR; back planes at reduced resolution — the
@@ -445,9 +501,10 @@ function createScene(env: SceneEnv, intro: boolean) {
     const isAccent =
       zPicked === 0 &&
       Math.random() < SETTINGS.accentRatio * grade().accentScale;
+    const pads = livePads();
     const tgt =
-      targets.length && Math.random() < 0.75
-        ? targets[randInt(0, targets.length - 1)]
+      pads.length && Math.random() < 0.75
+        ? pads[randInt(0, pads.length - 1)]
         : null;
     const r: Runner = {
       id: nextId++,
@@ -672,6 +729,11 @@ function createScene(env: SceneEnv, intro: boolean) {
   function arriveAt(r: Runner, ni: number, nj: number) {
     const t = r.target;
     if (!t || t.i !== ni || t.j !== nj) return false;
+    // A retiring pad takes no more claims; the seeker wanders on.
+    if (t.state === "out") {
+      r.target = null;
+      return false;
+    }
     // Arrival is earned: only a front-plane runner that has converged
     // enough to clear the mass gate can claim a pad.
     if (!canClaim(r.z, r.mass)) return false;
@@ -680,6 +742,15 @@ function createScene(env: SceneEnv, intro: boolean) {
     t.rings.push({ r: 3, a: 0.9 });
     burst(px(ni), py(nj), 10, 0.85, r.accent, r.z);
     r.dying = true;
+    // Quota reached: the pad is done. A brighter ring cascade signals
+    // completion, the pad fades out, and everyone still heading here is
+    // released to wander (documented safe — they just keep going).
+    t.claims += 1;
+    if (t.claims >= SETTINGS.pads.quota) {
+      t.state = "out";
+      t.rings.push({ r: 8, a: 0.8 }, { r: 16, a: 0.6 });
+      for (const o of runners) if (o.target === t) o.target = null;
+    }
     return true;
   }
 
@@ -866,6 +937,26 @@ function createScene(env: SceneEnv, intro: boolean) {
         ring.a -= dt * 1.3;
       }
       t.rings = t.rings.filter((ring) => ring.a > 0);
+
+      if (t.state === "in") {
+        t.alpha = Math.min(1, t.alpha + dt / SETTINGS.pads.fadeIn);
+        if (t.alpha >= 1) t.state = "live";
+      } else if (t.state === "out") {
+        t.alpha = Math.max(0, t.alpha - dt / SETTINGS.pads.fadeOut);
+      }
+    }
+    // Retired pads leave once fully faded; each schedules a successor.
+    const gone = targets.filter((t) => t.state === "out" && t.alpha <= 0);
+    if (gone.length) {
+      targets = targets.filter((t) => !(t.state === "out" && t.alpha <= 0));
+      for (let k = 0; k < gone.length; k++)
+        padTimers.push(SETTINGS.pads.respawnDelay);
+    }
+    if (padTimers.length) {
+      padTimers = padTimers.map((v) => v - dt);
+      const due = padTimers.filter((v) => v <= 0).length;
+      padTimers = padTimers.filter((v) => v > 0);
+      for (let k = 0; k < due; k++) spawnPad(false);
     }
 
     for (const v of vias) v.age += dt;
@@ -899,23 +990,25 @@ function createScene(env: SceneEnv, intro: boolean) {
         const x = px(t.i);
         const y = py(t.j);
         const heat = Math.max(t.flash, t.lit * 0.55);
+        // The pad's lifecycle alpha scales the socket, not the rings —
+        // the done cascade stays visible while its pad fades under it.
         // Idle glow always renders, even unlit, so terminals read as
         // sockets rather than only lighting up on contact.
         lctx.globalCompositeOperation = pal.dark ? "lighter" : "source-over";
-        lctx.globalAlpha = 0.12 + heat * 0.6;
+        lctx.globalAlpha = (0.12 + heat * 0.6) * t.alpha;
         lctx.drawImage(env.glowAccent, x - 20, y - 20, 40, 40);
         lctx.globalAlpha = 1;
         lctx.globalCompositeOperation = "source-over";
         lctx.strokeStyle = rgba(
           heat > 0.05 ? pal.accent : pal.dim,
-          (0.5 + heat * 0.45) * baseA,
+          (0.5 + heat * 0.45) * baseA * t.alpha,
         );
         lctx.lineWidth = 1;
         lctx.strokeRect(x - 6, y - 6, 12, 12);
         lctx.strokeRect(x - 4, y - 4, 8, 8);
         lctx.fillStyle = rgba(
           heat > 0.05 ? pal.accent : pal.dim,
-          (0.2 + heat * 0.7) * baseA,
+          (0.2 + heat * 0.7) * baseA * t.alpha,
         );
         lctx.fillRect(x - 1.5, y - 1.5, 3, 3);
         for (const ring of t.rings) {
@@ -1097,7 +1190,7 @@ function createScene(env: SceneEnv, intro: boolean) {
     }
 
     for (const t of targets) {
-      const heat = Math.max(t.flash, t.lit * 0.55);
+      const heat = Math.max(t.flash, t.lit * 0.55) * t.alpha;
       if (heat < 0.05) continue;
       bctx.globalAlpha = heat;
       bctx.drawImage(env.glowAccent, px(t.i) - 22, py(t.j) - 22, 44, 44);
@@ -1203,6 +1296,17 @@ function createScene(env: SceneEnv, intro: boolean) {
     const dt = 1 / 60;
     for (let t = 0; t < seconds; t += dt) step(dt);
     sparks = [];
+    // The presim may have partially claimed or even retired pads; a
+    // visitor should land on a steady board, not mid-retirement (and the
+    // reduced-motion still must show pads at their idle state). Reseed
+    // the pad set and repoint in-flight seekers at the new pads.
+    seedPads();
+    for (const r of runners) {
+      r.target =
+        targets.length && Math.random() < 0.75
+          ? targets[randInt(0, targets.length - 1)]
+          : null;
+    }
   }
 
   seed();
