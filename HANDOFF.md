@@ -495,6 +495,20 @@ a dev server: dark/light × 1280/390 at 2s and 25s, zero console errors;
 `yarn type-check` passes; Prettier applied (eslint ignores
 `components/` by repo config).
 
+**Entry intro (added after the port).** Krisna judged the entry sudden —
+the presim meant the full field materialized behind a 1s opacity fade.
+The component now plays a wake-up intro on first view: runner density
+(`targetCount`/`runnerCap`) and simulation speed start at floors
+(`SETTINGS.intro`: density 0.35, timeScale 0.2) and ease cubic-out to
+full over 3.5s of live time. Presim uses raw steps so the intro clock
+stays at zero — the first painted frame is the sparse waking field, and
+it fills on screen. The intro plays once per page visit
+(`hasIntroducedRef`): rebuilds from resize, theme switch, or
+scroll-return respawn at full density. Reduced-motion scenes skip it
+entirely so their single still is the complete field (re-verified:
+identical frames 1.5s apart). Entry sequence verified live at
+0.5s/1s/2s/3s/4.5s/7s: sparse → filling → tuned density, no errors.
+
 What the old `AnimatedDotGrid` did, for reference — all carried over:
 
 - `useTheme()` from `@/components/theme/ThemeProvider` for the light/dark palette

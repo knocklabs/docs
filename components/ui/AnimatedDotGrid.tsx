@@ -63,6 +63,11 @@ const SETTINGS = {
   pointerForce: 2.6,
   /** Simulated seconds run before the first painted frame. */
   presim: 4,
+  /** Entry: the field wakes up rather than switching on. Runner density
+   *  and simulation speed start at these floors and ease (cubic out) to
+   *  full over `duration` seconds of live time. Reduced-motion scenes
+   *  skip the intro — their single still should be the full field. */
+  intro: { duration: 3.5, density: 0.35, timeScale: 0.2 },
 } as const;
 
 const PLANES = SETTINGS.planes;
@@ -317,7 +322,7 @@ function makeGlowSprite(rgb: Rgb) {
   return cv;
 }
 
-function createScene(env: SceneEnv) {
+function createScene(env: SceneEnv, intro: boolean) {
   const cell = SETTINGS.cell;
   const cols = Math.floor(env.w / cell) + 1;
   const rows = Math.floor(env.h / cell) + 1;
@@ -342,6 +347,14 @@ function createScene(env: SceneEnv) {
   let nextId = 1;
   let now = 0;
   let refillAcc = 0;
+
+  // Intro envelope: 0 → 1 (cubic out) over the intro duration of LIVE
+  // time. Presim advances the simulation, not this clock, so the first
+  // painted frame is the sparse waking field and density grows on screen.
+  // With intro off the clock starts at Infinity and the envelope is 1.
+  let introClock = intro ? 0 : Infinity;
+  const introE = () =>
+    1 - Math.pow(1 - clamp(introClock / SETTINGS.intro.duration, 0, 1), 3);
 
   const targets: Target[] = PAD_FRACTIONS.map(([fx, fy]) => ({
     i: clamp(Math.round((env.w * fx - ox) / cell), 1, cols - 2),
@@ -465,9 +478,14 @@ function createScene(env: SceneEnv) {
     return r;
   }
 
-  const targetCount = () => Math.round(lerp(4, 34, SETTINGS.restraint));
+  // Both scale by the intro envelope: the field opens at a fraction of
+  // its population and refills/forks its way up to the tuned density.
+  const introDensity = () => lerp(SETTINGS.intro.density, 1, introE());
+  const targetCount = () =>
+    Math.round(lerp(4, 34, SETTINGS.restraint) * introDensity());
   /** Forking can only run away if it is allowed to; the cap is absolute. */
-  const runnerCap = () => Math.round(lerp(10, 90, SETTINGS.restraint));
+  const runnerCap = () =>
+    Math.round(lerp(10, 90, SETTINGS.restraint) * introDensity());
 
   function spawnFromEdge() {
     for (let tries = 0; tries < 4; tries++) {
@@ -779,7 +797,10 @@ function createScene(env: SceneEnv) {
     r.d = nd;
   }
 
-  function update(dt: number) {
+  /** One raw simulation step. Public callers go through update(), which
+   *  applies the intro time-scale; presim calls this directly so its
+   *  simulated seconds are real seconds. */
+  function step(dt: number) {
     now += dt;
 
     const deficit = targetCount() - runners.filter((r) => !r.dying).length;
@@ -850,6 +871,14 @@ function createScene(env: SceneEnv) {
     for (const v of vias) v.age += dt;
     vias = vias.filter((v) => v.age < SETTINGS.viaLife);
     if (vias.length > 80) vias = vias.slice(vias.length - 80);
+  }
+
+  /** Advance the field by dt real seconds. During the intro the
+   *  simulation runs slowed — the scene surfaces rather than switching
+   *  on — easing to full speed as the envelope completes. */
+  function update(dt: number) {
+    introClock += dt;
+    step(dt * lerp(SETTINGS.intro.timeScale, 1, introE()));
   }
 
   /* draw ------------------------------------------------------------ */
@@ -1167,10 +1196,12 @@ function createScene(env: SceneEnv) {
 
   /** Advance the law before first paint so t=0 is a composed image —
    *  trails mid-flight, maybe a via or two — rather than a grid warming
-   *  up. Sparks are cleared so the frame doesn't open on an explosion. */
+   *  up. Uses raw steps: the intro clock stays at zero, so an intro
+   *  scene presims the sparse waking field and wakes up on screen.
+   *  Sparks are cleared so the frame doesn't open on an explosion. */
   function presim(seconds: number) {
-    const step = 1 / 60;
-    for (let t = 0; t < seconds; t += step) update(step);
+    const dt = 1 / 60;
+    for (let t = 0; t < seconds; t += dt) step(dt);
     sparks = [];
   }
 
@@ -1231,6 +1262,7 @@ export const AnimatedDotGrid = () => {
   const sceneRef = useRef<Scene | null>(null);
   const animationFrameRef = useRef(0);
   const lastTimeRef = useRef(0);
+  const hasIntroducedRef = useRef(false);
 
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isInitialized, setIsInitialized] = useState(false);
@@ -1353,16 +1385,24 @@ export const AnimatedDotGrid = () => {
     };
     envRef.current = env;
 
-    const scene = createScene(env);
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    // The wake-up intro plays once per page visit: a rebuild from a
+    // resize, theme switch, or scroll-return respawns the field at full
+    // density instead of replaying it. Reduced motion always skips it —
+    // its single still should be the complete field.
+    const intro = !reducedMotion && !hasIntroducedRef.current;
+    hasIntroducedRef.current = true;
+
+    const scene = createScene(env, intro);
     scene.presim(SETTINGS.presim);
     sceneRef.current = scene;
 
     ctx.clearRect(0, 0, env.w, env.h);
     scene.draw(ctx);
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
     if (reducedMotion) {
       // The presim frame is the whole experience: a composed still.
       return;
