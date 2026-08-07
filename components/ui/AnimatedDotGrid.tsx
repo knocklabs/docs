@@ -71,7 +71,7 @@ const SETTINGS = {
   /** Pad lifecycle: a pad completes after `quota` earned claims, plays a
    *  done cascade, fades out, and a successor fades in at another slot
    *  after `respawnDelay`. Fades are in seconds. */
-  pads: { count: 4, quota: 3, fadeIn: 0.8, fadeOut: 1.2, respawnDelay: 1 },
+  pads: { count: 4, quota: 2, fadeIn: 0.8, fadeOut: 1.2, respawnDelay: 1 },
 } as const;
 
 const PLANES = SETTINGS.planes;

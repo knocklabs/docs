@@ -515,7 +515,8 @@ round 2's random placement had fused: where pads MAY go is curated
 (`PAD_SLOTS`, ~10 anchors in 5 regions, all clear of the copy band and
 veil), which are active is random — one pad per region, picked fresh per
 load, so reloads vary but can never stack a side or hide a pad under the
-veil. Lifecycle (`SETTINGS.pads`): a pad completes after `quota` (3)
+veil. Lifecycle (`SETTINGS.pads`): a pad completes after `quota` (2 —
+Krisna dropped it from 3 so completions land inside a short visit)
 earned claims, plays a brighter ring cascade, fades out (1.2s), and a
 successor fades in (0.8s) at an unused slot preferring an unoccupied
 region after a 1s delay. Runners seeking a retiring pad are released to
