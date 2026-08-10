@@ -72,18 +72,31 @@ const SETTINGS = {
    *  magnitude is camera-derived (see parallaxShift); this scales it.
    *  0 disables. */
   parallax: 0.8,
-  /** Simulated seconds run before the first painted frame. */
+  /** Simulated seconds run before the first painted frame, so a rebuild
+   *  (resize, theme switch, scroll-return) lands on a composed field
+   *  rather than a grid warming up. At `speed` 60px/s this is a full
+   *  `trail` of travel, so every runner arrives already streaked. */
   presim: 4,
-  /** Entry: the field wakes up rather than switching on. Runner density,
-   *  simulation speed, and ink (layer/spark/bloom brightness) start at
-   *  these floors and ease (cubic out) to full over `duration` seconds
-   *  of live time. Reduced-motion scenes skip the intro — their single
-   *  still should be the full field at full brightness.
+  /** Entry: the field draws itself in rather than switching on. Runner
+   *  density, simulation speed, and ink (layer/spark/bloom brightness)
+   *  start at these floors and ease (cubic out) to full over `duration`
+   *  seconds of live time. Reduced-motion scenes skip the intro — their
+   *  single still should be the full field at full brightness.
    *
-   *  `duration` is set so this envelope lands with the canvas opacity fade
-   *  (450ms delay + 1.8s, below) instead of stacking a second, longer
-   *  dissolve on top of it — one arrival, not two. */
-  intro: { duration: 2.4, density: 0.35, timeScale: 0.2, ink: 0.3 },
+   *  The first visit presims only `presim` seconds, not the full four:
+   *  the point of the entrance is watching the traces extend, and a
+   *  fully presimmed field has already done that off-screen. Everything
+   *  here is deliberately slower and dimmer than the steady state so the
+   *  arrival is carried by the field generating, not by a canvas-wide
+   *  opacity dissolve (see the canvas transition below, kept short for
+   *  the same reason). */
+  intro: {
+    duration: 4.2,
+    density: 0.2,
+    timeScale: 0.45,
+    ink: 0.12,
+    presim: 0.5,
+  },
   /** Pad lifecycle: a pad completes after `quota` earned claims, plays a
    *  done cascade, fades out, and a successor fades in at another slot
    *  after `respawnDelay`. Fades are in seconds. */
@@ -1608,8 +1621,13 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
     // resize, theme switch, or scroll-return respawns the field at full
     // density instead of replaying it. Reduced motion always skips it —
     // its single still should be the complete field.
-    const scene = createScene(env, !reducedMotion && firstBuild);
-    scene.presim(SETTINGS.presim);
+    //
+    // An intro scene presims barely at all, so the traces extend on
+    // screen; every other path presims to a composed field, since there
+    // is no entrance to watch.
+    const introRun = !reducedMotion && firstBuild;
+    const scene = createScene(env, introRun);
+    scene.presim(introRun ? SETTINGS.intro.presim : SETTINGS.presim);
 
     ctx.clearRect(0, 0, env.w, env.h);
     scene.draw(ctx);
@@ -1687,11 +1705,15 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
           width: "100%",
           height: "100%",
           opacity: dimensions.width > 0 ? 1 : 0,
-          // Same curve and family of duration as the hero copy's entrance
-          // (see .hero-rise in global.css) so the two read as one motion.
-          // The delay puts the field second: the copy lands, then the
-          // lattice blooms up behind it.
-          transition: "opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1) 450ms",
+          // Short on purpose. This only takes the canvas off zero so the
+          // first frame doesn't pop in; the arrival itself belongs to the
+          // intro envelope (SETTINGS.intro), which spends ~4s bringing
+          // density, speed, and ink up on screen. A long opacity ramp
+          // here would just cross-fade an already-composed field, which
+          // reads as the background appearing rather than generating.
+          // The delay still puts the field second: copy lands, then the
+          // lattice starts drawing itself in behind it.
+          transition: "opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) 450ms",
           // Soft bottom fade into the page surface behind the hero
           maskImage:
             "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
