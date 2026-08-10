@@ -14,8 +14,9 @@ import { useTheme } from "@/components/theme/ThemeProvider";
  *
  * The engine is a port of a standalone prototype tuned against the real
  * hero copy. Settings that shipped as "off" there (etch residue, stepped
- * motion, segment trails, pointer parallax, plane bow/tilt) are omitted
- * here rather than carried as dead code.
+ * motion, segment trails, plane bow/tilt) are omitted here rather than
+ * carried as dead code. Pointer parallax came back in after launch: the
+ * back planes shift slightly away from the pointer at composite time.
  */
 
 /* ------------------------------------------------------------------ */
@@ -64,6 +65,11 @@ const SETTINGS = {
   /** Pointer attract radius, px, and force multiplier. */
   pointerRadius: 150,
   pointerForce: 2.6,
+  /** Pointer parallax dial: back planes shift away from the pointer at
+   *  composite time; the front plane stays pinned under the copy. The
+   *  magnitude is camera-derived (see parallaxShift); this scales it.
+   *  0 disables. */
+  parallax: 0.8,
   /** Simulated seconds run before the first painted frame. */
   presim: 4,
   /** Entry: the field wakes up rather than switching on. Runner density,
@@ -161,6 +167,23 @@ function planeStyle(z: number) {
     speedMul: 1 - 0.45 * k,
   };
 }
+
+/** One camera for scale and parallax: the offset magnitude is c * (1 - s),
+ *  exactly the screen displacement of a plane at scale s when the camera
+ *  translates by c with the front plane pinned under the copy. The SIGN is
+ *  a judged override of that derivation: the physical camera slides the
+ *  deep world WITH the pointer, but the pointer *pushing* the deeper
+ *  planes away reads as the cursor repelling the field, matching the
+ *  pointer-bias interaction story. Magnitude stays scale-derived so the
+ *  cues remain coherent; only the direction is art. Zero at scale 1, so
+ *  the front plane never moves. */
+const PARALLAX_GAIN = 0.055;
+const parallaxShift = (
+  pointer: number,
+  center: number,
+  amount: number,
+  scale: number,
+) => (center - pointer) * PARALLAX_GAIN * amount * (1 - scale);
 
 const canClaim = (z: number, mass: number) =>
   z === 0 && mass >= SETTINGS.claimMass;
@@ -424,6 +447,35 @@ function createScene(env: SceneEnv, intro: boolean) {
 
   const livePads = () => targets.filter((t) => t.state !== "out");
 
+  /* parallax camera -------------------------------------------------- */
+  // Chases the pointer instead of tracking it raw, and fades activity in
+  // and out, so entering or leaving the hero eases the planes over rather
+  // than snapping them. Reduced-motion scenes never call update(), so
+  // their still renders with the camera at rest.
+  const par = { x: env.w / 2, y: env.h / 2, amt: 0 };
+
+  function updateParallax(dt: number) {
+    const ptr = env.pointer;
+    const k = 1 - Math.exp(-dt * 6);
+    if (ptr.active) {
+      par.x += (ptr.x - par.x) * k;
+      par.y += (ptr.y - par.y) * k;
+    }
+    par.amt += ((ptr.active ? 1 : 0) - par.amt) * k;
+  }
+
+  /** Composite offset for a plane at `scale`. Everything that belongs to
+   *  a plane (layer, sparks, bloom halos) rides the same offset, or a
+   *  pointer at the stage edge drags a trunk's glow off its own stroke. */
+  function parAt(scale: number) {
+    const amount = SETTINGS.parallax * par.amt;
+    if (amount <= 0.001 || scale >= 1) return { dx: 0, dy: 0 };
+    return {
+      dx: parallaxShift(par.x, env.w / 2, amount, scale),
+      dy: parallaxShift(par.y, env.h / 2, amount, scale),
+    };
+  }
+
   /* per-plane offscreen layers ------------------------------------- */
   // Front plane at full DPR; back planes at reduced resolution — the
   // upscale on composite IS the defocus.
@@ -459,7 +511,9 @@ function createScene(env: SceneEnv, intro: boolean) {
   }
 
   /** The substrate is static per plane: render once and blit. Overscan
-   *  covers the wider world rect a scaled-down plane exposes. */
+   *  covers the wider world rect a scaled-down plane exposes, plus the
+   *  few pixels the parallax offset slides into view (world-space, so
+   *  24px comfortably covers the shipped range). */
   function buildLattice(z: number) {
     const res = LAYER_RES[z] * (z === 0 ? env.dpr : 1);
     const cv = document.createElement("canvas");
@@ -495,16 +549,23 @@ function createScene(env: SceneEnv, intro: boolean) {
     r.z = z;
   }
 
-  function spawn(i: number, j: number, d: number): Runner | null {
+  function spawn(
+    i: number,
+    j: number,
+    d: number,
+    boosted = false,
+  ): Runner | null {
     if (!inBounds(i, j)) return null;
     // Weight toward the front so the plane carrying the accent stays the
     // busiest and the back reads as distance rather than clutter.
     const roll = Math.random();
     const zPicked = roll < 0.5 ? 0 : roll < 0.8 ? 1 : 2;
-    // Depth drives color: accent lives at the front.
+    // Depth drives color: accent lives at the front. Boosted (click)
+    // spawns are the exception — always accent, whatever their plane.
     const isAccent =
-      zPicked === 0 &&
-      Math.random() < SETTINGS.accentRatio * grade().accentScale;
+      boosted ||
+      (zPicked === 0 &&
+        Math.random() < SETTINGS.accentRatio * grade().accentScale);
     const pads = livePads();
     const tgt =
       pads.length && Math.random() < 0.75
@@ -520,16 +581,16 @@ function createScene(env: SceneEnv, intro: boolean) {
       speedMul: 1,
       trail: [{ x: px(i), y: py(j) }],
       head: { x: px(i), y: py(j) },
-      maxTrail: SETTINGS.trail * rand(0.7, 1.3),
+      maxTrail: SETTINGS.trail * rand(0.7, 1.3) * (boosted ? 1.3 : 1),
       age: 0,
-      ttl: rand(9, 24),
+      ttl: rand(9, 24) * (boosted ? 0.8 : 1),
       fade: 1,
       dying: false,
       accent: isAccent,
       mass: 1,
       z: 0,
       zf: 0,
-      bright: rand(0.6, 1),
+      bright: boosted ? 1 : rand(0.6, 1),
       target: tgt,
       exiting: false,
     };
@@ -973,6 +1034,9 @@ function createScene(env: SceneEnv, intro: boolean) {
    *  on — easing to full speed as the envelope completes. */
   function update(dt: number) {
     introClock += dt;
+    // The camera chase runs on real time — the intro slows the field, not
+    // the pointer response.
+    updateParallax(dt);
     step(dt * lerp(SETTINGS.intro.timeScale, 1, introE()));
   }
 
@@ -984,7 +1048,8 @@ function createScene(env: SceneEnv, intro: boolean) {
     const st = planeStyle(z);
     const planeA = baseA * st.dim;
     // Atmospheric temperature: neutrals cool toward slate with depth.
-    // Accent is front-plane-only by the law, so it is never cooled.
+    // Accent is front-plane-only by the law (boosted click spawns are the
+    // one exception), so it is never cooled.
     const neutral = coolShift(pal.neutral, (z / Math.max(1, PLANES - 1)) * 0.6);
     const colFor = (r: Runner) => (r.accent ? pal.accent : neutral);
 
@@ -1178,8 +1243,12 @@ function createScene(env: SceneEnv, intro: boolean) {
       // Signal heads: accent always, neutral only when heavy.
       if (!r.accent && tier < 4) continue;
       const scale = 1 / (1 + 0.5 * (zc / (PLANES - 1)) * SETTINGS.planeSpread);
-      const sx = env.w / 2 + (r.head.x - env.w / 2) * scale;
-      const sy = env.h / 2 + (r.head.y - env.h / 2) * scale;
+      // Halos ride the same composite parallax as the layer their trace
+      // lives on, or a pointer at the stage edge drags a trunk's glow off
+      // its own stroke. Zero at the front plane (scale 1).
+      const hp = parAt(scale);
+      const sx = env.w / 2 + (r.head.x - env.w / 2) * scale + hp.dx;
+      const sy = env.h / 2 + (r.head.y - env.h / 2) * scale + hp.dy;
       bctx.globalAlpha = 0.7 * r.bright * frontness;
       // The halo is projected geometry like everything else: a head one
       // plane back glows smaller, not just dimmer.
@@ -1205,8 +1274,9 @@ function createScene(env: SceneEnv, intro: boolean) {
       if (v.age > 1.2 || !v.accent) continue;
       bctx.globalAlpha = (1 - v.age / 1.2) * 0.6;
       const vs = planeStyle(v.z).scale;
-      const vx = env.w / 2 + (px(v.i) - env.w / 2) * vs;
-      const vy = env.h / 2 + (py(v.j) - env.h / 2) * vs;
+      const vp = parAt(vs);
+      const vx = env.w / 2 + (px(v.i) - env.w / 2) * vs + vp.dx;
+      const vy = env.h / 2 + (py(v.j) - env.h / 2) * vs + vp.dy;
       const vr = 10 * vs;
       bctx.drawImage(env.glowAccent, vx - vr, vy - vr, vr * 2, vr * 2);
     }
@@ -1214,10 +1284,11 @@ function createScene(env: SceneEnv, intro: boolean) {
     for (const s of sparks) {
       bctx.globalAlpha = clamp(s.life, 0, 1) * 0.6;
       const sr = 8 * s.ps;
+      const sp = parAt(s.ps);
       bctx.drawImage(
         s.accent ? env.glowAccent : env.glowNeutral,
-        s.x - sr,
-        s.y - sr,
+        s.x + sp.dx - sr,
+        s.y + sp.dy - sr,
         sr * 2,
         sr * 2,
       );
@@ -1248,12 +1319,16 @@ function createScene(env: SceneEnv, intro: boolean) {
       drawPlaneContent(lctx, z);
       lctx.restore();
 
+      // Parallax rides the composite offset so the whole layer (lattice
+      // included) moves and the front plane stays anchored under the copy.
+      const { dx, dy } = parAt(planeStyle(z).scale);
+
       // Intro ink: the whole field brightens as it wakes. Layers, sparks,
       // and bloom all ride the same envelope, so the first runners emerge
       // dim and the shine develops with the population. 1 outside the
       // intro (and always 1 for reduced-motion scenes).
       ctx.globalAlpha = introInk;
-      ctx.drawImage(layerCv[z], 0, 0, env.w, env.h);
+      ctx.drawImage(layerCv[z], dx, dy, env.w, env.h);
       ctx.globalAlpha = 1;
 
       // Fog accumulates over depth: each slice fades everything already
@@ -1270,10 +1345,12 @@ function createScene(env: SceneEnv, intro: boolean) {
     for (const s of sparks) {
       ctx.globalAlpha = clamp(s.life, 0, 1) * 0.75 * baseA * introInk;
       const rr = 7 * s.ps;
+      // A burst belongs to a plane; it shifts with that plane's composite.
+      const sp = parAt(s.ps);
       ctx.drawImage(
         s.accent ? env.glowAccent : env.glowNeutral,
-        s.x - rr,
-        s.y - rr,
+        s.x + sp.dx - rr,
+        s.y + sp.dy - rr,
         rr * 2,
         rr * 2,
       );
@@ -1320,9 +1397,19 @@ function createScene(env: SceneEnv, intro: boolean) {
     }
   }
 
+  /** Click seeds a hand of boosted runners at the nearest node — one per
+   *  direction, always accent, brighter and longer-trailed but shorter-
+   *  lived — plus a burst, so the field answers the tap. */
+  function click(x: number, y: number) {
+    const i = clamp(Math.round((x - ox) / cell), 0, cols - 1);
+    const j = clamp(Math.round((y - oy) / cell), 0, rows - 1);
+    for (let d = 0; d < 4; d++) spawn(i, j, d, true);
+    burst(px(i), py(j), 16, 1.2, true, 0);
+  }
+
   seed();
 
-  return { update, draw, presim };
+  return { update, draw, presim, click };
 }
 
 type Scene = ReturnType<typeof createScene>;
@@ -1364,8 +1451,9 @@ function resolveSurfaceRgb(fallback: Rgb): Rgb {
 
 /**
  * Animated hero background: layered lattice runners with depth-of-field.
- * Adapts to light/dark appearance, pauses offscreen, honors
- * prefers-reduced-motion by rendering a single pre-simulated frame.
+ * Clicking the hero seeds boosted runners at the nearest node. Adapts to
+ * light/dark appearance, pauses offscreen, honors prefers-reduced-motion
+ * by rendering a single pre-simulated frame (no click, no parallax).
  */
 export const AnimatedDotGrid = () => {
   const { appearance } = useTheme();
@@ -1523,6 +1611,19 @@ export const AnimatedDotGrid = () => {
       return;
     }
 
+    // Click-to-spawn: the wrapper is pointer-events: none so the copy
+    // stays interactive; listen at the window and map into canvas space.
+    // Clicks on links still land — the spawn is a side effect, not a
+    // capture.
+    const handlePointerDown = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+      scene.click(x, y);
+    };
+    window.addEventListener("pointerdown", handlePointerDown);
+
     lastTimeRef.current = 0;
     const animate = (timestamp: number) => {
       if (!canvasRef.current) return;
@@ -1540,6 +1641,7 @@ export const AnimatedDotGrid = () => {
     animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
