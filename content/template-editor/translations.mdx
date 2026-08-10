@@ -233,7 +233,7 @@ You can access the content with dot-syntax like this:
 <p> {{ "customers.orders.beenReceived" | t }} </p>
 ```
 
-The same goes for namespaced translations. If the above translation was in a translation named `services` , you would do the following:
+The same goes for namespaced translations. If the above translation was in a namespace called `services`, you would do the following:
 
 ```json title="Message template editor"
 <p> {{ "services:customers.orders.beenReceived" | t }} </p>
@@ -324,5 +324,46 @@ Below is a list of the available locales to choose from for your translations. I
 <AccordionGroup>
   <Accordion title="Supported locales">
     <LocaleTable />
+  </Accordion>
+</AccordionGroup>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I use markdown formatting inside my translations?">
+
+    Yes, translations support markdown formatting. You can create a translation value like the following:
+
+    ```json title="An English translation with bolded markdown text"
+    {
+      "orderShipped": "Your order **{{ orderNumber }}** is on its way."
+    }
+    ```
+
+    In-app and chat channels render markdown from translation values at send time, so the `t` filter on its own is all you need in your message templates for those channels:
+
+    ```liquid title="In-app or chat template"
+    {{ "orderShipped" | t: orderNumber: order.number }}
+    ```
+
+    Email is different. Knock compiles an email template's markdown content to HTML at commit time, before you send the message, while translation values are injected at send time. This means that by default, Knock doesn't convert markdown placed inside a translation value (or inside `{% t %}` tags), and your recipients will see the literal markdown characters (for example, `**bold**`) in their emails.
+
+    To convert the resolved value at runtime and render it appropriately, chain the `from_markdown` [filter](/template-editor/reference-liquid-helpers) onto the `t` filter:
+
+    ```liquid title="Email template"
+    {{ "orderShipped" | t: orderNumber: order.number | from_markdown }}
+    ```
+
+    Two things to keep in mind as you apply this pattern:
+
+    - `from_markdown` can only be used alongside the `t` filter. You can't use it with `{% t %}` tags, so you should plan to author your translations with `t` filters if you want to support markdown inside your translated content.
+    - Use `from_markdown` in email templates only. It outputs HTML, and Knock already converts your markdown to the platform-specific markup that Slack, Microsoft Teams, and other platforms expect.
+
+    For simpler cases, keep the markdown formatting outside of the translation and translate only the plain text:
+
+    ```liquid title="Message template"
+    **{% t %}Bold text{% endt %}**
+    ```
+
   </Accordion>
 </AccordionGroup>

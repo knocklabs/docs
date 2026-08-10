@@ -21,6 +21,7 @@ import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 import {
   AgentPromptActionButton,
   openCodingToolDeeplink,
+  trackCodingToolClicked,
 } from "@/components/ui/AgentPromptActionButton";
 import { AnimatedAgentRuns } from "@/components/ui/AnimatedAgentRuns";
 import { MarketingFooter } from "@/components/ui/MarketingFooter";
@@ -58,7 +59,13 @@ const CopyPromptButton = ({
       size="2"
       px="3"
       rounded="full"
-      onClick={copy}
+      onClick={() => {
+        trackCodingToolClicked("copy", {
+          source: "hero",
+          selection_method: "primary",
+        });
+        copy();
+      }}
       className="copy-cta"
       data-copied={isCopied}
     >
@@ -117,7 +124,12 @@ const CodingToolLaunchBar = ({ prompt }: { prompt: string }) => (
           px="3"
           py="2"
           rounded="full"
-          onClick={() => openCodingToolDeeplink(option.value, prompt)}
+          onClick={() =>
+            openCodingToolDeeplink(option.value, prompt, {
+              source: "hero",
+              selection_method: "wordmark",
+            })
+          }
         >
           <CodingToolIcon option={option} />
         </Button>
@@ -150,7 +162,6 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
         description="Set up Knock with your coding agent. Install skills, connect the MCP server, and build notification workflows."
       />
       <Page.Masthead
-        skipHighlight
         mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
       />
 
@@ -169,6 +180,8 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
           overflow="hidden"
           style={{ minHeight: "min(52vh, 420px)" }}
         >
+          {/* The bottom fade into the page surface lives on the canvas itself
+           * (see AnimatedAgentRuns), so no masking wrapper here. */}
           <AnimatedAgentRuns onReady={openHeroGate} />
 
           {/* Nothing opens the gate without JS, so release it up front. */}
@@ -216,7 +229,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 as="h1"
                 size="9"
                 align="center"
-                className="hero-rise"
+                className="hero-rise agents-hero__heading"
                 style={
                   {
                     position: "relative",
@@ -225,14 +238,14 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                   } as React.CSSProperties
                 }
               >
-                Agent-first customer messaging
+                Agent-first customer&nbsp;messaging
               </Heading>
               <Text
                 as="p"
                 size="3"
                 color="gray"
                 align="center"
-                className="hero-rise"
+                className="hero-rise agents-hero__subheading"
                 style={
                   {
                     margin: 0,
@@ -306,6 +319,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                       variant="outline"
                       size="1"
                       hideLabel
+                      track={{ source: "skill_card", skill_name: skill.name }}
                     />
                   </Box>
                 </Stack>

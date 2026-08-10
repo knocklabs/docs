@@ -202,6 +202,10 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
         slug: "/hosted-preference-center",
         title: "Hosted preference center",
       },
+      {
+        slug: "/custom-preference-center",
+        title: "Custom preference center",
+      },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
       {

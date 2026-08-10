@@ -13,6 +13,7 @@ import {
   CodingToolIcon,
   type CodingToolValue,
 } from "@/components/ui/CodingToolIcon";
+import * as posthog from "@/lib/posthog";
 
 export const PREFERRED_CODING_TOOL_STORAGE_KEY =
   "@knocklabs/preferred-coding-tool";
@@ -21,6 +22,11 @@ export const PREFERRED_CODING_TOOL_CHANGE_EVENT =
   "knock:preferred-coding-tool-change";
 
 export type AgentPromptAction = "copy" | CodingToolValue;
+
+type AgentPromptTrack = {
+  source: "hero" | "skill_card";
+  skill_name?: string;
+};
 
 type AgentPromptActionButtonProps = {
   prompt: string;
@@ -31,6 +37,7 @@ type AgentPromptActionButtonProps = {
   size?: "1" | "2";
   /** When true, hide the primary button label and show only the icon. */
   hideLabel?: boolean;
+  track?: AgentPromptTrack;
 };
 
 const MENU_ACTIONS: AgentPromptAction[] = [
@@ -78,14 +85,40 @@ const isAllowedDeeplink = (tool: CodingToolValue, url: URL): boolean => {
 const isCodingToolValue = (value: unknown): value is CodingToolValue =>
   typeof value === "string" && value in CODING_TOOL_BY_VALUE;
 
+type CodingToolTrackingProps = AgentPromptTrack & {
+  selection_method: "primary" | "menu" | "wordmark";
+};
+
+export const trackCodingToolClicked = (
+  action: AgentPromptAction,
+  tracking: CodingToolTrackingProps,
+) => {
+  posthog.track("agents-coding-tool-clicked-client", {
+    action,
+    ...tracking,
+  });
+};
+
 /** Open a coding-tool deeplink after allowlisting protocol (and host for https). */
 export const openCodingToolDeeplink = (
   tool: CodingToolValue,
   prompt: string,
+  tracking?: CodingToolTrackingProps,
 ) => {
+  if (tracking) {
+    trackCodingToolClicked(tool, tracking);
+  }
+
   const url = DEEPLINK_BUILDERS[tool](prompt);
   if (!isAllowedDeeplink(tool, url)) {
     return;
+  }
+
+  if (tracking) {
+    posthog.track("agents-coding-tool-opened-client", {
+      action: tool,
+      ...tracking,
+    });
   }
 
   if (url.protocol === "https:") {
@@ -160,6 +193,7 @@ export const AgentPromptActionButton = ({
   color = "accent",
   size = "2",
   hideLabel = false,
+  track,
 }: AgentPromptActionButtonProps) => {
   const isMounted = useIsMounted();
   const [isOpen, setIsOpen] = useState(false);
@@ -209,23 +243,33 @@ export const AgentPromptActionButton = ({
     ? preferredTool
     : "copy";
 
-  const runAction = (action: AgentPromptAction) => {
+  const runAction = (
+    action: AgentPromptAction,
+    selectionMethod: "primary" | "menu",
+  ) => {
+    const tracking = track
+      ? { ...track, selection_method: selectionMethod }
+      : undefined;
+
     if (action === "copy") {
+      if (tracking) {
+        trackCodingToolClicked("copy", tracking);
+      }
       copy();
       return;
     }
 
-    openCodingToolDeeplink(action, prompt);
+    openCodingToolDeeplink(action, prompt, tracking);
   };
 
   const handlePrimaryClick = () => {
-    runAction(activeAction);
+    runAction(activeAction, "primary");
   };
 
   const handleSelectAction = (action: AgentPromptAction) => {
     setPreferredTool(action);
     persistAction(action);
-    runAction(action);
+    runAction(action, "menu");
     setIsOpen(false);
   };
 

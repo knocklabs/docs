@@ -28,6 +28,7 @@ import {
   BuildingBlock,
 } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
+import { KnockAiBanner } from "@/components/ui/KnockAiBanner";
 
 const contentForDiscovery = PLATFORM_SIDEBAR.filter((s) => s.desc);
 
@@ -108,6 +109,9 @@ export default function Home() {
               icon={Package}
             />
           </Stack>
+          <Box mt="10">
+            <KnockAiBanner />
+          </Box>
           <Section.Container>
             <Section.Header
               title="Learn core concepts"

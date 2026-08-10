@@ -21,6 +21,10 @@ export default async function handler(request: NextRequest) {
     new URL("../../assets/og_background.png", import.meta.url),
   ).then((res) => res.arrayBuffer());
 
+  const backgroundImageSrc = `data:image/png;base64,${Buffer.from(
+    backgroundImageData,
+  ).toString("base64")}`;
+
   const fontDataMedium = await fetch(
     new URL("../../assets/Inter_28pt-Medium.ttf", import.meta.url),
   ).then((res) => res.arrayBuffer());
@@ -37,8 +41,7 @@ export default async function handler(request: NextRequest) {
           fontFamily: "Inter",
         }}
       >
-        {/* @ts-ignore */}
-        <img width="1200" height="630" src={backgroundImageData} alt="" />
+        <img width={1200} height={630} src={backgroundImageSrc} alt="" />
         <div
           style={{
             position: "absolute",

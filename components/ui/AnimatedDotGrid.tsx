@@ -421,11 +421,6 @@ export const AnimatedDotGrid = () => {
           height: "100%",
           opacity: isInitialized ? 1 : 0,
           transition: "opacity 1s ease",
-          // Soft bottom fade into the page surface behind the hero
-          maskImage:
-            "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
         }}
       />
     </div>
