@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { debounce } from "@/lib/debounce";
 
 /**
  * Layered signal field for the /agents hero.
@@ -41,8 +42,6 @@ const SETTINGS = {
   turnBias: 0.62,
   /** Head glow strength, 0 disables. */
   headGlow: 1,
-  /** Depth planes. The renderer allocates exactly this many layers. */
-  planes: 3,
   /** How far apart the planes feel; feeds every depth cue. 0–1. */
   planeSpread: 1,
   /** Chance a runner forks when crossing a node. */
@@ -91,9 +90,11 @@ const SETTINGS = {
   pads: { count: 4, quota: 2, fadeIn: 0.8, fadeOut: 1.2, respawnDelay: 1 },
 } as const;
 
-const PLANES = SETTINGS.planes;
-/** Per-plane render resolution: the upscale on composite is the defocus. */
+/** Per-plane render resolution: the upscale on composite is the defocus.
+ *  This table is what actually bounds the plane count — adding a plane
+ *  means adding its resolution here, so it is the source of truth. */
 const LAYER_RES = [1, 0.5, 0.32] as const;
+const PLANES = LAYER_RES.length;
 
 type Rgb = [number, number, number];
 
@@ -213,16 +214,13 @@ const PAD_SLOTS: Array<{ fx: number; fy: number; region: number }> = [
   { fx: 0.13, fy: 0.14, region: 4 },
 ];
 
-/** One grading function so restraint, bloom, fog, and accent allocation
- *  always move together. */
-function grade() {
-  const r = SETTINGS.restraint;
-  return {
-    bloomAlpha: SETTINGS.bloom * lerp(0.35, 1, r),
-    fogAlpha: SETTINGS.fog * lerp(0.5, 1, r) * 0.16,
-    accentScale: lerp(0.55, 1, r),
-  };
-}
+/** One grade so restraint, bloom, fog, and accent allocation always move
+ *  together. Derived from `SETTINGS` alone, so it resolves once. */
+const GRADE = {
+  bloomAlpha: SETTINGS.bloom * lerp(0.35, 1, SETTINGS.restraint),
+  fogAlpha: SETTINGS.fog * lerp(0.5, 1, SETTINGS.restraint) * 0.16,
+  accentScale: lerp(0.55, 1, SETTINGS.restraint),
+};
 
 /** A fractional depth draws into its two neighbouring integer layers,
  *  cross-faded — a fork reads as *sinking*, a merge as *surfacing*. */
@@ -575,7 +573,7 @@ function createScene(env: SceneEnv, intro: boolean) {
     const isAccent =
       boosted ||
       (zPicked === 0 &&
-        Math.random() < SETTINGS.accentRatio * grade().accentScale);
+        Math.random() < SETTINGS.accentRatio * GRADE.accentScale);
     const pads = livePads();
     const tgt =
       pads.length && Math.random() < 0.75
@@ -949,7 +947,9 @@ function createScene(env: SceneEnv, intro: boolean) {
   function step(dt: number) {
     now += dt;
 
-    const deficit = targetCount() - runners.filter((r) => !r.dying).length;
+    let live = 0;
+    for (const r of runners) if (!r.dying) live++;
+    const deficit = targetCount() - live;
     if (deficit > 0) {
       refillAcc += dt * deficit * 1.4;
       while (refillAcc >= 1) {
@@ -980,11 +980,11 @@ function createScene(env: SceneEnv, intro: boolean) {
         advanceCell(r);
       }
 
+      // Mutated in place: trail points are pushed as their own literals
+      // (see advanceCell), so nothing aliases the head.
       const f = clamp(r.t, 0, 1);
-      r.head = {
-        x: px(r.i) + DIRS[r.d][0] * cell * f,
-        y: py(r.j) + DIRS[r.d][1] * cell * f,
-      };
+      r.head.x = px(r.i) + DIRS[r.d][0] * cell * f;
+      r.head.y = py(r.j) + DIRS[r.d][1] * cell * f;
       if (r.exiting) {
         r.head.x += DIRS[r.d][0] * cell;
         r.head.y += DIRS[r.d][1] * cell;
@@ -1131,16 +1131,18 @@ function createScene(env: SceneEnv, intro: boolean) {
       if (split.lo === z) zAlpha = 1 - split.wHi;
       else if (split.hi === z && split.wHi > 0) zAlpha = split.wHi;
       else continue;
-      const pts = r.trail.concat([r.head]);
-      if (pts.length < 2) continue;
+      // Walk trail → head without building a joined array each frame:
+      // the last segment is trail[last] → head.
+      const last = r.trail.length - 1;
+      if (last < 0) continue;
       const total = Math.max(1, trailLength(r));
 
       const tier = massTier(r.mass);
       const gb = glowBucket(r.bright * r.fade * zAlpha);
       let acc = 0;
-      for (let k = 0; k < pts.length - 1; k++) {
-        const a0 = pts[k];
-        const a1 = pts[k + 1];
+      for (let k = 0; k <= last; k++) {
+        const a0 = r.trail[k];
+        const a1 = k === last ? r.head : r.trail[k + 1];
         const seg = Math.hypot(a1.x - a0.x, a1.y - a0.y);
         if (seg < 0.01) continue;
         const f = (acc + seg / 2) / total;
@@ -1309,7 +1311,6 @@ function createScene(env: SceneEnv, intro: boolean) {
   function draw(ctx: CanvasRenderingContext2D) {
     const pal = env.palette;
     const baseA = lerp(0.55, 1, SETTINGS.restraint);
-    const gr = grade();
     const introInk = lerp(SETTINGS.intro.ink, 1, introE());
 
     // Each plane paints into its own offscreen layer, then composites
@@ -1344,8 +1345,8 @@ function createScene(env: SceneEnv, intro: boolean) {
       // Fog accumulates over depth: each slice fades everything already
       // composited toward the background before the nearer slice draws —
       // atmospheric perspective, not dimming.
-      if (z > 0 && gr.fogAlpha > 0) {
-        ctx.fillStyle = rgba(pal.bg, gr.fogAlpha);
+      if (z > 0 && GRADE.fogAlpha > 0) {
+        ctx.fillStyle = rgba(pal.bg, GRADE.fogAlpha);
         ctx.fillRect(0, 0, env.w, env.h);
       }
     }
@@ -1369,7 +1370,7 @@ function createScene(env: SceneEnv, intro: boolean) {
     ctx.globalCompositeOperation = "source-over";
 
     /* bloom ------------------------------------------------------------ */
-    if (gr.bloomAlpha > 0.01) {
+    if (GRADE.bloomAlpha > 0.01) {
       drawBrightPass(bloomCtx);
       // Two resamples ≈ a cheap gaussian: ¼ → ⅛ → composite at full.
       bloomCtx2.setTransform(1, 0, 0, 1, 0, 0);
@@ -1378,7 +1379,7 @@ function createScene(env: SceneEnv, intro: boolean) {
       // Additive bloom dies on white: the light theme composites the same
       // buffer as soft colored halos instead.
       ctx.globalCompositeOperation = pal.dark ? "lighter" : "source-over";
-      ctx.globalAlpha = gr.bloomAlpha * (pal.dark ? 1 : 0.35) * introInk;
+      ctx.globalAlpha = GRADE.bloomAlpha * (pal.dark ? 1 : 0.35) * introInk;
       ctx.drawImage(bloomCv2, 0, 0, env.w, env.h);
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
@@ -1423,24 +1424,9 @@ function createScene(env: SceneEnv, intro: boolean) {
   return { update, draw, presim, click };
 }
 
-type Scene = ReturnType<typeof createScene>;
-
 /* ------------------------------------------------------------------ */
 /* React shell                                                        */
 /* ------------------------------------------------------------------ */
-
-function debounce<T extends (...args: never[]) => void>(fn: T, wait: number) {
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  const debounced = (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => fn(...args), wait);
-  };
-  debounced.cancel = () => {
-    clearTimeout(timeout);
-    timeout = undefined;
-  };
-  return debounced;
-}
 
 /** Resolve the page surface for the fog fills: fog must fade toward the
  *  real background or the back planes tint the hero. */
@@ -1479,11 +1465,10 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const envRef = useRef<SceneEnv | null>(null);
-  const sceneRef = useRef<Scene | null>(null);
-  const animationFrameRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const hasIntroducedRef = useRef(false);
-  const hasReportedReadyRef = useRef(false);
+  // One page visit builds the scene once; resizes, theme switches, and
+  // scroll-returns rebuild it. Both the intro and the ready announcement
+  // are keyed off that first build.
+  const hasBuiltRef = useRef(false);
 
   // Held in a ref so a caller passing an inline callback can't retrigger
   // the scene-building effect below.
@@ -1491,7 +1476,6 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
   onReadyRef.current = onReady;
 
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [isInitialized, setIsInitialized] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
   // Size canvas to wrapper; a real resize rebuilds the scene
@@ -1508,7 +1492,6 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
           ? prev
           : { width, height },
       );
-      setIsInitialized(true);
     };
 
     const debouncedUpdate = debounce(updateDimensions, 250);
@@ -1618,24 +1601,22 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    const firstBuild = !hasBuiltRef.current;
+    hasBuiltRef.current = true;
+
     // The wake-up intro plays once per page visit: a rebuild from a
     // resize, theme switch, or scroll-return respawns the field at full
     // density instead of replaying it. Reduced motion always skips it —
     // its single still should be the complete field.
-    const intro = !reducedMotion && !hasIntroducedRef.current;
-    hasIntroducedRef.current = true;
-
-    const scene = createScene(env, intro);
+    const scene = createScene(env, !reducedMotion && firstBuild);
     scene.presim(SETTINGS.presim);
-    sceneRef.current = scene;
 
     ctx.clearRect(0, 0, env.w, env.h);
     scene.draw(ctx);
 
     // First frame is on screen. Rebuilds (resize, theme, scroll-return)
     // must not re-announce — the gate only opens once per page visit.
-    if (!hasReportedReadyRef.current) {
-      hasReportedReadyRef.current = true;
+    if (firstBuild) {
       onReadyRef.current?.();
     }
 
@@ -1665,27 +1646,25 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
     };
     window.addEventListener("click", handleClick);
 
-    lastTimeRef.current = 0;
+    let lastTime = 0;
+    let frame = 0;
     const animate = (timestamp: number) => {
       if (!canvasRef.current) return;
-      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+      if (!lastTime) lastTime = timestamp;
       // Clamp dt so a background-tab pause doesn't teleport the field.
-      const dt =
-        Math.min(0.05, (timestamp - lastTimeRef.current) / 1000) || 0.016;
-      lastTimeRef.current = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTime) / 1000) || 0.016;
+      lastTime = timestamp;
 
       ctx.clearRect(0, 0, env.w, env.h);
       scene.update(dt);
       scene.draw(ctx);
-      animationFrameRef.current = requestAnimationFrame(animate);
+      frame = requestAnimationFrame(animate);
     };
-    animationFrameRef.current = requestAnimationFrame(animate);
+    frame = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("click", handleClick);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      if (frame) cancelAnimationFrame(frame);
     };
   }, [dimensions.width, dimensions.height, isVisible, themeKey]);
 
@@ -1707,7 +1686,7 @@ export const AnimatedAgentRuns = ({ onReady }: AnimatedAgentRunsProps = {}) => {
           display: "block",
           width: "100%",
           height: "100%",
-          opacity: isInitialized ? 1 : 0,
+          opacity: dimensions.width > 0 ? 1 : 0,
           // Same curve and family of duration as the hero copy's entrance
           // (see .hero-rise in global.css) so the two read as one motion.
           // The delay puts the field second: the copy lands, then the

@@ -94,8 +94,8 @@ const CopyPromptButton = ({
   );
 };
 
-/** One bordered control: an "Open in" label, then a segment per coding tool
- * that deeplinks into that tool with the setup prompt already loaded. */
+/** An "Open in" label followed by one icon button per coding tool, each
+ * deeplinking into that tool with the setup prompt already loaded. */
 const CodingToolLaunchBar = ({ prompt }: { prompt: string }) => (
   <Stack direction="row" justifyContent="center">
     <Stack alignItems="center" px="3">
@@ -104,13 +104,7 @@ const CodingToolLaunchBar = ({ prompt }: { prompt: string }) => (
       </Text>
     </Stack>
 
-    <Stack
-      direction="row"
-      alignItems="stretch"
-      bg="surface-1"
-      // Clip so the end segments' hover fill follows the container radius.
-      style={{ overflow: "hidden" }}
-    >
+    <Stack direction="row" alignItems="stretch" bg="surface-1">
       {CODING_TOOL_OPTIONS.map((option) => (
         <Button
           as="button"
@@ -144,9 +138,9 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
   const sidebarWidth = askAiContext?.sidebarWidth ?? 340;
   const isResizing = askAiContext?.isResizing ?? false;
 
-  // One t=0 for the whole hero. The dot grid announces its first drawn
-  // frame; the timer is the floor, so a slow or failed canvas can't hold
-  // the copy hostage. Whichever lands first opens the gate.
+  // One t=0 for the whole hero. The canvas announces its first drawn
+  // frame; the timer is the ceiling, so a slow or failed canvas can't
+  // hold the copy hostage. Whichever lands first opens the gate.
   const [isHeroReady, setIsHeroReady] = useState(false);
   const openHeroGate = useCallback(() => setIsHeroReady(true), []);
 

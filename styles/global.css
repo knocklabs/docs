@@ -273,10 +273,14 @@ li {
   }
 }
 
+/* No will-change: these run once and then hold. Browsers already promote
+ * an element for the duration of its animation, and the hint has no way
+ * to retire itself afterwards — it would pin a compositor layer (a
+ * blur-capable one, for `filter`) on every hero element for the life of
+ * the page. */
 .hero-rise {
   animation: hero-rise 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--hero-rise-delay, 0ms);
-  will-change: opacity, transform, filter;
 }
 
 /* The veil expands as the copy lands, so the field behind it reads as
@@ -292,10 +296,10 @@ li {
   }
 }
 
+/* The veil is a sibling of the staggered copy, not a descendant, so it
+ * never inherits --hero-rise-delay — it starts with the gate. */
 .hero-veil {
   animation: hero-veil 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: var(--hero-rise-delay, 0ms);
-  will-change: opacity, transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -352,11 +356,11 @@ li {
 }
 
 /* Idle: the copied half is parked below, blurred off, and the check is
- * still small — nothing animates in from nothing. */
+ * still small — nothing animates in from nothing. The glyph scales where
+ * the label translates, so each carries its own transform. */
 .copy-cta__glyph:last-child,
 .copy-cta__label:last-child {
   opacity: 0;
-  transform: translateY(4px);
   filter: blur(2px);
 }
 
@@ -364,15 +368,22 @@ li {
   transform: scale(0.6);
 }
 
+.copy-cta__label:last-child {
+  transform: translateY(4px);
+}
+
 .copy-cta[data-copied="true"] .copy-cta__glyph:first-child,
 .copy-cta[data-copied="true"] .copy-cta__label:first-child {
   opacity: 0;
-  transform: translateY(-4px);
   filter: blur(2px);
 }
 
 .copy-cta[data-copied="true"] .copy-cta__glyph:first-child {
   transform: scale(0.6);
+}
+
+.copy-cta[data-copied="true"] .copy-cta__label:first-child {
+  transform: translateY(-4px);
 }
 
 .copy-cta[data-copied="true"] .copy-cta__glyph:last-child,
