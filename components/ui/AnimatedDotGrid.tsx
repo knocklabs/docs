@@ -956,9 +956,10 @@ function createScene(env: SceneEnv, intro: boolean) {
       // single layer with no residual cross-fade.
       r.zf = approach(r.zf, r.z, dt / Math.max(0.05, SETTINGS.zEase));
 
+      // Dying trails fade in place — the alpha ramp alone clears them in
+      // ~0.5s, well under any visible lingering.
       if (r.dying) {
         r.fade -= dt * 1.9;
-        r.maxTrail = Math.max(0, r.maxTrail - r.speed * dt * 1.6);
         continue;
       }
 
@@ -1614,15 +1615,23 @@ export const AnimatedDotGrid = () => {
     // Click-to-spawn: the wrapper is pointer-events: none so the copy
     // stays interactive; listen at the window and map into canvas space.
     // Clicks on links still land — the spawn is a side effect, not a
-    // capture.
-    const handlePointerDown = (e: PointerEvent) => {
+    // capture. "click" rather than "pointerdown" so touch scroll gestures
+    // through the hero never fire; the target-containment guard keeps
+    // clicks on overlaying chrome (the sticky masthead once scrolled over
+    // the hero) from spawning through it — a rect test alone can't tell
+    // those apart.
+    const handleClick = (e: MouseEvent) => {
+      const wrapper = wrapperRef.current;
+      const section = wrapper?.parentElement;
+      if (!section || !(e.target instanceof Node)) return;
+      if (!section.contains(e.target)) return;
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
       scene.click(x, y);
     };
-    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("click", handleClick);
 
     lastTimeRef.current = 0;
     const animate = (timestamp: number) => {
@@ -1641,7 +1650,7 @@ export const AnimatedDotGrid = () => {
     animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("click", handleClick);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
