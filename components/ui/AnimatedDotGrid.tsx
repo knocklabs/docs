@@ -557,11 +557,14 @@ function createScene(env: SceneEnv, intro: boolean) {
   ): Runner | null {
     if (!inBounds(i, j)) return null;
     // Weight toward the front so the plane carrying the accent stays the
-    // busiest and the back reads as distance rather than clutter.
+    // busiest and the back reads as distance rather than clutter. Boosted
+    // (click) spawns always take the front plane: a back plane renders
+    // scaled about the stage center, so a deep spawn would materialize
+    // away from the click it answers.
     const roll = Math.random();
-    const zPicked = roll < 0.5 ? 0 : roll < 0.8 ? 1 : 2;
-    // Depth drives color: accent lives at the front. Boosted (click)
-    // spawns are the exception — always accent, whatever their plane.
+    const zPicked = boosted ? 0 : roll < 0.5 ? 0 : roll < 0.8 ? 1 : 2;
+    // Depth drives color: accent lives at the front (boosted spawns are
+    // front-plane, so always accent).
     const isAccent =
       boosted ||
       (zPicked === 0 &&
@@ -1049,8 +1052,7 @@ function createScene(env: SceneEnv, intro: boolean) {
     const st = planeStyle(z);
     const planeA = baseA * st.dim;
     // Atmospheric temperature: neutrals cool toward slate with depth.
-    // Accent is front-plane-only by the law (boosted click spawns are the
-    // one exception), so it is never cooled.
+    // Accent is front-plane-only by the law, so it is never cooled.
     const neutral = coolShift(pal.neutral, (z / Math.max(1, PLANES - 1)) * 0.6);
     const colFor = (r: Runner) => (r.accent ? pal.accent : neutral);
 
@@ -1399,8 +1401,9 @@ function createScene(env: SceneEnv, intro: boolean) {
   }
 
   /** Click seeds a hand of boosted runners at the nearest node — one per
-   *  direction, always accent, brighter and longer-trailed but shorter-
-   *  lived — plus a burst, so the field answers the tap. */
+   *  direction, front-plane, always accent, brighter and longer-trailed
+   *  but shorter-lived — plus a burst, so the field answers the tap
+   *  exactly where it lands. */
   function click(x: number, y: number) {
     const i = clamp(Math.round((x - ox) / cell), 0, cols - 1);
     const j = clamp(Math.round((y - oy) / cell), 0, rows - 1);
