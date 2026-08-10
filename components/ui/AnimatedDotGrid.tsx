@@ -54,8 +54,11 @@ const SETTINGS = {
   /** Minimum mass to claim a pad. Base spawn mass is 1: keep above 1 so
    *  arrival stays earned (only merged runners qualify). */
   claimMass: 2,
-  /** Seconds a runner takes to travel one plane of depth. */
-  zEase: 1,
+  /** Seconds a runner takes to travel one plane of depth. Tuned down
+   *  from 1 to halve the cross-fade window where a mid-dive runner draws
+   *  into two layers at different parallax offsets (a moving pointer can
+   *  double-image the trail there); dives still read as travel. */
+  zEase: 0.5,
   /** Bloom pass strength. */
   bloom: 1.5,
   /** Atmospheric fade toward the background per depth slice. 0–1. */
