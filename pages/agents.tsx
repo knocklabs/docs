@@ -17,7 +17,6 @@ import {
 import Meta from "@/components/Meta";
 import { Page } from "@/components/ui/Page";
 import { AskAiContext } from "@/components/AskAiContext";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 import {
   AgentPromptActionButton,
@@ -26,7 +25,10 @@ import {
 import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
 import { MarketingFooter } from "@/components/ui/MarketingFooter";
 import { KNOCK_SETUP_PROMPT } from "@/components/ui/AgentSetupPrompt";
-import { CODING_TOOL_OPTIONS } from "@/components/ui/CodingToolIcon";
+import {
+  CODING_TOOL_OPTIONS,
+  CodingToolIcon,
+} from "@/components/ui/CodingToolIcon";
 import { ContentCard } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
 import { useClipboard } from "@/hooks/useClipboard";
@@ -47,104 +49,82 @@ const CopyPromptButton = ({
   prompt: string;
   label?: string;
 }) => {
-  const [isCopied, copy] = useClipboard(prompt);
+  const [isCopied, copy] = useClipboard(prompt, { successDuration: 1600 });
 
   return (
-    <Button
+    <Button.Root
       variant="solid"
       color="accent"
       size="2"
-      px="2_5"
+      px="3"
+      rounded="full"
       onClick={copy}
-      icon={{
-        icon: isCopied ? Check : Copy,
-        "aria-hidden": true,
-      }}
-      style={{ justifyContent: "center" }}
+      className="copy-cta"
+      data-copied={isCopied}
     >
-      {/* Stack both labels so the button width stays stable on copy. */}
-      <span
-        aria-live="polite"
-        style={{
-          display: "inline-grid",
-          justifyItems: "center",
-        }}
-      >
-        <span
-          style={{
-            gridArea: "1 / 1",
-            visibility: isCopied ? "hidden" : "visible",
-          }}
-        >
-          {label}
+      {/* Both glyphs and both labels stay mounted and stacked, so the button
+       * never reflows and each pair can cross-fade instead of cutting. */}
+      <span className="copy-cta__stack" aria-hidden="true">
+        <span className="copy-cta__glyph">
+          <Button.Icon icon={Copy} aria-hidden />
         </span>
-        <span
-          aria-hidden={!isCopied}
-          style={{
-            gridArea: "1 / 1",
-            visibility: isCopied ? "visible" : "hidden",
-          }}
-        >
-          Copied
+        <span className="copy-cta__glyph">
+          <Button.Icon icon={Check} aria-hidden />
         </span>
       </span>
-    </Button>
+      <Button.Text>
+        <span className="copy-cta__stack" aria-hidden="true">
+          <span className="copy-cta__label">{label}</span>
+          <span className="copy-cta__label">Copied to clipboard</span>
+        </span>
+      </Button.Text>
+      {/* The visible labels are decorative once they cross-fade — both stay in
+       * the tree, so the announcement lives in its own live region. */}
+      <span className="sr-only" aria-live="polite">
+        {isCopied ? "Prompt copied to clipboard" : ""}
+      </span>
+    </Button.Root>
   );
 };
 
-const CodingToolWordmarks = ({ prompt }: { prompt: string }) => {
-  const { appearance } = useTheme();
-  const [hovered, setHovered] = useState<string | null>(null);
-  const isDark = appearance === "dark";
+/** One bordered control: an "Open in" label, then a segment per coding tool
+ * that deeplinks into that tool with the setup prompt already loaded. */
+const CodingToolLaunchBar = ({ prompt }: { prompt: string }) => (
+  <Stack direction="row" justifyContent="center">
+    <Stack alignItems="center" px="3">
+      <Text as="span" size="2" color="gray" style={{ whiteSpace: "nowrap" }}>
+        Open in
+      </Text>
+    </Stack>
 
-  return (
     <Stack
       direction="row"
-      alignItems="center"
-      justifyContent="center"
-      gap="8"
-      mt="3"
+      alignItems="stretch"
+      bg="surface-1"
+      // Clip so the end segments' hover fill follows the container radius.
+      style={{ overflow: "hidden" }}
     >
-      {CODING_TOOL_OPTIONS.map((option) => {
-        const Icon = option.Icon;
-        const isHovered = hovered === option.value;
-
-        return (
-          <Stack
-            key={option.value}
-            as="button"
-            type="button"
-            aria-label={option.openLabel}
-            direction="row"
-            alignItems="center"
-            bg="transparent"
-            p="0"
-            onClick={() => openCodingToolDeeplink(option.value, prompt)}
-            onMouseEnter={() => setHovered(option.value)}
-            onMouseLeave={() => setHovered(null)}
-            style={{
-              border: "none",
-              cursor: "pointer",
-              // Brand SVGs → monochrome; invert on dark surfaces.
-              filter: isDark ? "brightness(0) invert(1)" : "brightness(0)",
-              opacity: isHovered ? 0.75 : 0.45,
-              transition: "opacity 0.1s ease-out",
-            }}
-          >
-            <Box
-              aria-hidden
-              w="6"
-              h="6"
-              style={{ aspectRatio: "1 / 1", flexShrink: 0 }}
-            >
-              <Icon />
-            </Box>
-          </Stack>
-        );
-      })}
+      {CODING_TOOL_OPTIONS.map((option) => (
+        <Button
+          as="button"
+          type="button"
+          variant="ghost"
+          key={option.value}
+          aria-label={option.openLabel}
+          title={option.openLabel}
+          alignItems="center"
+          justifyContent="center"
+          px="3"
+          py="2"
+          rounded="full"
+          onClick={() => openCodingToolDeeplink(option.value, prompt)}
+        >
+          <CodingToolIcon option={option} />
+        </Button>
+      ))}
     </Stack>
-  );
-};
+  </Stack>
+);
 
 export default function AgentsPage({ skills }: AgentsPageProps) {
   const askAiContext = useContext(AskAiContext);
@@ -236,7 +216,6 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 as="h1"
                 size="9"
                 align="center"
-                weight="medium"
                 className="hero-rise"
                 style={
                   {
@@ -283,7 +262,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 className="hero-rise"
                 style={{ "--hero-rise-delay": "520ms" } as React.CSSProperties}
               >
-                <CodingToolWordmarks prompt={KNOCK_SETUP_PROMPT} />
+                <CodingToolLaunchBar prompt={KNOCK_SETUP_PROMPT} />
               </Box>
             </Stack>
           </Stack>
