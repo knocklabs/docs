@@ -22,7 +22,7 @@ import {
   AgentPromptActionButton,
   openCodingToolDeeplink,
 } from "@/components/ui/AgentPromptActionButton";
-import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
+import { AnimatedAgentRuns } from "@/components/ui/AnimatedAgentRuns";
 import { MarketingFooter } from "@/components/ui/MarketingFooter";
 import { KNOCK_SETUP_PROMPT } from "@/components/ui/AgentSetupPrompt";
 import {
@@ -169,7 +169,7 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
           overflow="hidden"
           style={{ minHeight: "min(52vh, 420px)" }}
         >
-          <AnimatedDotGrid onReady={openHeroGate} />
+          <AnimatedAgentRuns onReady={openHeroGate} />
 
           {/* Nothing opens the gate without JS, so release it up front. */}
           <noscript>
