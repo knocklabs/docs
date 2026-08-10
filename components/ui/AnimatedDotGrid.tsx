@@ -79,8 +79,12 @@ const SETTINGS = {
    *  simulation speed, and ink (layer/spark/bloom brightness) start at
    *  these floors and ease (cubic out) to full over `duration` seconds
    *  of live time. Reduced-motion scenes skip the intro — their single
-   *  still should be the full field at full brightness. */
-  intro: { duration: 3.5, density: 0.35, timeScale: 0.2, ink: 0.3 },
+   *  still should be the full field at full brightness.
+   *
+   *  `duration` is set so this envelope lands with the canvas opacity fade
+   *  (450ms delay + 1.8s, below) instead of stacking a second, longer
+   *  dissolve on top of it — one arrival, not two. */
+  intro: { duration: 2.4, density: 0.35, timeScale: 0.2, ink: 0.3 },
   /** Pad lifecycle: a pad completes after `quota` earned claims, plays a
    *  done cascade, fades out, and a successor fades in at another slot
    *  after `respawnDelay`. Fades are in seconds. */
@@ -1456,13 +1460,19 @@ function resolveSurfaceRgb(fallback: Rgb): Rgb {
   return fallback;
 }
 
+type AnimatedDotGridProps = {
+  /** Fires once, after the first frame is drawn. The agents hero uses it
+   *  to start its copy animation from the same moment the field appears. */
+  onReady?: () => void;
+};
+
 /**
  * Animated hero background: layered lattice runners with depth-of-field.
  * Clicking the hero seeds boosted runners at the nearest node. Adapts to
  * light/dark appearance, pauses offscreen, honors prefers-reduced-motion
  * by rendering a single pre-simulated frame (no click, no parallax).
  */
-export const AnimatedDotGrid = () => {
+export const AnimatedDotGrid = ({ onReady }: AnimatedDotGridProps = {}) => {
   const { appearance } = useTheme();
   const themeKey = appearance === "dark" ? "dark" : "light";
 
@@ -1473,6 +1483,12 @@ export const AnimatedDotGrid = () => {
   const animationFrameRef = useRef(0);
   const lastTimeRef = useRef(0);
   const hasIntroducedRef = useRef(false);
+  const hasReportedReadyRef = useRef(false);
+
+  // Held in a ref so a caller passing an inline callback can't retrigger
+  // the scene-building effect below.
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isInitialized, setIsInitialized] = useState(false);
@@ -1497,9 +1513,12 @@ export const AnimatedDotGrid = () => {
 
     const debouncedUpdate = debounce(updateDimensions, 250);
 
-    if (document.readyState === "complete") {
-      updateDimensions();
-    } else {
+    // Measure right away rather than waiting on `load`: the wrapper is
+    // already laid out, and waiting made the field's start time depend on
+    // network speed, which the hero copy now synchronizes against. The
+    // load listener stays as a re-measure for late layout shifts.
+    updateDimensions();
+    if (document.readyState !== "complete") {
       window.addEventListener("load", updateDimensions);
     }
 
@@ -1613,6 +1632,13 @@ export const AnimatedDotGrid = () => {
     ctx.clearRect(0, 0, env.w, env.h);
     scene.draw(ctx);
 
+    // First frame is on screen. Rebuilds (resize, theme, scroll-return)
+    // must not re-announce — the gate only opens once per page visit.
+    if (!hasReportedReadyRef.current) {
+      hasReportedReadyRef.current = true;
+      onReadyRef.current?.();
+    }
+
     if (reducedMotion) {
       // The presim frame is the whole experience: a composed still.
       return;
@@ -1682,7 +1708,11 @@ export const AnimatedDotGrid = () => {
           width: "100%",
           height: "100%",
           opacity: isInitialized ? 1 : 0,
-          transition: "opacity 2.5s ease-out",
+          // Same curve and family of duration as the hero copy's entrance
+          // (see .hero-rise in global.css) so the two read as one motion.
+          // The delay puts the field second: the copy lands, then the
+          // lattice blooms up behind it.
+          transition: "opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1) 450ms",
           // Soft bottom fade into the page surface behind the hero
           maskImage:
             "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",

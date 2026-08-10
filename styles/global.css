@@ -237,3 +237,73 @@ li {
     transform: rotate(360deg);
   }
 }
+
+/* Hero entrance.
+ *
+ * Every animation on the stage is held at its first frame until the page
+ * opens the gate, so the copy and the canvas behind it share one t=0
+ * instead of racing (CSS starts at first paint, the canvas only once it
+ * has measured itself). The page opens the gate on the canvas's first
+ * drawn frame or on a short fallback timer, whichever lands first.
+ *
+ * With JS off nothing ever opens the gate, so the hero would stay blank —
+ * the noscript rule in pages/agents.tsx releases it immediately. It sits
+ * later in document order at equal specificity, so it wins. */
+.hero-stage .hero-rise,
+.hero-stage .hero-veil {
+  animation-play-state: paused;
+}
+
+.hero-stage[data-hero-ready="true"] .hero-rise,
+.hero-stage[data-hero-ready="true"] .hero-veil {
+  animation-play-state: running;
+}
+
+/* Fade up with a short blur-off, staggered by --hero-rise-delay. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.hero-rise {
+  animation: hero-rise 1.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--hero-rise-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+/* The veil expands as the copy lands, so the field behind it reads as
+ * pushed back by the arriving headline rather than merely co-timed. */
+@keyframes hero-veil {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-veil {
+  animation: hero-veil 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--hero-rise-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-veil {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
