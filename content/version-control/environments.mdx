@@ -212,9 +212,47 @@ Branch environments cannot be used as clone targets.
 
 By default your Knock account comes with two environments: development and production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a staging environment) you can add it on the settings page of the Knock dashboard.
 
-To create a new environment, go to the **Environments** page under the **Version control** section of your account settings. You'll see a button to "Create environment."
+To create a new environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your account settings. You'll see a button to "Create environment."
 
-When you create an additional environment, it will be inserted between development and production for environment promotion purposes. Any additional new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
+### Choose where the new environment goes
+
+Environments are ordered, and that order determines your promotion path. When you create an environment, the **Insert after** select in the create modal determines where it lands. Choose the environment that the new environment should come directly after, and Knock inserts it one "level" above that environment.
+
+Two constraints apply to the position you choose:
+
+- **You cannot insert an environment above production.** Production is always the highest environment, so it isn't available in the select.
+- **You cannot insert an environment below development.** Development is always the lowest environment, so the new environment will always sit above it.
+
+By default the select is set to the second-to-last environment, which places the new environment directly below production. In a new account with only development and production, that means a new environment is inserted between the two.
+
+Environments cannot be re-ordered after they're created, as this would break the promotion model for previously-promoted changes.
+
+### What's in a new environment
+
+A new environment is not empty. Knock seeds it from the environment directly below it when you create it, and different parts of your account are seeded in different ways:
+
+| Resource                                                                                                                    | What the new environment starts with                                                                                                                                                                               |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Workflows, guides, layouts, partials, translations, and reusable requests                                                   | Promoted from the environment directly below it (the latest committed version of each item; archived items are skipped).                                                                                           |
+| <a href="/concepts/variables" className="text-brand underline">Environment variable</a> values                              | Empty. Values are per-environment and you need to set them.                                                                                                                                                        |
+| <a href="/concepts/channels" className="text-brand underline">Channel</a> settings                                          | Provider credentials are not copied and you need to configure them.                                                                                                                                                |
+| <a href="/integrations/sources/overview" className="text-brand underline">Source</a> settings                               | Every source in your project appears in the new environment with default settings and its own newly generated source URL. No settings are copied, so you need to point your provider at the new environment's URL. |
+| <a href="/preferences/hosted-preference-center" className="text-brand underline">Hosted preference center</a> configuration | The default configuration.                                                                                                                                                                                         |
+| API keys                                                                                                                    | A new public and secret key pair.                                                                                                                                                                                  |
+| Users, tenants, objects, messages, and logs                                                                                 | Nothing. Data is never copied between environments.                                                                                                                                                                |
+
+<Callout
+  type="warning"
+  title="Configure variable values and channel credentials."
+  text={
+    <>
+      A new environment can look fully configured in the dashboard because its
+      variable keys and channels are all present, but it will not send anything
+      until you set your variable values and reconfigure your provider
+      credentials for each channel.
+    </>
+  }
+/>
 
 ## Environment access controls
 
