@@ -68,6 +68,9 @@ const CopyPromptButton = ({
       }}
       className="copy-cta"
       data-copied={isCopied}
+      // Every visible child is aria-hidden so the two stacks can cross-fade,
+      // which leaves the button with no name of its own.
+      aria-label={label}
     >
       {/* Both glyphs and both labels stay mounted and stacked, so the button
        * never reflows and each pair can cross-fade instead of cutting. */}
