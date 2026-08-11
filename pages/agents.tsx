@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import type { GetStaticProps } from "next";
 import { Box, Stack } from "@telegraph/layout";
 import { Heading, Text } from "@telegraph/typography";
@@ -17,17 +17,19 @@ import {
 import Meta from "@/components/Meta";
 import { Page } from "@/components/ui/Page";
 import { AskAiContext } from "@/components/AskAiContext";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 import {
   AgentPromptActionButton,
   openCodingToolDeeplink,
   trackCodingToolClicked,
 } from "@/components/ui/AgentPromptActionButton";
-import { AnimatedDotGrid } from "@/components/ui/AnimatedDotGrid";
+import { AnimatedAgentRuns } from "@/components/ui/AnimatedAgentRuns";
 import { MarketingFooter } from "@/components/ui/MarketingFooter";
 import { KNOCK_SETUP_PROMPT } from "@/components/ui/AgentSetupPrompt";
-import { CODING_TOOL_OPTIONS } from "@/components/ui/CodingToolIcon";
+import {
+  CODING_TOOL_OPTIONS,
+  CodingToolIcon,
+} from "@/components/ui/CodingToolIcon";
 import { ContentCard } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
 import { useClipboard } from "@/hooks/useClipboard";
@@ -48,13 +50,15 @@ const CopyPromptButton = ({
   prompt: string;
   label?: string;
 }) => {
-  const [isCopied, copy] = useClipboard(prompt);
+  const [isCopied, copy] = useClipboard(prompt, { successDuration: 1600 });
 
   return (
-    <Button
+    <Button.Root
       variant="solid"
       color="accent"
       size="2"
+      px="3"
+      rounded="full"
       onClick={() => {
         trackCodingToolClicked("copy", {
           source: "hero",
@@ -62,106 +66,91 @@ const CopyPromptButton = ({
         });
         copy();
       }}
-      icon={{
-        icon: isCopied ? Check : Copy,
-        "aria-hidden": true,
-      }}
-      style={{ justifyContent: "center" }}
+      className="copy-cta"
+      data-copied={isCopied}
+      // Every visible child is aria-hidden so the two stacks can cross-fade,
+      // which leaves the button with no name of its own.
+      aria-label={label}
     >
-      {/* Stack both labels so the button width stays stable on copy. */}
-      <span
-        aria-live="polite"
-        style={{
-          display: "inline-grid",
-          justifyItems: "center",
-        }}
-      >
-        <span
-          style={{
-            gridArea: "1 / 1",
-            visibility: isCopied ? "hidden" : "visible",
-          }}
-        >
-          {label}
+      {/* Both glyphs and both labels stay mounted and stacked, so the button
+       * never reflows and each pair can cross-fade instead of cutting. */}
+      <span className="copy-cta__stack" aria-hidden="true">
+        <span className="copy-cta__glyph">
+          <Button.Icon icon={Copy} aria-hidden />
         </span>
-        <span
-          aria-hidden={!isCopied}
-          style={{
-            gridArea: "1 / 1",
-            visibility: isCopied ? "visible" : "hidden",
-          }}
-        >
-          Copied
+        <span className="copy-cta__glyph">
+          <Button.Icon icon={Check} aria-hidden />
         </span>
       </span>
-    </Button>
+      <Button.Text>
+        <span className="copy-cta__stack" aria-hidden="true">
+          <span className="copy-cta__label">{label}</span>
+          <span className="copy-cta__label">Copied to clipboard</span>
+        </span>
+      </Button.Text>
+      {/* The visible labels are decorative once they cross-fade — both stay in
+       * the tree, so the announcement lives in its own live region. */}
+      <span className="sr-only" aria-live="polite">
+        {isCopied ? "Prompt copied to clipboard" : ""}
+      </span>
+    </Button.Root>
   );
 };
 
-const CodingToolWordmarks = ({ prompt }: { prompt: string }) => {
-  const { appearance } = useTheme();
-  const [hovered, setHovered] = useState<string | null>(null);
-  const isDark = appearance === "dark";
-
-  return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="center"
-      gap="8"
-      mt="3"
-    >
-      {CODING_TOOL_OPTIONS.map((option) => {
-        const Icon = option.Icon;
-        const isHovered = hovered === option.value;
-
-        return (
-          <Stack
-            key={option.value}
-            as="button"
-            type="button"
-            aria-label={option.openLabel}
-            direction="row"
-            alignItems="center"
-            bg="transparent"
-            p="0"
-            onClick={() =>
-              openCodingToolDeeplink(option.value, prompt, {
-                source: "hero",
-                selection_method: "wordmark",
-              })
-            }
-            onMouseEnter={() => setHovered(option.value)}
-            onMouseLeave={() => setHovered(null)}
-            style={{
-              border: "none",
-              cursor: "pointer",
-              // Brand SVGs → monochrome; invert on dark surfaces.
-              filter: isDark ? "brightness(0) invert(1)" : "brightness(0)",
-              opacity: isHovered ? 0.75 : 0.45,
-              transition: "opacity 0.15s ease",
-            }}
-          >
-            <Box
-              aria-hidden
-              w="6"
-              h="6"
-              style={{ aspectRatio: "1 / 1", flexShrink: 0 }}
-            >
-              <Icon />
-            </Box>
-          </Stack>
-        );
-      })}
+/** An "Open in" label followed by one icon button per coding tool, each
+ * deeplinking into that tool with the setup prompt already loaded. */
+const CodingToolLaunchBar = ({ prompt }: { prompt: string }) => (
+  <Stack direction="row" justifyContent="center">
+    <Stack alignItems="center" px="3">
+      <Text as="span" size="2" color="gray" style={{ whiteSpace: "nowrap" }}>
+        Open in
+      </Text>
     </Stack>
-  );
-};
+
+    <Stack direction="row" alignItems="stretch" bg="surface-1">
+      {CODING_TOOL_OPTIONS.map((option) => (
+        <Button
+          as="button"
+          type="button"
+          variant="ghost"
+          key={option.value}
+          aria-label={option.openLabel}
+          title={option.openLabel}
+          alignItems="center"
+          justifyContent="center"
+          px="3"
+          py="2"
+          rounded="full"
+          onClick={() =>
+            openCodingToolDeeplink(option.value, prompt, {
+              source: "hero",
+              selection_method: "wordmark",
+            })
+          }
+        >
+          <CodingToolIcon option={option} />
+        </Button>
+      ))}
+    </Stack>
+  </Stack>
+);
 
 export default function AgentsPage({ skills }: AgentsPageProps) {
   const askAiContext = useContext(AskAiContext);
   const isOpen = askAiContext?.isOpen ?? false;
   const sidebarWidth = askAiContext?.sidebarWidth ?? 340;
   const isResizing = askAiContext?.isResizing ?? false;
+
+  // One t=0 for the whole hero. The canvas announces its first drawn
+  // frame; the timer is the ceiling, so a slow or failed canvas can't
+  // hold the copy hostage. Whichever lands first opens the gate.
+  const [isHeroReady, setIsHeroReady] = useState(false);
+  const openHeroGate = useCallback(() => setIsHeroReady(true), []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(openHeroGate, 300);
+    return () => window.clearTimeout(timer);
+  }, [openHeroGate]);
 
   return (
     <Page.Container>
@@ -188,21 +177,14 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
           overflow="hidden"
           style={{ minHeight: "min(52vh, 420px)" }}
         >
-          {/* Soft bottom fade into the page surface behind the hero */}
-          <Box
-            aria-hidden
-            position="absolute"
-            style={{
-              inset: 0,
-              pointerEvents: "none",
-              maskImage:
-                "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to bottom, black 0%, black 55%, transparent 100%)",
-            }}
-          >
-            <AnimatedDotGrid />
-          </Box>
+          {/* The bottom fade into the page surface lives on the canvas itself
+           * (see AnimatedAgentRuns), so no masking wrapper here. */}
+          <AnimatedAgentRuns onReady={openHeroGate} />
+
+          {/* Nothing opens the gate without JS, so release it up front. */}
+          <noscript>
+            <style>{`.hero-stage .hero-rise, .hero-stage .hero-veil { animation-play-state: running; }`}</style>
+          </noscript>
 
           <Stack
             position="relative"
@@ -213,6 +195,8 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
             w="full"
             h="full"
             px="6"
+            className="hero-stage"
+            data-hero-ready={isHeroReady ? "true" : "false"}
             style={{ minHeight: "min(52vh, 420px)" }}
           >
             <Stack
@@ -227,12 +211,13 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
               <Box
                 aria-hidden
                 position="absolute"
+                className="hero-veil"
                 style={{
                   // Overflow sides/top for a soft edge; keep bottom flush so the
                   // CTA below stays clear of the veil.
                   inset: "-1.5rem -2rem 0",
                   background:
-                    "radial-gradient(ellipse 58% 85% at 50% 42%, color-mix(in srgb, var(--tgph-surface-1) 82%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 58%, transparent) 48%, transparent 72%)",
+                    "radial-gradient(ellipse 58% 85% at 50% 42%, color-mix(in srgb, var(--tgph-surface-1) 88%, transparent) 0%, color-mix(in srgb, var(--tgph-surface-1) 65%, transparent) 48%, transparent 75%)",
                   pointerEvents: "none",
                   zIndex: 0,
                 }}
@@ -241,8 +226,14 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 as="h1"
                 size="9"
                 align="center"
-                className="agents-hero__heading"
-                style={{ position: "relative", zIndex: 1 }}
+                className="hero-rise agents-hero__heading"
+                style={
+                  {
+                    position: "relative",
+                    zIndex: 1,
+                    "--hero-rise-delay": "80ms",
+                  } as React.CSSProperties
+                }
               >
                 Agent-first customer&nbsp;messaging
               </Heading>
@@ -251,24 +242,38 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 size="3"
                 color="gray"
                 align="center"
-                className="agents-hero__subheading"
-                style={{
-                  margin: 0,
-                  maxWidth: "36rem",
-                  position: "relative",
-                  zIndex: 1,
-                }}
+                className="hero-rise agents-hero__subheading"
+                style={
+                  {
+                    margin: 0,
+                    maxWidth: "36rem",
+                    position: "relative",
+                    zIndex: 1,
+                    "--hero-rise-delay": "240ms",
+                  } as React.CSSProperties
+                }
               >
                 Drive Knock from your coding agent. Build, ship, and optimize
                 product, marketing, and transactional messaging in one platform.
               </Text>
             </Stack>
             <Stack direction="column" alignItems="center" gap="4">
-              <CopyPromptButton
-                prompt={KNOCK_SETUP_PROMPT}
-                label="Get started with a prompt"
-              />
-              <CodingToolWordmarks prompt={KNOCK_SETUP_PROMPT} />
+              <Box
+                className="hero-rise"
+                style={{ "--hero-rise-delay": "400ms" } as React.CSSProperties}
+              >
+                <CopyPromptButton
+                  prompt={KNOCK_SETUP_PROMPT}
+                  label="Get started with a prompt"
+                />
+              </Box>
+              <Box
+                w="full"
+                className="hero-rise"
+                style={{ "--hero-rise-delay": "520ms" } as React.CSSProperties}
+              >
+                <CodingToolLaunchBar prompt={KNOCK_SETUP_PROMPT} />
+              </Box>
             </Stack>
           </Stack>
         </Box>
