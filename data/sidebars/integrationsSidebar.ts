@@ -79,7 +79,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
           { slug: "/overview", title: "Overview" },
           {
             slug: "/sending-an-internal-message",
-            title: "Sending an internal message",
+            title: "Messaging your Slack workspace",
           },
           {
             slug: "/sending-a-direct-message",

@@ -1,12 +1,12 @@
 ---
 title: Connecting Knock to your Slack workspace
-description: Use the Knock Slack extension to launch Knock agents from your Slack workspace.
+description: Use the Knock Slack extension to launch Knock agents and send workflow messages in your team's Slack workspace.
 layout: integrations
 tags: ["slack", "extensions"]
 section: Integrations > Extensions
 ---
 
-The Knock Slack extension lets your team launch Knock agents directly in Slack to build, manage, and ship customer messaging. Users can DM the agent or tag `@Knock` in any channel to kick off an agent session.
+The Knock Slack extension connects your team's Slack workspace to Knock. It lets your team launch Knock agents directly in Slack and powers [Internal Slack channels](/integrations/chat/slack/sending-an-internal-message) for sending workflow messages to channels and people in your workspace.
 
 ## Setting up the Knock Slack extension
 
@@ -16,6 +16,8 @@ The Knock Slack extension lets your team launch Knock agents directly in Slack t
 4. After installing, you'll be redirected to Knock to finalize the installation.
 5. Prompt the Knock agent in a direct message or tag `@Knock` in any channel.
 
+Connecting the extension does not create an Internal Slack channel automatically. To use the connection for workflow messages, create an Internal Slack channel from **Settings > Channels and sources**.
+
 ## Authenticating users
 
 In order to use the Knock Slack extension, users will need to link their Slack user account to their Knock account.
@@ -23,6 +25,12 @@ In order to use the Knock Slack extension, users will need to link their Slack u
 Users within your Slack workspace can authenticate by prompting the Knock agent in a direct message or tagging `@Knock` in any channel. They will receive a DM with a button to authenticate. Clicking the button will take them to the Knock dashboard where they can authenticate their account.
 
 ## Using the Knock Slack extension
+
+### Sending workflow messages to Slack
+
+After connecting the extension, you can create one managed Internal Slack channel for your Knock project. Workflow authors can use that Knock channel to select a Slack channel or person as the destination for each step, without managing a Slack app, bot token, or recipient channel data.
+
+See [Sending messages to your team's Slack workspace](/integrations/chat/slack/sending-an-internal-message) for setup and delivery behavior.
 
 ### Kicking off an agent
 
@@ -56,19 +64,26 @@ In each agent session, you can click the "Open agent" button to view the full co
 
 ## Disconnecting Slack
 
-Users can disconnect their linked Slack account from their user settings under "Settings > Profile > Overview" at any time. Once disconnected, they will no longer be able to use the Knock Slack extension.
+Users can disconnect their linked Slack account from their user settings under **Settings > Profile > Overview** at any time. Once disconnected, they will no longer be able to use the Knock Slack extension as that user.
+
+An administrator can manage or disconnect the workspace extension from **Settings > Extensions**. Disconnecting the workspace stops agent sessions and Internal Slack delivery. Any Internal Slack channel and its workflow references are preserved so delivery can resume after the workspace is reconnected.
 
 ## Permissions
 
 Knock requests these Slack permissions for the Knock Slack extension to work within your workspace:
 
-| Permission          | Why we need it                                                                                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app_mentions:read` | Lets the Knock agent respond when a user @mentions the app in a channel. This is the primary way users start a conversation with the agent in shared channels.                                                            |
-| `assistant:write`   | Powers the Slack Assistant experience: shows thread status (e.g. "Thinking…") while the agent runs, and uses Slack's Assistant thread APIs so responses feel native in Slack.                                             |
-| `chat:write`        | Sends the agent's replies in Slack threads and DMs, including streamed responses (`chat.startStream` / `chat.appendStream` / `chat.stopStream`) and follow-up messages such as run summaries and account-linking prompts. |
-| `channels:history`  | Reads recent messages in public channel threads (via `conversations.replies`) so the agent has conversation context when a user continues a thread. Limited to the 25 most recent messages in that thread.                |
-| `groups:history`    | Same as `channels:history`, but for private channels and group DMs (mpim), so thread context works outside public channels.                                                                                               |
-| `im:history`        | Reads recent messages in 1:1 DMs so the agent can follow an ongoing direct-message conversation. DMs don't emit `app_mention` events, so message history is needed for context on follow-ups.                             |
-| `users:read`        | Looks up Slack user display names when building thread transcripts, so prior messages are labeled with human-readable names instead of raw user IDs.                                                                      |
-| `files:read`        | Downloads image files shared in a thread (when users attach screenshots or other images) so the agent can understand visual context in the conversation. Images are capped in size and count.                             |
+| Permission          | Why we need it                                                                                                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app_mentions:read` | Lets the Knock agent respond when a user @mentions the app in a channel. This is the primary way users start a conversation with the agent in shared channels.                                             |
+| `assistant:write`   | Powers the Slack Assistant experience: shows thread status (e.g. "Thinking…") while the agent runs, and uses Slack's Assistant thread APIs so responses feel native in Slack.                              |
+| `chat:write`        | Sends agent replies and Internal Slack workflow messages to conversations the Knock Slack app can access.                                                                                                  |
+| `chat:write.public` | Sends Internal Slack workflow messages to public channels without requiring the Knock Slack app to be invited first.                                                                                       |
+| `channels:read`     | Lists public channels so workflow authors can choose an Internal Slack destination.                                                                                                                        |
+| `channels:history`  | Reads recent messages in public channel threads (via `conversations.replies`) so the agent has conversation context when a user continues a thread. Limited to the 25 most recent messages in that thread. |
+| `groups:read`       | Lists private channels where the Knock Slack app is a member so workflow authors can choose them as Internal Slack destinations.                                                                           |
+| `groups:history`    | Same as `channels:history`, but for private channels and group DMs (mpim), so thread context works outside public channels.                                                                                |
+| `im:history`        | Reads recent messages in 1:1 DMs so the agent can follow an ongoing direct-message conversation. DMs don't emit `app_mention` events, so message history is needed for context on follow-ups.              |
+| `im:read`           | Finds direct-message conversations used by the Knock agent.                                                                                                                                                |
+| `im:write`          | Opens direct-message conversations for agent replies and Internal Slack messages sent to a person.                                                                                                         |
+| `users:read`        | Lists people for Internal Slack destinations and looks up display names when building agent thread transcripts.                                                                                            |
+| `files:read`        | Downloads image files shared in a thread (when users attach screenshots or other images) so the agent can understand visual context in the conversation. Images are capped in size and count.              |
