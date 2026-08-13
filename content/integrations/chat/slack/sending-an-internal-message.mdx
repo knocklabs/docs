@@ -1,12 +1,12 @@
 ---
 title: Sending messages to your team's Slack workspace
-description: Use an Internal Slack channel to send Knock workflow messages to channels and people in your team's Slack workspace.
+description: Use an internal Slack channel to send Knock workflow messages to channels and people in your team's Slack workspace.
 tags: ["slack", "chat"]
 section: Integrations > Slack
 layout: integrations
 ---
 
-Knock's Internal Slack channel gives your team a managed way to send workflow messages to your own Slack workspace. Connect the Knock Slack extension once, then choose a Slack channel or person as the destination for each workflow step.
+Knock's internal Slack channel gives your team a managed way to send workflow messages to your own Slack workspace. Connect the Knock Slack extension once, then choose a Slack channel or person as the destination for each workflow step.
 
 You don't need to create a Slack app, manage bot tokens, or store Slack `channel_data` on your workflow recipients.
 
@@ -15,18 +15,18 @@ You don't need to create a Slack app, manage bot tokens, or store Slack `channel
   title="Knock channels and Slack destinations are different."
   text={
     <>
-      The <strong>Internal Slack channel</strong> is a managed Knock channel
-      backed by the Knock Slack extension. A <strong>Slack destination</strong>
-      is the channel or person in your workspace that you select on a workflow step.
-      One Internal Slack channel can be used by many workflow steps, each with its
-      own destination.
+      The <strong>internal Slack channel</strong> is a managed Knock channel
+      backed by the Knock Slack extension. A <strong>Slack destination</strong>{" "}
+      is the channel or person in your workspace that you select on a workflow
+      step. One internal Slack channel can be used by many workflow steps, each
+      with its own destination.
     </>
   }
 />
 
 ## Before you begin
 
-To create an Internal Slack channel, you need a Knock role with permission to manage both channels and extensions. After it is created, team members with permission to edit workflows can use it in workflow steps.
+To create an internal Slack channel, you need a Knock [role](/manage-your-account/roles-and-permissions) with permission to manage both channels and extensions. After it is created, team members with permission to edit workflows can use it in workflow steps.
 
 The Knock Slack app can send to:
 
@@ -34,24 +34,24 @@ The Knock Slack app can send to:
 - Private channels where the Knock Slack app is a member. Invite `@Knock` to a private channel before selecting it.
 - Active people in your workspace via direct message.
 
-## Create an Internal Slack channel
+## Create an internal Slack channel
 
 <Steps titleSize="h3">
-  <Step title="Choose Internal Slack">
-    In the Knock dashboard, open **Settings > Channels and sources** and click
-    **Create channel**. Select **Chat**, then choose **Slack** with the
-    **Internal** badge.
+  <Step title="Create a new channel">
+    In the Knock dashboard, open <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank">**Settings > Channels and sources**</a> and click
+    **Create channel**. Select **Chat**, then choose **Slack** with the `Internal`
+    badge. Click **Next**.
   </Step>
 
   <Step title="Connect your Slack workspace">
     If your project is already connected to Slack through the [Knock Slack
     extension](/integrations/extensions/slack) with the required permissions,
-    Knock uses that connection to create the Internal Slack channel.
+    Knock uses that connection to create the internal Slack channel.
 
     If Slack is not connected, or if the existing connection needs additional
     permissions, Knock opens the Slack authorization flow. Choose your workspace
     and approve the requested permissions. After you return to Knock, the
-    Internal Slack channel is created automatically.
+    internal Slack channel is created automatically.
 
   </Step>
 
@@ -60,17 +60,18 @@ The Knock Slack app can send to:
     Slack extension. Its credentials apply across your Knock environments and
     cannot be edited from the channel configuration.
 
-    You can create one Internal Slack channel per Knock project. The same
+    You can create one internal Slack channel per Knock account. The same
     channel can be reused across any number of workflows.
 
   </Step>
 </Steps>
 
-## Add Internal Slack to a workflow
+## Add internal Slack to a workflow
 
 <Steps titleSize="h3">
   <Step title="Add a channel step">
-    Open a workflow and add a channel step using your Internal Slack channel.
+    Open a workflow and add a chat app channel step. Select your internal Slack
+    channel.
   </Step>
 
   <Step title="Choose where to send the message">
@@ -78,7 +79,7 @@ The Knock Slack app can send to:
     destination from either the **Channels** or **People** tab.
 
     The destination is stored on this workflow step. Other steps using the same
-    Internal Slack channel can send somewhere else.
+    internal Slack channel can be configured to send elsewhere.
 
   </Step>
 
@@ -92,9 +93,9 @@ The Knock Slack app can send to:
 
 ## Trigger the workflow
 
-Trigger a workflow that uses Internal Slack the same way you trigger any other Knock workflow. A recipient is still required for the workflow run, but that recipient does not need Slack channel data.
+Trigger a workflow that uses internal Slack the same way you trigger any other Knock workflow. A recipient is still required for the workflow run, but that recipient does not need Slack channel data.
 
-```javascript title="Trigger a workflow that sends to Internal Slack"
+```javascript title="Trigger a workflow that sends to internal Slack"
 import Knock from "@knocklabs/node";
 
 const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
@@ -107,22 +108,22 @@ await knock.workflows.trigger("support-alert", {
 });
 ```
 
-The workflow recipient still provides the `recipient` variables used in Liquid templates, step conditions, and the rest of the workflow. The destination selected in **Send to** only changes where that Internal Slack step is delivered.
+The workflow recipient still provides the `recipient` variables used in Liquid templates, step conditions, and the rest of the workflow. The destination selected in **Send to** only changes where that internal Slack step is delivered.
 
 ## How recipient preferences work
 
-Internal Slack sends bypass the workflow recipient's notification preferences because the message is going to a team destination, not to a Slack connection owned by that recipient. Channel and step conditions still evaluate normally against the workflow recipient.
+Internal Slack sends bypass the workflow recipient's notification [preferences](/preferences/overview) because the message is delivered to a configured destination, not to a Slack connection owned by that recipient. Channel and step [conditions](/concepts/conditions) still evaluate normally against the workflow `recipient`, if set.
 
-Each Internal Slack step sends exactly one message to its selected destination. In workflow runs and message details, **Delivered to** shows the Slack channel or person that received the message while the message's recipient remains the workflow recipient.
+Each internal Slack step sends exactly one message to its selected destination. In workflow runs and message details, **Delivered to** shows the Slack channel or person that received the message, while the recipient associated with the message remains the workflow `recipient`.
 
 ## Manage or reconnect Slack
 
-The Knock Slack extension owns the workspace connection and credentials used by the Internal Slack channel. Manage the connection from **Settings > Extensions**, not from the channel's provider settings.
+The Knock Slack extension owns the workspace connection and credentials used by the internal Slack channel. Manage the connection from <a href="https://dashboard.knock.app/~/settings/integrations/extensions" target="_blank">**Settings > Extensions**</a>, not from the channel's provider settings.
 
-If the extension is disconnected or needs to be authorized again, Knock preserves the Internal Slack channel and its workflow references but skips affected Slack steps until the workspace is reconnected. The workflow run log identifies the disconnected Slack connection as the reason. Open **Settings > Extensions** and reconnect Slack to resume delivery.
+If the extension is disconnected or needs to be authorized again, Knock preserves the internal Slack channel and its workflow references but skips affected Slack steps until the workspace is reconnected. The workflow run log identifies the disconnected Slack connection as the reason. Open **Settings > Extensions** and reconnect Slack to resume delivery.
 
 ## When to use a different Slack setup
 
-Use an Internal Slack channel when you want Knock to message your own team's workspace through the Knock Slack app.
+An internal Slack channel should only be used when you want Knock to message your own team's workspace through the Knock Slack app.
 
-If you are building a customer-facing Slack integration, use [your own Slack app and SlackKit](/integrations/chat/slack/sending-a-message-to-channels). If you need to supply a custom bot token, incoming webhook, or Liquid-based destination, use a customer-configured Slack channel with a [recipient connection override](/integrations/chat/slack/overriding-recipient-connections).
+If you are building a customer-facing Slack integration, use [your own Slack app and SlackKit](/integrations/chat/slack/sending-a-message-to-channels).
