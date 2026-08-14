@@ -727,6 +727,16 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        guide_audience_conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: Read-only. Workflow-derived audience eligibility as a condition group. Each applicable workflow (recorded plus currently referencing) that references this guide via trigger guide step contributes an audience-membership condition; multiple workflows are combined with OR. Omitted when there are no workflow-derived audience conditions.
+          type: object
+          x-struct: null
+          x-validate: null
         name:
           description: A name for the guide. Must be at maximum 255 characters in length.
           type: string
@@ -2262,6 +2272,7 @@ components:
       anyOf:
         - $ref: '#/components/schemas/WorkflowWebhookStep'
         - $ref: '#/components/schemas/WorkflowInAppFeedStep'
+        - $ref: '#/components/schemas/WorkflowInAppGuideStep'
         - $ref: '#/components/schemas/WorkflowChatStep'
         - $ref: '#/components/schemas/WorkflowSmsStep'
         - $ref: '#/components/schemas/WorkflowPushStep'
@@ -2876,6 +2887,52 @@ components:
       title: WorkflowPushStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowPushStep
+      x-validate: null
+    Tag:
+      description: A named tag in a project's resource-tag catalog.
+      example:
+        color: '#3B82F6'
+        created_at: "2021-01-01T00:00:00Z"
+        description: Billing-related workflows
+        name: billing
+        updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        color:
+          description: 'An optional hex color for the tag (e.g. #3B82F6).'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the tag was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the tag.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The unique name of the tag within a project.
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the tag was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - created_at
+        - updated_at
+      title: Tag
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Tag
       x-validate: null
     WrappedGuideRequestRequest:
       description: Wraps the GuideRequest request under the guide key.
@@ -4239,6 +4296,28 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup
       x-validate: null
+    TagRequest:
+      description: A request to create or update a tag. The tag name is taken from the path. On conflict, omitted description and color fields are set to null.
+      example:
+        color: '#3B82F6'
+        description: Billing-related workflows
+      properties:
+        color:
+          description: 'An optional hex color for the tag (e.g. #3B82F6).'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the tag.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: TagRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.TagRequest
+      x-validate: null
     WorkflowWebhookStep:
       description: A webhook step within a workflow to send an HTTP request to a generic channel. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
       example:
@@ -4816,6 +4895,7 @@ components:
             anyOf:
               - $ref: '#/components/schemas/WorkflowWebhookStep'
               - $ref: '#/components/schemas/WorkflowInAppFeedStep'
+              - $ref: '#/components/schemas/WorkflowInAppGuideStep'
               - $ref: '#/components/schemas/WorkflowChatStep'
               - $ref: '#/components/schemas/WorkflowSmsStep'
               - $ref: '#/components/schemas/WorkflowPushStep'
@@ -5126,6 +5206,45 @@ components:
       title: WorkflowInAppFeedStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowInAppFeedStep
+      x-validate: null
+    PreferenceCategory:
+      description: A named preference category in a project's catalog.
+      example:
+        created_at: "2021-01-01T00:00:00Z"
+        name: billing
+        updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        archived_at:
+          description: The timestamp of when the preference category was archived.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the preference category was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The unique name of the preference category within a project.
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the preference category was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - created_at
+        - updated_at
+      title: PreferenceCategory
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreferenceCategory
       x-validate: null
     CommitAuthor:
       description: The author of the commit.
@@ -6100,6 +6219,103 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WorkflowInAppGuideStep:
+      description: An in-app guide step within a workflow. References a guide that will be shown to recipients who execute this step. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: in-app-guide
+        channel_type: in_app_guide
+        conditions: null
+        description: Show the onboarding guide to recipients who execute this step
+        guide_key: onboarding
+        name: In-app guide step
+        ref: in_app_guide_step
+        send_windows: null
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `in_app_guide` for in-app guide steps.
+          enum:
+            - in_app_guide
+          example: in_app_guide
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        guide_key:
+          description: The key of the guide to reference. When a recipient executes this step they are added to the managed audience that backs the guide's workflow-derived targeting.
+          example: onboarding
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - channel_type
+      title: WorkflowInAppGuideStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowInAppGuideStep
+      x-validate: null
     MessageTypeSelectField:
       description: A select field used in a message type.
       example:
@@ -6328,6 +6544,7 @@ components:
             anyOf:
               - $ref: '#/components/schemas/WorkflowWebhookStep'
               - $ref: '#/components/schemas/WorkflowInAppFeedStep'
+              - $ref: '#/components/schemas/WorkflowInAppGuideStep'
               - $ref: '#/components/schemas/WorkflowChatStep'
               - $ref: '#/components/schemas/WorkflowSmsStep'
               - $ref: '#/components/schemas/WorkflowPushStep'
@@ -7303,6 +7520,21 @@ components:
       required:
         - partial
       title: WrappedPartialResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    WrappedTagRequestRequest:
+      description: Wraps the TagRequest request under the tag key.
+      example:
+        tag:
+          color: '#3B82F6'
+          description: Billing-related workflows
+      properties:
+        tag:
+          $ref: '#/components/schemas/TagRequest'
+      required:
+        - tag
+      title: WrappedTagRequestRequest
       type: object
       x-struct: null
       x-validate: null
@@ -8498,6 +8730,29 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.JsonField
       x-validate: null
+    TagsResponse:
+      description: A list of tags in the project's catalog.
+      example:
+        entries:
+          - color: '#3B82F6'
+            created_at: "2021-01-01T00:00:00Z"
+            description: Billing-related workflows
+            name: billing
+            updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        entries:
+          description: Tags, ordered by name.
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - entries
+      title: TagsResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.TagsResponse
+      x-validate: null
     WrappedTranslationRequestRequest:
       description: Wraps the TranslationRequest request under the translation key.
       example:
@@ -9630,6 +9885,22 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup.ConditionGroupAnyMatch
       x-validate: null
+    WrappedPreferenceCategoryResponse:
+      description: Wraps the PreferenceCategory response under the `preference_category` key.
+      example:
+        preference_category:
+          created_at: "2021-01-01T00:00:00Z"
+          name: billing
+          updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        preference_category:
+          $ref: '#/components/schemas/PreferenceCategory'
+      required:
+        - preference_category
+      title: WrappedPreferenceCategoryResponse
+      type: object
+      x-struct: null
+      x-validate: null
     PaginatedChannelGroupResponse:
       description: A paginated list of ChannelGroup. Contains a list of entries and page information.
       example:
@@ -9701,6 +9972,7 @@ components:
           litmus_email_preview_allowed: false
           message_sent_limit: 10000
           new_relic_extension_allowed: false
+          permission_groups_allowed: false
           segment_extension_allowed: false
           self_serve_allowed: true
           sso_allowed: false
@@ -9782,6 +10054,11 @@ components:
               x-validate: null
             new_relic_extension_allowed:
               description: Whether New Relic integration extension is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            permission_groups_allowed:
+              description: Whether custom permission groups can be created.
               type: boolean
               x-struct: null
               x-validate: null
@@ -10396,6 +10673,27 @@ components:
       title: TranslationRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.TranslationRequest
+      x-validate: null
+    PreferenceCategoriesResponse:
+      description: A list of preference categories in the project's catalog.
+      example:
+        entries:
+          - created_at: "2021-01-01T00:00:00Z"
+            name: billing
+            updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        entries:
+          description: Preference categories, ordered by name.
+          items:
+            $ref: '#/components/schemas/PreferenceCategory'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - entries
+      title: PreferenceCategoriesResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreferenceCategoriesResponse
       x-validate: null
     PaginatedItemSchemaResponse:
       description: A paginated list of ItemSchema. Contains a list of entries and page information.
@@ -11076,6 +11374,16 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        guide_audience_conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: Read-only. Workflow-derived audience eligibility as a condition group. Each applicable workflow (recorded plus currently referencing) that references this guide via trigger guide step contributes an audience-membership condition; multiple workflows are combined with OR. Omitted when there are no workflow-derived audience conditions.
+          type: object
+          x-struct: null
+          x-validate: null
         key:
           description: The unique key string for the guide object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -11549,6 +11857,24 @@ components:
       title: MessageTypeMarkdownField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.MarkdownField
+      x-validate: null
+    WrappedTagResponse:
+      description: Wraps the Tag response under the `tag` key.
+      example:
+        tag:
+          color: '#3B82F6'
+          created_at: "2021-01-01T00:00:00Z"
+          description: Billing-related workflows
+          name: billing
+          updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        tag:
+          $ref: '#/components/schemas/Tag'
+      required:
+        - tag
+      title: WrappedTagResponse
+      type: object
+      x-struct: null
       x-validate: null
     WorkflowRandomCohortStepBranch:
       description: A cohort branch in an experiment step.
@@ -14846,7 +15172,7 @@ paths:
 
           // Automatically fetches more pages as needed.
           for await (const guide of client.guides.list({ environment: 'development' })) {
-            console.log(guide.valid);
+            console.log(guide.guide_audience_conditions);
           }
         python: |-
           import os
@@ -14859,7 +15185,7 @@ paths:
               environment="development",
           )
           page = page.entries[0]
-          print(page.valid)
+          print(page.guide_audience_conditions)
         go: |
           package main
 
@@ -15594,6 +15920,87 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Translation)
           }
+  /v1/tags/{name}:
+    delete:
+      callbacks: {}
+      description: Deletes a tag by name.
+      operationId: deleteTag
+      parameters:
+        - description: The name of the tag to delete.
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          content:
+            application/json: {}
+          description: No Content
+      summary: Delete a tag
+      tags:
+        - Tags
+    put:
+      callbacks: {}
+      description: Creates a tag by name. If a tag with the same name already exists, updates its description and color. Omitted description and color fields are set to null.
+      operationId: upsertTag
+      parameters:
+        - description: The name of the tag to upsert.
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the TagRequest request under the tag key.
+              example:
+                tag:
+                  color: '#3B82F6'
+                  description: Billing-related workflows
+              properties:
+                tag:
+                  $ref: '#/components/schemas/TagRequest'
+              required:
+                - tag
+              title: WrappedTagRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Tag response under the `tag` key.
+                example:
+                  tag:
+                    color: '#3B82F6'
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: Billing-related workflows
+                    name: billing
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  tag:
+                    $ref: '#/components/schemas/Tag'
+                required:
+                  - tag
+                title: WrappedTagResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a tag
+      tags:
+        - Tags
   /v1/sources/{key}/rehearse:
     post:
       callbacks: {}
@@ -16529,7 +16936,7 @@ paths:
 
           const guide = await client.guides.retrieve('guide_key', { environment: 'development' });
 
-          console.log(guide.valid);
+          console.log(guide.guide_audience_conditions);
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -16541,7 +16948,7 @@ paths:
               guide_key="guide_key",
               environment="development",
           )
-          print(guide.valid)
+          print(guide.guide_audience_conditions)
         go: |
           package main
 
@@ -16567,7 +16974,7 @@ paths:
           	if err != nil {
           		panic(err.Error())
           	}
-          	fmt.Printf("%+v\n", guide.Valid)
+          	fmt.Printf("%+v\n", guide.GuideAudienceConditions)
           }
     put:
       callbacks: {}
@@ -19412,6 +19819,22 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/preference_categories:
+    get:
+      callbacks: {}
+      description: Returns all preference categories in the project's catalog, ordered by name. Preference categories are project-scoped and not tied to an environment.
+      operationId: listPreferenceCategories
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceCategoriesResponse'
+          description: OK
+      summary: List preference categories
+      tags:
+        - Preference categories
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -20340,6 +20763,65 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Translation)
           }
+  /v1/preference_categories/{name}:
+    delete:
+      callbacks: {}
+      description: Archives a preference category by name.
+      operationId: deletePreferenceCategory
+      parameters:
+        - description: The name of the preference category to delete.
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          content:
+            application/json: {}
+          description: No Content
+      summary: Delete a preference category
+      tags:
+        - Preference categories
+    put:
+      callbacks: {}
+      description: Creates a preference category by name. If a non-archived category with the same name already exists, returns the existing category.
+      operationId: upsertPreferenceCategory
+      parameters:
+        - description: The name of the preference category to upsert.
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the PreferenceCategory response under the `preference_category` key.
+                example:
+                  preference_category:
+                    created_at: "2021-01-01T00:00:00Z"
+                    name: billing
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  preference_category:
+                    $ref: '#/components/schemas/PreferenceCategory'
+                required:
+                  - preference_category
+                title: WrappedPreferenceCategoryResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a preference category
+      tags:
+        - Preference categories
   /v1/branches/{branch_slug}/rebase:
     put:
       callbacks: {}
@@ -22026,6 +22508,22 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/tags:
+    get:
+      callbacks: {}
+      description: Returns all tags in the project's catalog, ordered by name. Tags are project-scoped and not tied to an environment.
+      operationId: listTags
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+          description: OK
+      summary: List tags
+      tags:
+        - Tags
   /v1/preference_center/reset:
     put:
       callbacks: {}
@@ -23101,3 +23599,7 @@ tags:
     name: Audiences
   - description: Assets are uploaded files available to your Knock account.
     name: Assets
+  - description: Preference categories are a project-level catalog of categories that can be applied to workflows and broadcasts.
+    name: Preference categories
+  - description: Tags are a project-level catalog of labels that can be applied to workflows, partials, and guides.
+    name: Tags
