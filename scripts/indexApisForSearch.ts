@@ -3,13 +3,19 @@ import {
   readOpenApiSpec,
   readStainlessSpec,
 } from "@/lib/openApiSpec";
-import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
-import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
+import {
+  API_REFERENCE_OVERVIEW_CONTENT,
+  RESOURCE_ORDER as API_RESOURCE_ORDER,
+} from "@/data/sidebars/apiOverviewSidebar";
+import {
+  MAPI_REFERENCE_OVERVIEW_CONTENT,
+  RESOURCE_ORDER as MAPI_RESOURCE_ORDER,
+} from "@/data/sidebars/mapiOverviewSidebar";
 import algoliasearch from "algoliasearch";
 import { resolveEndpointFromMethod } from "@/components/ui/ApiReference/helpers";
 import { getAtPointer } from "@/lib/jsonPointer";
 import { loadEnvConfig } from "@next/env";
-import type { DocsSearchItem, EndpointSearchItem } from "@/types";
+import type { EndpointSearchItem, EnhancedDocsSearchItem } from "@/types";
 import { readFile } from "fs/promises";
 import path from "path";
 
@@ -29,8 +35,17 @@ const algoliaEndpointIndexName =
 let indexCount = 0;
 let endpointCount = 0;
 
+const MAX_CONTENT_LENGTH = 2000;
+
+interface StaticContentHeading {
+  level: number;
+  title: string;
+  slug: string;
+  content: string;
+}
+
 async function validateSearchObject(
-  object: DocsSearchItem | EndpointSearchItem,
+  object: EnhancedDocsSearchItem | EndpointSearchItem,
 ) {
   if (object.path.startsWith("/")) {
     return Promise.reject(
@@ -45,11 +60,16 @@ async function validateSearchObject(
  * So we're pretty good for now and can either expand that limit or
  * save objects in chunks. These batches work for now!
  */
-let pagesToSave: DocsSearchItem[] = [];
-async function queuePage(object: DocsSearchItem) {
+let pagesToSave: EnhancedDocsSearchItem[] = [];
+async function queuePage(object: EnhancedDocsSearchItem) {
   await validateSearchObject(object);
   // Keep this in for logging purposes
-  console.log("Indexing page:", object.title, object.path);
+  console.log(
+    "Indexing page:",
+    object.title,
+    object.path,
+    `(${object.content.length} content chars)`,
+  );
   indexCount++;
   pagesToSave.push(object);
   return;
@@ -63,6 +83,115 @@ async function queueEndpoint(object: EndpointSearchItem) {
   endpointCount++;
   endpointsToSave.push(object);
   return;
+}
+
+function buildApiPageSearchItem({
+  objectID,
+  path,
+  title,
+  pageTitle = title,
+  section,
+  content = "",
+  tags = [],
+  headingLevel = 0,
+  isPageLevel = true,
+}: {
+  objectID: string;
+  path: string;
+  title: string;
+  pageTitle?: string;
+  section: string;
+  content?: string;
+  tags?: string[];
+  headingLevel?: number;
+  isPageLevel?: boolean;
+}): EnhancedDocsSearchItem {
+  return {
+    objectID,
+    path,
+    title,
+    pageTitle,
+    content: content.slice(0, MAX_CONTENT_LENGTH),
+    section,
+    tags,
+    headingLevel,
+    contentType: "api-reference",
+    index: "pages",
+    isPageLevel,
+  };
+}
+
+function extractTextContent(mdxContent: string): string {
+  let content = mdxContent;
+
+  content = content.replace(/^---[\s\S]*?---\n*/g, "");
+  content = content.replace(/```[^\n]*\n([\s\S]*?)```/g, "$1");
+  content = content.replace(/`([^`]+)`/g, "$1");
+  content = content.replace(/!\[([^\]]*)\]\([^)]+\)/g, "");
+  content = content.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+  content = content.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+  content = content.replace(/<\/?[A-Za-z][^>]*>/g, " ");
+  content = content.replace(/[{}[\](),"]/g, " ");
+  content = content.replace(/\s+/g, " ");
+
+  return content.trim();
+}
+
+function getOverviewSectionTitle(name: "api" | "mapi", path: string): string {
+  const overviewContent =
+    name === "api"
+      ? API_REFERENCE_OVERVIEW_CONTENT
+      : MAPI_REFERENCE_OVERVIEW_CONTENT;
+  const pathWithoutOverview = path.replace(/^\/overview/, "") || "/";
+  const page = overviewContent[0]?.pages.find(
+    ({ slug }) => slug === pathWithoutOverview,
+  );
+
+  return page?.title ?? "Overview";
+}
+
+function slugify(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function extractHeadings(content: string): StaticContentHeading[] {
+  const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+  const matches: Array<{ index: number; level: number; title: string }> = [];
+  const headings: StaticContentHeading[] = [];
+  let match;
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    matches.push({
+      index: match.index,
+      level: match[1].length,
+      title: match[2].trim(),
+    });
+  }
+
+  for (let index = 0; index < matches.length; index++) {
+    const current = matches[index];
+    const next = matches[index + 1];
+    const contentStart =
+      current.index + `${"#".repeat(current.level)} ${current.title}`.length;
+    const contentEnd = next ? next.index : content.length;
+    const cleanContent = extractTextContent(
+      content.slice(contentStart, contentEnd),
+    );
+
+    headings.push({
+      level: current.level,
+      title: current.title,
+      slug: slugify(current.title),
+      content: cleanContent,
+    });
+  }
+
+  return headings;
 }
 
 async function indexResource({
@@ -99,34 +228,37 @@ async function indexResource({
 
   const sectionName = section + " > " + resourceName;
 
-  const resourceObject: DocsSearchItem = {
-    // The path to the page will be the identifier in Algolia.
+  const resourceObject = buildApiPageSearchItem({
     objectID: `page-${staticName}-${basePath}`,
     path: basePath,
     title: resourceName,
     section,
-    tags: [],
-    contentType: "api-reference",
-    index: "pages",
-  };
+    content: resourceName,
+  });
   await queuePage(resourceObject);
 
   // Methods like get, post, put, delete
-  Object.keys(methods).forEach(async (methodName) => {
+  for (const methodName of Object.keys(methods)) {
     const method = methods[methodName];
     const [methodType, endpoint] = resolveEndpointFromMethod(method);
     const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
     const title = openApiOperation?.summary;
     const methodUrl = `${basePath}/${methodName}`;
-    const docsSearchItem: DocsSearchItem = {
+    const docsSearchItem = buildApiPageSearchItem({
       objectID: `page-${staticName}-${methodUrl}`,
       title,
       path: methodUrl,
       section: sectionName,
-      tags: [],
-      contentType: "api-reference",
-      index: "pages",
-    };
+      tags: openApiOperation?.tags ?? [],
+      content: [
+        openApiOperation?.summary,
+        openApiOperation?.description,
+        methodType?.toUpperCase(),
+        endpoint,
+      ]
+        .filter(Boolean)
+        .join(" "),
+    });
     await queuePage(docsSearchItem);
 
     const formattedApiName = apiName === "api" ? "API" : "mAPI";
@@ -140,28 +272,28 @@ async function indexResource({
       index: "endpoints",
     };
     await queueEndpoint(endpointSearchItem);
-  });
+  }
 
   // Handle the schemas
-  Object.keys(models).forEach(async (modelName) => {
+  for (const modelName of Object.keys(models)) {
     const modelRef = models[modelName];
     const modelUrl = `${basePath}/schemas/${modelName}`;
     const schema = getAtPointer(openApiSpec, modelRef.replace("#", ""));
     const title = schema?.title ?? modelName;
-    const modelObject: DocsSearchItem = {
+    const modelObject = buildApiPageSearchItem({
       objectID: `page-${staticName}-${modelUrl}`,
       title,
       path: modelUrl,
       section: sectionName + " > " + "Object definitions",
-      tags: [],
-      contentType: "api-reference",
-      index: "pages",
-    };
+      content: [schema?.title, schema?.description, modelName]
+        .filter(Boolean)
+        .join(" "),
+    });
     await queuePage(modelObject);
-  });
+  }
 
   // Subresources like BulkOperations
-  Object.keys(resource.subresources ?? {}).forEach(async (subresourceName) => {
+  for (const subresourceName of Object.keys(resource.subresources ?? {})) {
     if (!resource.subresources) return;
     const subresource = resource.subresources[subresourceName];
     // Recursively index the subresource
@@ -173,7 +305,7 @@ async function indexResource({
       pathPrefix: basePath,
       section: sectionName,
     });
-  });
+  }
 }
 
 async function indexApi(name: "api" | "mapi") {
@@ -209,13 +341,19 @@ async function indexStaticContent(name: "api" | "mapi") {
 
   // Find all sections in the static content and index them
   function extractSectionInfo(content: string) {
-    const sections: Array<{ title?: string; path?: string }> = [];
-    const parser = new RegExp(/<Section\s+(.*?)\s*>/g);
+    const sections: Array<{
+      title: string;
+      path: string;
+      content: string;
+      headings: StaticContentHeading[];
+    }> = [];
+    const parser = new RegExp(/<Section\b([^>]*)>([\s\S]*?)<\/Section>/g);
     const attributeParser = /(\w+)="([^"]*)"/g;
 
     let match;
     while ((match = parser.exec(content)) !== null) {
       const attributes = match[1];
+      const body = match[2];
       const sectionInfo: { title?: string; path?: string } = {};
 
       let attrMatch;
@@ -225,25 +363,45 @@ async function indexStaticContent(name: "api" | "mapi") {
         if (name === "path") sectionInfo.path = value;
       }
 
-      sections.push(sectionInfo);
+      if (!sectionInfo.path) continue;
+
+      sections.push({
+        path: sectionInfo.path,
+        title:
+          sectionInfo.title ?? getOverviewSectionTitle(name, sectionInfo.path),
+        content: extractTextContent(body),
+        headings: extractHeadings(body),
+      });
     }
 
     return sections;
   }
   const sections = extractSectionInfo(staticContent);
   for (const section of sections) {
-    const { title, path } = section;
-    if (!title || !path) continue;
-    const sectionObject: DocsSearchItem = {
+    const { title, path, content, headings } = section;
+    const sectionObject = buildApiPageSearchItem({
       objectID: `page-section-${name}-reference${path}`,
       path: `${name}-reference${path}`,
       title,
       section: name === "api" ? "API Reference" : "mAPI Reference",
-      tags: [],
-      contentType: "api-reference",
-      index: "pages",
-    };
+      content,
+    });
     await queuePage(sectionObject);
+
+    for (const heading of headings) {
+      const headingPath = `${name}-reference${path}#${heading.slug}`;
+      const headingObject = buildApiPageSearchItem({
+        objectID: `heading-section-${headingPath}`,
+        path: headingPath,
+        title: heading.title,
+        pageTitle: title,
+        section: name === "api" ? "API Reference" : "mAPI Reference",
+        content: heading.content,
+        headingLevel: heading.level,
+        isPageLevel: false,
+      });
+      await queuePage(headingObject);
+    }
   }
   return staticContent;
 }
