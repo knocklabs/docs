@@ -25,8 +25,38 @@ Variables are available to be accessed under the `vars` namespace within your te
 
 You can optionally set environment-specific values for your variables. To do so, go to the **Variables** page under the **Account** section of your account settings, click the three dots for a specific variable to select "Edit variable," and set the value for the environment you wish to override.
 
-## Setting JSON in variables
+## Variable types and JSON parsing
 
-Your variables can optionally contain JSON, which will be parsed when a variable is executed. For instance, if you want to set a dynamic batch window for each environment you can set a per-environment variable to contain `{ "unit": "seconds", "value": 30 }`.
+Knock stores every variable value as text, but at send time we try to parse that text as JSON first. If the value is valid JSON, your variable takes on the resulting type. If it isn't, we fall back to using the value as a string.
 
-Please note: variables will _always_ be parsed as JSON first, before falling back to being processed as a string.
+This means a variable is not always a string. A value of `true` becomes a boolean, and a value of `123` becomes a number.
+
+| Stored value                         | Parsed as                                           |
+| ------------------------------------ | --------------------------------------------------- |
+| `true` / `false`                     | Boolean                                             |
+| `123`                                | Number                                              |
+| `12.5`                               | Number                                              |
+| `null`                               | `null`                                              |
+| `["a", "b"]`                         | Array                                               |
+| `{ "unit": "seconds", "value": 30 }` | Object                                              |
+| `https://example.com`                | String                                              |
+| `007`                                | String (leading zeros aren't valid numbers in JSON) |
+| `TRUE`                               | String (JSON is case-sensitive)                     |
+
+### Comparing variables in conditions
+
+Because parsing happens before your templates and conditions run, compare a variable against the type it parses into. A variable set to `true` is a boolean, so compare it as one:
+
+```liquid title="Comparing a boolean variable"
+{% if vars.feature_enabled == true %}
+  Welcome to the new experience.
+{% endif %}
+```
+
+Comparing that same variable against the string `"true"` will never match.
+
+### Using JSON objects in variables
+
+Object and array values parse the same way, which makes variables useful for setting structured data under a single key. A `support` variable set to `{ "email": "help@example.com", "url": "https://example.com/help" }` gives your templates both `vars.support.email` and `vars.support.url`, and lets you override the pair for each environment in one place.
+
+Some features in Knock can consume a JSON object directly. For example, if you want to set a [dynamic batch window](/designing-workflows/batch-function#set-a-dynamic-batch-window-using-a-variable), you can set a per-environment variable to contain `{ "unit": "seconds", "value": 30 }` and reference that variable from your batch step.
