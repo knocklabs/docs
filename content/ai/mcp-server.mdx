@@ -4,7 +4,7 @@ description: Use the Knock MCP server to make Knock accessible to LLMs and AI ag
 section: AI
 ---
 
-Knock ships a remote MCP server at `mcp.knock.app/mcp` that exposes the primitives of Knock to LLMs and AI via the <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> so that your AI agents can discover and use Knock via tool calling. Reach for the MCP server when you need Knock tools available inside Claude Desktop, ChatGPT, or any MCP-compatible client, or when you're building a product that needs Knock primitives behind an LLM.
+Knock ships a remote MCP server at `mcp.knock.app/mcp` that exposes the primitives of Knock to LLMs and AI via the <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> so that your AI agents can discover and use Knock via tool calling. Reach for the MCP server when you need Knock tools available inside Claude, ChatGPT, Cursor, or any MCP-compatible client, or when you're building a product that needs Knock primitives behind an LLM.
 
 Here are some examples of how you can use the MCP server in your workflow:
 
@@ -16,28 +16,33 @@ Here are some examples of how you can use the MCP server in your workflow:
 
 The Knock MCP server is a remote server—no local installation or Node.js setup is required. You connect to `https://mcp.knock.app/mcp` directly from your MCP client and authenticate using your Knock account via OAuth. This means your Knock credentials are managed securely through the standard sign-in flow rather than requiring a service token.
 
-We've added setup instructions below for Cursor, Claude Desktop, and Claude Code, but the same instructions apply to any other MCP client-compatible application.
+We've added setup instructions below for Claude, Cursor, and Claude Code, but the same instructions apply to any other MCP client-compatible application.
 
-### Cursor
+### Claude
 
-1. Go to **Settings** > **Cursor Settings** and find the "Tools & Integrations" section.
-2. Click "New MCP server" under **MCP Tools**.
-3. Inside your `mcp.json` file under the `mcpServers` key, add the following:
+Use Knock as a <a href="https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities" target="_blank" rel="noopener noreferrer">Claude connector</a> on Claude (web), Claude Desktop, and Claude mobile. Connectors talk to the remote MCP server over HTTPS, so you do not need Node.js or a local proxy.
 
-```json
-{
-  "knock": {
-    "url": "https://mcp.knock.app/mcp",
-    "name": "Knock MCP Server"
-  }
-}
-```
+#### Add Knock as a custom connector
 
-4. When Cursor prompts you to authenticate, sign in with your Knock account.
+1. In Claude, go to **Customize** > **Connectors**.
+2. Click the **+** button next to Connectors, then select **Add custom connector**.
+3. Enter a name (for example, `Knock`) and the MCP server URL: `https://mcp.knock.app/mcp`.
+4. Click **Add**, then click **Connect** on the Knock connector.
+5. Approve the MCP access request in Knock.
+6. Select the Knock account to connect, then click **Allow access**.
+7. Choose which [capabilities](#capabilities) to grant (the defaults are a good starting point), then click **Authorize**.
 
-### Claude Desktop
+After OAuth completes, Knock tools are available in your Claude conversations. From the chat **+** menu, open **Connectors** and make sure Knock is enabled for that conversation.
 
-Note: This setup uses `mcp-remote` as a local proxy, which requires Node.js 18 or higher.
+<Callout
+  type="info"
+  title="Team and Enterprise plans"
+  text="On Claude Team and Enterprise, an Owner must first add the connector under Organization settings > Connectors before members can connect and authenticate individually."
+/>
+
+#### Claude Desktop local config (optional)
+
+If you prefer a local MCP config in Claude Desktop instead of Connectors, you can use `mcp-remote` as a proxy. This requires Node.js 18 or higher.
 
 1. Open the Claude Desktop settings and find the "Developer" section.
 2. Click "Edit Config."
@@ -56,6 +61,23 @@ Note: This setup uses `mcp-remote` as a local proxy, which requires Node.js 18 o
 ```
 
 5. Restart Claude Desktop. When you first use a Knock tool, you'll be prompted to sign in with your Knock account.
+
+### Cursor
+
+1. Go to **Settings** > **Cursor Settings** and find the "Tools & Integrations" section.
+2. Click "New MCP server" under **MCP Tools**.
+3. Inside your `mcp.json` file under the `mcpServers` key, add the following:
+
+```json
+{
+  "knock": {
+    "url": "https://mcp.knock.app/mcp",
+    "name": "Knock MCP Server"
+  }
+}
+```
+
+4. When Cursor prompts you to authenticate, sign in with your Knock account.
 
 ### Claude Code
 
