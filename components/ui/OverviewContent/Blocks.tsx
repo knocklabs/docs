@@ -44,7 +44,7 @@ function IconRenderer({
 }: {
   icon: IconComponent | LucideIcon;
   size?: "8" | "10";
-  bg?: "black" | "gray-2";
+  bg?: TgphComponentProps<typeof Box>["bg"];
 }) {
   if (typeof icon === "function" && !("render" in icon)) {
     // Custom IconComponent
@@ -133,6 +133,8 @@ export const ContentCard = ({
   icon,
   style,
   newTab,
+  border,
+  bg,
 }: {
   title: string;
   description: string;
@@ -140,10 +142,20 @@ export const ContentCard = ({
   icon?: IconType;
   style?: React.CSSProperties;
   newTab?: boolean;
+  border?: boolean;
+  bg?: TgphComponentProps<typeof Box>["bg"];
 }) => {
   const _icon = icon ? getIcon(icon) : null;
   return (
-    <Box borderRadius="2" style={style} shadow="1" data-content-card>
+    <Box
+      borderRadius="2"
+      style={style}
+      shadow={border ? undefined : "1"}
+      border={border ? "px" : undefined}
+      borderColor={border ? "gray-4" : undefined}
+      bg={bg}
+      data-content-card
+    >
       <Stack
         as={Link}
         href={href}
@@ -153,26 +165,25 @@ export const ContentCard = ({
         h="full"
         flexDirection="column"
         gap="2"
-        border="px"
-        borderColor="gray-2"
+        border={border ? undefined : "px"}
+        borderColor={border ? undefined : "gray-2"}
         borderRadius="2"
         p="3"
-        position="relative"
         data-content-card-inner
       >
-        {newTab && (
-          <Box position="absolute" top="2" right="2">
-            <Icon icon={ArrowUpRight} size="2" color="gray" aria-hidden />
-          </Box>
-        )}
         {_icon && (
-          <Box ml="-1_5">
-            <IconRenderer icon={_icon} size="10" bg="gray-2" />
+          <Box ml="-2" alignSelf="flex-start">
+            <IconRenderer icon={_icon} size="10" bg={bg ?? "gray-2"} />
           </Box>
         )}
-        <Heading as="span" size="3" weight="medium" mb="0">
-          {title}
-        </Heading>
+        <Stack direction="row" alignItems="center" gap="1">
+          <Heading as="span" size="3" weight="medium" mb="0">
+            {title}
+          </Heading>
+          {newTab && (
+            <Icon icon={ArrowUpRight} size="2" color="accent" aria-hidden />
+          )}
+        </Stack>
         <Text as="span" size="1" color="gray">
           {description}
         </Text>
