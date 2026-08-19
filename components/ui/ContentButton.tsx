@@ -8,11 +8,9 @@ type ButtonRootProps = React.ComponentProps<typeof Button.Root>;
 type ButtonTextProps = React.ComponentProps<typeof Button.Text>;
 
 export interface ContentButtonProps
-  extends Omit<ButtonRootProps, "as" | "href" | "target" | "rel" | "children"> {
-  href: string;
+  extends Omit<ButtonRootProps, "as" | "children"> {
   text: string;
   icon?: string;
-  newTab?: boolean;
   textProps?: ButtonTextProps;
 }
 
@@ -33,26 +31,18 @@ function resolveIcon(icon?: string) {
 }
 
 export const ContentButton = ({
-  href,
   text,
   icon,
-  newTab = true,
   textProps = {},
+  variant = "outline",
+  color = "accent",
+  mt = "4",
   ...rest
 }: ContentButtonProps) => {
   const IconComponent = resolveIcon(icon);
 
   return (
-    <Button.Root
-      as="a"
-      href={href}
-      target={newTab ? "_blank" : undefined}
-      rel={newTab ? "noopener noreferrer" : undefined}
-      variant="outline"
-      color="accent"
-      mt="4"
-      {...rest}
-    >
+    <Button.Root as="a" variant={variant} color={color} mt={mt} {...rest}>
       {IconComponent && (
         <Box w="4" h="4" aria-hidden style={{ display: "flex", flexShrink: 0 }}>
           <IconComponent />
