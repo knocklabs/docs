@@ -7,7 +7,6 @@ import { Icons } from "../Icons";
 import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
-import { ArrowUpRight } from "lucide-react";
 
 type IconComponent = () => React.JSX.Element;
 type IconType = keyof typeof Icons | LucideIcon | IconComponent;
@@ -44,7 +43,7 @@ function IconRenderer({
 }: {
   icon: IconComponent | LucideIcon;
   size?: "8" | "10";
-  bg?: TgphComponentProps<typeof Box>["bg"];
+  bg?: "black" | "gray-2";
 }) {
   if (typeof icon === "function" && !("render" in icon)) {
     // Custom IconComponent
@@ -133,8 +132,6 @@ export const ContentCard = ({
   icon,
   style,
   newTab,
-  border,
-  bg,
 }: {
   title: string;
   description: string;
@@ -142,48 +139,28 @@ export const ContentCard = ({
   icon?: IconType;
   style?: React.CSSProperties;
   newTab?: boolean;
-  border?: boolean;
-  bg?: TgphComponentProps<typeof Box>["bg"];
 }) => {
   const _icon = icon ? getIcon(icon) : null;
   return (
-    <Box
-      borderRadius="2"
-      style={style}
-      shadow={border ? undefined : "1"}
-      border={border ? "px" : undefined}
-      borderColor={border ? "gray-4" : undefined}
-      bg={bg}
-      data-content-card
-    >
+    <Box borderRadius="2" style={style} shadow="1" data-content-card>
       <Stack
         as={Link}
         href={href}
         target={newTab ? "_blank" : undefined}
-        rel={newTab ? "noopener noreferrer" : undefined}
         w="full"
         h="full"
         flexDirection="column"
         gap="2"
-        border={border ? undefined : "px"}
-        borderColor={border ? undefined : "gray-2"}
+        border="px"
+        borderColor="gray-2"
         borderRadius="2"
         p="3"
         data-content-card-inner
       >
-        {_icon && (
-          <Box ml="-2" alignSelf="flex-start">
-            <IconRenderer icon={_icon} size="10" bg={bg ?? "gray-2"} />
-          </Box>
-        )}
-        <Stack direction="row" alignItems="center" gap="1">
-          <Heading as="span" size="3" weight="medium" mb="0">
-            {title}
-          </Heading>
-          {newTab && (
-            <Icon icon={ArrowUpRight} size="2" color="accent" aria-hidden />
-          )}
-        </Stack>
+        {_icon && <IconRenderer icon={_icon} size="10" bg="gray-2" />}
+        <Heading as="span" size="3" weight="medium" mb="0">
+          {title}
+        </Heading>
         <Text as="span" size="1" color="gray">
           {description}
         </Text>
