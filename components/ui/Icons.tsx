@@ -37,6 +37,7 @@ import {
   FaAndroid,
 } from "react-icons/fa";
 import { RiJavascriptFill } from "react-icons/ri";
+import { ClaudeBrandmark } from "./CodingToolIcon/brandmarks";
 
 // Combine all the icons into a single object
 // This is mostly for MDX so we can enable our components to accept a string
@@ -114,6 +115,7 @@ const PascalCaseIcons = {
       />
     </svg>
   ),
+  Claude: ClaudeBrandmark,
   Slack: () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
