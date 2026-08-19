@@ -43,8 +43,8 @@ import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
 import { AgentDeeplinkButton } from "@/components/ui/AgentDeeplinkButton";
 import { AgentFirstSetup } from "@/components/ui/AgentFirstSetup";
 import { AgentSetupPrompt } from "@/components/ui/AgentSetupPrompt";
-import { ClaudeConnectorButton } from "@/components/ui/ClaudeConnectorButton";
 import { KnockAiBanner } from "@/components/ui/KnockAiBanner";
+import { Button } from "@telegraph/button";
 
 const Image = ({
   className,
@@ -133,6 +133,6 @@ export const MDX_COMPONENTS = {
   AgentDeeplinkButton,
   AgentFirstSetup,
   AgentSetupPrompt,
-  ClaudeConnectorButton,
   KnockAiBanner,
+  Button,
 };
