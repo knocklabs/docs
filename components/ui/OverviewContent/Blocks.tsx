@@ -7,6 +7,7 @@ import { Icons } from "../Icons";
 import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { ArrowUpRight } from "lucide-react";
 
 type IconComponent = () => React.JSX.Element;
 type IconType = keyof typeof Icons | LucideIcon | IconComponent;
@@ -147,6 +148,7 @@ export const ContentCard = ({
         as={Link}
         href={href}
         target={newTab ? "_blank" : undefined}
+        rel={newTab ? "noopener noreferrer" : undefined}
         w="full"
         h="full"
         flexDirection="column"
@@ -155,9 +157,19 @@ export const ContentCard = ({
         borderColor="gray-2"
         borderRadius="2"
         p="3"
+        position="relative"
         data-content-card-inner
       >
-        {_icon && <IconRenderer icon={_icon} size="10" bg="gray-2" />}
+        {newTab && (
+          <Box position="absolute" top="2" right="2">
+            <Icon icon={ArrowUpRight} size="2" color="gray" aria-hidden />
+          </Box>
+        )}
+        {_icon && (
+          <Box ml="-1_5">
+            <IconRenderer icon={_icon} size="10" bg="gray-2" />
+          </Box>
+        )}
         <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>
