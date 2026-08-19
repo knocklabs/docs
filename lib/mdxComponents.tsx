@@ -45,6 +45,7 @@ import { AgentFirstSetup } from "@/components/ui/AgentFirstSetup";
 import { AgentSetupPrompt } from "@/components/ui/AgentSetupPrompt";
 import { KnockAiBanner } from "@/components/ui/KnockAiBanner";
 import { Button } from "@telegraph/button";
+import { ArrowUpRight } from "lucide-react";
 
 const Image = ({
   className,
@@ -135,4 +136,5 @@ export const MDX_COMPONENTS = {
   AgentSetupPrompt,
   KnockAiBanner,
   Button,
+  ArrowUpRight,
 };
