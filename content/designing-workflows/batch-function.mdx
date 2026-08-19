@@ -40,9 +40,9 @@ Here's a step-by-step breakdown of how a batch function works:
 - When a given recipient's workflow run hits a batch step, a batch is opened for an interval of time which you define (the [batch window](#setting-the-batch-window)).
 - While that interval is open, the batch function aggregates any additional incoming triggers for that recipient as `activities`. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers for that recipient will be grouped into separate batches based on the batch key.
 - As subsequent workflow triggers are added to an open batch as `activities`, their underlying workflow runs are terminated.
-- When the batch window interval closes, the original workflow run which opened the batch continues to the next step, with the data collected in the batch available as [variables](#using-batch-variables) in the workflow run scope.
+- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch available as [variables](#using-batch-variables) in the workflow run scope. By default, that continuation uses the [latest published version](#setting-the-workflow-version-mode) of the workflow.
 
-A batch function always captures events per `recipient` and `workflow_version_id`. For more information on how updates to your workflow will affect existing open batches, see the section on [updating workflows with batch steps](#updating-workflows-with-batch-steps) below.
+A batch function always captures events per `recipient`. By default, an open batch stays open across workflow versions. For more information on how updates to your workflow affect existing open batches, see [setting the workflow version mode](#setting-the-workflow-version-mode) and [updating workflows with batch steps](#updating-workflows-with-batch-steps).
 
 ## Selecting a batch key
 
@@ -56,10 +56,12 @@ You can use multiple variables when constructing a batch key. For example, setti
   text={
     <>
       Here's a helpful way to think about batching. By default the batch
-      function batches on a key of{" "}
-      <code>concat(recipient_id, workflow_version_id)</code>. When a batch key
+      function batches on a key of <code>recipient_id</code>. When a batch key
       is provided, it batches events on a key of{" "}
-      <code>concat(recipient_id, workflow_version_id, batch_key)</code>.
+      <code>concat(recipient_id, batch_key)</code>. In{" "}
+      <a href="#setting-the-workflow-version-mode">pinned mode</a>, the
+      workflow version is also included in the key so each published version
+      gets its own batch.
     </>
   }
 />
@@ -273,6 +275,38 @@ If you want to branch on whether the first item in a batch was flushed or not, y
   }
 />
 
+## Setting the workflow version mode
+
+A batch step can continue on the **latest** workflow version or stay **pinned** to the version that opened the batch. New batch steps default to latest mode.
+
+Set this in the "Advanced settings" section of the batch step with the "Continue on latest version" toggle. You can also set `workflow_version_mode` to `latest` or `pinned` when you manage the workflow through the [Management API](/developer-tools/management-api) or [CLI](/developer-tools/knock-cli).
+
+### Latest (default)
+
+In latest mode, an open batch stays open across [commits](/concepts/commits) and promotions. Subsequent triggers for the same recipient (and [batch key](#selecting-a-batch-key), if you set one) join that batch, even after you promote a new version of the workflow.
+
+When the window closes, Knock continues the workflow on the latest published version that still includes this batch step with latest mode enabled. Template and step changes you committed while the batch was open are used for that continuation.
+
+Use latest mode for digest-style batches so a new workflow version does not open a second batch or send a duplicate notification.
+
+### Pinned
+
+Pinned mode ties the batch to the workflow version that opened it. Committing a new version of the workflow opens a new batch for the same recipient. When a window closes, that batch continues on the version that opened it.
+
+Pinned is an advanced option. Use it only when you need a separate batch for each workflow version. For long-running batches, a new workflow version can close two batches around the same time and send two notifications.
+
+<Callout
+  type="info"
+  title="Existing batch steps stay pinned."
+  text={
+    <>
+      Batch steps that do not set a workflow version mode remain pinned, so
+      batches stay tied to the version that opened them. Enable "Continue on
+      latest version" if you want an existing step to use the new default.
+    </>
+  }
+/>
+
 ## Working with batches in your templates
 
 Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above.
@@ -341,16 +375,16 @@ For this reason, we recommend referencing the `activities` array to access data 
 
 ## Updating workflows with batch steps
 
-The batch function always aggregates events according to the currently-published workflow version at the time that the workflow is triggered. That same workflow version is used when the batch window closes and the workflow run proceeds to the next step. This design controls for changes to the order or content of your workflow steps, modifications to the expected trigger `data` payload schema, or other updates to your templates that could cause unexpected behavior or errors when new events are batched.
+What happens when you [commit](/concepts/commits) and promote a new version of a workflow with an open batch depends on the [workflow version mode](#setting-the-workflow-version-mode).
 
-This means that if your workflow is already live in production and collecting batched events, promoting an updated version of that workflow will cause new batch windows to open for all recipients the next time the workflow is triggered. Any existing batches will remain open until their full duration has elapsed, even though they will not accumulate any additional events.
+In **latest** mode (the default for new batch steps), the open batch stays open. Subsequent triggers join it, and when the window closes Knock continues the workflow on the latest published version. Template and step changes you committed while the batch was open are used for that continuation.
 
-Keep this behavior in mind when designing your workflows and planning for updates. Publishing changes to a workflow with a long-duration batch window that always closes at a specific interval (like "every Monday at 9:00 a.m.") could result in multiple notifications being sent in close succession, if batches for both old and new workflow versions close at the same time.
+In **pinned** mode, the batch stays tied to the workflow version that opened it. Promoting an updated version opens a new batch the next time the workflow is triggered. Existing batches remain open until their duration elapses, even though they will not accumulate additional events from the new version. For long-running batches that always close at a specific interval (like "every Monday at 9:00 a.m."), that can send two notifications in close succession.
 
 To prevent a workflow from sending notifications or accumulating additional events while you work on an update, you can set the workflow's [status](/concepts/workflows#workflow-status) to `Inactive`. While a workflow remains in the inactive state, new events will not be batched and any currently-open batch windows that close will not proceed to the next workflow step; their runs will instead be terminated and no additional messages will be generated.
 
 - A workflow's status is an environment-specific setting. Be sure to target your production environment if you decide to use this control.
-- Toggling a worflow's status does not automatically cancel any currently-open batch windows. Your workflow should remain in the `Inactive` state until all open batch windows have closed, otherwise your batches will proceed as normal once their window durations have elapsed.
+- Toggling a workflow's status does not automatically cancel any currently-open batch windows. Your workflow should remain in the `Inactive` state until all open batch windows have closed, otherwise your batches will proceed as normal once their window durations have elapsed.
 - While the workflow is `Inactive` in Production, promote your changes. After your open batch windows close and outstanding workflows have terminated, setting the workflow back to `Active` will begin batching incoming events again and these workflow runs will proceed with the newly-published workflow version.
 
 ## Using workflow cancellation with batches
@@ -400,6 +434,16 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
     - Set the key to be `batchWindow`, which will resolve the batch window from the variable you created
 
   </Accordion>
+  <Accordion title="What happens to an open batch when I update the workflow?">
+    If the batch step uses latest mode (the default for new steps), the open batch stays open. New triggers join it, and when the window closes the workflow continues on the latest published version.
+
+    If the batch step uses pinned mode, committing a new workflow version opens a new batch. The original batch still closes on its own window and continues on the version that opened it.
+  </Accordion>
+  <Accordion title="When should I use pinned workflow version mode?">
+    Pinned mode is an advanced option. Use it only when you want a batch that is tied to a specific published workflow version, so later commits open a separate batch instead of joining an open batch.
+
+    For digest and aggregation use cases, keep latest mode enabled.
+  </Accordion>
   <Accordion title="Can I close a batch early?">
     Right now we don't offer a way to close a batch from a workflow trigger. One workaround is to use a [sliding batch window](/designing-workflows/batch-function#using-a-sliding-batch-window) and then set the max extension window to be a very small duration (i.e. 1 second), meaning that the batch will immediately close when a subsequent trigger occurs.
   </Accordion>
@@ -423,7 +467,7 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
     Yes, but keep the following in mind:
 
     - Batch steps should never be used in sequence. Because the workflow runs underlying individual `activities` are terminated when they are added to a batch, subsequent batch steps will only ever collect a single `activity` and will not serve a useful purpose.
-    - While you can use multiple batch steps in parallel (for example, in separate workflow branches), the default batch key of `concat(recipient_id, workflow_version_id)` will not be unique for each batch step, which means that events which take different branch paths could still be batched together in a unified batch. To open separate batches for each parallel batch step, configure a unique [batch key](#selecting-a-batch-key) for each step.
+    - While you can use multiple batch steps in parallel (for example, in separate workflow branches), events that take different branch paths can still be batched together unless each step is uniquely identified. In latest mode, Knock includes the batch step in the batch key, so parallel batch steps open separate batches. In pinned mode, the default key is `concat(recipient_id, workflow_version_id)`, which is not unique per batch step. To open separate batches for each parallel pinned batch step, configure a unique [batch key](#selecting-a-batch-key) for each step.
 
   </Accordion>
   <Accordion title="Is batching the same as digesting notifications?">
