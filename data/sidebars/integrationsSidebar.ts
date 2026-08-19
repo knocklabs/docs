@@ -73,6 +73,10 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       {
+        slug: "/replying-to-chat-messages",
+        title: "Replying to chat messages",
+      },
+      {
         title: "Slack",
         slug: "/slack",
         pages: [

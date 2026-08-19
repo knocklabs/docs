@@ -1,0 +1,109 @@
+---
+title: Replying to chat messages
+description: Learn how to reply to messages created by an earlier workflow step or in an existing thread.
+tags: ["steps", "channels", "chat", "slack", "discord"]
+section: Integrations > Chat
+layout: integrations
+---
+
+Chat channel steps can start a new conversation or reply to an existing provider thread. When a parent message was created by the current workflow run, you can send a reply to a previous chat step. To reply to a message that already exists outside the workflow run, you'll provide its message ID instead.
+
+<Callout
+  type="info"
+  title="Supported providers."
+  text="Chat replies are available for Slack and Discord channel steps that use a bot-based connection. Incoming webhook connections do not support replies."
+/>
+
+## Reply to a previous chat step
+
+This is the recommended way to create a reply. Knock uses the earlier workflow step's provider message reference and destination, so you do not need to pass provider IDs or configure the destination again.
+
+In the workflow builder:
+
+1. Add a chat channel step after the step that creates the parent message.
+2. Set **Message behavior** to **Reply to a previous chat step**.
+3. Select the **Parent step**.
+
+A step is available as a parent when it:
+
+- Is a previous chat channel step that is reachable on every execution path to the reply. Chat steps inside conditional [branches](/designing-workflows/branch-function) will not be eligible as a parent to subsequent steps outside of that branch.
+- Uses the same single Knock channel as the reply step. Channel groups are not supported.
+- Resolves to one provider message and destination for the current recipient workflow run. A chat step that creates multiple messages, such as when a recipient has multiple channel connections, is not eligible as a parent.
+
+The reply step inherits the exact provider message reference and recipient connection from its parent. If the parent message is queued or scheduled, Knock waits for its provider message reference before attempting the reply.
+
+## Reply to an existing thread
+
+Use this option when the parent message already exists outside of the current workflow run.
+
+In the workflow builder:
+
+1. Set **Message behavior** to **Reply to an existing thread**.
+2. Enter the **Parent message ID**, usually as a dynamic Liquid reference from your workflow trigger `data`.
+3. For Slack, optionally enter the channel ID in **Send to**. See below for more detail on [configuring the destination](#configure-the-destination).
+
+The value expected for **Parent message ID** depends on the provider:
+
+- For Slack, use the parent message's timestamp (`ts`). Knock sends it to Slack as `thread_ts`.
+- For Discord, use the parent Discord message ID.
+
+<Callout
+  type="info"
+  title="Slack messages sent by Knock."
+  text={
+    <>
+      For a Slack message sent by Knock, use <code>metadata.external_id</code>
+      from the message returned by the API or a webhook as the parent message ID.
+      This is the Slack message's <code>ts</code>.
+    </>
+  }
+/>
+
+### Configure the destination
+
+For Slack, **Send to** accepts a Slack channel ID, usually from workflow trigger data such as `{{ data.channel_id }}`. Leave it blank to use the recipient's Slack channel connection. In either case, the destination must be the channel that contains the parent message.
+
+For Discord, Knock uses the Discord channel data stored on the recipient. That connection must identify the channel that contains the parent message.
+
+The configured Slack or Discord channel supplies authentication. Do not put a bot token in workflow data or in the destination field.
+
+### Slack trigger data example
+
+Send the Slack message timestamp and channel ID in the workflow trigger data:
+
+```javascript title="Triggering a threaded Slack response"
+await knock.workflows.trigger("reply-to-slack-message", {
+  recipients: ["user_123"],
+  data: {
+    parent_message_id: "1784920923.818589",
+    channel_id: "C0123456789",
+  },
+});
+```
+
+Then configure the Slack step with:
+
+| Setting           | Value                          |
+| ----------------- | ------------------------------ |
+| Message behavior  | Reply to an existing thread    |
+| Parent message ID | `{{ data.parent_message_id }}` |
+| Send to           | `{{ data.channel_id }}`        |
+
+At execution time, Knock renders the destination as a recipient connection equivalent to:
+
+```json title="A recipient Slack connection"
+{
+  "channel_id": "C0123456789"
+}
+```
+
+## Troubleshooting
+
+| Problem                                                                        | What happens                                                                                            | How to fix it                                                                 |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| The Slack timestamp is correct, but **Send to** is blank                       | Knock uses the recipient's stored Slack connection, which might point to another channel.               | Enter the channel ID that contains the parent message.                        |
+| The Slack timestamp and channel ID refer to different channels                 | The reply does not attach to the expected thread, or Slack rejects the request.                         | Enter the channel ID that contains the parent message.                        |
+| The recipient uses an incoming webhook connection                              | Knock cannot reply because incoming webhooks do not provide the required bot-based connection.          | Configure channel data that uses a bot token and channel ID.                  |
+| A Liquid value is empty or malformed                                           | Knock cannot render a valid parent message ID or destination, so no reply is sent.                      | Verify the workflow trigger data and Liquid path.                             |
+| A previous step is not available in the parent-step list                       | The step is not guaranteed to run first, uses another Knock channel, or is inside an unsupported group. | Adjust the workflow graph or reply to an existing thread with its message ID. |
+| A previous step produces no message or more than one possible provider message | Knock cannot identify one parent message and destination safely.                                        | Make the parent resolve to exactly one chat message for the recipient run.    |
