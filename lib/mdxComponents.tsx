@@ -43,24 +43,8 @@ import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
 import { AgentDeeplinkButton } from "@/components/ui/AgentDeeplinkButton";
 import { AgentFirstSetup } from "@/components/ui/AgentFirstSetup";
 import { AgentSetupPrompt } from "@/components/ui/AgentSetupPrompt";
+import { ClaudeConnectorButton } from "@/components/ui/ClaudeConnectorButton";
 import { KnockAiBanner } from "@/components/ui/KnockAiBanner";
-import { Button } from "@telegraph/button";
-import { ArrowUpRight } from "lucide-react";
-
-const ClaudeConnectorButton = () => (
-  <Button.Root
-    as="a"
-    href="https://claude.ai/directory/connectors/knock"
-    target="_blank"
-    rel="noopener noreferrer"
-    variant="solid"
-    color="accent"
-    mt="4"
-    trailingIcon={{ icon: ArrowUpRight, "aria-hidden": true }}
-  >
-    <Button.Text size="2">Add Knock in Claude</Button.Text>
-  </Button.Root>
-);
 
 const Image = ({
   className,
