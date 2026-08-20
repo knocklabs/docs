@@ -5,56 +5,43 @@ tags: ["steps", "guides", "audiences", "in-app", "channels"]
 section: Designing workflows
 ---
 
-A trigger guide step makes the current recipient eligible to see a [guide](/concepts/guides) as part of a workflow or broadcast run. Unlike a [channel step](/designing-workflows/channel-step), it doesn't send a message on a channel — it enrolls the recipient into a managed audience that backs the guide's targeting, so the guide becomes eligible to display the next time the recipient fetches their guides.
-
-Use a trigger guide step when you want guide eligibility to be driven by workflow or broadcast logic — for example, showing an onboarding tour after a recipient completes a specific action, or making an announcement guide eligible as one branch of a larger cross-channel campaign.
+Use a trigger guide step to update a user's [guide](/concepts/guides) eligibility within a workflow or broadcast run. This is useful when eligibility is driven by the context of the workflow or broadcast. For example, recipients may become eligible for an onboarding modal after completing a certain action in a cross-channel onboarding campaign.
 
 <Callout
-  type="info"
+  type="beta"
   title="Trigger guide step is in beta."
   text={
     <>
-      This feature is gated behind a feature flag. Contact your Knock
-      representative if you'd like access.
+      This feature is gated behind a feature flag.{" "}
+      <a href="mailto:support@knock.app?subject=Trigger%20guide%20step%20beta%20access">
+        Contact Knock support
+      </a>{" "}
+      if you'd like access.
     </>
   }
 />
 
 ## How it works
 
-A trigger guide step references a guide by its key. When you add the step to a workflow or broadcast, Knock creates a managed [static audience](/concepts/audiences) behind the scenes and links it to the guide's targeting rules. Every time the step executes for a recipient, Knock adds that recipient to the managed audience, which makes the guide eligible to display to them.
+A trigger guide step references a guide by its key. When you add the step to a workflow or broadcast, Knock creates a managed [static audience](/concepts/audiences) behind the scenes and links it to the guide's targeting rules. When the step executes for a recipient, Knock adds that recipient to the managed audience to make them [eligible for the selected guide](/in-app-ui/guides/create-guides#targeting) .
 
-Because eligibility is granted through audience membership, the same rules that apply to [audience-based guide targeting](/in-app-ui/guides/create-guides#targeting) apply here: the recipient still needs to fetch their guides (or have them refetched) in your application before the newly eligible guide appears, and any [activation rules](/in-app-ui/guides/create-guides#activation) or [property-based targeting](/in-app-ui/guides/create-guides#targeting) configured on the guide are still evaluated.
+To receive the rendered guide in your application, eligible audience members must also meet any guide targeting criteria set directly on the guide. This includes [property-based targeting](/in-app-ui/guides/create-guides#targeting) and [activation rules](/in-app-ui/guides/create-guides#activation). Guides may also be subject to [throttling](/in-app-ui/guides/order-guides) depending on how they've been prioritized in against other guides your user is eligible for.
 
 Enrollment is one-directional. A trigger guide step only ever adds the recipient to the managed audience — it never removes them. If a recipient runs through the step more than once, they simply stay enrolled; there's no duplicate membership or error.
 
 ## Adding a trigger guide step
 
 1. In the workflow or broadcast builder, drag the **Trigger guide** step onto your canvas. It's listed alongside your channel steps in the step panel.
-2. Select the guide you want to make eligible. Only guides that have been created and [committed](/version-control/commits) in the current environment are available to select — you can't reference a draft guide.
+2. Select the guide you want to make recipients eligible for. Only guides that have been created and [committed](/version-control/commits) in the current environment are available for selection.
 3. Optionally, add [step conditions](/designing-workflows/step-conditions) to control when the step should run.
-
-A trigger guide step has no channel, template, or [send windows](/designing-workflows/send-windows) to configure — its only setting is the guide it targets.
 
 ## Guide targeting and the managed audience
 
-Once a guide is referenced by a trigger guide step in a workflow or broadcast, the guide's **Audience** setting reflects that it's targeted by a workflow or broadcast step rather than (or in addition to) a manually selected audience. You can see which workflows and broadcasts trigger a given guide in the **Triggered by** section on the guide's page in the dashboard.
-
-If you also set a [`target_audience_key`](/in-app-ui/guides/create-guides#targeting) on the guide directly, both forms of targeting apply: a recipient is eligible if they're a member of the manually selected audience _or_ if they've been enrolled by a trigger guide step.
+When a guide is referenced by a trigger guide step, its **Audience** settings reflect that it's targeted by a workflow or broadcast step rather than, or in addition to, a manually-selected audience. You can see which workflows and broadcasts trigger a given guide in the **Triggered by** section of the guide's details page in the dashboard.
 
 ### Tenancy strict mode
 
-If the guide is targeted only through a trigger guide step (no manually selected audience), you can still enable [tenancy strict mode](/in-app-ui/guides/create-guides#tenancy-strict-mode) on the guide, since the managed audience carries the tenant the recipient was enrolled with.
-
-## Debugging
-
-You can inspect trigger guide step executions in the [workflow run logs](/send-notifications/debugging-workflows). The step appears as **Trigger guide step** and logs one of the following outcomes for each run:
-
-| Outcome                    | Description                                                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Success                    | The recipient was added to the guide's managed audience.                                                            |
-| Success (already enrolled) | The recipient was already a member of the guide's managed audience. No change was made.                             |
-| Skipped                    | The step could not enroll the recipient — for example, if the referenced guide's managed audience no longer exists. |
+If the guide is targeted only through a trigger guide step (no manually-selected audience), you can still enable [tenancy strict mode](/in-app-ui/guides/create-guides#tenancy-strict-mode) on the guide, since the managed audience carries the tenant the recipient was enrolled with.
 
 ## Frequently asked questions
 
@@ -68,15 +55,6 @@ You can inspect trigger guide step executions in the [workflow run logs](/send-n
     can render. See [rendering guides](/in-app-ui/guides/render-guides) for how
     to do this in your application.
   </Accordion>
-  <Accordion title="How is this different from an update audience step?">
-    An [update audience step](/designing-workflows/update-audience-function)
-    lets you add or remove a recipient from any static audience you've created,
-    which you can then reference from a guide's `target_audience_key`. A trigger
-    guide step is a more direct path purpose-built for guides: you select the
-    guide itself, and Knock manages the backing audience for you — there's no
-    separate audience to create or maintain, and no remove action since guide
-    eligibility from a step is additive only.
-  </Accordion>
   <Accordion title="Can I remove a recipient's eligibility once they're enrolled?">
     Not through the trigger guide step itself, since it only adds recipients to
     the managed audience. If you need to revoke eligibility, use [property-based
@@ -84,7 +62,7 @@ You can inspect trigger guide step executions in the [workflow run logs](/send-n
     rules](/in-app-ui/guides/create-guides#activation) on the guide to control
     when it's actually shown, rather than relying solely on audience membership.
   </Accordion>
-  <Accordion title="What happens if I delete or unpublish the guide referenced by a step?">
+  <Accordion title="What happens if I archive or unpublish the guide referenced by a step?">
     The step becomes invalid, in the same way a channel step becomes invalid if
     its channel is removed. Update the step to reference a different committed
     guide, or remove the step.
