@@ -631,6 +631,49 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypeRequest
       x-validate: null
+    PaginatedGoalResponse:
+      description: A paginated list of Goal. Contains a list of entries and page information.
+      example:
+        entries:
+          - condition:
+              event:
+                event_key: updated
+                event_type: recipient
+              match_conditions:
+                - conditions:
+                    - argument: "true"
+                      operator: equal_to
+                      variable: recipient.is_paid
+                  operator: and
+            created_at: "2024-06-01T00:00:00Z"
+            description: Tracks when a trial user converts to paid
+            environment: development
+            key: trial-conversion
+            name: Trial Conversion
+            sha: abc123def456
+            updated_at: "2024-06-01T00:00:00Z"
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Goal'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedGoalResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WrappedSourceResponse:
       description: Wraps the Source response under the `source` key.
       example:
@@ -727,6 +770,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         guide_audience_conditions:
           anyOf:
             - $ref: '#/components/schemas/ConditionGroup'
@@ -885,6 +930,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         key:
           description: The unique key string for the workflow object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -1144,6 +1191,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         key:
           description: The unique key string for the workflow object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -1703,6 +1752,22 @@ components:
       title: InAppFeedTemplate
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.InAppFeedTemplate
+      x-validate: null
+    WrappedCloneGoalRequestRequest:
+      description: Wraps the CloneGoalRequest request under the clone key.
+      example:
+        clone:
+          environment: production
+          key: trial-conversion-copy
+          name: Trial Conversion Copy
+      properties:
+        clone:
+          $ref: '#/components/schemas/CloneGoalRequest'
+      required:
+        - clone
+      title: WrappedCloneGoalRequestRequest
+      type: object
+      x-struct: null
       x-validate: null
     ChatChannelSettings:
       description: Chat channel settings. Only used as configuration as part of a workflow channel step.
@@ -2689,6 +2754,16 @@ components:
                 - fixed
                 - sliding
               example: fixed
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            workflow_version_mode:
+              description: 'Whether the batch is pinned to the opening workflow version or continues on the latest compatible version. One of: `pinned` or `latest`. New batch steps default to `latest`. Configs that omit the field hydrate as `pinned`. When set to `latest`, compatible triggers share a cross-version batch and resume on the latest published workflow after close.'
+              enum:
+                - pinned
+                - latest
+              example: latest
               nullable: true
               type: string
               x-struct: null
@@ -4764,6 +4839,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         name:
           description: A name for the workflow. Must be at maximum 255 characters in length.
           type: string
@@ -4860,6 +4937,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         name:
           description: A name for the broadcast. Must be at maximum 255 characters in length.
           type: string
@@ -4979,6 +5058,36 @@ components:
       title: AudienceCondition
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.AudienceCondition
+      x-validate: null
+    CloneGoalRequest:
+      description: The destination key, name, and environment for the cloned goal.
+      example:
+        environment: production
+        key: trial-conversion-copy
+        name: Trial Conversion Copy
+      properties:
+        environment:
+          description: The destination environment slug.
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The key for the cloned goal.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name for the cloned goal.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - name
+        - environment
+      title: CloneGoalRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.CloneGoalRequest
       x-validate: null
     RequestTemplateQueryParamsArray:
       description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
@@ -6317,6 +6426,36 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowInAppGuideStep
       x-validate: null
+    WrappedGoalResponse:
+      description: Wraps the Goal response under the `goal` key.
+      example:
+        goal:
+          condition:
+            event:
+              event_key: updated
+              event_type: recipient
+            match_conditions:
+              - conditions:
+                  - argument: "true"
+                    operator: equal_to
+                    variable: recipient.is_paid
+                operator: and
+          created_at: "2024-06-01T00:00:00Z"
+          description: Tracks when a trial user converts to paid
+          environment: development
+          key: trial-conversion
+          name: Trial Conversion
+          sha: abc123def456
+          updated_at: "2024-06-01T00:00:00Z"
+      properties:
+        goal:
+          $ref: '#/components/schemas/Goal'
+      required:
+        - goal
+      title: WrappedGoalResponse
+      type: object
+      x-struct: null
+      x-validate: null
     MessageTypeSelectField:
       description: A select field used in a message type.
       example:
@@ -6483,6 +6622,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         key:
           description: The unique key string for the broadcast object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -6654,6 +6795,41 @@ components:
       title: WorkflowFetchStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowFetchStep
+      x-validate: null
+    GoalCondition:
+      description: A goal condition consisting of a polymorphic event and optional match conditions.
+      example:
+        event:
+          event_key: updated
+          event_type: recipient
+        match_conditions:
+          - conditions:
+              - argument: "true"
+                operator: equal_to
+                variable: recipient.is_paid
+            operator: and
+      properties:
+        event:
+          anyOf:
+            - $ref: '#/components/schemas/WorkflowWaitForEventRecipientEvent'
+            - $ref: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
+            - $ref: '#/components/schemas/WorkflowWaitForEventAudienceEvent'
+          description: The event to track. Supports recipient, integration_source, and audience event types.
+          type: object
+          x-struct: null
+          x-validate: null
+        match_conditions:
+          description: A list of condition groups. Required for recipient events; each group uses an operator (and/or) with nested conditions.
+          items:
+            $ref: '#/components/schemas/ConditionGroup'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - event
+      title: GoalCondition
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GoalCondition
       x-validate: null
     ObjectRecipientReference:
       description: An object reference.
@@ -7223,6 +7399,31 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ChannelGroupRuleRequest
       x-validate: null
+    WrappedGoalRequestRequest:
+      description: Wraps the GoalRequest request under the goal key.
+      example:
+        goal:
+          condition:
+            event:
+              event_key: updated
+              event_type: recipient
+            match_conditions:
+              - conditions:
+                  - argument: "true"
+                    operator: equal_to
+                    variable: recipient.is_paid
+                operator: and
+          description: Tracks when a trial user converts to paid
+          name: Trial Conversion
+      properties:
+        goal:
+          $ref: '#/components/schemas/GoalRequest'
+      required:
+        - goal
+      title: WrappedGoalRequestRequest
+      type: object
+      x-struct: null
+      x-validate: null
     MessageTypeNumberField:
       description: A numeric field used in a message type or partial input schema, with optional min/max bounds and a unit label for display.
       example:
@@ -7315,6 +7516,23 @@ components:
       title: MessageTypeNumberField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.NumberField
+      x-validate: null
+    ArchiveGoalResponse:
+      description: The response from archiving a goal.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveGoalResponse
+      type: object
+      x-struct: null
       x-validate: null
     EmailLayoutRequest:
       description: A request to update or create an email layout.
@@ -7941,6 +8159,32 @@ components:
       title: BrandingOverrides
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.BrandingOverrides
+      x-validate: null
+    GoalAttachment:
+      description: Attaches a goal to a workflow, guide, or broadcast for attribution tracking.
+      example:
+        attribution_window_days: 7
+        goal_key: trial-conversion
+      nullable: true
+      properties:
+        attribution_window_days:
+          description: The number of days to attribute conversions after the notification is sent. Must be between 1 and 30. Defaults to 7.
+          example: 7
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct: null
+          x-validate: null
+        goal_key:
+          description: The key of the goal to attach.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - goal_key
+      title: GoalAttachment
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GoalAttachment
       x-validate: null
     MemberUser:
       description: Information about a user within the Knock dashboard. Not to be confused with an external user (recipient) of a workflow.
@@ -9803,6 +10047,42 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailLayout
       x-validate: null
+    GoalRequest:
+      description: A goal payload for upsert or validate.
+      example:
+        condition:
+          event:
+            event_key: updated
+            event_type: recipient
+          match_conditions:
+            - conditions:
+                - argument: "true"
+                  operator: equal_to
+                  variable: recipient.is_paid
+              operator: and
+        description: Tracks when a trial user converts to paid
+        name: Trial Conversion
+      properties:
+        condition:
+          $ref: '#/components/schemas/GoalCondition'
+        description:
+          description: An optional description for the goal. Maximum of 280 characters allowed.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the goal. Must be at minimum 1 character and at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - condition
+      title: GoalRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GoalRequest
+      x-validate: null
     RequestTemplateHeadersString:
       description: A template string that should resolve to a JSON object representing the headers.
       example: '{{ data.request_headers }}'
@@ -11376,6 +11656,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        goal_attachment:
+          $ref: '#/components/schemas/GoalAttachment'
         guide_audience_conditions:
           anyOf:
             - $ref: '#/components/schemas/ConditionGroup'
@@ -11552,6 +11834,79 @@ components:
       title: Variable
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Variable
+      x-validate: null
+    Goal:
+      description: A goal defines an event condition that is tracked and attributed to messaging resources.
+      example:
+        condition:
+          event:
+            event_key: updated
+            event_type: recipient
+          match_conditions:
+            - conditions:
+                - argument: "true"
+                  operator: equal_to
+                  variable: recipient.is_paid
+              operator: and
+        created_at: "2024-06-01T00:00:00Z"
+        description: Tracks when a trial user converts to paid
+        environment: development
+        key: trial-conversion
+        name: Trial Conversion
+        sha: abc123def456
+        updated_at: "2024-06-01T00:00:00Z"
+      properties:
+        condition:
+          $ref: '#/components/schemas/GoalCondition'
+        created_at:
+          description: The timestamp of when the goal was created. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description for the goal. Maximum of 280 characters allowed.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment in which the goal exists. (read-only).
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key string for the goal. Must be at minimum 1 character and at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the goal. Must be at minimum 1 character and at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        sha:
+          description: The SHA hash of the goal data. (read-only).
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the goal was last updated. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - name
+        - condition
+        - environment
+        - created_at
+        - updated_at
+        - sha
+      title: Goal
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Goal
       x-validate: null
     SourceEvent:
       description: A known unique event received by a source.
@@ -12924,6 +13279,113 @@ paths:
           	}
           	fmt.Printf("%+v\n", variable.InsertedAt)
           }
+  /v1/goals:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of goals for the given environment.
+      operationId: listGoals
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Goal. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - condition:
+                        event:
+                          event_key: updated
+                          event_type: recipient
+                        match_conditions:
+                          - conditions:
+                              - argument: "true"
+                                operator: equal_to
+                                variable: recipient.is_paid
+                            operator: and
+                      created_at: "2024-06-01T00:00:00Z"
+                      description: Tracks when a trial user converts to paid
+                      environment: development
+                      key: trial-conversion
+                      name: Trial Conversion
+                      sha: abc123def456
+                      updated_at: "2024-06-01T00:00:00Z"
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Goal'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedGoalResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List goals
+      tags:
+        - Goals
   /v1/workflows/{workflow_key}:
     get:
       callbacks: {}
@@ -14197,6 +14659,201 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/goals/{goal_key}:
+    delete:
+      callbacks: {}
+      description: Archives a given goal across all environments.
+      operationId: archiveGoal
+      parameters:
+        - description: The key of the goal to archive.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving a goal.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveGoalResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive a goal
+      tags:
+        - Goals
+    get:
+      callbacks: {}
+      description: Retrieve a goal by its key in a given environment.
+      operationId: getGoal
+      parameters:
+        - description: The key of the goal to retrieve.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+          description: OK
+      summary: Get a goal
+      tags:
+        - Goals
+    put:
+      callbacks: {}
+      description: Updates a goal of a given key, or creates a new one if it does not yet exist. The goal is published immediately; this endpoint does not accept a commit parameter.
+      operationId: upsertGoal
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the goal to upsert.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the GoalRequest request under the goal key.
+              example:
+                goal:
+                  condition:
+                    event:
+                      event_key: updated
+                      event_type: recipient
+                    match_conditions:
+                      - conditions:
+                          - argument: "true"
+                            operator: equal_to
+                            variable: recipient.is_paid
+                        operator: and
+                  description: Tracks when a trial user converts to paid
+                  name: Trial Conversion
+              properties:
+                goal:
+                  $ref: '#/components/schemas/GoalRequest'
+              required:
+                - goal
+              title: WrappedGoalRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Goal response under the `goal` key.
+                example:
+                  goal:
+                    condition:
+                      event:
+                        event_key: updated
+                        event_type: recipient
+                      match_conditions:
+                        - conditions:
+                            - argument: "true"
+                              operator: equal_to
+                              variable: recipient.is_paid
+                          operator: and
+                    created_at: "2024-06-01T00:00:00Z"
+                    description: Tracks when a trial user converts to paid
+                    environment: development
+                    key: trial-conversion
+                    name: Trial Conversion
+                    sha: abc123def456
+                    updated_at: "2024-06-01T00:00:00Z"
+                properties:
+                  goal:
+                    $ref: '#/components/schemas/Goal'
+                required:
+                  - goal
+                title: WrappedGoalResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a goal
+      tags:
+        - Goals
   /v1/environments:
     get:
       callbacks: {}
@@ -15922,6 +16579,106 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Translation)
           }
+  /v1/goals/{goal_key}/validate:
+    put:
+      callbacks: {}
+      description: Validates a goal payload without persisting it.
+      operationId: validateGoal
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the goal to validate.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the GoalRequest request under the goal key.
+              example:
+                goal:
+                  condition:
+                    event:
+                      event_key: updated
+                      event_type: recipient
+                    match_conditions:
+                      - conditions:
+                          - argument: "true"
+                            operator: equal_to
+                            variable: recipient.is_paid
+                        operator: and
+                  description: Tracks when a trial user converts to paid
+                  name: Trial Conversion
+              properties:
+                goal:
+                  $ref: '#/components/schemas/GoalRequest'
+              required:
+                - goal
+              title: WrappedGoalRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Goal response under the `goal` key.
+                example:
+                  goal:
+                    condition:
+                      event:
+                        event_key: updated
+                        event_type: recipient
+                      match_conditions:
+                        - conditions:
+                            - argument: "true"
+                              operator: equal_to
+                              variable: recipient.is_paid
+                          operator: and
+                    created_at: "2024-06-01T00:00:00Z"
+                    description: Tracks when a trial user converts to paid
+                    environment: development
+                    key: trial-conversion
+                    name: Trial Conversion
+                    sha: abc123def456
+                    updated_at: "2024-06-01T00:00:00Z"
+                properties:
+                  goal:
+                    $ref: '#/components/schemas/Goal'
+                required:
+                  - goal
+                title: WrappedGoalResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate a goal
+      tags:
+        - Goals
   /v1/tags/{name}:
     delete:
       callbacks: {}
@@ -22659,6 +23416,88 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.APIKey)
           }
+  /v1/goals/{goal_key}/clone:
+    post:
+      callbacks: {}
+      description: Clones a goal into a destination environment.
+      operationId: cloneGoal
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the source goal to clone.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the CloneGoalRequest request under the clone key.
+              example:
+                clone:
+                  environment: production
+                  key: trial-conversion-copy
+                  name: Trial Conversion Copy
+              properties:
+                clone:
+                  $ref: '#/components/schemas/CloneGoalRequest'
+              required:
+                - clone
+              title: WrappedCloneGoalRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Goal response under the `goal` key.
+                example:
+                  goal:
+                    condition:
+                      event:
+                        event_key: updated
+                        event_type: recipient
+                      match_conditions:
+                        - conditions:
+                            - argument: "true"
+                              operator: equal_to
+                              variable: recipient.is_paid
+                          operator: and
+                    created_at: "2024-06-01T00:00:00Z"
+                    description: Tracks when a trial user converts to paid
+                    environment: development
+                    key: trial-conversion
+                    name: Trial Conversion
+                    sha: abc123def456
+                    updated_at: "2024-06-01T00:00:00Z"
+                properties:
+                  goal:
+                    $ref: '#/components/schemas/Goal'
+                required:
+                  - goal
+                title: WrappedGoalResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Clone a goal
+      tags:
+        - Goals
   /v1/workflows/{workflow_key}/activate:
     put:
       callbacks: {}
@@ -23599,6 +24438,8 @@ tags:
     name: Guides
   - description: Audiences define sets of users that can be targeted for notifications.
     name: Audiences
+  - description: Goals define event conditions that are tracked and attributed to messaging resources.
+    name: Goals
   - description: Assets are uploaded files available to your Knock account.
     name: Assets
   - description: Preference categories are a project-level catalog of categories that can be applied to workflows and broadcasts.
