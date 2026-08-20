@@ -70,32 +70,29 @@ Once you have those translations created for the `en` and `fr` locales, you can 
 
 Your users must have a `locale` property set for the helper to find translations in their locale, otherwise Knock will use the default locale. You can set a user's `locale` with the [identify endpoint](/api-reference/users/update).
 
-## Translation methods: filter vs. tag
+## Translation methods
 
 There are two methods available to you to translate your message templates: the `t` filter and the `t` tag.
 
-<AccordionGroup>
-  <Accordion title="The t filter">
-    The `t` filter is used to reference existing translation files. It works best when you have translations that are already created and you want to reference them in your message templates.
+### The `t` filter
 
-    ```json title="Using t filter in a message template"
-    {{ "congratulationsMessage" | t: recipientName: recipient.name }}
-    ```
+The `t` filter is used to reference existing translation files. It works best when you have translations that are already created and you want to reference them in your message templates.
 
-    In the example above, the `t` filter finds the recipient's `locale` and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
+```json title="Using t filter in a message template"
+{{ "congratulationsMessage" | t: recipientName: recipient.name }}
+```
 
-  </Accordion>
-  <Accordion title="The t tag">
-    The `t` tag is used to write templates in their default language and automatically generate translations for additional locales. It is best when you have less technical users authoring templates, and you want to automatically generate translations for their templates behind the scenes.
+In the example above, the `t` filter finds the recipient's `locale` and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
 
-    ```json title="Using t tag in a message template"
-    {% t %}Congratulations, {{ recipient.name }}!{% endt %}
-    ```
+### The `t` tag
 
-    In the example above, we author content in our English default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
+The `t` tag is used to write templates in their default language and automatically generate translations for additional locales. It is best when you have less technical users authoring templates, and you want to automatically generate translations for their templates behind the scenes.
 
-  </Accordion>
-</AccordionGroup>
+```json title="Using t tag in a message template"
+{% t %}Congratulations, {{ recipient.name }}!{% endt %}
+```
+
+In the example above, we author content in our English default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
 
 We cover how to use the `t` filter and `t` tag in more detail below.
 
@@ -268,6 +265,44 @@ Knock also provides an editor-friendly `t` tag which you can use to write templa
     You can then translate the default content into additional locales by manually editing your translation files or programmatically updating them using the Knock API and a translation service.
   </Step>
 </Steps>
+
+### Variables
+
+You can reference variables inside a `t` tag by writing the variable's path inline. Knock resolves the path against the workflow run scope when it renders the message.
+
+```liquid title="Message template"
+<p> {% t %}Congratulations, {{ recipient.name }}!{% endt %} </p>
+```
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      unlike the <code>t</code> filter, the <code>t</code> tag doesn't accept
+      arguments. You can't pass or alias a variable. Write the variable's actual
+      path inside the tag instead.
+    </>
+  }
+/>
+
+When you commit your workflow, the variable reference becomes part of the auto-generated translation key and is preserved verbatim in your system translation file:
+
+```json title="System translation file"
+{
+  "Congratulations, {{ recipient.name }}!": "Congratulations, {{ recipient.name }}!"
+}
+```
+
+As you translate that content into other locales, keep the `{{ ... }}` reference intact in the translated value. You can move it to wherever the grammar of the target language requires, but if you remove or rename it, the variable will no longer resolve.
+
+```json title="fr translation"
+{
+  "Congratulations, {{ recipient.name }}!": "Félicitations, {{ recipient.name }}!"
+}
+```
+
+At send time, Knock renders the translated value as Liquid, resolving `recipient.name` from the workflow run scope.
 
 ## Translation version control
 
