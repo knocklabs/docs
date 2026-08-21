@@ -1,0 +1,70 @@
+---
+title: Agent deep links
+description: Kick off agents in the Knock dashboard directly from a URL.
+section: Developer tools
+---
+
+Agent deep links let you start an agent session in the Knock dashboard from a URL. Use them to kick off agents from docs, Slack messages, support replies, CLI output, or anywhere else you can share a link — the recipient lands in the dashboard with your prompt already submitted (or pre-filled) in the agent composer.
+
+## How it works
+
+The agents page accepts a prompt via the `q` query parameter:
+
+```
+https://dashboard.knock.app/{account}/agents?q={prompt}
+```
+
+When a user opens the link:
+
+1. If they aren't signed in, they're taken to the login page first and then redirected back to the deep link.
+2. By default, the prompt is auto-submitted: a new agent session is created and the user is navigated straight into it.
+3. The deep link parameters are stripped from the URL once they've been applied, so refreshing the page won't re-submit the prompt.
+
+The prompt value must be URL-encoded.
+
+## Choosing an account
+
+There are two ways to address the account in a deep link:
+
+### The `~` shorthand
+
+Use `~` in place of an account slug and Knock will resolve the link against the user's current account:
+
+```
+https://dashboard.knock.app/~/agents?q={prompt}
+```
+
+This is the best option for links shared with a broad audience (docs, blog posts, integrations), since you usually won't know the recipient's account slug. Each user is routed into their own account.
+
+### Specifying an account
+
+If you know exactly which account the agent should run in — for example, in an internal tool or a notification scoped to one workspace — use the account slug directly:
+
+```
+https://dashboard.knock.app/acme-inc/agents?q={prompt}
+```
+
+## Pre-filling without submitting
+
+If you want the user to review or edit the prompt before it runs, add `autoSubmit=false`. The prompt is placed in the composer on the agents page, but nothing is submitted until the user hits send:
+
+```
+https://dashboard.knock.app/~/agents?q={prompt}&autoSubmit=false
+```
+
+## Parameters
+
+| Parameter    | Required | Default | Description                                                               |
+| ------------ | -------- | ------- | ------------------------------------------------------------------------- |
+| `q`          | Yes      | —       | The URL-encoded prompt to send to the agent.                              |
+| `autoSubmit` | No       | `true`  | Set to `false` to pre-fill the composer instead of submitting the prompt. |
+
+## Examples
+
+Kick off an agent that builds a workflow, resolving to the user's current account:
+
+[https://dashboard.knock.app/~/agents?q=Create%20a%20welcome%20email%20workflow%20for%20new%20signups](https://dashboard.knock.app/~/agents?q=Create%20a%20welcome%20email%20workflow%20for%20new%20signups)
+
+Pre-fill a prompt in a specific account so the user can review it before running:
+
+[https://dashboard.knock.app/acme-inc/agents?q=Audit%20my%20workflows%20for%20missing%20batch%20steps&autoSubmit=false](https://dashboard.knock.app/acme-inc/agents?q=Audit%20my%20workflows%20for%20missing%20batch%20steps&autoSubmit=false)
