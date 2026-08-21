@@ -1,7 +1,16 @@
 ---
 title: Integrations overview
 description: Learn more about the integrations that Knock supports to send notifications and receive events. Send notifications to Email, SMS, Push, and Chat apps like Slack with a single API call and trigger them via events from your customer data platforms.
-tags: ["sandbox mode", "sandbox", "channel conditions", "channel groups"]
+tags:
+  [
+    "sandbox mode",
+    "sandbox",
+    "channel conditions",
+    "channel groups",
+    "multiple providers",
+    "change providers",
+    "new domain",
+  ]
 layout: integrations
 Section: Integrations
 ---
@@ -74,9 +83,7 @@ Once an integration is created, you can then configure it for each of your envir
 
 If you want to use the exact same configuration for a given channel across all environments, you can use the "Copy from" button to duplicate your configuration across environments.
 
-## Channel specific features
-
-### Sandbox mode
+## Sandbox mode
 
 Sometimes you don't want a message to be sent in a local or testing environment, but you _do_ want the ability to debug your messages and see what might have gone out.
 
@@ -84,7 +91,7 @@ Sandbox mode enables you to generate and preview messages for a given channel wi
 
 Sandbox mode is supported across all channel types (except for in-app) and can be enabled from the environment configuration view of a channel.
 
-### Channel conditions
+## Channel conditions
 
 You can use channel conditions to place a [condition](/concepts/conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
 
@@ -109,53 +116,9 @@ Knock will execute your channel conditions for every step using the given channe
   text="If sandbox mode is enabled for a channel, Knock skips execution entirely and channel conditions are not evaluated. Disable sandbox mode for conditions to take effect."
 />
 
-### Channel groups
+## Channel groups
 
-A channel group enables you to combine multiple channels of the same type into a single workflow step, using one notification template across all providers in the group. These are commonly used to combine Push channels: instead of maintaining a separate channel step and template for APNs and FCM in every workflow, create a push channel group holding both connections and add it to your workflows as one push step.
-
-#### Channel group settings
-
-Every channel group has a `key` that identifies it, along with these settings:
-
-| Field           | Description                                                                                                                                                                                                                                        |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`          | The human-readable name of the group.                                                                                                                                                                                                              |
-| `channel_type`  | The type of channels the group contains such as `email`, `sms`, `push`, `chat`, or `http`. Every channel in a group shares this type.                                                                                                              |
-| `operator`      | Determines how many matching rules will result in message routing: `any` or `all`. When set to `any`, Knock routes to the first matching rule's channel only. When set to `all`, Knock routes to every matching rule's channel. Defaults to `any`. |
-| `channel_rules` | The ordered list of rules that determine which of the group's channels Knock routes to.                                                                                                                                                            |
-| `visible_in`    | Where the group appears as a step destination: `workflow`, `broadcast`, or both. Defaults to both.                                                                                                                                                 |
-
-#### Channel rules
-
-Each rule in `channel_rules` points to one of the group's channels and sets the terms under which Knock routes to it:
-
-| Field         | Description                                                                                                                                                                                                                                                                              |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index`       | The rule's position in the group's ordered list.                                                                                                                                                                                                                                         |
-| `channel_key` | The key of the channel the rule routes to.                                                                                                                                                                                                                                               |
-| `rule_type`   | Determines when the channel should be used: `always`, `if`, or `unless`. When set to `always`, Knock routes to the channel on every workflow run. When set to `if` or `unless`, Knock routes to the channel conditionally based on the values of `variable`, `operator`, and `argument`. |
-| `variable`    | The workflow property to evaluate. Not applicable for `always` rules.                                                                                                                                                                                                                    |
-| `operator`    | The comparison to apply between the variable and the argument. Accepts any of the [condition operators](/concepts/conditions#operators), plus `is_in_random_cohort` for percentage-based cohort routing. Not applicable for `always` rules.                                              |
-| `argument`    | The value to compare the variable against. Not applicable for `always` rules.                                                                                                                                                                                                            |
-
-#### Random cohorts
-
-Random cohorts route recipients by percentage rather than by evaluating a property of the workflow run. Instead of making decisions based on who the recipient is, Knock assigns each recipient to a cohort and routes a percentage of them to a given channel.
-
-A cohort rule takes the following values:
-
-| Field       | Value                                                                                                                        |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `rule_type` | `if`                                                                                                                         |
-| `variable`  | `recipient.id`                                                                                                               |
-| `operator`  | `is_in_random_cohort`                                                                                                        |
-| `argument`  | The percentage of recipients routed to this channel, as a number from 0 to 100 with up to one decimal place, such as `12.5`. |
-
-Knock hashes the recipient ID against the channel group to assign the cohort, so a given recipient consistently routes to the same channel across workflow runs.
-
-A single cohort rule only determines routing for the recipients inside that cohort, so it should be paired with at least one additional rule to catch remaining recipients. Set the channel group's `operator` to `any` so that messages are routed to only the first matching rule. To route the remaining recipients, create an `always` rule pointing at the fallback channel. The fallback rule should be ordered after the cohort rule, so that only recipients not belonging to the cohort will reach it. With this configuration, Knock routes the cohort to the first channel and everyone else to the second.
-
-Splitting traffic this way lets you shift volume between two providers gradually rather than all at once. See our [sender domain migration tutorial](/tutorials/sender-domain-migration) for guidance on how to use cohort routing to warm a new email sending domain.
+A channel group enables you to combine multiple channels of the same type into a single workflow step, using one notification template across all providers in the group. These are commonly used to combine push channels: instead of maintaining a separate channel step and template for APNs and FCM in every workflow, create a push channel group holding both connections and add it to your workflows as one push step.
 
 <Callout
   type="info"
@@ -171,48 +134,62 @@ Splitting traffic this way lets you shift volume between two providers gradually
   }
 />
 
+### Channel group settings
+
+Every channel group has a `key` that identifies it, along with these settings:
+
+| Field           | Description                                                                                                                                                                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`          | The human-readable name of the group.                                                                                                                                                                                                              |
+| `channel_type`  | The type of channels the group contains, such as `email`, `sms`, `push`, `chat`, or `http`. Every channel in a group shares this type.                                                                                                             |
+| `operator`      | Determines how many matching rules will result in message routing: `any` or `all`. When set to `any`, Knock routes to the first matching rule's channel only. When set to `all`, Knock routes to every matching rule's channel. Defaults to `any`. |
+| `channel_rules` | The ordered list of rules that determine which of the group's channels Knock routes to.                                                                                                                                                            |
+| `visible_in`    | Where the group appears as a step destination: `workflow`, `broadcast`, or both. Defaults to both.                                                                                                                                                 |
+
+### Channel rules
+
+Each rule in `channel_rules` points to one of the group's channels and sets the terms under which Knock routes to it:
+
+| Field         | Description                                                                                                                                                                                                                                                                              |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index`       | The rule's position in the group's ordered list.                                                                                                                                                                                                                                         |
+| `channel_key` | The key of the channel the rule routes to.                                                                                                                                                                                                                                               |
+| `rule_type`   | Determines when the channel should be used: `always`, `if`, or `unless`. When set to `always`, Knock routes to the channel on every workflow run. When set to `if` or `unless`, Knock routes to the channel conditionally based on the values of `variable`, `operator`, and `argument`. |
+| `variable`    | The workflow property to evaluate. Not applicable for `always` rules.                                                                                                                                                                                                                    |
+| `operator`    | The comparison to apply between the variable and the argument. Accepts any of the [condition operators](/concepts/conditions#operators), plus `is_in_random_cohort` for percentage-based cohort routing. Not applicable for `always` rules.                                              |
+| `argument`    | The value to compare the variable against. Not applicable for `always` rules.                                                                                                                                                                                                            |
+
+### Random cohorts
+
+Random cohorts route recipients by percentage rather than by evaluating a property of the workflow run. Instead of making decisions based on who the recipient is, Knock assigns each recipient to a cohort and routes a percentage of them to a given channel. Splitting traffic this way enables you to shift volume to a new provider gradually rather than all at once. See our [sender domain migration tutorial](/tutorials/sender-domain-migration) for guidance on how to use cohort routing to warm a new email sending domain.
+
+A cohort rule takes the following values:
+
+| Field       | Value                                                                                                                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rule_type` | `if`                                                                                                                                                                                  |
+| `variable`  | `recipient.id`                                                                                                                                                                        |
+| `operator`  | `is_in_random_cohort`                                                                                                                                                                 |
+| `argument`  | The cohort threshold, as a number from 0 to 100 with up to one decimal place, such as `12.5`. With a single cohort rule, this is the percentage of recipients routed to this channel. |
+
+Knock hashes the recipient ID against the channel group to assign the cohort, so a given recipient consistently routes to the same channel across workflow runs.
+
+A single cohort rule only determines routing for the recipients inside that cohort, so it should be paired with at least one additional rule to catch remaining recipients. Set the channel group's `operator` to `any` so that messages are routed to only the first matching rule. To route the remaining recipients, create an `always` rule pointing at the fallback channel. The fallback rule should be ordered after the cohort rule, so that only recipients not belonging to the cohort will reach it. With this configuration, Knock routes the cohort to the first channel and everyone else to the second.
+
+#### Using more than one cohort
+
+To route traffic across more than two channels, add a cohort rule for each one. Every cohort rule in a group hashes against the same channel group, so each recipient holds a single position that all of the group's cohort rules compare against. Percentages act as cumulative thresholds rather than independent shares: a rule routes the recipients below its percentage that the rules ahead of it didn't already take.
+
+Order your cohort rules from the smallest percentage to the largest, and end the group with an `always` rule:
+
+| Rule                                | `argument` | Recipients routed |
+| ----------------------------------- | ---------- | ----------------- |
+| Cohort rule pointing at channel A   | `12`       | The first 12%     |
+| Cohort rule pointing at channel B   | `42`       | The next 30%      |
+| `always` rule pointing at channel C | —          | The remaining 58% |
+
+Set each percentage to the running total of the shares ahead of it. Channel B receives 30% of recipients because its rule is set to `42`: the 12% already routed to channel A, plus its own 30%. Ordering a larger percentage ahead of a smaller one would prevent the smaller rule from ever matching, since every recipient below the smaller percentage is also below the larger one.
+
 ## Supported integration providers
 
-Here are the providers we currently support within Knock. We're adding more each week. If you want us to add a new provider to this list, please reach out to us at [support@knock.app](mailto:support@knock.app).
-
-<AccordionGroup>
-  <Accordion title="Email">
-    - [Amazon SES](/integrations/email/aws-ses) - [Cloudflare
-    Email](/integrations/email/cloudflare-email) - [Knock
-    (test)](/integrations/email/knock-test) -
-    [Mailersend](/integrations/email/mailersend) -
-    [Mailgun](/integrations/email/mailgun) -
-    [Mailjet](/integrations/email/mailjet) -
-    [Mailtrap](/integrations/email/mailtrap) -
-    [Mandrill](/integrations/email/mandrill) -
-    [Postmark](/integrations/email/postmark) -
-    [Resend](/integrations/email/resend) -
-    [Sendgrid](/integrations/email/sendgrid) - [SMTP](/integrations/email/smtp)
-    - [Sparkpost](/integrations/email/sparkpost)
-  </Accordion>
-  <Accordion title="Chat apps">
-    - [Slack](/integrations/chat/slack/overview) - [Microsoft
-    Teams](/integrations/chat/microsoft-teams/overview) -
-    [Discord](/integrations/chat/discord) -
-    [WhatsApp](/integrations/chat/whatsapp)
-  </Accordion>
-  <Accordion title="In-app">
-    - [Knock in-app](/integrations/in-app/knock) - [Knock
-    guides](/in-app-ui/guides/overview)
-  </Accordion>
-  <Accordion title="Push">
-    - [Amazon SNS](/integrations/push/aws-sns) - [Apple Push Notification
-    Service](/integrations/push/apns) - [Firebase Cloud
-    Messaging](/integrations/push/firebase) - [Expo](/integrations/push/expo) -
-    [OneSignal](/integrations/push/one-signal)
-  </Accordion>
-  <Accordion title="SMS">
-    - [Africa's Talking](/integrations/sms/africas-talking) - [Amazon
-    SNS](/integrations/sms/aws-sns) - [Mailersend](/integrations/sms/mailersend)
-    - [MessageBird](/integrations/sms/messagebird) -
-    [Plivo](/integrations/sms/plivo) - [Sinch](/integrations/sms/sinch) - [Sinch
-    MessageMedia](/integrations/sms/sinch-message-media) -
-    [Telnyx](/integrations/sms/telnyx) - [Twilio](/integrations/sms/twilio) -
-    [Vonage](/integrations/sms/vonage)
-  </Accordion>
-</AccordionGroup>
+Find supported providers listed by channel type: [Email](/integrations/email/overview), [Chat](/integrations/chat/overview), [In-app](/integrations/in-app/overview), [Push](/integrations/push/overview), and [SMS](/integrations/sms/overview). We're continuously adding new providers, so if you don't see your provider listed, please reach out to us at [support@knock.app](mailto:support@knock.app).
