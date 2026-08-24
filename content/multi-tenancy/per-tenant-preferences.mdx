@@ -328,4 +328,51 @@ Here are a few things to keep in mind when using tenant preferences. You can lea
     - Use the `__persistence_strategy__` key on your request to replace the entire preference set rather than merging your new preferences with the existing ones. See the FAQ above for more information.
 
   </Accordion>
+  <Accordion title="How can I opt all recipients under a tenant out of commercial messages, even when they are individually opted in?">
+    A `commercial_subscribed` value on a recipient's `default` preference set always takes precedence over tenant and environment defaults. In a multi-tenant application, you may want to give tenant admins a switch that turns off [commercial messages](/preferences/commercial-unsubscribe) for everyone in their tenant, even for users who are individually opted in. 
+    
+    You can model this by storing an individual user's opt-in as a condition on the recipient's `commercial_subscribed` preference that reads the tenant's own setting at send time, instead of an explicit `true` setting:
+
+    ```json title="A recipient preference set that defers to the tenant"
+    {
+      "id": "default",
+      "commercial_subscribed": {
+        "conditions": [
+          {
+            "variable": "tenant.settings.preferences.commercial_subscribed",
+            "operator": "not_equal_to",
+            "argument": "false"
+          }
+        ]
+      }
+    }
+    ```
+
+    Then, set the relevant tenant's `commercial_subscribed` preference to `false`:
+
+    ```javascript title="Opt a tenant out of receiving commercial messages using the Node SDK"
+    import Knock from "@knocklabs/node";
+    const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+    await knock.tenants.set("tenant-id", {
+      settings: {
+        preference_set: {
+          commercial_subscribed: false,
+        },
+      },
+    });
+    ```
+
+    When a commercial workflow runs for this recipient, Knock evaluates the condition at send time. If a `tenant` is applied to the workflow trigger and its `commercial_subscribed` preference is set to `false`, the user will not receive the message. If there is no `tenant` applied, or the tenant's `commercial_subscribed` preference is set to anything other than `false`, the user will receive the message.
+
+    <Callout type="alert"
+    title="Do not use the reverse approach."
+    text={
+      <>
+        To comply with CAN-SPAM regulations, you should never use preference conditions to opt a recipient in to commercial messages under a given tenant when they have explicitly opted out of receiving commercial messages under their own preferences.
+      </>
+    }
+    />
+
+  </Accordion>
 </AccordionGroup>
