@@ -14,6 +14,9 @@ tags:
     "clone",
     "cloning",
     "duplicate",
+    "rename",
+    "renaming",
+    "slug",
   ]
 section: Concepts
 ---
@@ -214,6 +217,8 @@ By default your Knock account comes with two environments: development and produ
 
 To create a new environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your account settings. You'll see a button to "Create environment."
 
+You can [rename an environment you created](/version-control/environments#rename-an-environment) later, though renaming also changes the environment's slug.
+
 ### Choose where the new environment goes
 
 Environments are ordered, and that order determines your promotion path. When you create an environment, the **Insert after** select in the create modal determines where it lands. Choose the environment that the new environment should come directly after, and Knock inserts it one "level" above that environment.
@@ -254,6 +259,47 @@ A new environment is not empty. Knock seeds it from the environment directly bel
   }
 />
 
+## Rename an environment
+
+You can rename any additional environment that you created. Your development and production environments cannot be renamed.
+
+To rename an environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings. Open the action menu next to the environment you want to rename, select **Edit environment**, update the **Name** field, and click **Update**.
+
+The renamed environment keeps its ID, its API keys, and its position in your promotion path. Workflows, guides, layouts, and other content are untouched, and no data moves between environments. Any environment-specific [custom permissions](/manage-your-account/roles-and-permissions#custom-permission-groups) are also preserved.
+
+Renaming an environment requires the `owner` or `admin` role, or a custom permission group that can manage environments.
+
+<Callout
+  type="warning"
+  title="Renaming an environment changes its slug."
+  text={
+    <>
+      Knock derives an environment's slug from its name, so renaming an
+      environment also changes its slug. Renaming a "Staging" environment to
+      "QA" changes its slug from <code>staging</code> to <code>qa</code>.
+      Anything that addresses the environment by its previous slug needs to be
+      updated.
+    </>
+  }
+/>
+
+Update the following after you rename an environment:
+
+1. **CLI commands and CI pipelines.** Any `--environment` flag that uses the old slug, such as `knock workflow list --environment=staging`.
+2. **Management API requests.** Any `environment` or `to_environment` query parameter that uses the old slug.
+
+<Callout
+  type="info"
+  title="Branch environments cannot be renamed."
+  text={
+    <>
+      A <a href="/version-control/branches">branch</a> takes the name you give
+      it when you create it, and that name is fixed for the life of the branch.
+      If you need a different name, delete the branch and create a new one.
+    </>
+  }
+/>
+
 ## Environment access controls
 
 We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
@@ -266,9 +312,9 @@ There are two tools you can use to control access to your data in the Knock dash
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Can I programmatically create or delete environments?">
-    No, you cannot programmatically create or delete environments. You can only
-    create and delete environments through the Knock dashboard at this time.
+  <Accordion title="Can I programmatically create, rename, or delete environments?">
+    Not at this time. You can only create, rename, and delete environments
+    through the Knock dashboard.
   </Accordion>
   <Accordion title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?">
     Yes. Use [cloning resources across
