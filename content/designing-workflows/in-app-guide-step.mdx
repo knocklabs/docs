@@ -1,0 +1,126 @@
+---
+title: In-app guide step
+description: Learn how to make a recipient eligible for a guide directly from a workflow or broadcast step.
+tags: ["steps", "guides", "audiences", "in-app", "channels"]
+section: Designing workflows
+---
+
+Use an in-app guide step to update a user's [guide](/concepts/guides) eligibility within a workflow or broadcast run. This is useful when eligibility is driven by the context of the workflow or broadcast. For example, recipients may become eligible for an onboarding modal after completing a certain action in a cross-channel onboarding campaign.
+
+## How it works
+
+An in-app guide step references a guide by its key. When you add the step to a workflow or broadcast, Knock creates a managed [static audience](/concepts/audiences) behind the scenes and links it to the guide's targeting rules. When the step executes for a recipient, Knock adds that recipient to the managed audience to make them [eligible for the selected guide](/in-app-ui/guides/create-guides#targeting).
+
+If the workflow or broadcast run includes a tenant ID, Knock adds the recipient to the audience as a user-tenant pair. Learn more about [audiences and tenants](/concepts/audiences#audiences-and-tenants).
+
+To receive the rendered guide in your application, eligible audience members must also meet any guide targeting criteria set directly on the guide. This includes [property-based targeting](/in-app-ui/guides/create-guides#targeting) and [activation rules](/in-app-ui/guides/create-guides#activation). Guides may also be subject to [throttling](/in-app-ui/guides/order-guides) depending on how they've been prioritized against other guides your user is eligible for.
+
+## Adding an in-app guide step
+
+<Steps>
+  <Step title="Add the in-app guide step">
+    <p>
+      In the workflow or broadcast builder, drag the **In-app guide** step onto
+      your canvas. It's listed alongside your channel steps in the step panel.
+    </p>
+    <Image
+      src="/images/quick-start/in-app-guide-1.png"
+      alt="Dragging the in-app guide step onto the workflow canvas"
+      width={1966}
+      height={1624}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+  </Step>
+  <Step title="Select a committed guide">
+    <p>
+      Select the guide you want to make recipients eligible for. Only guides
+      that have been created and [committed](/version-control/commits) in the
+      current environment are available for selection.
+    </p>
+    <Image
+      src="/images/quick-start/in-app-guide-2.png"
+      alt="Selecting a committed guide in the in-app guide step"
+      width={3022}
+      height={1728}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+  </Step>
+  <Step title="Add optional conditions">
+    <p>
+      Add [step conditions](/designing-workflows/step-conditions) to control
+      when the step should run.
+    </p>
+    <Image
+      src="/images/quick-start/in-app-guide-3.png"
+      alt="Adding optional step conditions to the in-app guide step"
+      width={3024}
+      height={1728}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+  </Step>
+</Steps>
+
+## Promoting the guide with the workflow
+
+The in-app guide step references a [guide](/in-app-ui/guides/create-guides) by
+key. That guide must already exist in the destination
+[environment](/version-control/environments). If you
+[promote](/version-control/commits#promoting-commits) the workflow or
+broadcast first, the `guide_key` cannot resolve and the step is invalid there.
+
+Promote the guide first so the dependency exists before Knock evaluates the
+workflow:
+
+1. Create and configure the guide in your development environment, then
+   [commit](/version-control/commits) and promote it.
+2. Create or update the workflow or broadcast with the in-app guide step,
+   commit it, and promote it to the same environment.
+3. After the workflow or broadcast is promoted, update the guide's
+   [audience targeting](/in-app-ui/guides/create-guides#targeting) if needed.
+   To only target recipients through the step, leave the guide's audience
+   empty, then commit and promote the guide again.
+4. Repeat this order for each environment on the way to production.
+
+## Guide targeting and the managed audience
+
+When a guide is referenced by an in-app guide step, its **Audience** settings reflect that it's targeted by a workflow or broadcast step rather than, or in addition to, a manually selected audience. You can see which workflows and broadcasts trigger a given guide in the **Triggered by** section of the guide's details page in the dashboard.
+
+### Tenant context
+
+When a workflow trigger includes a tenant ID, Knock includes that tenant ID in
+the recipient's audience membership context. This means the in-app guide step
+enrolls the recipient as a user-tenant pair, rather than as a user alone. The
+same applies when a broadcast run includes tenant context.
+
+This context can affect guide eligibility when [tenancy strict
+mode](/in-app-ui/guides/create-guides#tenancy-strict-mode) is enabled. See the
+tenancy strict mode documentation for details.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I use an in-app guide step in a broadcast?">
+    Yes. In-app guide steps are supported in both workflows and broadcasts.
+  </Accordion>
+  <Accordion title="Does the recipient see the guide immediately?">
+    Not necessarily. As described in [How it works](#how-it-works), enrollment
+    makes the guide eligible, but your application still needs to fetch (or
+    refetch) guides for that recipient before the guide can render. See
+    [rendering guides](/in-app-ui/guides/render-guides) for how to do this in
+    your application.
+  </Accordion>
+  <Accordion title="Can I remove a recipient's eligibility once they're enrolled?">
+    Not through the in-app guide step itself, since it only adds recipients to
+    the managed audience. If you need to revoke eligibility, use [property-based
+    targeting](/in-app-ui/guides/create-guides#targeting) or [activation
+    rules](/in-app-ui/guides/create-guides#activation) on the guide to control
+    when it's actually shown, rather than relying solely on audience membership.
+  </Accordion>
+  <Accordion title="What happens if the referenced guide is archived or returned to an uncommitted state?">
+    The in-app guide step becomes invalid. Workflow or broadcast runs skip the
+    invalid step and continue to the next step until the guide reference becomes
+    valid again. Knock records the skipped step and error in the run log, but
+    the run does not exit with an error state. Update the step to reference a
+    different committed guide, or restore the guide's committed state.
+  </Accordion>
+</AccordionGroup>

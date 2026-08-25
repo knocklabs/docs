@@ -110,6 +110,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
+      { slug: "/in-app-guide-step", title: "In-app guide step" },
       { slug: "/send-windows", title: "Send windows" },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
     ],
