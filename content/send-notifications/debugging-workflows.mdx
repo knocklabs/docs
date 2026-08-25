@@ -47,7 +47,9 @@ You can see a video of our workflow debugger in action here:
 
 You can access the workflow debugger from the "Runs" tab on a given workflow or the "Workflow runs" tab on a recipient record.
 
-You can also access it from our "Logs" page, which you'll find in the left-hand sidebar in the dashboard. From there:
+You can also access it from the **Runs** page under **Observability** in the dashboard sidebar, which lists every workflow run in the current environment. Filter that list if desired, then select a run to open it in the debugger.
+
+Finally, you can reach the debugger from the **API logs** page under **Observability**. From there:
 
 1. Find an API log that triggered a workflow run (**hint**: you can use the filters to find only workflow API requests)
 2. In the right hand panel, click the "Workflow runs" tab
@@ -108,3 +110,26 @@ Common causes of workflow step failures include:
 - **Fetch step errors.** Errors or timeouts from the HTTP request made by the fetch step.
 
 You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
+
+## Debugging workflows with a batch step
+
+A [batch step](/designing-workflows/batch-function) aggregates many workflow runs into a single notification. The first trigger for a recipient opens the batch window. Every trigger that arrives while that window is open is added to the batch as an `activity`, and its own workflow run terminates at the batch step. When the window closes, the run that opened the batch continues to the next step.
+
+This means that a workflow with a batch step produces two types of runs:
+
+- **Runs that open a batch.** These runs pause at the batch step, then resume and execute the remaining steps when the window closes. Look here for any messages that were generated after the batch closed, along with any errors.
+- **Runs that join a batch.** These runs terminate at the batch step. Steps after the batch step show "Will not execute" with the log "This workflow run was added to the batch function of a pre-existing workflow run."
+
+The batch step is what links runs together, and the workflow debugger surfaces that link in both directions.
+
+### Finding the run that executed
+
+Open any workflow run and **select the batch step** in the debugger. What you see depends on which type of run you selected:
+
+- **Batched by.** Shown on a run that joined an open batch. Follow the link to open the run that started the batch. That run is where the rest of the workflow executes after the batch window closes.
+- **Batch closes at.** Shown on a run that opened the batch, while its window is still open. The run stays in a `Paused` status until the window closes.
+- **Batched workflow runs.** Shown on a run that opened the batch, once its window has closed. The list links to up to ten of the runs collected into the batch, followed by the total number of runs in the batch (including the run that opened the batch; for example, "Showing 4 of 5 total batched workflow runs"). Follow any link to open a batched run in the debugger.
+
+### Batches that immediately flush the leading item
+
+When a batch step is configured to [immediately flush its leading item](/designing-workflows/batch-function#immediately-flushing-the-first-item-in-a-batch), the run that opens the batch continues past the batch step right away. Additional batched triggers are aggregated on the _second_ run added to the batch, so that is the run where you will find the batched workflow runs list and any messages that the batch generated.
