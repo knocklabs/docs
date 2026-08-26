@@ -1,0 +1,102 @@
+---
+title: "Knock plans"
+description: "Understand differences between Knock plans and how usage is metered."
+tags:
+  [
+    "billing",
+    "pricing",
+    "plans",
+    "enterprise",
+    "usage",
+    "sandbox mode",
+    "accounts",
+  ]
+section: Manage your account
+---
+
+Knock offers a free Developer plan and two paid plans, Starter and Enterprise. Most features are available across all three plans, with a small set reserved for Enterprise customers only. See our [pricing page](https://knock.app/pricing) for current pricing, included volumes, and a feature comparison.
+
+## Enterprise features
+
+Teams choose the Enterprise plan for higher message volume, multi-tenancy and security controls, and compliance requirements that call for a HIPAA business associate agreement (BAA).
+
+The following features are reserved for the Enterprise plan:
+
+- [Per-tenant preferences](/multi-tenancy/per-tenant-preferences) and [branding](/multi-tenancy/per-tenant-branding)
+- [Per-tenant guides](/in-app-ui/guides/create-guides)
+- [Translations (i18n)](/template-editor/translations)
+- [Batch render limits beyond 10 items](/designing-workflows/batch-function#setting-the-batch-render-limit-beyond-10)
+- [Custom permission groups](/manage-your-account/roles-and-permissions)
+- [SAML SSO](/manage-your-account/saml-sso)
+- [Directory sync](/manage-your-account/directory-sync)
+- [Data warehouse sync](/integrations/extensions/data-sync)
+- [Datadog extension](/integrations/extensions/datadog)
+- [New Relic extension](/integrations/extensions/new-relic)
+- [Segment extension](/integrations/extensions/segment)
+- [Heap extension](/integrations/extensions/heap)
+
+## How Knock meters usage
+
+Knock plans vary in terms of usage models: notification-based plans meter usage on messages sent, while recipient-based plans meter usage based on monthly notified recipients. Regardless of plan, usage may be accrued in any Knock [environment](/version-control/environments). See our [pricing page](https://knock.app/pricing) for current plan pricing and included volumes.
+
+### Message counts
+
+A message is counted each time a notification is successfully delivered to a single user on a single channel. A workflow that notifies a user by both email and in-app results in two messages. If a channel step is not executed, there is no associated message. A channel step may be skipped due to user preferences, missing data, or other workflow logic.
+
+Due to the nature of [guides](/concepts/guides), guides usage is metered separately and based on active guides users. A user is considered an active guides user if they have received at least one guide in a given month.
+
+### Non-production usage
+
+While using Knock, you'll often send messages in non-production environments to test changes. To avoid unexpected usage from testing, we recommend using [sandbox mode](/integrations/overview#sandbox-mode) or setting [channel conditions](/integrations/overview#channel-conditions) in your non-production environments.
+
+#### Sandbox mode
+
+When a channel is in sandbox mode, Knock does not pass messages downstream for delivery. Sandboxed messages are rendered for preview in the Knock dashboard, but do not count toward usage.
+
+Enable sandbox mode in a channel's configuration to apply it across an environment, or use the workflow [test runner's sandbox setting](/send-notifications/testing-workflows#test-run-settings) to apply it for a single run, regardless of how the channel itself is configured.
+
+#### Channel conditions
+
+Channel conditions enable you to scope a channel's delivery to specific conditions per environment. For example, you might set a condition on your email channel to restrict sending to recipients on your own domain while in a non-production environment. Unlike sandbox mode, channel conditions gate delivery selectively rather than suppress it entirely. Any message that satisfies a channel condition may contribute to usage.
+
+## Managing multiple accounts
+
+Most customers need only one Knock account. As you map your resources into Knock, there are two ways to think about separating data within a single account:
+
+- **[Environments](/version-control/environments)** isolate your development lifecycle, from development through production.
+- **[Tenants](/multi-tenancy/overview)** scope notifications, branding, and preferences to your own customers, brands, or business units.
+
+Some customers maintain separate Knock accounts under a single Enterprise agreement, often for fully distinct products or business units, or when they need independent account-level data, members, and authentication.
+
+Each Knock account is independent: its resources, members, and analytics are scoped to that account, and no configuration is shared between accounts. Accounts can be synchronized programmatically via the [Management API](/developer-tools/management-api), but Knock does not provide any automatic synchronization between separate accounts.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Where can I see my plan's pricing and included volume?">
+    See the [pricing page](https://knock.app/pricing) for current pricing,
+    included volumes, and a full plan comparison. Your current usage is
+    available on the billing page in your Knock dashboard. [Contact
+    support](mailto:support@knock.app?subject=Billing%20question) with questions
+    about your plan or invoice.
+  </Accordion>
+  <Accordion title="Can I use tenants on a non-Enterprise plan?">
+    Yes. You can use Knock's APIs to work with [tenant](/multi-tenancy/overview)
+    data and trigger workflow runs for specific tenants on any plan. However,
+    per-tenant preferences, branding, translations, and guides are gated to the
+    Enterprise plan.
+  </Accordion>
+  <Accordion title="How can I sandbox in-app feed messages?">
+    The in-app channel doesn't support sandbox mode. Knock manages in-app
+    delivery, so there's no downstream provider handoff to suppress. Use
+    [channel conditions](/integrations/overview#channel-conditions) to manage
+    when messages are created for in-app steps in your non-production
+    environments.
+  </Accordion>
+  <Accordion title="How can I sandbox guide messages?">
+    The guides channel does not support sandbox mode. To manage usage, use
+    audience-limiting [targeting
+    rules](/in-app-ui/guides/create-guides#targeting) while testing in
+    non-production environments.
+  </Accordion>
+</AccordionGroup>
