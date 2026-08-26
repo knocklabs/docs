@@ -48,6 +48,8 @@ The values depend on the provider:
 - For Discord, use the parent Discord message ID.
 - For Microsoft Teams, enter the thread's conversation ID in **Conversation ID** and the root activity's ID in **Thread root message ID**. In an incoming Bot Framework activity, these values are `conversation.id` and `id`.
 
+Microsoft Teams replies require a bot-based connection. Incoming webhook connections cannot reply to messages.
+
 <Callout
   type="info"
   title="Slack messages sent by Knock."
@@ -126,12 +128,36 @@ The conversation and thread root identifiers select the existing Microsoft Teams
 
 ## Troubleshooting
 
-| Problem                                                                        | What happens                                                                                            | How to fix it                                                                                     |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| The Slack timestamp is correct, but **Send to** is blank                       | Knock uses the recipient's stored Slack connection, which might point to another channel.               | Enter the channel ID that contains the parent message.                                            |
-| The Slack timestamp and channel ID refer to different channels                 | The reply does not attach to the expected thread, or Slack rejects the request.                         | Enter the channel ID that contains the parent message.                                            |
-| The Microsoft Teams conversation ID or thread root message ID is incorrect     | Microsoft Teams rejects the reply or cannot attach it to the expected thread.                           | Use the `conversation.id` and root activity `id` from the Microsoft Teams Bot Framework activity. |
-| The recipient uses an incoming webhook connection                              | Knock cannot reply because incoming webhooks do not provide the required bot-based connection.          | Configure bot-based channel data for the provider.                                                |
-| A Liquid value is empty or malformed                                           | Knock cannot render a required provider identifier or destination, so no reply is sent.                 | Verify the workflow trigger data and Liquid path.                                                 |
-| A previous step is not available in the parent-step list                       | The step is not guaranteed to run first, uses another Knock channel, or is inside an unsupported group. | Adjust the workflow graph or reply to an existing thread with its provider identifiers.           |
-| A previous step produces no message or more than one possible provider message | Knock cannot identify one parent message and destination safely.                                        | Make the parent resolve to exactly one chat message for the recipient run.                        |
+<AccordionGroup>
+  <Accordion title="The Slack timestamp is correct, but Send to is blank">
+    Knock uses the recipient's stored Slack connection, which might point to
+    another channel. Enter the channel ID that contains the parent message.
+  </Accordion>
+  <Accordion title="The Slack timestamp and channel ID refer to different channels">
+    The reply does not attach to the expected thread, or Slack rejects the
+    request. Enter the channel ID that contains the parent message.
+  </Accordion>
+  <Accordion title="The Microsoft Teams conversation ID or thread root message ID is incorrect">
+    Microsoft Teams rejects the reply or cannot attach it to the expected
+    thread. Use the <code>conversation.id</code> and root activity{" "}
+    <code>id</code> from the Microsoft Teams Bot Framework activity.
+  </Accordion>
+  <Accordion title="The recipient uses an incoming webhook connection">
+    Knock cannot reply because incoming webhooks do not provide the required
+    bot-based connection. Configure bot-based channel data for the provider.
+  </Accordion>
+  <Accordion title="A Liquid value is empty or malformed">
+    Knock cannot render a required provider identifier or destination, so it
+    does not send the reply. Verify the workflow trigger data and Liquid path.
+  </Accordion>
+  <Accordion title="A previous step is missing from the parent-step list">
+    The step is not guaranteed to run first, uses another Knock channel, or is
+    inside an unsupported group. Adjust the workflow graph or reply to an
+    existing thread with its provider identifiers.
+  </Accordion>
+  <Accordion title="A previous step produces no message or multiple messages">
+    Knock cannot identify one parent message and destination when the step
+    produces no message or multiple messages. Make the parent resolve to exactly
+    one chat message for the recipient run.
+  </Accordion>
+</AccordionGroup>
