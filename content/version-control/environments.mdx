@@ -14,6 +14,9 @@ tags:
     "clone",
     "cloning",
     "duplicate",
+    "rename",
+    "renaming",
+    "slug",
   ]
 section: Concepts
 ---
@@ -254,6 +257,52 @@ A new environment is not empty. Knock seeds it from the environment directly bel
   }
 />
 
+## Rename an environment
+
+You can rename any additional environment that you created. Your Development and Production environments cannot be renamed.
+
+<Steps titleSize="h4">
+  {/* prettier-ignore */}
+  <Step title="Go to the Environments page">
+    Navigate to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings.
+  </Step>
+  <Step title="Select the environment you want to rename">
+    Open the action menu next to the environment you want to rename, select
+    **Edit environment**, update the **Name** field, and click **Update**.
+  </Step>
+  <Step title="Update any slug references">
+    Knock derives an environment's slug from its name, so renaming an
+    environment also changes its slug. Update the following after you rename an
+    environment:
+    <ul>
+      <li>
+        **CLI commands and CI pipelines.** Any `--environment` flag that uses
+        the old slug, such as `knock workflow list --environment=staging`.
+      </li>
+      <li>
+        **Management API requests.** Any `environment` or `to_environment` query
+        parameter that uses the old slug.
+      </li>
+    </ul>
+  </Step>
+</Steps>
+
+A renamed environment keeps its unique ID, its API keys, and its position in your promotion path. Workflows, guides, layouts, and other content are untouched, and no data moves between environments. Any environment-specific [custom permissions](/manage-your-account/roles-and-permissions#custom-permission-groups) are also preserved on the renamed environment.
+
+Renaming an environment requires the `owner` or `admin` role, or a custom role with environment management permissions.
+
+<Callout
+  type="info"
+  title="Branch environments cannot be renamed."
+  text={
+    <>
+      A <a href="/version-control/branches">branch</a> takes the name you give
+      it when you create it, and that name is fixed for the life of the branch.
+      If you need a different name, delete the branch and create a new one.
+    </>
+  }
+/>
+
 ## Environment access controls
 
 We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
@@ -266,9 +315,9 @@ There are two tools you can use to control access to your data in the Knock dash
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Can I programmatically create or delete environments?">
-    No, you cannot programmatically create or delete environments. You can only
-    create and delete environments through the Knock dashboard at this time.
+  <Accordion title="Can I programmatically create, rename, or delete environments?">
+    Not at this time. You can only create, rename, and delete environments
+    through the Knock dashboard.
   </Accordion>
   <Accordion title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?">
     Yes. Use [cloning resources across
