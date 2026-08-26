@@ -259,32 +259,37 @@ A new environment is not empty. Knock seeds it from the environment directly bel
 
 ## Rename an environment
 
-You can rename any additional environment that you created. Your development and production environments cannot be renamed.
+You can rename any additional environment that you created. Your Development and Production environments cannot be renamed.
 
-To rename an environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings. Open the action menu next to the environment you want to rename, select **Edit environment**, update the **Name** field, and click **Update**.
+<Steps titleSize="h4">
+  {/* prettier-ignore */}
+  <Step title="Go to the Environments page">
+    Navigate to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings.
+  </Step>
+  <Step title="Select the environment you want to rename">
+    Open the action menu next to the environment you want to rename, select
+    **Edit environment**, update the **Name** field, and click **Update**.
+  </Step>
+  <Step title="Update any slug references">
+    Knock derives an environment's slug from its name, so renaming an
+    environment also changes its slug. Update the following after you rename an
+    environment:
+    <ul>
+      <li>
+        **CLI commands and CI pipelines.** Any `--environment` flag that uses
+        the old slug, such as `knock workflow list --environment=staging`.
+      </li>
+      <li>
+        **Management API requests.** Any `environment` or `to_environment` query
+        parameter that uses the old slug.
+      </li>
+    </ul>
+  </Step>
+</Steps>
 
-The renamed environment keeps its ID, its API keys, and its position in your promotion path. Workflows, guides, layouts, and other content are untouched, and no data moves between environments. Any environment-specific [custom permissions](/manage-your-account/roles-and-permissions#custom-permission-groups) are also preserved.
+A renamed environment keeps its unique ID, its API keys, and its position in your promotion path. Workflows, guides, layouts, and other content are untouched, and no data moves between environments. Any environment-specific [custom permissions](/manage-your-account/roles-and-permissions#custom-permission-groups) are also preserved on the renamed environment.
 
-Renaming an environment requires the `owner` or `admin` role, or a custom permission group that can manage environments.
-
-<Callout
-  type="warning"
-  title="Renaming an environment changes its slug."
-  text={
-    <>
-      Knock derives an environment's slug from its name, so renaming an
-      environment also changes its slug. Renaming a "Staging" environment to
-      "QA" changes its slug from <code>staging</code> to <code>qa</code>.
-      Anything that addresses the environment by its previous slug needs to be
-      updated.
-    </>
-  }
-/>
-
-Update the following after you rename an environment:
-
-1. **CLI commands and CI pipelines.** Any `--environment` flag that uses the old slug, such as `knock workflow list --environment=staging`.
-2. **Management API requests.** Any `environment` or `to_environment` query parameter that uses the old slug.
+Renaming an environment requires the `owner` or `admin` role, or a custom role with environment management permissions.
 
 <Callout
   type="info"
