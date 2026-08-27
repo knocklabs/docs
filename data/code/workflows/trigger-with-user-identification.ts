@@ -137,19 +137,19 @@ ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
-  Data: map[string]interface{}{"project_name": "My Project"},
-  Recipients: []knock.RecipientRequestUnionParam{
-    map[string]interface{}{
-      "id": "1",
-      "name": "John Hammond",
-      "email": "jhammond@ingen.net",
+  Data: knock.F(map[string]interface{}{"project_name": "My Project"}),
+  Recipients: knock.F([]knock.RecipientRequestUnionParam{
+    knock.InlineIdentifyUserRequestParam{
+      ID:    knock.F("1"),
+      Name:  knock.F("John Hammond"),
+      Email: knock.F("jhammond@ingen.net"),
     },
-    map[string]interface{}{
-      "id": "2",
-      "name": "Ellie Sattler",
-      "email": "esattler@ingen.net",
+    knock.InlineIdentifyUserRequestParam{
+      ID:    knock.F("2"),
+      Name:  knock.F("Ellie Sattler"),
+      Email: knock.F("esattler@ingen.net"),
     },
-  },
+  }),
 }
 
 result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)

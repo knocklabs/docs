@@ -19,11 +19,14 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/posthog", title: "PostHog" },
       { slug: "/stripe", title: "Stripe" },
       { slug: "/supabase", title: "Supabase" },
+      { slug: "/amplitude", title: "Amplitude" },
       { slug: "/workos", title: "WorkOS" },
       { slug: "/segment", title: "Segment" },
+      { slug: "/shopify", title: "Shopify" },
       { slug: "/rudderstack", title: "RudderStack" },
       { slug: "/hightouch", title: "Hightouch" },
       { slug: "/census", title: "Census" },
+      { slug: "/clay", title: "Clay" },
       { slug: "/polytomic", title: "Polytomic" },
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
@@ -70,13 +73,17 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       {
+        slug: "/replying-to-chat-messages",
+        title: "Replying to chat messages",
+      },
+      {
         title: "Slack",
         slug: "/slack",
         pages: [
           { slug: "/overview", title: "Overview" },
           {
             slug: "/sending-an-internal-message",
-            title: "Sending an internal message",
+            title: "Messaging your workspace",
           },
           {
             slug: "/sending-a-direct-message",
@@ -85,6 +92,10 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
           {
             slug: "/sending-a-message-to-channels",
             title: "Sending a message to channels",
+          },
+          {
+            slug: "/overriding-recipient-connections",
+            title: "Overriding recipient connections",
           },
         ],
       },
@@ -161,12 +172,13 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/extensions",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/vercel", title: "Vercel" },
+      { slug: "/slack", title: "Slack" },
+      { slug: "/data-sync", title: "Data warehouse sync" },
+      { slug: "/segment", title: "Segment" },
       { slug: "/datadog", title: "Datadog" },
       { slug: "/new-relic", title: "New Relic" },
-      { slug: "/segment", title: "Segment" },
       { slug: "/heap", title: "Heap" },
-      { slug: "/data-sync", title: "Data warehouse sync" },
+      { slug: "/vercel", title: "Vercel" },
     ],
   },
 ];

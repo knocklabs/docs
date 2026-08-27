@@ -11,6 +11,12 @@ tags:
     "staging",
     "production write access",
     "production member role",
+    "clone",
+    "cloning",
+    "duplicate",
+    "rename",
+    "renaming",
+    "slug",
   ]
 section: Concepts
 ---
@@ -51,10 +57,19 @@ With Knock environments you:
 Each environment has a set of **data resources** that are per-environment and will never be shared between environments. These data resources are not version-controlled.
 
 <AccordionGroup>
-  <Accordion title="Data resources">
-    The following data resources are per-environment and not version-controlled.
-    - Users - Audiences - Tenants - Objects - Messages - Analytics - Logs -
-    Events - Broadcasts
+  <Accordion title="See all per-environment data resources">
+    The following data resources are per-environment and not version-controlled:
+
+    - Users
+    - Audiences
+    - Tenants
+    - Objects
+    - Messages
+    - Analytics
+    - Logs
+    - Events
+    - Broadcasts
+
   </Accordion>
 </AccordionGroup>
 
@@ -64,12 +79,19 @@ Each environment has its own set of API keys which you use to send data to the e
 
 ### Create content in environments
 
-Each environment has a set of **content resources** that are managed via version control. These are resources associated with the creation and orchestration of the content you send to your customers, such as workflows, layouts, and templates.
+Each environment has a set of **content resources** that are managed via version control. These are resources associated with the creation and orchestration of the content you send to your customers.
 
 <AccordionGroup>
-  <Accordion title="Content resources">
-    The following content resources are version-controlled. - Workflows - Guides
-    - Layouts - Partials - Translations - Reusable requests
+  <Accordion title="See all version-controlled content resources">
+    The following content resources are version-controlled:
+
+    - Workflows
+    - Guides
+    - Layouts
+    - Partials
+    - Translations
+    - Reusable requests
+
   </Accordion>
 </AccordionGroup>
 
@@ -126,6 +148,57 @@ These rules enable two ways of working with content and shipping it to your end 
   }
 />
 
+## Clone resources across environments
+
+You can clone supported resources from one environment to another in the Knock dashboard. Cloning creates a new copy of the resource in the destination environment. The clone gets a new key by default (with a `-copy` suffix) and is independent from the original.
+
+Open a resource's action menu and select **Clone** (or **Duplicate** for email layouts) to start a clone. When your account has more than one writable destination environment, you can choose which environment to clone into.
+
+Cloning is a dashboard-only feature. It is not available through the [Knock CLI](/cli/overview) or [Management API](/developer-tools/management-api) at this time.
+
+### Supported resources
+
+You can clone the following resources across environments:
+
+- Workflows
+- Broadcasts
+- Guides
+- Message types
+- Email layouts
+- Audiences
+- Partials
+- Translations
+- Reusable requests
+- Source event mappings
+
+Archived resources cannot be cloned.
+
+### Clone vs promote
+
+Clone and promote solve different problems:
+
+1. **Clone.** Creates a new resource in another environment. Use this when you want a copy to exist in both environments, or when you need to copy content to an environment lower in the promotion chain (for example, from production to development).
+2. **Promote.** Moves committed changes for an existing resource up through your environment chain, keeping the same key. Use this when you are following the development-to-production workflow and want the same resource to exist across environments.
+
+When you clone a workflow, Knock also copies its channel step templates and workflow schema into the destination environment.
+
+### Environment targeting
+
+Which environments you can clone into depends on your account's **production write access** setting on the **Permissions** page in your account settings:
+
+1. **Production write access enabled.** You can clone into any environment in your project.
+2. **Production write access disabled.** You can only clone into your Development environment.
+
+This follows the same rules as creating and editing content in an environment. If production write access is disabled, environments other than Development are read-only and cannot be selected as a clone destination.
+
+Branch environments cannot be used as clone targets.
+
+### Common use cases
+
+1. **Copy a broadcast from development to production.** Create and test a broadcast in development, then clone it to production when you are ready to send it to real users.
+2. **Copy production content back to development.** If you created a workflow directly in production and want to edit it using the promotion model, clone it into your development environment. You can give the clone the same key as the production resource if you plan to promote it back and overwrite the production version later.
+3. **Duplicate a workflow for experimentation.** Clone a workflow within the same environment (or into another environment) to try changes without affecting the original.
+
 ## Create additional environments
 
 <Callout
@@ -142,9 +215,93 @@ These rules enable two ways of working with content and shipping it to your end 
 
 By default your Knock account comes with two environments: development and production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a staging environment) you can add it on the settings page of the Knock dashboard.
 
-To create a new environment, go to the **Environments** page under the **Version control** section of your account settings. You'll see a button to "Create environment."
+To create a new environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your account settings. You'll see a button to "Create environment."
 
-When you create an additional environment, it will be inserted between development and production for environment promotion purposes. Any additional new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
+### Choose where the new environment goes
+
+Environments are ordered, and that order determines your promotion path. When you create an environment, the **Insert after** select in the create modal determines where it lands. Choose the environment that the new environment should come directly after, and Knock inserts it one "level" above that environment.
+
+Two constraints apply to the position you choose:
+
+- **You cannot insert an environment above production.** Production is always the highest environment, so it isn't available in the select.
+- **You cannot insert an environment below development.** Development is always the lowest environment, so the new environment will always sit above it.
+
+By default the select is set to the second-to-last environment, which places the new environment directly below production. In a new account with only development and production, that means a new environment is inserted between the two.
+
+Environments cannot be re-ordered after they're created, as this would break the promotion model for previously-promoted changes.
+
+### What's in a new environment
+
+A new environment is not empty. Knock seeds it from the environment directly below it when you create it, and different parts of your account are seeded in different ways:
+
+| Resource                                                                                                                    | What the new environment starts with                                                                                                                                                                               |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Workflows, guides, layouts, partials, translations, and reusable requests                                                   | Promoted from the environment directly below it (the latest committed version of each item; archived items are skipped).                                                                                           |
+| <a href="/concepts/variables" className="text-brand underline">Environment variable</a> values                              | Empty. Values are per-environment and you need to set them.                                                                                                                                                        |
+| <a href="/concepts/channels" className="text-brand underline">Channel</a> settings                                          | Provider credentials are not copied and you need to configure them.                                                                                                                                                |
+| <a href="/integrations/sources/overview" className="text-brand underline">Source</a> settings                               | Every source in your project appears in the new environment with default settings and its own newly generated source URL. No settings are copied, so you need to point your provider at the new environment's URL. |
+| <a href="/preferences/hosted-preference-center" className="text-brand underline">Hosted preference center</a> configuration | The default configuration.                                                                                                                                                                                         |
+| API keys                                                                                                                    | A new public and secret key pair.                                                                                                                                                                                  |
+| Users, tenants, objects, messages, and logs                                                                                 | Nothing. Data is never copied between environments.                                                                                                                                                                |
+
+<Callout
+  type="warning"
+  title="Configure variable values and channel credentials."
+  text={
+    <>
+      A new environment can look fully configured in the dashboard because its
+      variable keys and channels are all present, but it will not send anything
+      until you set your variable values and reconfigure your provider
+      credentials for each channel.
+    </>
+  }
+/>
+
+## Rename an environment
+
+You can rename any additional environment that you created. Your Development and Production environments cannot be renamed.
+
+<Steps titleSize="h4">
+  {/* prettier-ignore */}
+  <Step title="Go to the Environments page">
+    Navigate to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings.
+  </Step>
+  <Step title="Select the environment you want to rename">
+    Open the action menu next to the environment you want to rename, select
+    **Edit environment**, update the **Name** field, and click **Update**.
+  </Step>
+  <Step title="Update any slug references">
+    Knock derives an environment's slug from its name, so renaming an
+    environment also changes its slug. Update the following after you rename an
+    environment:
+    <ul>
+      <li>
+        **CLI commands and CI pipelines.** Any `--environment` flag that uses
+        the old slug, such as `knock workflow list --environment=staging`.
+      </li>
+      <li>
+        **Management API requests.** Any `environment` or `to_environment` query
+        parameter that uses the old slug.
+      </li>
+    </ul>
+  </Step>
+</Steps>
+
+A renamed environment keeps its unique ID, its API keys, and its position in your promotion path. Workflows, guides, layouts, and other content are untouched, and no data moves between environments. Any environment-specific [custom permissions](/manage-your-account/roles-and-permissions#custom-permission-groups) are also preserved on the renamed environment.
+
+Renaming an environment requires the `owner` or `admin` role, or a custom role with environment management permissions.
+
+<Callout
+  type="info"
+  title="Branch environments cannot be renamed."
+  text={
+    <>
+      A <a href="/version-control/branches">branch</a> takes the name you give
+      it when you create it, and that name is fixed for the life of the branch.
+      If you need a different name, delete the branch and create a new one.
+    </>
+  }
+/>
 
 ## Environment access controls
 
@@ -152,20 +309,22 @@ We recognize the importance of protecting your sensitive data, so we designed Kn
 
 There are two tools you can use to control access to your data in the Knock dashboard:
 
-- [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers granular roles for the different functions your team members may want to carry out in Knock, such as support team members that need to debug issues for customers but shouldn't be making changes to notification logic.
-- [Customer data obfuscation.](/manage-your-account/data-obfuscation) You can use our per-environment data obfuscation controls to configure whether you want your team members to be able to view customer data in the Knock dashboard.
+- [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers built-in roles for common team functions, and on Enterprise plans [custom permission groups](/manage-your-account/roles-and-permissions#custom-permission-groups) with per-environment access controls. For example, you can give support team members access to debug issues without permission to change notification logic, or deny access to an environment entirely.
+- [Customer data obfuscation.](/manage-your-account/data-obfuscation) Use environment-level controls to hide customer data for every team member in an environment. On Enterprise plans, [custom permission groups](/manage-your-account/roles-and-permissions#customer-data-obfuscation) can also set per-environment obfuscation rules.
 
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Can I programmatically create or delete environments?">
-    No, you cannot programmatically create or delete environments. You can only
-    create and delete environments through the Knock dashboard at this time.
+  <Accordion title="Can I programmatically create, rename, or delete environments?">
+    Not at this time. You can only create, rename, and delete environments
+    through the Knock dashboard.
   </Accordion>
   <Accordion title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?">
-    Yes, but you'll need to move it manually. You can create a new resource in
-    your development environment that uses the same `key` that you used in
-    production. When you promote it to production later on, it will overwrite
-    the existing version that was previously created directly in production.
+    Yes. Use [cloning resources across
+    environments](/version-control/environments#clone-resources-across-environments)
+    to copy the resource into your development environment. By default a `-copy`
+    suffix will be added to the key of the cloned resource. Set the key to match
+    the production resource that you're cloning if you want promotions from the
+    lower environment to overwrite the production version later on.
   </Accordion>
 </AccordionGroup>

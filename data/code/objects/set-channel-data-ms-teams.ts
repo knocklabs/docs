@@ -150,17 +150,16 @@ client := knock.NewClient(option.WithAPIKey("sk_12345"))
 // Find this value in your Knock dashboard under Integrations > Channels
 knockTeamsChannelID := "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
 
-channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-	Collection: "projects",
-	ObjectID:   "project-1",
-	ChannelID:  knockTeamsChannelID,
-	Data: knock.MsTeamsChannelDataParam{
-		Connections: param.New([]knock.MsTeamsChannelDataConnectionsUnionParam{
-			knock.MsTeamsChannelDataConnectionsMsTeamsIncomingWebhookConnectionParam{
-				IncomingWebhook: param.New(knock.MsTeamsChannelDataConnectionsMsTeamsIncomingWebhookConnectionIncomingWebhookParam{
-					URL: param.New("url-from-teams"),
-				}),
-			},
+channelData, _ := client.Objects.SetChannelData(ctx, "projects", "project-1", knockTeamsChannelID, knock.ObjectSetChannelDataParams{
+	ChannelDataRequest: knock.ChannelDataRequestParam{
+		Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.MsTeamsChannelDataParam{
+			Connections: knock.F([]knock.MsTeamsChannelDataConnectionsUnionParam{
+				knock.MsTeamsChannelDataConnectionsMsTeamsIncomingWebhookConnectionParam{
+					IncomingWebhook: knock.F(knock.MsTeamsChannelDataConnectionsMsTeamsIncomingWebhookConnectionIncomingWebhookParam{
+						URL: knock.F("url-from-teams"),
+					}),
+				},
+			}),
 		}),
 	},
 })

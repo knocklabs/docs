@@ -24,6 +24,7 @@ Learn more about triggering workflows in [our API reference](/api-reference/work
 | data             | map                   | A map of properties that are required in the templates in this workflow                                     |
 | cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                |
 | tenant           | string                | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
+| settings         | map                   | An optional map of settings that control how this workflow run is executed                                  |
 
 ## Recipient identifiers
 
@@ -206,6 +207,28 @@ you'll want to pass a `tenant` to Knock in your trigger calls so that you can ma
 tenants to which they belong in your product.
 
 You can read more about [supporting multi-tenancy in our documentation](/concepts/tenants).
+
+## Testing workflows with trigger settings
+
+You can pass an optional `settings` object in your `trigger` call to control how the workflow run is executed. These settings are useful when testing a workflow, and mirror the options available in the [workflow test runner](/send-notifications/testing-workflows#test-run-settings).
+
+| Property     | Type    | Description                                                                                                                                                                                                                                                   |
+| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sandbox_mode | boolean | When `true`, all messages in the workflow run are forced to send in [sandbox mode](/integrations/overview#sandbox-mode), overriding the per-channel configuration. Messages are generated but not delivered to the underlying providers. Defaults to `false`. |
+| skip_delay   | boolean | When `true`, all [delay steps](/designing-workflows/delay-function) in the workflow are force skipped, so the run executes straight through without waiting. Defaults to `false`.                                                                             |
+
+```json title="Example trigger with settings"
+{
+  "recipients": ["user-1"],
+  "data": {
+    "message": "Life finds a way"
+  },
+  "settings": {
+    "sandbox_mode": true,
+    "skip_delay": true
+  }
+}
+```
 
 ## Frequently asked questions
 

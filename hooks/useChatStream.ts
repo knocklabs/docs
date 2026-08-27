@@ -1,4 +1,7 @@
 import { useCallback, useRef, useEffect, MutableRefObject } from "react";
+
+import * as posthog from "@/lib/posthog";
+
 import {
   useAskAi,
   type Message,
@@ -182,6 +185,13 @@ export function useChatStream(): UseChatStreamReturn {
       // A session is "new" if it was just created OR if it has no messages yet
       const isNewSession = wasNewSession || isFirstMessage;
 
+      posthog.track("ask-ai-message-sent-client", {
+        message_length: content.trim().length,
+        is_first_message: isFirstMessage,
+        is_new_session: isNewSession,
+        conversation_length: messages.length,
+      });
+
       // Add user message immediately
       const userMessage: Message = {
         id: `user-${Date.now()}`,
@@ -355,6 +365,11 @@ export function useChatStream(): UseChatStreamReturn {
   );
 
   const stopStream = useCallback(() => {
+    posthog.track("ask-ai-stream-stopped-client", {
+      content_length: contentBufferRef.current.length,
+      displayed_length: displayedLengthRef.current,
+    });
+
     // Mark that user manually stopped the stream
     userStoppedRef.current = true;
 

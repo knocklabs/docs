@@ -99,27 +99,26 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
+	"github.com/knocklabs/knock-go/shared"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-params := knock.WorkflowTriggerParams{
-  Actor: comment.Author.ID,
-  Data: map[string]interface{}{
+recipients := make([]knock.RecipientRequestUnionParam, len(followerIds))
+for i, id := range followerIds {
+  recipients[i] = shared.UnionString(id)
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", knock.WorkflowTriggerParams{
+  Actor: knock.F[knock.RecipientRequestUnionParam](shared.UnionString(comment.Author.ID)),
+  Data: knock.F(map[string]interface{}{
     "document_id":   document.ID,
     "document_name": document.Name,
     "comment_id":    comment.ID,
     "comment_text":  comment.Text,
-  },
-  Recipients: make([]knock.RecipientRequestUnionParam, len(followerIds)),
-}
-
-for i, f := range followerIds {
-  params.Recipients[i] = f
-}
-
-result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
+  }),
+  Recipients: knock.F(recipients),
+})
 `,
   java: `
 import app.knock.api.client.KnockClient;

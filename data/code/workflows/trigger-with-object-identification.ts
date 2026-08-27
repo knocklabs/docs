@@ -161,23 +161,27 @@ ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
-  Data: map[string]interface{}{"project_name": "My Project"},
-  Recipients: []knock.RecipientRequestUnionParam{
-    map[string]interface{}{
-      "id": "project-1",
-      "collection": "projects",
-      "name": "My project",
-      "total_assets": 10,
-      "tags": []string{"cool", "fun", "project"},
+  Data: knock.F(map[string]interface{}{"project_name": "My Project"}),
+  Recipients: knock.F([]knock.RecipientRequestUnionParam{
+    knock.InlineObjectRequestParam{
+      ID:         knock.F("project-1"),
+      Collection: knock.F("projects"),
+      Name:       knock.F("My project"),
+      ExtraFields: map[string]interface{}{
+        "total_assets": 10,
+        "tags":         []string{"cool", "fun", "project"},
+      },
     },
-    map[string]interface{}{
-      "id": "project-2",
-      "collection": "projects",
-      "name": "My second project",
-      "total_assets": 5,
-      "tags": []string{"very", "cool", "project"},
+    knock.InlineObjectRequestParam{
+      ID:         knock.F("project-2"),
+      Collection: knock.F("projects"),
+      Name:       knock.F("My second project"),
+      ExtraFields: map[string]interface{}{
+        "total_assets": 5,
+        "tags":         []string{"very", "cool", "project"},
+      },
     },
-  },
+  }),
 }
 
 result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)

@@ -28,6 +28,7 @@ import {
   BuildingBlock,
 } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
+import { KnockAiBanner } from "@/components/ui/KnockAiBanner";
 
 const contentForDiscovery = PLATFORM_SIDEBAR.filter((s) => s.desc);
 
@@ -92,7 +93,7 @@ export default function Home() {
             <ContentCard
               title="Quick start"
               description="Integrate Knock with your backend web app and send your first notification."
-              href="/getting-started/quick-start"
+              href="/getting-started/quick-start/general"
               icon={Rabbit}
             />
             <ContentCard
@@ -108,6 +109,9 @@ export default function Home() {
               icon={Package}
             />
           </Stack>
+          <Box mt="10">
+            <KnockAiBanner />
+          </Box>
           <Section.Container>
             <Section.Header
               title="Learn core concepts"
@@ -251,7 +255,7 @@ export default function Home() {
                 icon={Infinity}
                 title="CI/CD"
                 description="Add Knock to your deployment pipeline with our CLI."
-                href="/developer-tools/integrating-into-cicd"
+                href="/tutorials/integrating-into-cicd"
               />
             </Section.Content>
           </Section.Container>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Page } from "@/components/ui/Page";
-import { slugToPaths } from "../lib/content";
+import { getPathsFromRouter } from "../lib/content";
 import Meta from "../components/Meta";
 import { useRouter } from "next/router";
 import { useInitialScrollState } from "../components/ui/Page/helpers";
@@ -25,7 +25,7 @@ export const CliReferenceLayout = ({
 }: CliReferenceLayoutProps) => {
   const router = useRouter();
   useInitialScrollState();
-  let paths = slugToPaths(router.query.slug);
+  const paths = getPathsFromRouter(router);
 
   useScrollToTop(paths);
 

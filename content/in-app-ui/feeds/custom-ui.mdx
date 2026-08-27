@@ -23,7 +23,13 @@ If you're using the React Native SDK, you can use our hooks to build your own fe
 
 ## Flutter
 
-If you're using the Flutter SDK, you can use the FeedClient instance to build your own feed UI on top of. You'll find more in the [Flutter SDK documentation](/in-app-ui/flutter/sdk/reference).
+If you're using the Flutter SDK, use [`FeedClient`](/in-app-ui/flutter/sdk/reference#feedclient) to drive your feed UI. When a screen or scope goes away, call [`feedClient.dispose()`](/in-app-ui/flutter/sdk/reference#dispose-1) so sockets and streams tear down.
+
+As of [`knock_flutter` 1.0.0](https://pub.dev/packages/knock_flutter), public API types use a `Knock` prefix (for example `KnockApiClient`, `KnockApiResponse`, and `KnockApiException` instead of `ApiClient`, `ApiResponse`, and `ApiError`). `KnockApiException` implements [`Exception`](https://api.dart.dev/dart-core/Exception-class.html), not `Error`, so update any `catch` clauses that assumed `ApiError` extended `Error`.
+
+The SDK does not collect FCM or APNs tokens. Add something like [`firebase_messaging`](https://pub.dev/packages/firebase_messaging) in your app, read the device token yourself, then pass it to [`UserClient.registerTokenForChannel`](/in-app-ui/flutter/sdk/reference#registertokenforchannel). The SDK [README migration table](https://github.com/knocklabs/knock-flutter/blob/main/README.md#migrating-from-01x-to-100) and [example README](https://github.com/knocklabs/knock-flutter/blob/main/example/README.md) cover renames and Firebase-oriented setup.
+
+You’ll find the full surface area in the [Flutter SDK reference](/in-app-ui/flutter/sdk/reference).
 
 ## iOS (Swift)
 

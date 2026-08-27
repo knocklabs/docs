@@ -148,30 +148,32 @@ Click a custom block to open the inspect panel to edit variable values. You can 
 
     You have two options, depending on your use case:
 
-    **1. Create a schema for your HTML partial and set the variable's input type to JSON.**
+    **1. Create a schema for your HTML partial and set the variable's input type to list or JSON.**
 
-    When you create a [schema](/template-editor/partials/schema-reference) for your HTML partial, you can set the input type for a given variable to `json`. This will preserve the structure of the object or array of items that is passed in.
+    When you create a [schema](/template-editor/partials/schema-reference) for your HTML partial, you can pick an input type that preserves the structure of the data passed in:
 
-    For example, if you want a partial to render a list of items, you can create a schema for your partial and pass your list to the partial input like this:
+    - Use the [`list`](/template-editor/partials/schema-reference#list) input type when you want to pass an array of items (for example, a list of products or line items).
+    - Use the [`json`](/template-editor/partials/schema-reference#json) input type when you want to pass a single object (for example, a user profile or other structured payload).
+
+    **Working with a list of items**
+
+    If you want a partial to render a list of items, you can define a `list` field in your schema and pass your array to the partial input.
 
     ```json title="A schema for an HTML partial's 'items' variable"
     [{
-      "type": "json",
+      "type": "list",
       "key": "items",
       "label": "Items list",
       "settings": {
         "required": true,
         "description": "A list of items to render",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": { "type": "string" },
-              "value": { "type": "string" }
-            },
-            "required": ["name", "value"]
-          }
+        "itemSchema": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "value": { "type": "string" }
+          },
+          "required": ["name", "value"]
         }
       }
     }]
@@ -180,16 +182,56 @@ Click a custom block to open the inspect panel to edit variable values. You can 
     ```liquid title="Passing a list of items to the partial's 'items' input"
     {{ data.items_list }}
     ```
-    Then, in the partial you can reference the list of items directly:
-    ```liquid title="Partial content with structured data"
+
+    Then, in the partial you can iterate over the items directly:
+
+    ```liquid title="Partial content with a list of items"
     <ul>
       {% for item in items %}
         <li>{{ item.name }}: {{ item.value }}</li>
       {% endfor %}
     </ul>
     ```
+
+    **Working with a single JSON object**
+
+    If you want a partial to render a single structured object, you can define a `json` field in your schema and pass your object to the partial input.
+
+    ```json title="A schema for an HTML partial's 'user' variable"
+    [{
+      "type": "json",
+      "key": "user",
+      "label": "User",
+      "settings": {
+        "required": true,
+        "description": "The user profile to render",
+        "schema": {
+          "properties": {
+            "name": { "type": "string" },
+            "email": { "type": "string" },
+            "company": { "type": "string" }
+          },
+          "required": ["name", "email"]
+        }
+      }
+    }]
+    ```
+
+    ```liquid title="Passing an object to the partial's 'user' input"
+    {{ recipient }}
+    ```
+
+    Then, in the partial you can reference the object's properties directly:
+
+    ```liquid title="Partial content with a JSON object"
+    <p>Hello {{ user.name }}</p>
+    <p>Email: {{ user.email }}</p>
+    {% if user.company != blank %}
+      <p>Company: {{ user.company }}</p>
+    {% endif %}
+    ```
     <br />
-    You can follow a similar pattern for working with your full `data` payload, `recipient`, or other object [variables](/template-editor/variables) that are available in the workflow run scope; simply pass a Liquid reference to the variable into the partial input (i.e. `{{data}}`), then reference the object's properties within the partial content.
+    You can follow a similar pattern for working with your full `data` payload, `recipient`, or other object [variables](/template-editor/variables) that are available in the workflow run scope; pass a Liquid reference to the variable into the partial input (i.e. `{{ data }}`), then reference the object's properties within the partial content.
     <br/>
     **2. Use Knock's Liquid helpers to transform your input data into a JSON string.**
 

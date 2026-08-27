@@ -57,13 +57,12 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 result, _ := knockClient.Users.Merge(ctx, user.ID, knock.UserMergeParams{
-  FromUserID: param.String("user-to-merge-from"),
+  FromUserID: knock.String("user-to-merge-from"),
 })
 `,
   java: `

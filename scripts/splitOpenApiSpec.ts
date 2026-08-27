@@ -9,8 +9,8 @@ import { dereference } from "@scalar/openapi-parser";
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import deepmerge from "deepmerge";
 import { readFile, writeFile, mkdir } from "fs/promises";
-import JSONPointer from "jsonpointer";
-import safeStringify from "safe-stringify";
+import { getAtPointer } from "../lib/jsonPointer";
+import { safeStringify } from "../lib/safeStringify";
 import { parse } from "yaml";
 
 // ============================================================================
@@ -267,7 +267,7 @@ function extractSchemaWithDependencies(
   visited.add(schemaRef);
 
   // Get the schema
-  const schema = JSONPointer.get(openApiSpec, schemaRef.replace("#", "")) as
+  const schema = getAtPointer(openApiSpec, schemaRef.replace("#", "")) as
     | OpenAPIV3.SchemaObject
     | undefined;
 
@@ -307,7 +307,7 @@ function buildSchemaReferencesForResource(
 
   if (resource.models) {
     for (const [modelName, modelRef] of Object.entries(resource.models)) {
-      const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", "")) as
+      const schema = getAtPointer(openApiSpec, modelRef.replace("#", "")) as
         | OpenAPIV3.SchemaObject
         | undefined;
 

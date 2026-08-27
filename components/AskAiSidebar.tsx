@@ -260,8 +260,6 @@ function ChatOptionButton({
     <Button
       variant="ghost"
       size="2"
-      fontSize="13px"
-      fontWeight="medium"
       w="full"
       justifyContent="flex-start"
       onClick={onClick}
@@ -518,7 +516,6 @@ function AskAiSidebar() {
               size="2"
               p="3"
               pb="0"
-              maxH="400px"
               bg="surface-1"
               style={{
                 fontSize: "13px",
@@ -750,7 +747,7 @@ function AskAiSidebar() {
           <Button
             variant="ghost"
             size="1"
-            iconOnly
+            aria-label="Close"
             icon={{
               icon: X,
               "aria-hidden": true,

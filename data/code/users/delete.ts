@@ -43,8 +43,14 @@ $client = new Client('sk_12345');
 $client->users()->delete($user->id());
 `,
   go: `
+import (
+  "context"
+
+  "github.com/knocklabs/knock-go"
+  "github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 result, _ := knockClient.Users.Delete(ctx, user.ID)
 `,

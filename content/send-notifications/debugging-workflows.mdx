@@ -45,9 +45,9 @@ You can see a video of our workflow debugger in action here:
   }
 />
 
-You can access the workflow debugger from the "Runs" tab on a given workflow or the "Workflow runs" tab on a recipient record.
+You can access the workflow debugger from the "Runs" tab on a given workflow or the "Workflow runs" tab on a recipient record. You can also access it under <a href="https://dashboard.knock.app/~/runs" target="_blank">**Observability** > **Runs**</a> in the dashboard sidebar, which lists every workflow run in the current environment. Filter that list if desired, then select a run to open it in the debugger.
 
-You can also access it from our "Logs" page, which you'll find in the left-hand sidebar in the dashboard. From there:
+Finally, you can reach the debugger under <a href="https://dashboard.knock.app/~/logs" target="_blank">**Observability** > **API logs**</a> in the dashboard sidebar. From there:
 
 1. Find an API log that triggered a workflow run (**hint**: you can use the filters to find only workflow API requests)
 2. In the right hand panel, click the "Workflow runs" tab
@@ -62,6 +62,27 @@ You can also access it from our "Logs" page, which you'll find in the left-hand 
 ## Understanding workflow execution behavior
 
 When a workflow runs, each step is executed in sequence. Sometimes an individual step is skipped or encounters an error, and it's important to understand how this affects the workflow run as a whole.
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      If you're reviewing a{" "}
+      <a href="/send-notifications/testing-workflows">test run</a>, keep in mind
+      that{" "}
+      <a href="/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency">
+        trigger frequency
+      </a>{" "}
+      is not enforced by the dashboard test runner. Settings like {'"'}once per
+      recipient{'"'} are bypassed during test runs, so the workflow will execute
+      for the selected recipient each time regardless of your frequency setting.
+      This is expected behavior. To validate trigger frequency as it works in
+      production, trigger the workflow using the{" "}
+      <a href="/send-notifications/triggering-workflows/api">API</a> directly.
+    </>
+  }
+/>
 
 ### When a workflow step is skipped
 
@@ -87,3 +108,28 @@ Common causes of workflow step failures include:
 - **Fetch step errors.** Errors or timeouts from the HTTP request made by the fetch step.
 
 You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
+
+## Debugging workflows with a batch step
+
+A [batch step](/designing-workflows/batch-function) aggregates many workflow runs into a single notification. The first trigger for a recipient opens the batch window. Every trigger that arrives while that window is open is added to the batch as an `activity`, and its own workflow run terminates at the batch step. When the window closes, the run that opened the batch continues to the next step.
+
+This means that a workflow with a batch step produces two types of runs:
+
+- **Runs that open a batch.** These runs pause at the batch step, then resume and execute the remaining steps when the window closes. Look here for any messages that were generated after the batch closed, along with any errors.
+- **Runs that join a batch.** These runs terminate at the batch step. Steps after the batch step show "Will not execute" with the log "This workflow run was added to the batch function of a pre-existing workflow run." See the instructions below for finding the run that opened the batch and any messages that it generated after the batch window closed.
+
+The batch step is what links runs together, and the workflow debugger surfaces that link in both directions.
+
+### Finding the run that executed
+
+Open any workflow run and **select the batch step** in the debugger. What you see depends on which type of run you selected:
+
+| Label                     | Application                                                        | Description                                                                                                                                                                                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Batched by**            | Shown on a run that joined an open batch                           | Displays a link to the workflow run that started the batch. That run is where the rest of the workflow executes after the batch window closes.                                                                                                                                    |
+| **Batch closes at**       | Shown on a run that opened a batch, while its window is still open | Displays a timestamp indicating when the batch window will close. The run remains in a `Paused` status until the window closes. Subsequent runs that are added to the batch will not be listed here until the window closes and the batch is finalized.                           |
+| **Batched workflow runs** | Shown on a run that opened a batch, after its window has closed    | Displays a list of up to ten of the runs collected into the batch, followed by the total number of runs in the batch (including the run that opened the batch; for example, "Showing 4 of 5 total batched workflow runs"). Follow any link to open a batched run in the debugger. |
+
+### Batches that immediately flush the leading item
+
+When a batch step is configured to [immediately flush its leading item](/designing-workflows/batch-function#immediately-flushing-the-first-item-in-a-batch), the run that opens the batch continues past the batch step right away and is not included in the final batch. Additional batched triggers are aggregated on the _second_ run added to the batch, so that is the run where you will find the batched workflow runs list and any messages that the batch generated.

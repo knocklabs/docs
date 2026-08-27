@@ -124,20 +124,26 @@ $client->users()->bulkIdentify([
 ]);
 `,
   go: `
+import (
+  "context"
+
+  "github.com/knocklabs/knock-go"
+  "github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 result, _ := knockClient.Users.Bulk.Identify(ctx, knock.UserBulkIdentifyParams{
-  Users: param.Raw([]map[string]interface{}{
+  Users: knock.F([]knock.InlineIdentifyUserRequestParam{
     {
-      "id":    "1",
-      "name":  "John Hammond",
-      "email": "jhammond@ingen.net",
+      ID:    knock.F("1"),
+      Name:  knock.F("John Hammond"),
+      Email: knock.F("jhammond@ingen.net"),
     },
     {
-      "id":    "2",
-      "name":  "Ellie Sattler",
-      "email": "esattler@ingen.net",
+      ID:    knock.F("2"),
+      Name:  knock.F("Ellie Sattler"),
+      Email: knock.F("esattler@ingen.net"),
     },
   }),
 })

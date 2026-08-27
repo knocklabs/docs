@@ -4,7 +4,7 @@ import ApiReferenceMethod from "../ApiReferenceMethod";
 import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
 import Markdown from "react-markdown";
 import { Endpoint, Endpoints } from "../../Endpoints";
-import JSONPointer from "jsonpointer";
+import { getAtPointer } from "../../../../lib/jsonPointer";
 import { CodeBlock } from "../../CodeBlock";
 import { StainlessResource } from "../../../../lib/openApiSpec";
 import { useApiReference } from "../ApiReferenceContext";
@@ -112,7 +112,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
       {Object.entries(models).length > 0 && (
         <Box data-resource-path={`${basePath}/schemas`}>
           {Object.entries(models).map(([modelName, modelReference]) => {
-            const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+            const schema: OpenAPIV3.SchemaObject | undefined = getAtPointer(
               openApiSpec,
               modelReference.replace("#", ""),
             );

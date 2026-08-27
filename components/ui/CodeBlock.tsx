@@ -190,7 +190,7 @@ export const CodeBlock: React.FC<Props> = ({
       <Stack
         bg="gray-2"
         borderBottom="px"
-        borderColor="gray-2"
+        borderColor="gray-4"
         p="2"
         alignItems="center"
       >

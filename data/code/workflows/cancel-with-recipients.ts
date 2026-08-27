@@ -67,17 +67,17 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
+	"github.com/knocklabs/knock-go/shared"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowCancelParams{
-  CancellationKey: userInvite.ID,
-  Recipients: []knock.RecipientReferenceUnionParam{"user_1", "user_2"},
+  CancellationKey: knock.F(userInvite.ID),
+  Recipients:      knock.F([]knock.RecipientReferenceUnionParam{shared.UnionString("user_1"), shared.UnionString("user_2")}),
 }
 
-result, _ := knockClient.Workflows.Cancel(ctx, "new-user-invited", params)
+_ = knockClient.Workflows.Cancel(ctx, "new-user-invited", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

@@ -12,6 +12,7 @@ const PreTextDiagram = ({ children, description }: Props) => {
       as="pre"
       role="img"
       aria-label={description}
+      variant="ghost"
       mx="4"
       mb="4"
       leading="1"

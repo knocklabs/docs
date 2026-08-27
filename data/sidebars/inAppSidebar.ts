@@ -154,6 +154,7 @@ const SHARED_REACT_HOOKS = [
     slug: "/use-authenticated-knock-client",
     title: "useAuthenticatedKnockClient",
   },
+  { slug: "/use-knock-auth-state", title: "useKnockAuthState" },
   { slug: "/use-translations", title: "useTranslations" },
   // Feed hooks
   { slug: "/use-notifications", title: "useNotifications" },

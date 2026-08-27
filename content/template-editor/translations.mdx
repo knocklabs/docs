@@ -70,32 +70,29 @@ Once you have those translations created for the `en` and `fr` locales, you can 
 
 Your users must have a `locale` property set for the helper to find translations in their locale, otherwise Knock will use the default locale. You can set a user's `locale` with the [identify endpoint](/api-reference/users/update).
 
-## Translation methods: filter vs. tag
+## Translation methods
 
 There are two methods available to you to translate your message templates: the `t` filter and the `t` tag.
 
-<AccordionGroup>
-  <Accordion title="The t filter">
-    The `t` filter is used to reference existing translation files. It works best when you have translations that are already created and you want to reference them in your message templates.
+### The `t` filter
 
-    ```json title="Using t filter in a message template"
-    {{ "congratulationsMessage" | t: recipientName: recipient.name }}
-    ```
+The `t` filter is used to reference existing translation files. It works best when you have translations that are already created and you want to reference them in your message templates.
 
-    In the example above, the `t` filter finds the recipient's `locale` and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
+```json title="Using t filter in a message template"
+{{ "congratulationsMessage" | t: recipientName: recipient.name }}
+```
 
-  </Accordion>
-  <Accordion title="The t tag">
-    The `t` tag is used to write templates in their default language and automatically generate translations for additional locales. It is best when you have less technical users authoring templates, and you want to automatically generate translations for their templates behind the scenes.
+In the example above, the `t` filter finds the recipient's `locale` and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
 
-    ```json title="Using t tag in a message template"
-    {% t %}Congratulations, {{ recipient.name }}!{% endt %}
-    ```
+### The `t` tag
 
-    In the example above, we author content in our English default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
+The `t` tag is used to write templates in their default language and automatically generate translations for additional locales. It is best when you have less technical users authoring templates, and you want to automatically generate translations for their templates behind the scenes.
 
-  </Accordion>
-</AccordionGroup>
+```json title="Using t tag in a message template"
+{% t %}Congratulations, {{ recipient.name }}!{% endt %}
+```
+
+In the example above, we author content in our English default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
 
 We cover how to use the `t` filter and `t` tag in more detail below.
 
@@ -233,7 +230,7 @@ You can access the content with dot-syntax like this:
 <p> {{ "customers.orders.beenReceived" | t }} </p>
 ```
 
-The same goes for namespaced translations. If the above translation was in a translation named `services` , you would do the following:
+The same goes for namespaced translations. If the above translation was in a namespace called `services`, you would do the following:
 
 ```json title="Message template editor"
 <p> {{ "services:customers.orders.beenReceived" | t }} </p>
@@ -268,6 +265,44 @@ Knock also provides an editor-friendly `t` tag which you can use to write templa
     You can then translate the default content into additional locales by manually editing your translation files or programmatically updating them using the Knock API and a translation service.
   </Step>
 </Steps>
+
+### Variables
+
+You can reference variables inside a `t` tag by writing the variable's path inline. Knock resolves the path against the workflow run scope when it renders the message.
+
+```liquid title="Message template"
+<p> {% t %}Congratulations, {{ recipient.name }}!{% endt %} </p>
+```
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      unlike the <code>t</code> filter, the <code>t</code> tag doesn't accept
+      arguments. You can't pass or alias a variable. Write the variable's actual
+      path inside the tag instead.
+    </>
+  }
+/>
+
+When you commit your workflow, the variable reference becomes part of the auto-generated translation key and is preserved verbatim in your system translation file:
+
+```json title="System translation file"
+{
+  "Congratulations, {{ recipient.name }}!": "Congratulations, {{ recipient.name }}!"
+}
+```
+
+As you translate that content into other locales, keep the `{{ ... }}` reference intact in the translated value. You can move it to wherever the grammar of the target language requires, but if you remove or rename it, the variable will no longer resolve.
+
+```json title="fr translation"
+{
+  "Congratulations, {{ recipient.name }}!": "Félicitations, {{ recipient.name }}!"
+}
+```
+
+At send time, Knock renders the translated value as Liquid, resolving `recipient.name` from the workflow run scope.
 
 ## Translation version control
 
@@ -311,7 +346,7 @@ If you manage your own translation files within your application, you can automa
 
 The Knock CLI supports both JSON and the Portable Object (PO) file formats. When using PO files, the Knock CLI will handle converting between the Knock translation format and the PO format.
 
-The Knock CLI can also be used to commit changes and promote them to production, which means you can automate Knock translation management as [part of your CI/CD workflow](/developer-tools/integrating-into-cicd).
+The Knock CLI can also be used to commit changes and promote them to production, which means you can automate Knock translation management as [part of your CI/CD workflow](/tutorials/integrating-into-cicd).
 
 See the [Translation file structure](/cli/translation/file-structure) section in the CLI reference for details on how translation files are organized when working with the CLI.
 
@@ -324,5 +359,46 @@ Below is a list of the available locales to choose from for your translations. I
 <AccordionGroup>
   <Accordion title="Supported locales">
     <LocaleTable />
+  </Accordion>
+</AccordionGroup>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I use markdown formatting inside my translations?">
+
+    Yes, translations support markdown formatting. You can create a translation value like the following:
+
+    ```json title="An English translation with bolded markdown text"
+    {
+      "orderShipped": "Your order **{{ orderNumber }}** is on its way."
+    }
+    ```
+
+    In-app and chat channels render markdown from translation values at send time, so the `t` filter on its own is all you need in your message templates for those channels:
+
+    ```liquid title="In-app or chat template"
+    {{ "orderShipped" | t: orderNumber: order.number }}
+    ```
+
+    Email is different. Knock compiles an email template's markdown content to HTML at commit time, before you send the message, while translation values are injected at send time. This means that by default, Knock doesn't convert markdown placed inside a translation value (or inside `{% t %}` tags), and your recipients will see the literal markdown characters (for example, `**bold**`) in their emails.
+
+    To convert the resolved value at runtime and render it appropriately, chain the `from_markdown` [filter](/template-editor/reference-liquid-helpers) onto the `t` filter:
+
+    ```liquid title="Email template"
+    {{ "orderShipped" | t: orderNumber: order.number | from_markdown }}
+    ```
+
+    Two things to keep in mind as you apply this pattern:
+
+    - `from_markdown` can only be used alongside the `t` filter. You can't use it with `{% t %}` tags, so you should plan to author your translations with `t` filters if you want to support markdown inside your translated content.
+    - Use `from_markdown` in email templates only. It outputs HTML, and Knock already converts your markdown to the platform-specific markup that Slack, Microsoft Teams, and other platforms expect.
+
+    For simpler cases, keep the markdown formatting outside of the translation and translate only the plain text:
+
+    ```liquid title="Message template"
+    **{% t %}Bold text{% endt %}**
+    ```
+
   </Accordion>
 </AccordionGroup>

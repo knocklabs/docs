@@ -46,7 +46,7 @@ You'll also need to build the actual webhook request that you want your webhook 
 
 To start building your webhook request, navigate to your webhook channel and click "Edit webhook."
 
-You'll now be looking at the webhook channel configuration page. The webhook channel behaves just like our fetch function, it sends a request to the endpoint you define with the headers, params, and body payload you provide.
+You'll now be looking at the webhook channel configuration page. You build a webhook request the same way you build a [fetch function](/designing-workflows/fetch-function) request: you define the endpoint, method, headers, params, and body payload, and you can use liquid in each of those fields.
 
 To learn how to build a webhook request in detail, you can read [our fetch function documentation](/designing-workflows/fetch-function).
 
@@ -57,17 +57,85 @@ To learn how to build a webhook request in detail, you can read [our fetch funct
     <>
       You can use liquid in your webhook channel request URL, headers, params,
       and body to dynamically build your webhook request during workflow
-      runtime.
-      <p>
-        As an example if you want to build a webhook that will always fetch the
-        recipient's user information, you'd build the following URL to
-        dynamically call the endpoint based on the active workflow run's
-        recipient ID:{" "}
-        <code>{"https://foobar/com/api/users/{{ recipient.id }}"}</code>
-      </p>
+      runtime. As an example, if you want to build a webhook that will always
+      fetch the recipient's user information, you can use a URL like the
+      following to dynamically call the endpoint based on the active workflow
+      run's recipient ID:{" "}
+      <code>{"https://foobar.com/api/users/{{ recipient.id }}"}</code>
     </>
   }
 />
+
+## Define request inputs
+
+A webhook channel's request configuration is shared by every workflow step that sends to it in that environment. **Request inputs** enable you to keep that configuration in one place while giving each workflow step the ability to pass its own values into it.
+
+You define an input schema on the webhook channel's environment configuration. Each workflow step that sends to the channel then supplies values for those inputs, and Knock exposes the resolved values to the request template under the `inputs` namespace.
+
+As an example, you might have a single webhook channel that posts to an internal events API, where each workflow step sets its own `event_type` and `priority` without overriding the rest of the request.
+
+### Define an input schema
+
+The **input schema** is a <a href="https://json-schema.org/" target="_blank">JSON Schema</a> object that describes the inputs available to workflow steps: their names, types, descriptions, default values, and whether they're required.
+
+To define one, navigate to your webhook channel, click "Edit webhook," then click "Define input schema" in the left pane of the configuration page.
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      the input schema belongs to the channel, so a workflow step can't override
+      it. Because Knock configures channels{" "}
+      <a href="/integrations/overview#per-environment-configurations">
+        per environment
+      </a>
+      , define the same input schema in every environment where your workflows run.
+    </>
+  }
+/>
+
+### Set input values on a workflow step
+
+When a webhook channel has an input schema, Knock renders a **Request inputs** field for each property on every workflow step that sends to that channel. You'll find these fields in two places: the step panel in the workflow builder, and the right pane of the step's template editor.
+
+Each field accepts a static value or liquid, so you can reference workflow run state such as `recipient`, `data`, `actor`, and `vars`. As an example, you might set an `order_id` input to `{{ data.order_id }}` so each workflow run passes its own order.
+
+Knock validates the values you enter against the schema when you save the step. Fields that contain liquid skip validation, since their values aren't known until the workflow runs. Properties that declare a default in the schema prefill their field until the step has values of its own.
+
+<Callout
+  type="warning"
+  title="Note:"
+  text={
+    <>
+      input values can't reference the <code>inputs</code> namespace itself, and
+      request inputs aren't supported when the step's destination is a{" "}
+      <a href="/integrations/overview#channel-groups">channel group</a>.
+    </>
+  }
+/>
+
+### Use inputs in your request template
+
+At send time, Knock renders the step's input values and merges them into the liquid scope for the request under `inputs`. You can reference them in the URL, headers, query parameters, and body like any other variable, alongside `recipient`, `data`, and `vars`.
+
+```txt title="Example request URL using inputs"
+https://api.example.com/events/{{ inputs.event_type }}
+```
+
+```json title="Example request body using inputs"
+{
+  "priority": "{{ inputs.priority }}",
+  "user_id": "{{ recipient.id }}",
+  "order_id": "{{ inputs.order_id }}"
+}
+```
+
+If an input value fails to render, or the rendered values don't produce a JSON object, Knock fails the send with a rendering error that you can inspect in the [workflow run logs](/send-notifications/debugging-workflows).
+
+### Preview your inputs
+
+The **request input preview** section of the webhook channel configuration page renders a field for each property in your input schema. Values you enter there feed the cURL preview above them, so you can see the request Knock will build with inputs applied. These preview values are local to the page: Knock doesn't save them to the channel configuration and doesn't use them at runtime.
 
 ## Use your webhook channel
 
@@ -77,11 +145,59 @@ Webhook channels are added to Knock workflows the same way as any other channel.
 
 ### Overriding webhook configurations
 
-When you add your webhook channel to a workflow, it will use the webhook request you built in your channel configuration by default. You can override this on a per-step basis.
+When you add your webhook channel to a workflow, the step uses the webhook request you built in your channel configuration. You can override this on a per-step basis.
 
-Editing a webhook step's template, such as changing the URL or body, creates 'channel setting overrides,' replacing the default environment settings with your changes. Any template modifications will include the entire template (URL, headers, params, and body) in the overrides. These overrides apply to all environments where the step is promoted.
+A step that matches its channel configuration opens in a **locked** state. The request fields are read-only, and a callout tells you the step is using the channel-level configuration.
 
-To reset a webhook step to its channel default, click "Reset to default channel settings."
+To change the request for a single step, click "Unlock" in that callout, or the lock button in the top right of the editor, and edit the fields. Saving your changes creates channel setting overrides on the step, replacing the default environment settings with your changes. Any modifications mean _the entire template_ (URL, headers, params, and body) will be treated as an override. These overrides apply to all environments where the workflow is promoted.
+
+A step with overrides shows a callout telling you it overrides the channel-level configuration. To reset the step to its channel default, click "Reset" in that callout.
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      overriding a step's request doesn't detach it from the channel's{" "}
+      <a href="#define-request-inputs">input schema</a>. The step keeps its
+      request input fields, and any <code>{"{{ inputs.* }}"}</code> references
+      in the overridden template continue to resolve.
+    </>
+  }
+/>
+
+## Error handling and retries
+
+Knock treats any webhook channel response outside the `2xx` range, along with connection errors and timeouts, as a failed send. Knock waits up to 50 seconds for a response before treating the request as a timeout.
+
+Most failures are retried according to the retry logic documented [here](/send-notifications/delivering-notifications#retry-logic), for a maximum of 8 attempts. Webhook channel sends use a small list of statuses that indicate a request will never succeed; everything else is considered retryable.
+
+### Non-retryable responses
+
+Knock will not retry a webhook send when your endpoint responds with:
+
+| Status | Meaning            |
+| ------ | ------------------ |
+| `401`  | Unauthorized       |
+| `403`  | Forbidden          |
+| `404`  | Not found          |
+| `405`  | Method not allowed |
+
+<br />
+Knock also fails without retrying when it cannot build or issue the request at all.
+These cases include a malformed URL, a URL that uses a scheme other than `https`,
+and a hostname that does not resolve.
+
+In each of these cases, the message's delivery status moves to `undelivered` after the first attempt. Read more about message delivery statuses [here](/send-notifications/message-statuses#delivery-status).
+
+### Retryable responses
+
+Every other failure is retried, including:
+
+- **Client errors.** `4xx`-status responses other than those listed above, most notably `400 Bad Request`, `409 Conflict`, `422 Unprocessable Entity`, and `429 Too Many Requests`.
+- **Server errors.** Any `5xx` level HTTP status code.
+- **Redirects.** Any `3xx` level HTTP status code. Knock does not follow redirects, so these responses are always treated as retryable failures.
+- **Connection errors and timeouts.** This includes any request that does not receive a response within 50 seconds.
 
 ## Securing your webhooks
 

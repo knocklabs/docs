@@ -1,5 +1,5 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import JSONPointer from "jsonpointer";
+import { getAtPointer } from "../../../lib/jsonPointer";
 import { SidebarSection, SidebarSubsection } from "../../../data/types";
 import { StainlessConfig, StainlessResource } from "../../../lib/openApiSpec";
 
@@ -70,7 +70,7 @@ function buildSchemaReferencesForResource(
 
   if (resource.models) {
     Object.entries(resource.models).forEach(([modelName, modelRef]) => {
-      const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+      const schema: OpenAPIV3.SchemaObject | undefined = getAtPointer(
         openApiSpec,
         modelRef.replace("#", ""),
       );
@@ -195,7 +195,7 @@ function buildSidebarPages(
       title: "Object definitions",
       slug: `/schemas`,
       pages: Object.entries(resource.models).map(([modelName, modelRef]) => {
-        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+        const schema: OpenAPIV3.SchemaObject | undefined = getAtPointer(
           openApiSpec,
           modelRef.replace("#", ""),
         );

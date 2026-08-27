@@ -2,8 +2,8 @@ import { dereference } from "@scalar/openapi-parser";
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import deepmerge from "deepmerge";
 import { readFile } from "fs/promises";
-import JSONPointer from "jsonpointer";
-import safeStringify from "safe-stringify";
+import { getAtPointer } from "./jsonPointer";
+import { safeStringify } from "./safeStringify";
 import { parse } from "yaml";
 import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
 import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
@@ -384,7 +384,7 @@ async function getSchemaPageData(
   }
 
   const schemaRef = targetResource.models[schemaName];
-  const schema = JSONPointer.get(openApiSpec, schemaRef.replace("#", "")) as
+  const schema = getAtPointer(openApiSpec, schemaRef.replace("#", "")) as
     | OpenAPIV3.SchemaObject
     | undefined;
 
@@ -457,7 +457,7 @@ async function getResourceOverviewData(
   const schemas: SchemaSummary[] = Object.entries(
     targetResource.models || {},
   ).map(([schemaName, ref]) => {
-    const schema = JSONPointer.get(openApiSpec, ref.replace("#", "")) as
+    const schema = getAtPointer(openApiSpec, ref.replace("#", "")) as
       | OpenAPIV3.SchemaObject
       | undefined;
     return {
@@ -629,10 +629,9 @@ function buildResourceSidebarPages(
   if (resource.models && Object.keys(resource.models).length > 0) {
     const schemaPages: SidebarPage[] = Object.entries(resource.models).map(
       ([schemaName, schemaRef]) => {
-        const schema = JSONPointer.get(
-          openApiSpec,
-          schemaRef.replace("#", ""),
-        ) as OpenAPIV3.SchemaObject | undefined;
+        const schema = getAtPointer(openApiSpec, schemaRef.replace("#", "")) as
+          | OpenAPIV3.SchemaObject
+          | undefined;
 
         return {
           slug: `${pathPrefix}/schemas/${schemaName}`,
@@ -705,7 +704,7 @@ function buildSchemaReferencesForResource(
 
   if (resource.models) {
     Object.entries(resource.models).forEach(([modelName, modelRef]) => {
-      const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", "")) as
+      const schema = getAtPointer(openApiSpec, modelRef.replace("#", "")) as
         | OpenAPIV3.SchemaObject
         | undefined;
 

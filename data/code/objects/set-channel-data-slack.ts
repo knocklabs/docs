@@ -147,15 +147,14 @@ client := knock.NewClient(option.WithAPIKey("sk_12345"))
 // Find this value in your Knock dashboard under Integrations > Channels
 knockSlackChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-	Collection: "projects",
-	ObjectID:   "project-1",
-	ChannelID:  knockSlackChannelID,
-	Data: knock.SlackChannelDataParam{
-		Connections: param.New([]knock.SlackChannelDataConnectionsUnionParam{
-			knock.SlackChannelDataConnectionsSlackIncomingWebhookConnectionParam{
-				URL: param.New("url-from-slack"),
-			},
+channelData, _ := client.Objects.SetChannelData(ctx, "projects", "project-1", knockSlackChannelID, knock.ObjectSetChannelDataParams{
+	ChannelDataRequest: knock.ChannelDataRequestParam{
+		Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.SlackChannelDataParam{
+			Connections: knock.F([]knock.SlackChannelDataConnectionsUnionParam{
+				knock.SlackChannelDataConnectionsSlackIncomingWebhookConnectionParam{
+					URL: knock.F("url-from-slack"),
+				},
+			}),
 		}),
 	},
 })

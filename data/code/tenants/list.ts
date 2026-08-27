@@ -90,7 +90,6 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
@@ -98,14 +97,14 @@ knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // List tenants with pagination
 tenants, _ := knockClient.Tenants.List(ctx, knock.TenantListParams{
-	PageSize: param.New(20),
-	Name:     param.New("Tenant 1"),
+	PageSize: knock.F(int64(20)),
+	Name:     knock.F("Tenant 1"),
 })
 
 // Auto-paging version
 tenantsPager := knockClient.Tenants.ListAutoPaging(ctx, knock.TenantListParams{
-	PageSize: param.New(20),
-	Name:     param.New("Tenant 1"),
+	PageSize: knock.F(int64(20)),
+	Name:     knock.F("Tenant 1"),
 })
 
 // Iterate through tenants

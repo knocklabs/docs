@@ -2,10 +2,10 @@
   This is a code block component that allows us to select a language to show an example
 */
 
-import { useEventEmitter } from "@byteclaw/use-event-emitter";
 import { useEffect, useMemo } from "react";
 import { useIsMounted } from "../../hooks/useIsMounted";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { useEventEmitter } from "../../lib/eventEmitter";
 import { CodeBlock, SupportedLanguage } from "./CodeBlock";
 
 type Props = {

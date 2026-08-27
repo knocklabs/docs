@@ -5,23 +5,31 @@ section: Integrations > Slack
 layout: integrations
 ---
 
-This page covers how to use Knock to send notifications to Slack. Depending on your use case, there are a few different ways to approach this integration. This documentation serves as a starting point and will cover the basics of setting up a Slack integration with Knock regardless of your use case.
+This page covers how to use Knock to send notifications to Slack. You can use Knock's Slack extension to message your own team's workspace, or connect your own Slack app to build a customer-facing integration.
 
 ## What can I do with Knock's Slack integration?
 
-Knock's Slack integration enables you to send notifications to [Slack channels](https://docs.knock.app/integrations/chat/slack/sending-a-message-to-channels) and [direct messages](https://docs.knock.app/integrations/chat/slack/sending-a-direct-message) to users via an authenticated Slack app, or via [webhooks for internal workspaces](https://docs.knock.app/integrations/chat/slack/sending-an-internal-message). You can create rich message templates using [markdown](#markdown-templates) or [Slack's block kit framework](#block-based-templates), and build integrations where customers connect your Slack app to their Slack workspaces.
+Knock's Slack integration enables you to:
+
+- Use [internal Slack messaging](/integrations/chat/slack/sending-an-internal-message) to send messages to your team's Slack workspace.
+- [Send messages to channels in your customers' workspaces](/integrations/chat/slack/sending-a-message-to-channels) using your own Slack app.
+- [Send direct messages to users in your customers' workspaces](/integrations/chat/slack/sending-a-direct-message) using your own Slack app.
+
+You can create rich message templates using [markdown](#markdown-templates) or [Slack's Block Kit framework](#block-based-templates).
 
 This integration does not support Slack modals, slash commands, shortcuts, or interactive dialogs.
 
-## How to connect Slack to Knock
+## Connect your own Slack app
 
-Knock supports multiples ways to create a Slack integration depending on your technical requirements:
+The steps below apply when you are building a customer-facing Slack integration with your own Slack app. To send workflow messages to your own team's workspace without creating a Slack app, [create an internal Slack channel](/integrations/chat/slack/sending-an-internal-message) instead.
+
+Knock supports multiple ways to connect your own Slack app depending on your technical requirements:
 
 - Using Knock's managed approach with our [SlackKit components](/in-app-ui/react/slack-kit)
 - Using Knock's [Slack-related React hooks](https://docs.knock.app/in-app-ui/react/slack-kit#using-slackkit-headless) with your own components
 - Building the UI and OAuth flow entirely yourself
 
-Regardless of your approach, you'll need a Slack app to send notifications from Knock to a Slack workspace. If you haven’t built a Slack app yet, you can get started in <a href="https://api.slack.com/start/quickstart#creating" target="_blank">Slack’s app documentation</a>.
+If you haven’t built a Slack app yet, you can get started in <a href="https://api.slack.com/start/quickstart#creating" target="_blank">Slack’s app documentation</a>.
 
 Once you create your Slack app, you’ll be routed to its app management page within the Slack dashboard. It looks like this.
 
@@ -169,6 +177,15 @@ Here's an example of setting channel data on an `Object` in Knock.
   }
 />
 
+### How Slack delivery works
+
+Every Slack notification needs two things, and Knock lets them live in different places:
+
+- **Auth** — permission to post: either a bot **access token** (`xoxb-…`) from Slack's OAuth flow, or a self-contained **incoming webhook URL**. A bot token authorizes exactly one Slack workspace.
+- **Destination** — where the message goes: a `channel_id` (a channel) or a `user_id` (a direct message).
+
+The **destination** is stored on the recipient (a [`User`](/concepts/users) or [`Object`](/concepts/objects)). The **auth** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares a single connection. The two sections below cover each location.
+
 ### Recipient channel data requirements
 
 Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook or an access token Slack connection. Both will need to live under the `connections` key.
@@ -229,7 +246,9 @@ Here's an overview of the data requirements for [setting recipient channel data]
 
 ### Tenant channel data requirements
 
-When you [map a Slack workspace to a tenant](/integrations/chat/slack/sending-a-message-to-channels#key-concepts) in Knock (as our [SlackKit](/in-app-ui/react/slack-kit) components do), you'll store the access token for that workspace as `channel_data` on the tenant. Then, when you apply the `tenant` to your workflow triggers Knock will [combine that access token with the recipient's](/integrations/chat/slack/sending-a-message-to-channels#merging-channel-data) `channel_data` to send notifications to the correct Slack workspace and channel. For this implementation method, the `access_token` on the recipient's `SlackConnection[]` data above is not required.
+When you [map a Slack workspace to a tenant](/integrations/chat/slack/sending-a-message-to-channels#key-concepts) in Knock (as our [SlackKit](/in-app-ui/react/slack-kit) components do), you store that workspace's access token as `channel_data` on the tenant. At send time, when you trigger a workflow with that `tenant`, Knock takes the [destination](#how-slack-delivery-works) from the recipient's `channel_data` (the `channel_id` or `user_id`) and uses the tenant's access token for auth: the tenant provides the auth, the recipient provides the destination. If the recipient also carries an `access_token`, the tenant's takes precedence — so the `access_token` on the recipient's `SlackConnection[]` above is not required when a tenant holds one.
+
+**Do you need a tenant?** Store the token on a tenant when one Slack workspace connection should serve every recipient or object in that tenant. This keeps the workspace access token in one place while each recipient or object stores only its Slack destination (`channel_id` or `user_id`), which is useful as you add more destinations in the same workspace later. You don't need a tenant if you post to a single internal workspace (use an incoming webhook — there's no token to share) or only ever use one workspace's token and prefer to store it directly on each recipient or object. Knock never auto-creates a tenant for you (though SlackKit can, on the fly), so use one when shared workspace auth should live at the tenant level.
 
 Here's an overview of the data requirements for setting channel data when storing an access token on a tenant.
 

@@ -19,10 +19,6 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
   { slug: `${baseSlug}/security`, title: "Security" },
   { slug: `${baseSlug}/type-safety`, title: "Type safety" },
   {
-    slug: `${baseSlug}/integrating-into-cicd`,
-    title: "Integrating into CI/CD",
-  },
-  {
     slug: `${baseSlug}/outbound-webhooks`,
     title: "Outbound webhooks",
     pages: [

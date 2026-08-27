@@ -193,11 +193,6 @@ const ContentFooter = ({
           as={Link}
           href={previousPage.path}
           variant="ghost"
-          leadingIcon={{
-            icon: ChevronLeft,
-            "aria-hidden": true,
-            flexShrink: 0,
-          }}
           pr="4"
           pl="0"
           py="8"
@@ -249,10 +244,6 @@ const ContentFooter = ({
           py="8"
           w="full"
           justifyContent="flex-end"
-          trailingIcon={{
-            icon: ChevronRight,
-            "aria-hidden": true,
-          }}
         >
           <Stack alignItems="center" gap="2" minW="0">
             <Stack direction="column" w="full" style={{ minWidth: 0 }}>

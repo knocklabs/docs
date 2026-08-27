@@ -136,11 +136,11 @@ export const ContentCard = ({
   title: string;
   description: string;
   href: string;
-  icon: IconType;
+  icon?: IconType;
   style?: React.CSSProperties;
   newTab?: boolean;
 }) => {
-  const _icon = getIcon(icon);
+  const _icon = icon ? getIcon(icon) : null;
   return (
     <Box borderRadius="2" style={style} shadow="1" data-content-card>
       <Stack
@@ -157,7 +157,7 @@ export const ContentCard = ({
         p="3"
         data-content-card-inner
       >
-        <IconRenderer icon={_icon} size="10" bg="gray-2" />
+        {_icon && <IconRenderer icon={_icon} size="10" bg="gray-2" />}
         <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>

@@ -79,7 +79,6 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
@@ -87,12 +86,12 @@ knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // List activities with pagination
 activities, _ := knockClient.Messages.ListActivities(ctx, message.ID, knock.MessageListActivitiesParams{
-	PageSize: param.New(10),
+	PageSize: knock.F(int64(10)),
 })
 
 // Auto-paging version
 activitiesPager := knockClient.Messages.ListActivitiesAutoPaging(ctx, message.ID, knock.MessageListActivitiesParams{
-	PageSize: param.New(10),
+	PageSize: knock.F(int64(10)),
 })
 
 // Iterate through activities

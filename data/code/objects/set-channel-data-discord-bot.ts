@@ -144,15 +144,14 @@ client := knock.NewClient(option.WithAPIKey("sk_12345"))
 // Find this value in your Knock dashboard under Integrations > Channels
 knockDiscordChannelID := "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b"
 
-channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-	Collection: "projects",
-	ObjectID:   "project-1",
-	ChannelID:  knockDiscordChannelID,
-	Data: knock.DiscordChannelDataParam{
-		Connections: param.New([]knock.DiscordChannelDataConnectionsUnionParam{
-			knock.DiscordChannelDataConnectionsDiscordChannelConnectionParam{
-				ChannelID: param.New("channel-id-from-discord"),
-			},
+channelData, _ := client.Objects.SetChannelData(ctx, "projects", "project-1", knockDiscordChannelID, knock.ObjectSetChannelDataParams{
+	ChannelDataRequest: knock.ChannelDataRequestParam{
+		Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.DiscordChannelDataParam{
+			Connections: knock.F([]knock.DiscordChannelDataConnectionsUnionParam{
+				knock.DiscordChannelDataConnectionsDiscordChannelConnectionParam{
+					ChannelID: knock.F("channel-id-from-discord"),
+				},
+			}),
 		}),
 	},
 })

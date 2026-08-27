@@ -14,26 +14,31 @@ Commenting is a common use case. If a user leaves ten comments in a page in fift
 
 Here's a step-by-step breakdown of how a batch function works:
 
-- When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time which you define (the [batch window](#setting-the-batch-window)).
-- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers **for that recipient** will be grouped into **separate batches based on batch key.**
-- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch available as [variables](#using-batch-variables) in the workflow run scope.
+- When a given recipient's workflow run hits a batch step, a batch is opened for an interval of time which you define (the [batch window](#setting-the-batch-window)).
+- While that interval is open, the batch function aggregates any additional incoming triggers for that recipient as `activities`. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers for that recipient will be grouped into separate batches based on the batch key.
+- As subsequent workflow triggers are added to an open batch as `activities`, their underlying workflow runs are terminated.
+- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch available as [variables](#using-batch-variables) in the workflow run scope. By default, that continuation uses the [latest published version](#setting-the-workflow-version-mode) of the workflow.
+
+A batch function always captures events per `recipient`. By default, an open batch stays open across workflow versions. For more information on how updates to your workflow affect existing open batches, see [setting the workflow version mode](#setting-the-workflow-version-mode) and [updating workflows with batch steps](#updating-workflows-with-batch-steps).
 
 <Callout
-  type="enterprise"
-  title="Enterprise plan feature."
+  type="info"
+  title="Debugging batched workflow runs."
   text={
     <>
-      By default the batch will only return the first (or last) 10 items to be
-      rendered in your template. This limit can be configured on our Enterprise
-      plan (up to 100 items). The batch can, however, accumulate{" "}
-      <strong>any number of items</strong> over the window that it's open.
+      As new <code>activities</code> are added to an open batch, their
+      underlying workflow runs terminate. See{" "}
+      <a href="/send-notifications/debugging-workflows#debugging-workflows-with-a-batch-step">
+        debugging workflows with a batch step
+      </a>{" "}
+      to learn how the workflow debugger links those runs together.
     </>
   }
 />
 
 ## Selecting a batch key
 
-A batch function always captures events per `recipient`. When you provide a batch key, batched events are further grouped by that key. The batch key resolves to a value in your `data` payload. You can also use Liquid to [reference variables](/template-editor/variables) from the workflow run scope (such as the `recipient.*`, `actor.*`, or `tenant.*` namespaces) to construct a key.
+When you configure an optional batch key, batched events are further grouped by that key. The batch key resolves to a value in your `data` payload; a configured batch key of `event_type` points to `data.event_type`. You can also use Liquid to reference [variables](/template-editor/variables) from the workflow run scope (such as the `recipient.*`, `actor.*`, or `tenant.*` namespaces) to construct a key.
 
 You can use multiple variables when constructing a batch key. For example, setting the batch key to `{{data.eventType}}-{{actor.id}}` would batch separately per event type and actor.
 
@@ -44,13 +49,16 @@ You can use multiple variables when constructing a batch key. For example, setti
     <>
       Here's a helpful way to think about batching. By default the batch
       function batches on a key of <code>recipient_id</code>. When a batch key
-      is provided, it batches on a key of{" "}
-      <code>concat(recipient_id, batch_key)</code>.
+      is provided, it batches events on a key of{" "}
+      <code>concat(recipient_id, batch_key)</code>. In{" "}
+      <a href="#setting-the-workflow-version-mode">pinned mode</a>, the workflow
+      version is also included in the key so each published version gets its own
+      batch.
     </>
   }
 />
 
-As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch.
+As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batched notifications about each individual page.
 
 <figure>
   <Image
@@ -78,7 +86,7 @@ The batch window determines the length of time that the batch will be open, with
 
 ### Set a fixed batch window
 
-You can set a fixed duration batch window using the "Batch for a fixed window" option in the batch step. The window accepts a relative duration, which can be specified in seconds, minutes, hours, or days.
+You can set a fixed duration batch window using the "Fixed" window option in the batch step. The window accepts a duration which can be specified in seconds, minutes, hours, or days.
 
 The batch is opened when it is first triggered for a given recipient. The batch is closed after the fixed duration of time has elapsed.
 
@@ -174,6 +182,12 @@ When the key specified is missing or resolves to an invalid value, a correspondi
 
 **Please note**: an open batch window will never be extended by a subsequent workflow trigger with a different dynamic batch window specified. Once a given batch has been opened by a workflow trigger, its window interval is immutable.
 
+### Set a relative batch window
+
+You can also set a batch window that will close with an offset relative to your dynamic batch window. For example, you might want to batch events up until one hour before or after an appointment.
+
+Relative batch windows support all of the same configuration options as dynamic batch windows, but are calculated according to the additionally-configured relative offset. When the window property specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run and the batch will be **skipped**.
+
 ### Using a sliding batch window
 
 By default, all batch windows are fixed, where the closing of the batch window is determined by the first trigger that starts the batch. In some situations, you may wish to "extend" the batch window when a new trigger is received to recompute the closing time of the batch. This option is supported in the batch step as a "sliding window."
@@ -238,7 +252,7 @@ Batch steps optionally support a mode to immediately flush the first item in a b
 
 To enable this mode, you can toggle on "Immediately flush leading item" in the "Advanced settings" section of the batch step.
 
-When this mode is enabled, the first item for an unopened batch will "open" the batch and the usual batching rules will apply. However, unlike a normal batch, the first item will **not be included in the `activities` of the batch** and will instead continue execution past the batch step.
+When this mode is enabled, the first item for an unopened batch will "open" the batch and the usual batching rules will apply. However, unlike a normal batch, the first item will **not be included in the `activities` of the batch** and will instead continue execution past the batch step. This means that when the batch window closes later on, the workflow will proceed on the "second" item's workflow run, rather than the first run that opened the batch.
 
 If you want to branch on whether the first item in a batch was flushed or not, you can use the `total_activities` variable to do so. When it is set to 1, you know that you're working with the first item in a batch.
 
@@ -252,6 +266,42 @@ If you want to branch on whether the first item in a batch was flushed or not, y
     </>
   }
 />
+
+## Setting the workflow version mode
+
+A batch step can continue on the **latest** workflow version or stay **pinned** to the version that opened the batch. New batch steps default to latest mode.
+
+Set this in the "Advanced settings" section of the batch step with the "Continue on latest version" toggle. You can also set `workflow_version_mode` to `latest` or `pinned` when you manage the workflow through the [Management API](/developer-tools/management-api) or [CLI](/developer-tools/knock-cli).
+
+<Callout
+  type="warning"
+  title="Important:"
+  text={
+    <>
+      Legacy behavior for batch steps added prior to August 20, 2026 was to
+      default to <code>pinned</code> mode. Please review{" "}
+      <a href="#updating-workflows-with-batch-steps">
+        updating workflows with batch steps
+      </a>{" "}
+      for more information on expected behavior and how to update existing batch
+      steps to use latest mode.
+    </>
+  }
+/>
+
+### Latest (default)
+
+In latest mode, an open batch stays open across [commits](/concepts/commits) and promotions. Subsequent triggers for the same recipient (and [batch key](#selecting-a-batch-key), if you set one) join that batch, even after you promote a new version of the workflow.
+
+When the window closes, Knock continues the workflow on the latest published version that still includes this batch step with latest mode enabled. Template and step changes you committed while the batch was open are used for that continuation.
+
+Use latest mode for digest-style batches so a new workflow version does not open a second batch or send a duplicate notification.
+
+### Pinned
+
+Pinned mode ties the batch to the workflow version that opened it. Committing a new version of the workflow opens a new batch for the same recipient. When a window closes, that batch continues on the version that opened it.
+
+Pinned is an advanced option. Use it only when you need a separate batch for each workflow version. For long-running batches, a new workflow version can close two batches around the same time and send two notifications.
 
 ## Working with batches in your templates
 
@@ -319,9 +369,25 @@ When a workflow includes a batch step, the `data` payload that is available to y
 
 For this reason, we recommend referencing the `activities` array to access data from a specific trigger event when your workflow includes a batch step.
 
+## Updating workflows with batch steps
+
+What happens when you [commit](/concepts/commits) and promote a new version of a workflow with an open batch depends on the [workflow version mode](#setting-the-workflow-version-mode) of your batch step.
+
+In **latest** mode (the default for new batch steps), the open batch stays open. Subsequent triggers join it, and when the window closes Knock continues the workflow on the latest published version. Template and step changes you committed while the batch was open are used for that continuation.
+
+In **pinned** mode, the batch stays tied to the workflow version that opened it. Promoting an updated version (including a change to update a batch step's workflow version mode from pinned to latest) opens a new batch the next time the workflow is triggered. Existing batches remain open until their duration elapses, even though they will not accumulate additional events from the new version. For long-running batches that always close at a specific interval (like "every Monday at 9:00 a.m."), that can send two notifications in close succession.
+
+To prevent a workflow from sending notifications or accumulating additional events while you work on an update, you can set the workflow's [status](/concepts/workflows#workflow-status) to `Inactive`. While a workflow remains in the inactive state, new events will not be batched and any currently-open batch windows that close will not proceed to the next workflow step; their runs will instead be terminated and no additional messages will be generated.
+
+- A workflow's status is an environment-specific setting. Be sure to target your production environment if you decide to use this control.
+- Toggling a workflow's status does not automatically cancel any currently-open batch windows. Your workflow should remain in the `Inactive` state until all open batch windows have closed, otherwise your batches will proceed as normal once their window durations have elapsed.
+- While the workflow is `Inactive` in Production, promote your changes. After your open batch windows close and outstanding workflows have terminated, setting the workflow back to `Active` will begin batching incoming events again and these workflow runs will proceed with the newly-published workflow version.
+
 ## Using workflow cancellation with batches
 
 If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
+
+If a batch is empty when its window closes because all of its `activities` were canceled, no subsequent channel steps in the workflow will generate messages.
 
 <Callout
   type="alert"
@@ -344,7 +410,13 @@ If you want to remove an item from a batch (example: a user deletes a comment), 
   }
 />
 
----
+### Canceling runs after a batch closes
+
+If you need to cancel an in-flight workflow run after its batch window has closed and it has proceeded to the next workflow step, you must use the `cancellation_key` from the workflow trigger which originally opened the batch window. The original key can be used to cancel the run even if it was previously used to remove the initial `activity` from the batch while it was still open.
+
+After a batch window has closed, specific `activities` are no longer eligible to be removed from a batch or otherwise canceled. Because each activity's individual workflow run is terminated when it is added to an open batch, any `cancellation_key` which is not associated with the original workflow run will have no effect.
+
+Keep this behavior in mind when deciding whether to include delay steps after a batch step in your workflows.
 
 ## Frequently asked questions
 
@@ -356,6 +428,18 @@ If you want to remove an item from a batch (example: a user deletes a comment), 
     - Set your batch window to "Batch for a dynamic interval"
     - Specify that your batch window will come from an environment variable
     - Set the key to be `batchWindow`, which will resolve the batch window from the variable you created
+
+  </Accordion>
+  <Accordion title="What happens to an open batch when I update the workflow?">
+    If the batch step uses latest mode (the default for new steps), the open batch stays open. New triggers join it, and when the window closes the workflow continues on the latest published version.
+
+    If the batch step uses pinned mode, committing a new workflow version opens a new batch. The original batch still closes on its own window and continues on the version that opened it.
+
+  </Accordion>
+  <Accordion title="When should I use pinned workflow version mode?">
+    Pinned mode is an advanced option. Use it only when you want a batch that is tied to a specific published workflow version, so later commits open a separate batch instead of joining an open batch.
+
+    For digest and aggregation use cases, keep latest mode enabled.
 
   </Accordion>
   <Accordion title="Can I close a batch early?">
@@ -374,11 +458,20 @@ If you want to remove an item from a batch (example: a user deletes a comment), 
   <Accordion title="How can I change the order of the batch to retrieve the last 10 items instead of the first 10 items?">
     You can use the "Batch order" setting on the batch step to set if you want the first 10 items (the default) or the last 10 items added to the batch.
   </Accordion>
-  <Accordion title="Once activities are batched in an activity, how can I access them?">
+  <Accordion title="Once activities are batched, how can I access them?">
     You can use the `activities` property in your template to access the items included in the batch. Each `activity` will include any `data` sent along with the workflow trigger that was batched.
   </Accordion>
+  <Accordion title="Can I use multiple batch steps in a single workflow?">
+    Yes, but keep the following in mind:
+
+    - Batch steps should never be used in sequence. Because the workflow runs underlying individual `activities` are terminated when they are added to a batch, subsequent batch steps will only ever collect a single `activity` and will not serve a useful purpose.
+    - While you can use multiple batch steps in parallel (for example, in separate workflow branches), events that take different branch paths can still be batched together unless each step is uniquely identified. The default behavior differs depending on your batch step's [workflow version mode](#setting-the-workflow-version-mode): in latest mode, Knock includes the batch step in the batch key, so parallel batch steps open separate batches. In pinned mode, the default key is `concat(recipient_id, workflow_version_id)`, which is not unique per batch step. To open separate batches for each parallel pinned batch step, configure a unique [batch key](#selecting-a-batch-key) for each step.
+
+  </Accordion>
   <Accordion title="Is batching the same as digesting notifications?">
-    You can think about batching as a per-recipient, per-workflow summary of notifications that should be sent together. Many of our Knock customers use batching as a form of digest to reduce the number of notifications that their users receive. If you have more advance digesting needs that aren't covered by our current batching implementation, [please get in touch](mailto:support@knock.app).
+    Not exactly. The batch function is a powerful tool for aggregating multiple similar events into a single notification. However, you may find that its inherent characteristics (such as [render limits](#setting-the-batch-render-limit-beyond-10), needing to manage [cancellation](#using-workflow-cancellation-with-batches) of batched items that should no longer be included, etc.) mean that it isn't well-suited for powering regular daily or weekly digests that summarize a user's account activity, where notifications should always send at specific intervals and you need to have granular control over the events that are included in those messages. In those cases, referencing your system as the source of truth for the events that should be included in the digest at send time is often a better approach.
+    
+    See our tutorial on [powering recurring digests with Knock](/tutorials/building-recurring-digests) for more guidance on the pattern that we recommend. If you aren't sure about the best approach for your use case, please [reach out to our support team](mailto:support@knock.app?subject=Building%20recurring%20digests%20with%20Knock) and we'll be happy to help.
   </Accordion>
   <Accordion title="Do you support per-recipient batch windows and timezones?">
     No, this is not currently supported. If this is a blocker for your use case, please [get in touch with us](mailto:support@knock.app?subject=Per%20recipient%20batch%20windows).
@@ -406,6 +499,9 @@ If you want to remove an item from a batch (example: a user deletes a comment), 
   </Accordion>
   <Accordion title="Can I close a batch window by the number of items in the batch?">
     Yes, you can optionally set the [maximum activity limit](#setting-the-maximum-activity-limit) to conditionally close the batch window based on the number of items contained in the batch.
+  </Accordion>
+  <Accordion title="Why are some attachments missing from my batched email?">
+    When a workflow includes a batch step, only the attachment(s) from the activity that opened the batch window are sent with subsquent email messages. Attachments from later `activities` in the batch are not included. To send a single email that includes an attachment for every batched `activity`, use a [fetch step](/designing-workflows/fetch-function) after your batch step to collect them. See [sending attachments with batched workflows](/integrations/email/attachments#sending-attachments-with-batched-workflows) for the full workaround.
   </Accordion>
   <Accordion title="Is the order of my batch activities guaranteed?">
     We cannot guarantee the order of requests made within quick succession (&lt; 2s) and the order they appear in the batch. If you need a guaranteed order, then you will need to enqueue requests with latency in your system.

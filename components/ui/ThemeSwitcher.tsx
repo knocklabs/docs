@@ -14,7 +14,6 @@ export const ThemeSwitcher = () => {
       variant="ghost"
       size="1"
       color="gray"
-      iconOnly
       onClick={toggleAppearance}
       icon={{
         icon: isDark ? Sun : Moon,

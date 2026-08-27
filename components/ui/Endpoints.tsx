@@ -44,6 +44,7 @@ const EndpointText = ({
       display="block"
       as="span"
       size="1"
+      variant="ghost"
       overflow="hidden"
       textOverflow="ellipsis"
       mt="1"

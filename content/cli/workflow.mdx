@@ -50,6 +50,11 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
     description="The environment to use. Defaults to development."
   />
   <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
     name="--hide-uncommitted-changes"
     type="boolean"
     description="Should any uncommitted changes be hidden? Defaults to false."
@@ -100,6 +105,11 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
     name="--environment"
     type="string"
     description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
   />
   <Attribute
     name="--hide-uncommitted-changes"
@@ -156,7 +166,7 @@ The command will create a new workflow directory in your local file system. By d
   <Attribute
     name="--steps"
     type="string"
-    description="A comma-separated list of step types to include in the workflow (e.g., 'email,sms,in_app_feed'). If not provided, you will be prompted to select steps interactively."
+    description="A comma-separated list of step types to include in the workflow (e.g., 'email,sms,in-app-feed'). If not provided, you will be prompted to select steps interactively."
   />
   <Attribute
     name="--template"
@@ -187,7 +197,7 @@ knock workflow new --key=my-workflow
 ```
 
 ```bash title="Create a workflow with specific steps"
-knock workflow new --key=my-workflow --steps=email,sms,in_app_feed
+knock workflow new --key=my-workflow --steps=email,sms,in-app-feed
 ```
 
 ```bash title="Create a workflow from a template"
@@ -219,6 +229,11 @@ See the [Workflow file structure](/cli/workflow/file-structure) section for deta
     name="--environment"
     type="string"
     description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
   />
   <Attribute
     name="--all"
@@ -275,6 +290,7 @@ Note:
 - The `workflow push` command only pushes workflows into the `development` environment by default. Use `--force` to bypass this restriction and overwrite content in any environment.
 - You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
 - You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+- You can pass `--allow-empty` with `--commit` to create an empty commit when re-upserting an unchanged resource. See [empty commits](/version-control/commits#empty-commits) for more on when and why to use this.
 
 See the [Workflow file structure](/cli/workflow/file-structure) section for details on how workflow files are organized.
 
@@ -287,9 +303,19 @@ See the [Workflow file structure](/cli/workflow/file-structure) section for deta
     description="Push and commit the workflow(s) at the same time. Defaults to false."
   />
   <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
     name="-m, --commit-message"
     type="string"
     description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--allow-empty"
+    type="boolean"
+    description="Only meaningful with `--commit`. When the resource is already published with no unpublished changes, create an empty commit instead of a no-op publish. Defaults to false."
   />
   <Attribute
     name="--all"
@@ -321,6 +347,13 @@ knock workflow push my-workflow \
   -m "Commit message"
 ```
 
+```bash title="Empty commit on an unchanged workflow"
+knock workflow push my-workflow \
+  --commit \
+  --allow-empty \
+  -m "Empty touch"
+```
+
 ```bash title="Pushing all workflows from ./workflows directory"
 knock workflow push --all --workflows-dir=./workflows
 ```
@@ -344,6 +377,11 @@ Note:
     name="--environment"
     type="string"
     description="The slug of the environment in which to run this workflow. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
   />
 
   <Attribute
@@ -392,6 +430,11 @@ Note: Validating a workflow is only done against the `development` environment.
 
 <Attributes>
   <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
     name="--all"
     type="boolean"
     description="Whether to validate all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
@@ -431,6 +474,11 @@ Note:
     type="string"
     isRequired
     description="The environment to activate the workflow in."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
   />
   <Attribute
     name="--force"
@@ -479,6 +527,11 @@ Learn more about [type safety with workflows](/developer-tools/type-safety).
     description="The environment to fetch workflows from. Defaults to development."
   />
   <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
     name="--output-file"
     type="string"
     description="Specifies the file to generate types into. The language is inferred from the file suffix."
@@ -512,6 +565,40 @@ knock workflow generate-types \
 knock workflow generate-types \
   --environment=production \
   --output-file=./types/knock-workflows.ts
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow open <workflow_key> [flags]" path="/workflow/open">
+<ContentColumn>
+
+Open a workflow in the Knock dashboard. This command opens the workflow page in your default browser.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow open my-workflow
+```
+
+```bash title="Open a workflow in a different environment"
+knock workflow open my-workflow --environment=production
 ```
 
 </ExampleColumn>

@@ -81,24 +81,21 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
+	"github.com/knocklabs/knock-go/shared"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-params := knock.WorkflowTriggerParams{
-  Data: map[string]interface{}{
-    "reservation_id": reservation.ID
-  },
-  Tenant: "black-lodge",
-  Recipients: make([]knock.RecipientRequestUnionParam, len(reservationGuestIds)),
+recipients := make([]knock.RecipientRequestUnionParam, len(reservationGuestIds))
+for i, id := range reservationGuestIds {
+  recipients[i] = shared.UnionString(id)
 }
 
-for i, r := range reservationGuestIds {
-  params.Recipients[i] = r
-}
-
-result, _ := knockClient.Workflows.Trigger(ctx, "reservation-reminder-email", params)
+result, _ := knockClient.Workflows.Trigger(ctx, "reservation-reminder-email", knock.WorkflowTriggerParams{
+  Data:       knock.F(map[string]interface{}{"reservation_id": reservation.ID}),
+  Tenant:     knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("black-lodge")),
+  Recipients: knock.F(recipients),
+})
   `,
   java: `
 import app.knock.api.client.KnockClient;

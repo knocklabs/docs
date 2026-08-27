@@ -173,6 +173,14 @@ To use this feature, you must request the <a href="https://api.slack.com/scopes/
 />
 ```
 
+If you're using the `useSlackAuth` [hook](/in-app-ui/react/sdk/hooks/use-slack-auth) directly instead of `SlackAuthButton`, pass the scopes via the `additionalScopes` option:
+
+```javascript title="Requesting the users:read and users:read.email scopes with the useSlackAuth hook"
+const { buildSlackAuthUrl } = useSlackAuth(slackClientId, redirectUrl, {
+  additionalScopes: ["users:read", "users:read.email"],
+});
+```
+
 <Callout
   type="warning"
   title="Important:"
@@ -278,7 +286,7 @@ export async function fetchUserId(email: string): Promise<string> {
 We'll break this function down step-by-step:
 
 <Steps titleSize="h4">
-  <Step title="Get the `access_token` stored in Knock for the user's tenant">
+  <Step title="Get the access token stored in Knock for the user's tenant">
     Since your users have already connected their Slack workspace to Knock, you can use the `knockClient.objects.getChannelData` method to get the `access_token` for the user's tenant. Tenants in Knock are stored in a system-reserved object collection called `$tenants`.
 
     ```javascript

@@ -43,6 +43,11 @@ function App() {
     description="The JWT token for authenticating the user (required when using enhanced security mode)."
   />
   <Attribute
+    name="enabled"
+    type="boolean"
+    description="Defaults to `true`. When `false`, children still render but the Knock client stays idle: no identify call, no API requests, and no websocket. Flipping it to `true` authenticates and connects the client; flipping it back to `false` disconnects it and clears its data. Use it to defer activity until you have a complete identity (see below)."
+  />
+  <Attribute
     name="host"
     type="string"
     description="The Knock API host URL. Defaults to the production Knock API."
@@ -58,3 +63,30 @@ function App() {
     description="Child components that will have access to the Knock client."
   />
 </Attributes>
+
+## Deferring activity with `enabled`
+
+`KnockProvider` takes an `enabled` prop that defaults to `true`. When it's `false`, the provider still renders its children, but the Knock client sits idle: it doesn't identify the user, make any API requests, or open a websocket. Set it back to `true` and the client authenticates and connects; set it to `false` again and it disconnects and clears its data.
+
+This is the recommended way to gate the provider on a complete identity — for example, an enhanced-security user token that isn't ready on the first render — rather than mounting and unmounting `KnockProvider` as that identity changes:
+
+```jsx
+<KnockProvider
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  user={{ id: userId }}
+  userToken={userToken}
+  enabled={Boolean(userId && userToken)}
+>
+  {/* ... */}
+</KnockProvider>
+```
+
+Reach for `enabled` whenever you render the provider before authentication or consent is ready, such as feature-flagged rollouts, gated workspaces, or cookie consent flows.
+
+### Behavior when `enabled` changes
+
+- Feed components remount and reload their data when `enabled` becomes `true`.
+- Slack and Microsoft Teams connection status re-checks when the authenticated user changes.
+- Guides begin targeting once the client is authenticated. The `enabled` prop gates the whole client, while the [`readyToTarget` prop on `KnockGuideProvider`](/in-app-ui/react/sdk/components/knock-guide-provider) gates guide targeting on its own.
+
+To react to these transitions in your own components, subscribe to the client's authentication state with the [`useKnockAuthState`](/in-app-ui/react/sdk/hooks/use-knock-auth-state) hook.

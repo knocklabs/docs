@@ -260,7 +260,6 @@ const FeaturesMatrix = ({
                                 icon={icon}
                                 color={iconColor}
                                 size="0"
-                                aria-hidden={false}
                                 alt={alt}
                                 style={{
                                   width: "60%",

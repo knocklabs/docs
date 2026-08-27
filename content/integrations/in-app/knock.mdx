@@ -13,9 +13,29 @@ The Knock in-app notification channel provides an easy way to bring in-app notif
 - [Building in-app experiences with Knock](/in-app-ui/overview)
 - [Integrating the Knock feed into your application](/in-app-ui/react/feed)
 
+## Editing in-app notification templates
+
+You can edit the template for an in-app notification by clicking the "Edit content" button on your workflow's in-app channel step. This will open the [template editor](/template-editor/overview), where you can edit the content for the in-app notification.
+
+### Action URL
+
+The action URL is the URL that will be opened when a user clicks on the notification cell in their in-app feed. Toggle "include click action" on your template to enable this functionality. You can provide a static URL, or configure a dynamic URL using a [Liquid variable](/template-editor/variables).
+
+By default, the in-app feed will redirect to the action URL when the notification cell is clicked. See our documentation on [handling interactivity](/in-app-ui/feeds/handling-interactivity) for more details on how you can customize this behavior with `onNotificationClick` and `onNotificationButtonClick` handlers.
+
+### Template variants
+
+Your in-app notification template has three variants available:
+
+- **Standard.** A simple notification with content and an optional action URL. When the action URL is enabled, clicking the notification cell will redirect to the configured URL.
+- **Single-action.** A notification with a single primary button. This variant enables you to add a label to your action URL.
+- **Multi-action.** A notification with two buttons, one primary and one secondary. This variant enables you to configure two separate action URLs for your notification.
+
+See the [frequently asked questions](#frequently-asked-questions) section below for more information on customizing the action button styles.
+
 ## Understanding message statuses
 
-Every in-app feed notification sent by Knock has a status of `unseen`, `seen`, or `read`. You can use these statuses to power notification badge counts, filtering, and mark-as-read functionality.
+Every in-app feed notification sent by Knock has an [engagement status](/send-notifications/message-statuses#engagement-status) of `unseen`, `seen`, or `read`. You can use these statuses to power notification badge counts, filtering, and mark-as-read functionality.
 
 Here's more context on each status:
 
@@ -32,6 +52,13 @@ Message status is used to power a number of different features in the in-app fee
 - **Filtering.** You can use the filter button at the top of the feed to filter messages based on their status. This helps users quickly access notifications they've read or haven't read so that they can quickly get to the high priority items in their feed.
 
 Note that the functionality above is just the default for what we've provided in our in-app feed. If you'd like to use our message statuses in a different way, you can fork the Knock in-app feed and customize its behavior as you need to.
+
+### Click-tracking events
+
+Knock's in-app feed component tracks two separate engagement events related to user clicks on notifications:
+
+- **[Interacted](/send-notifications/message-statuses#interacted).** Clicks on the notification cell itself (including buttons) are tracked with the `interacted` [event](/developer-tools/outbound-webhooks/event-types#messageinteracted). Where applicable, this event will include metadata about the [action URL](#action-url) that was clicked.
+- **[Link clicked](/send-notifications/message-statuses#link-clicked).** When [Knock link tracking](/send-notifications/tracking) is enabled, clicking a link within the in-app notification's body will issue a `link_clicked` [event](/developer-tools/outbound-webhooks/event-types#messagelink_clicked) in addition to the `interacted` event. Action URLs are not wrapped in a trackable link and will not issue a `link_clicked` event.
 
 ## Archiving messages
 
@@ -93,3 +120,14 @@ Or, if you want to exclude the actor from rendering you can set:
   "actor": false
 }
 ```
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="The buttons on the in-app feed preview in my dashboard don't use my configured brand colors. Can I style the buttons in my in-app feed?">
+    Yes. However, because the in-app feed is rendered as a front-end component in your application, button colors and other visual styles are not part of your message's content and cannot be configured in the Knock dashboard.
+
+    Knock's in-app feed component styles, including button colors, are fully customizable. You can learn more about how to style the in-app feed in our [styling documentation](/in-app-ui/feeds/styling). Alternatively, you can [build your own UI components](/in-app-ui/feeds/custom-ui) and use them with Knock in a headless way.
+
+  </Accordion>
+</AccordionGroup>

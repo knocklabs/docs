@@ -32,9 +32,10 @@ import Knock from "@knocklabs/client";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
-// Tell Knock to use the users id
-knockClient.authenticate({ id: currentUser.id });
+knockClient.authenticate({ id: currentUser.id }, currentUser.knockUserToken);
 ```
+
+In production environments with [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) enabled, pass a signed user token from your backend as the second argument when you authenticate the client.
 
 ## Initialize a feed connection for the user
 
@@ -79,10 +80,12 @@ knockFeed.markAsUnarchived(feedItemOrItems);
 
 ## Retrieving preferences for the user
 
+Preference calls from the browser use your public API key and an authenticated user. In production, pass a signed user token when you authenticate the client. See [Security and authentication](/in-app-ui/security-and-authentication) for details.
+
 You can use the JS SDK to retrieve the preferences for the authenticated user, which is useful to build in-app preference UIs.
 
 ```javascript title="Getting user preferences"
-const preferences = await knockClient.preferences.get();
+const preferences = await knockClient.user.getPreferences();
 ```
 
 ## Setting preferences for the user
@@ -90,7 +93,7 @@ const preferences = await knockClient.preferences.get();
 Similar to retrieving preferences, the `Knock` class also allows you to set preferences directly in the client for the authenticated user.
 
 ```javascript title="Setting user preferences"
-await knockClient.preferences.set({
+await knockClient.user.setPreferences({
   channel_types: { email: true, sms: false },
   workflows: {
     "dinosaurs-loose": {

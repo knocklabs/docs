@@ -59,7 +59,6 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
         bg="surface-1"
         icon={{
           icon: isOpen ? X : Menu,
-          "aria-hidden": false,
           alt: `${isOpen ? "Close" : "Open"} sidebar`,
         }}
       />

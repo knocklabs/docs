@@ -12,6 +12,8 @@ import {
   useState,
 } from "react";
 
+import * as posthog from "@/lib/posthog";
+
 import useInkeepSettings from "../hooks/useInKeepSettings";
 
 const ModalChat = dynamic(
@@ -47,6 +49,11 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
   } = useInkeepSettings();
 
   const openWithPrompt = useCallback((prompt: string) => {
+    posthog.track("ask-ai-mobile-modal-opened-client", {
+      source: "search",
+      has_prompt: true,
+      prompt_length: prompt.length,
+    });
     setInitialQuery(prompt);
     setIsOpen(true);
   }, []);
@@ -78,7 +85,13 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="md-visible">
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            posthog.track("ask-ai-mobile-modal-opened-client", {
+              source: "floating_button",
+              has_prompt: false,
+            });
+            setIsOpen(true);
+          }}
           className="fixed right-4 bottom-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg"
           style={{
             borderColor: "var(--tgph-gray-4)",

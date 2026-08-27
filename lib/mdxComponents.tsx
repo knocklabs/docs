@@ -40,6 +40,11 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
 import FeaturesMatrix from "@/components/ui/FeaturesMatrix";
 import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
+import { AgentDeeplinkButton } from "@/components/ui/AgentDeeplinkButton";
+import { AgentFirstSetup } from "@/components/ui/AgentFirstSetup";
+import { AgentSetupPrompt } from "@/components/ui/AgentSetupPrompt";
+import { ContentButton } from "@/components/ui/ContentButton";
+import { KnockAiBanner } from "@/components/ui/KnockAiBanner";
 
 const Image = ({
   className,
@@ -47,9 +52,10 @@ const Image = ({
   ...props
 }: React.ComponentProps<typeof NextImage> & { border?: boolean }) => (
   <div
-    className={`overflow-hidden rounded-md inline-block ${
+    className={`overflow-hidden rounded-md ${
       border ? "border border-gray-200 dark:border-gray-700" : ""
     } ${className ?? ""}`}
+    style={{ display: "block", width: "fit-content" }}
   >
     <NextImage {...props} />
   </div>
@@ -64,7 +70,7 @@ export const MDX_COMPONENTS = {
     <Code
       as="code"
       color="blue"
-      backgroundColor="transparent"
+      variant="ghost"
       px="0_5"
       data-tgph-code
       {...props}
@@ -124,4 +130,9 @@ export const MDX_COMPONENTS = {
   ContentActions,
   FeaturesMatrix,
   PreTextDiagram,
+  AgentDeeplinkButton,
+  AgentFirstSetup,
+  AgentSetupPrompt,
+  ContentButton,
+  KnockAiBanner,
 };

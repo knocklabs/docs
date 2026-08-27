@@ -48,20 +48,33 @@ const RateLimit: React.FC<Props> = ({ tier, isBatch = false }) => {
     : tierConfig[tier].tooltip;
   const renderLink = !inOverview && pathname === "api-reference";
 
+  const color = isBatch ? batchConfig[tier].color : tierConfig[tier].color;
+  const tagStyle = { cursor: "pointer", textDecoration: "none" };
+  const label = (
+    <>
+      {isBatch ? "Batch Tier " : "Tier "}
+      {tier}
+    </>
+  );
+
+  // Kept as two concrete branches rather than `as={renderLink ? Link : "div"}`:
+  // a union element type only forwards props common to both, which drops `href`.
   return (
     <Tooltip label={tooltip} side="right">
-      <Tag
-        as={renderLink ? Link : "div"}
-        href={renderLink ? `/${pathname}/overview/rate-limits` : undefined}
-        color={isBatch ? batchConfig[tier].color : tierConfig[tier].color}
-        style={{
-          cursor: "pointer",
-          textDecoration: "none",
-        }}
-      >
-        {isBatch ? "Batch Tier " : "Tier "}
-        {tier}
-      </Tag>
+      {renderLink ? (
+        <Tag
+          as={Link}
+          href={`/${pathname}/overview/rate-limits`}
+          color={color}
+          style={tagStyle}
+        >
+          {label}
+        </Tag>
+      ) : (
+        <Tag as="div" color={color} style={tagStyle}>
+          {label}
+        </Tag>
+      )}
     </Tooltip>
   );
 };

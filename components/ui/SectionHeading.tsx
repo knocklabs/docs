@@ -12,6 +12,7 @@ type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
 type Props = {
   tag: HeadingTag;
+  id?: string;
   path?: string;
   wrapperProps?: TgphComponentProps<typeof Stack>;
 } & Omit<HeadingProps, "as">;
@@ -42,7 +43,7 @@ const SectionHeading = ({
 
   const showLink = path || id;
 
-  const onHeadingClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const onHeadingClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     let url = "";
 
@@ -86,12 +87,15 @@ const SectionHeading = ({
       flexDirection="row"
       alignItems="center"
       h="full"
-      mt={rest?.mt || 0}
-      mb={rest?.mb || 0}
+      mt={rest?.mt || "0"}
+      mb={rest?.mb || "0"}
       position="relative"
       data-section-heading
-      onClick={onHeadingClick}
       {...wrapperProps}
+      // Pin the element type after the spread, which is typed against Stack's
+      // default (wide) element and would otherwise drop `onClick`.
+      as="div"
+      onClick={onHeadingClick}
       style={{
         cursor: showLink ? "pointer" : "default",
         ...wrapperProps?.style,

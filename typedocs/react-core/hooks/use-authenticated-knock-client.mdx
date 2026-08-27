@@ -76,6 +76,23 @@ const knock = useAuthenticatedKnockClient(
 );
 ```
 
+### Deferring activity with the `enabled` option
+
+The `options` object accepts an `enabled` flag that defaults to `true`. When it's `false`, the hook creates the client but keeps it idle — no identify call, no API requests, and no websocket — until you have a complete identity. Set it to `true` to authenticate and connect the client, and back to `false` to disconnect it and clear its data.
+
+```tsx
+const knock = useAuthenticatedKnockClient(
+  "pk_test_12345",
+  { id: userId },
+  userToken,
+  {
+    enabled: Boolean(userId && userToken),
+  },
+);
+```
+
+This is the same lifecycle the [`enabled` prop on `KnockProvider`](/in-app-ui/react/sdk/components/knock-provider) manages for you. Prefer the prop when you're using `KnockProvider`, and reach for this option when you build a headless client with the hook.
+
 ### Using string user ID (deprecated)
 
 While you can pass a string user ID directly, it's recommended to use an object:

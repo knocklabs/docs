@@ -17,6 +17,7 @@ export const RESOURCE_ORDER = [
   "variables",
   "branches",
   "members",
+  "data_sources",
   "api_keys",
   "auth",
   "$shared",
@@ -30,6 +31,14 @@ export const MAPI_REFERENCE_OVERVIEW_CONTENT: SidebarSection[] = [
       {
         title: "Overview",
         slug: `/`,
+      },
+      {
+        title: "Client libraries",
+        slug: `/client-libraries`,
+      },
+      {
+        title: "OpenAPI",
+        slug: `/openapi`,
       },
       {
         title: "Authentication",

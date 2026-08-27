@@ -31,11 +31,11 @@ Once enabled, Knock will automatically include the necessary unsubscribe headers
 
 ### Using footer links
 
-When configuring an email layout using the visual editor, you can toggle the "Include commercial unsubscribe link" input to include the unsubscribe link.
+When configuring an email layout using the visual editor, you can add an unsubscribe link to your email footer by clicking the "Add link" dropdown and selecting "1-click unsubscribe".
 
 <Image
-  src="/images/integrations/email/layouts/commercial-unsubscribe-toggle.png"
-  alt="Toggle to include commercial unsubscribe link in email layout"
+  src="/images/integrations/email/layouts/commercial-unsubscribe-dropdown.png"
+  alt="Adding a commercial unsubscribe link from the Add link dropdown in the email layout editor"
   width="800"
   height="300"
   className="rounded-md mx-auto border border-gray-200"
@@ -92,6 +92,24 @@ When a user unsubscribes by clicking the unsubscribe link, Knock displays a conf
 When a recipient clicks the unsubscribe link, their `default` preference set will be updated, marking `commercial_subscribed` as `false`. They will be opted-out of commercial messages, and they will continue to receive transactional messages based on their other preferences.
 
 This recipient-level preference will take precedence over other environment or tenant preferences. Learn more about [preference merging](/preferences/overview#preference-evaluation-rules).
+
+## Setting `commercial_subscribed` via API
+
+The unsubscribe link writes this preference for you, but you can also set it yourself. This is useful to sync an opt-out you captured elsewhere in your product, or to backfill preferences across your existing users.
+
+`commercial_subscribed` lives on the recipient's `default` preference set. Call the [set user preferences endpoint](/api-reference/users/set_preferences) with a `merge` persistence strategy to update this key without replacing the rest of the preference set.
+
+```javascript title="Opt a user out of commercial messages"
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+await knock.users.setPreferences("user-id", "default", {
+  __persistence_strategy__: "merge",
+  commercial_subscribed: false,
+});
+```
+
+To update many users at once, use [bulk set preferences](/preferences/overview#bulk-set-user-preferences).
 
 ## Learn more
 

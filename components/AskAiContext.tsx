@@ -10,6 +10,8 @@ import {
   useState,
 } from "react";
 
+import * as posthog from "@/lib/posthog";
+
 const STORAGE_KEYS = {
   sidebarWidth: "askAiSidebarWidth",
   chatSessions: "askAiChatSessions",
@@ -233,11 +235,38 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     return sessionId;
   }, []);
 
-  const openSidebar = useCallback(() => setIsOpen(true), []);
-  const closeSidebar = useCallback(() => setIsOpen(false), []);
-  const toggleSidebar = useCallback(() => setIsOpen((prev) => !prev), []);
+  const openSidebar = useCallback(() => {
+    posthog.track("ask-ai-sidebar-opened-client", {
+      source: "button",
+    });
+    setIsOpen(true);
+  }, []);
+
+  const closeSidebar = useCallback(() => {
+    posthog.track("ask-ai-sidebar-closed-client");
+    setIsOpen(false);
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    setIsOpen((prev) => {
+      if (!prev) {
+        posthog.track("ask-ai-sidebar-opened-client", {
+          source: "button",
+        });
+      } else {
+        posthog.track("ask-ai-sidebar-closed-client");
+      }
+      return !prev;
+    });
+  }, []);
+
   const openSidebarWithPrompt = useCallback(
     (prompt: string) => {
+      posthog.track("ask-ai-sidebar-opened-client", {
+        source: "search",
+        has_prompt: true,
+        prompt_length: prompt.length,
+      });
       // Create new session before setting prompt to ensure each query starts fresh
       createNewSession();
       setInitialPrompt(prompt);
@@ -245,6 +274,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     },
     [createNewSession],
   );
+
   const clearInitialPrompt = useCallback(() => setInitialPrompt(null), []);
 
   // Select an existing chat session
@@ -252,6 +282,10 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     (sessionId: string) => {
       const session = chatSessions.find((s) => s.id === sessionId);
       if (session) {
+        posthog.track("ask-ai-session-switched-client", {
+          message_count: session.messages.length,
+        });
+
         // Abort any ongoing stream before switching sessions
         // This saves partial content to the current session
         beforeSessionChangeRef.current?.();

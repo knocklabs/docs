@@ -70,10 +70,10 @@ ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowCancelParams{
-  CancellationKey: userInvite.ID,
+  CancellationKey: knock.F(userInvite.ID),
 }
 
-result, _ := knockClient.Workflows.Cancel(ctx, "new-user-invited", params)
+_ = knockClient.Workflows.Cancel(ctx, "new-user-invited", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

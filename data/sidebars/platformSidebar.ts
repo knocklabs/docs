@@ -43,6 +43,19 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
+    title: "Knock AI",
+    slug: "/ai",
+    desc: "Use AI in the dashboard, inside workflows, in your IDE, and in external clients.",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/agent", title: "Knock agent" },
+      { slug: "/agent-function", title: "Agent workflow function" },
+      { slug: "/cli", title: "Knock CLI" },
+      { slug: "/mcp-server", title: "Knock MCP server" },
+      { slug: "/skills", title: "Skills" },
+    ],
+  },
+  {
     title: "Workflows",
     slug: "/designing-workflows",
     desc: "Learn how to design notifications using Knock's workflow builder, then explore advanced features such as batching, delays, and more.",
@@ -53,19 +66,15 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
         title: "Function steps",
         pages: [
           { slug: "/delay-function", title: "Delay function" },
+          {
+            slug: "/wait-for-event-function",
+            title: "Wait for event function",
+          },
           { slug: "/batch-function", title: "Batch function" },
           { slug: "/branch-function", title: "Branch function" },
-          {
-            slug: "/experiment-function",
-            title: "Experiment function",
-            isBeta: true,
-          },
+          { slug: "/experiment-function", title: "Experiment function" },
           { slug: "/fetch-function", title: "Fetch function" },
-          {
-            slug: "/ai-agent-function",
-            title: "Agent function",
-            isBeta: true,
-          },
+          { slug: "/ai-agent-function", title: "Agent function" },
           { slug: "/throttle-function", title: "Throttle function" },
           {
             slug: "/trigger-workflow-function",
@@ -101,6 +110,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
+      { slug: "/in-app-guide-step", title: "In-app guide step" },
       { slug: "/send-windows", title: "Send windows" },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
     ],
@@ -151,6 +161,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },
       { slug: "/tracking", title: "Link & open tracking" },
+      { slug: "/analytics", title: "Analytics" },
       { slug: "/testing-workflows", title: "Testing workflows" },
       { slug: "/debugging-workflows", title: "Debugging workflows" },
     ],
@@ -163,6 +174,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/identifying-recipients", title: "Identifying recipients" },
+      { slug: "/schemas", title: "Recipient schemas" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/deleting-users", title: "Deleting users" },
       { slug: "/merging-users", title: "Merging users" },
@@ -187,6 +199,14 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Learn how to power notification preferences with Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
+      {
+        slug: "/hosted-preference-center",
+        title: "Hosted preference center",
+      },
+      {
+        slug: "/custom-preference-center",
+        title: "Custom preference center",
+      },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
       {
@@ -206,21 +226,15 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
-    title: "Knock AI",
-    slug: "/ai",
-    desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
-    pages: [
-      { slug: "/agent", title: "Knock agent", isBeta: true },
-      { slug: "/mcp-server", title: "MCP server" },
-      { slug: "/skills", title: "Skills" },
-    ],
-  },
-  {
     title: "Manage your account",
     slug: "/manage-your-account",
     desc: "Learn more about the tools available in managing your Knock account.",
     pages: [
       { slug: "/authentication-methods", title: "Authentication methods" },
+      {
+        slug: "/multi-factor-authentication",
+        title: "Multi-factor authentication",
+      },
       { slug: "/saml-sso", title: "SAML SSO" },
       { slug: "/directory-sync", title: "Directory sync (SCIM)" },
       { slug: "/managing-members", title: "Managing members" },
@@ -231,6 +245,8 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/data-retention", title: "Data retention" },
       { slug: "/custom-domains", title: "Custom domains" },
       { slug: "/managing-assets", title: "Managing assets" },
+      { slug: "/managing-usage", title: "Managing usage" },
+      { slug: "/account-deletion", title: "Account deletion" },
     ],
   },
 ];
