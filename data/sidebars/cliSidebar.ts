@@ -203,4 +203,21 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/archive", title: "Archive audience" },
     ],
   },
+  {
+    title: "Goals",
+    slug: "/cli/goal",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List goals" },
+      { slug: "/get", title: "Get goal" },
+      { slug: "/new", title: "Create a new goal" },
+      { slug: "/pull", title: "Pull goals" },
+      { slug: "/push", title: "Push goals" },
+      { slug: "/validate", title: "Validate goal" },
+      { slug: "/open", title: "Open goal" },
+      { slug: "/archive", title: "Archive goal" },
+      { slug: "/clone", title: "Clone goal" },
+    ],
+  },
 ];

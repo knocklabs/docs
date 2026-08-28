@@ -9,6 +9,7 @@ export const RESOURCE_ORDER = [
   "broadcasts",
   "email_layouts",
   "audiences",
+  "goals",
   "partials",
   "guides",
   "message_types",
