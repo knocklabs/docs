@@ -223,13 +223,18 @@ If a preview or email message displays raw CSS styles and `<mj-*>` tags as body 
 
     Alternatively, declare both fonts unconditionally so the compiler loads each one, then pick between them at send time in an `<mj-style>` block:
 
-    ```mjml title="Correct: declare both fonts, select one in CSS"
+    ```mjml title="Correct: declare both fonts, select one conditionally in CSS"
     <mj-head>
       <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter" />
       <mj-font name="Roboto Slab" href="https://fonts.googleapis.com/css2?family=Roboto+Slab" />
       <mj-style>
         .email-body, .email-body td {
-          font-family: {% if vars.brand_theme == "editorial" %}"Roboto Slab", Georgia, serif{% else %}"Inter", Helvetica, sans-serif{% endif %};
+          font-family:
+          {% if vars.brand_theme == "editorial" %}
+          "Roboto Slab", Georgia, serif
+          {% else %}
+          "Inter", Helvetica, sans-serif
+          {% endif %};
         }
       </mj-style>
     </mj-head>
@@ -243,18 +248,19 @@ If a preview or email message displays raw CSS styles and `<mj-*>` tags as body 
   <Accordion title="A conditional wrapping only one of an MJML block's tags">
     Both halves of a Liquid tag pair must sit inside the same block. When a conditional wraps only one of an MJML block's tags, compilation will fail.
 
-    ```mjml title="Incorrect: a conditional wrapping only one of the block's tags"
+    ```mjml title="Incorrect: the conditional wraps only one of the block's tags"
     <mj-head>
       {% if vars.use_dark_mode %}
       <mj-style> {% endif %} .email-body { background-color: #262626; } </mj-style>
     </mj-head>
     ```
 
-    ```mjml title="Correct: the conditional contained in a single block"
+    ```mjml title="Correct: the conditional is contained within a single block"
     <mj-head>
       <mj-style>
-        {% if vars.use_dark_mode %} .email-body { background-color: #262626; } {%
-        endif %}
+        {% if vars.use_dark_mode %}
+          .email-body { background-color: #262626; }
+        {% endif %}
       </mj-style>
     </mj-head>
     ```
