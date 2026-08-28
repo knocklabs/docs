@@ -4,13 +4,7 @@ import { Icon } from "@telegraph/icon";
 import { Button } from "@telegraph/button";
 import { Tooltip } from "@telegraph/tooltip";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import { Text, Code } from "@telegraph/typography";
 import { Check, ChevronRight, Link } from "lucide-react";
 
