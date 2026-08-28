@@ -3,36 +3,51 @@ title: MJML support
 description: Learn how to use MJML to build responsive email layouts and templates in Knock.
 section: Integrations
 layout: integrations
-tags: ["mjml", "responsive", "email", "layouts", "templates", "mobile"]
+tags:
+  [
+    "mjml",
+    "responsive",
+    "email",
+    "layouts",
+    "templates",
+    "mobile",
+    "liquid",
+    "mj-raw",
+    "css inlining",
+  ]
 ---
 
-Knock supports <a href="https://mjml.io/" target="_blank" rel="noopener">MJML</a>, a responsive email framework that compiles to HTML optimized for email clients. MJML abstracts away the complexity of table-based layouts and media queries, so you can build responsive emails that look great across devices with less code.
+Knock supports <a href="https://mjml.io/" target="_blank" rel="noopener">MJML</a>, a responsive email framework that compiles to HTML that is optimized for email clients. MJML abstracts away the complexity of table-based layouts and media queries, so you can build responsive emails that look great across devices with less code.
 
 ## MJML layouts
 
-You can set an email layout to use MJML. When a layout is configured for MJML, it must contain a root `<mjml>` tag. The layout structure works the same as HTML layouts: the `{{content}}` variable receives the template content, and `{{footer_links}}` receives footer links when configured.
+You can set an [email layout](/integrations/email/layouts) to use MJML. When a layout is configured for MJML, it must contain a root `<mjml>` tag. The layout structure works the same as HTML layouts: the `{{content}}` variable receives the template content, and `{{footer_links}}` receives footer links when configured.
 
-To include plain HTML within an MJML layout, wrap it in `<mjml-raw>` tags. MJML will pass through the contents of `<mjml-raw>` without compiling them, so you can use standard HTML where needed.
+To include plain HTML within an MJML layout, wrap it in `<mj-raw>` tags. MJML will pass through the contents of `<mj-raw>` without compiling them, so you can use standard HTML where needed:
 
-```mjml title="MJML layout with mjml-raw for HTML"
+```mjml title="MJML layout with <mj-raw> for HTML"
 <mjml>
   <mj-head>
     <mj-title>Welcome</mj-title>
+    <mj-raw>
+      <meta name="color-scheme" content="light dark" />
+    </mj-raw>
   </mj-head>
   <mj-body>
     <mj-section>
-      <mj-column> {{ content }} </mj-column>
+      <mj-column>{{ content }}</mj-column>
     </mj-section>
     <mj-section>
       <mj-column>
-        <mjml-raw> {{ footer_links }} </mjml-raw>
+        <mj-raw>
+          <div class="footer-links">{{ footer_links }}</div>
+          <img src="{{ vars.pixel_url }}" width="1" height="1" alt="" />
+        </mj-raw>
       </mj-column>
     </mj-section>
   </mj-body>
 </mjml>
 ```
-
-[Learn more about email layouts](/integrations/email/layouts).
 
 ## MJML templates
 
@@ -45,7 +60,7 @@ When you use an MJML template with a layout, the layout must also be MJML. When 
 
 ## Mixing HTML and MJML
 
-Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml-raw>` tags when the HTML appears at the `<mj-body>`, `<mj-section>`, or `<mj-column>` level. This means you can include HTML snippets in your MJML templates and they will render correctly.
+Knock automatically wraps plain HTML inside MJML templates and layouts in `<mj-raw>` tags when the HTML appears at the `<mj-body>`, `<mj-section>`, or `<mj-column>` level. This means you can include HTML snippets in your MJML templates and they will render correctly.
 
 ### Ending tags
 
@@ -65,17 +80,193 @@ The following MJML tags do not have their HTML children wrapped:
 - `<mj-title>`
 
 <Callout
-  emoji="🌠"
+  type="info"
   title="Note:"
   text={
     <>
-      HTML partials cannot include MJML. When an HTML partial is used in an MJML
-      template and is not rendered as a direct child of an MJML ending tag,
-      Knock wraps the partial's content in <code>&lt;mjml-raw&gt;</code> tags so
-      that it renders correctly within the MJML document.
+      <a href="/template-editor/partials/html-partials">HTML partials</a> cannot
+      include MJML. When an HTML partial is used in an MJML template and is not
+      rendered as a direct child of an MJML ending tag, Knock wraps the
+      partial's content in <code>&lt;mj-raw&gt;</code> tags so that it renders
+      correctly within the MJML document.
     </>
   }
 />
+
+## Using Liquid in MJML
+
+You can use [Liquid](/template-editor/reference-liquid-helpers) in MJML layouts and templates to render dynamic content, but where you can place it is determined by the order in which Knock compiles your MJML. Knock renders an MJML email in two steps:
+
+1. **MJML compile.** Knock compiles your MJML document into HTML. Liquid is still unrendered text at this point.
+2. **Liquid render.** At send time, Knock renders Liquid tags and variables against the compiled HTML.
+
+Because the MJML compiler runs first, it has to parse your document with the Liquid still in it. Liquid that sits where the compiler expects an MJML component will break compilation, and your final message may not render as expected.
+
+### Where you can use Liquid
+
+| Location                                                      | Supported | What to do                                                                         |
+| ------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------- |
+| Inside `<mj-body>` and the components below it                | Yes       | Write Liquid directly. No wrapping needed.                                         |
+| Inside an `<mj-raw>` or `<mj-style>` block                    | Yes       | Open and close each Liquid tag inside the same block.                              |
+| Wrapping or outside the `<mjml>` root tag                     | No        | Branch inside `<mj-body>`, or create a second layout.                              |
+| Bare at the `<mj-head>` level                                 | No        | Move the Liquid into an `<mj-raw>` or `<mj-style>` block.                          |
+| Wrapping `<mj-font>`, `<mj-attributes>`, or `<mj-breakpoint>` | No        | Declare these without a conditional and reference them dynamically in CSS instead. |
+
+<br />
+
+Here's an example of an email layout using Liquid in the places it's supported:
+
+```mjml title="Liquid in an MJML layout"
+<mjml>
+  <mj-head>
+    <mj-raw>
+      {% if vars.use_dark_mode %}
+      <meta name="color-scheme" content="light dark" />
+      {% endif %}
+    </mj-raw>
+    <mj-style>
+      {% if vars.use_dark_mode %} .email-body { background-color: #262626; } {%
+      endif %}
+    </mj-style>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>Hello {{ recipient.name }}</mj-text>
+        {{ content }} {% if recipient.support_plan_enabled %}
+        <mj-text>
+          Need help? <a href="{{ vars.support_url }}">Contact support</a>.
+        </mj-text>
+        {% endif %}
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+### Troubleshooting
+
+If a preview or email message displays raw CSS styles and `<mj-*>` tags as body text, this indicates an issue with MJML compilation. Check for Liquid outside the `<mjml>` root, a conditional straddling an `<mj-head>` block, or a Liquid tag wrapping a compile-time component.
+
+#### Common mistakes
+
+<AccordionGroup>
+  <Accordion title="Liquid outside the `<mjml>` root tag">
+    The MJML compiler has no position for content outside the root in the document it produces, so compilation fails when you add Liquid outside the `<mjml>` root tag. This also applies between `<mjml>` and its `<mj-head>` and `<mj-body>` children.
+
+    ```mjml title="Incorrect: a conditional wrapping the whole document"
+    {% if vars.use_marketing_layout %}
+    <mjml>
+      <mj-body>
+        <!-- marketing layout -->
+      </mj-body>
+    </mjml>
+    {% else %}
+    <mjml>
+      <mj-body>
+        <!-- transactional layout -->
+      </mj-body>
+    </mjml>
+    {% endif %}
+    ```
+
+    Instead, keep one `<mjml>` root and move the conditional inside `<mj-body>`:
+
+    ```mjml title="Correct: branching inside <mj-body>"
+    <mjml>
+      <mj-body>
+        {% if vars.use_marketing_layout %}
+        <mj-section background-color="#f4f4f5">
+          <mj-column>
+            <mj-image src="{{ vars.branding.logo_url }}" width="160px" />
+          </mj-column>
+        </mj-section>
+        {% endif %}
+        <mj-section>
+          <mj-column>{{ content }}</mj-column>
+        </mj-section>
+      </mj-body>
+    </mjml>
+    ```
+
+    If the two shapes differ enough that a single document can't express both, create a second layout and select it on the email step.
+
+  </Accordion>
+  <Accordion title="A conditional wrapping `<mj-font>`, `<mj-attributes>`, or `<mj-breakpoint>`">
+    These MJML tags are used within `<mj-head>` to configure the compiler's output, which means that the limitation mentioned in the table above applies. However, you can't resolve this by simply moving these tags inside an `<mj-raw>` block and wrapping them with a condition there, because `<mj-raw>` preserves its contents without compiling them. A tag will be emitted as literal `<mj-*>` markup instead of being processed by the compiler.
+
+    For example, wrapping `<mj-font>` in a conditional to switch fonts per brand theme won't work:
+
+    ```mjml title="Incorrect: a conditional around <mj-font>"
+    <mj-head>
+      {% if vars.brand_theme == "editorial" %}
+      <mj-font name="Roboto Slab" href="https://fonts.googleapis.com/css2?family=Roboto+Slab" />
+      {% else %}
+      <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter" />
+      {% endif %}
+    </mj-head>
+    ```
+
+    When the component has a plain-HTML equivalent, write that equivalent instead and keep the conditional inside an `<mj-raw>` block. Here, `<mj-font>` becomes the `<link>` tag it would have generated:
+
+    ```mjml title="Correct: use <mj-raw> and conditionally wrap HTML font imports"
+    <mj-head>
+      <mj-raw>
+        {% if vars.brand_theme == "editorial" %}
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab" rel="stylesheet" />
+        {% else %}
+        <link href="https://fonts.googleapis.com/css2?family=Inter" rel="stylesheet" />
+        {% endif %}
+      </mj-raw>
+    </mj-head>
+    ```
+
+    Alternatively, declare both fonts unconditionally so the compiler loads each one, then pick between them at send time in an `<mj-style>` block:
+
+    ```mjml title="Correct: declare both fonts, select one conditionally in CSS"
+    <mj-head>
+      <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter" />
+      <mj-font name="Roboto Slab" href="https://fonts.googleapis.com/css2?family=Roboto+Slab" />
+      <mj-style>
+        .email-body, .email-body td {
+          font-family:
+          {% if vars.brand_theme == "editorial" %}
+          "Roboto Slab", Georgia, serif
+          {% else %}
+          "Inter", Helvetica, sans-serif
+          {% endif %};
+        }
+      </mj-style>
+    </mj-head>
+    ```
+
+    The tradeoff to this approach is that every declared font is referenced in the final email, so recipients' email clients may load a font that the message doesn't end up using.
+
+    `<mj-attributes>` and `<mj-breakpoint>` have no plain-HTML equivalent. For those, declare them without a conditional and branch in CSS instead, similar to the second example above.
+
+  </Accordion>
+  <Accordion title="A conditional wrapping only one of an MJML block's tags">
+    Both halves of a Liquid tag pair must sit inside the same block. When a conditional wraps only one of an MJML block's tags, compilation will fail.
+
+    ```mjml title="Incorrect: the conditional wraps only one of the block's tags"
+    <mj-head>
+      {% if vars.use_dark_mode %}
+      <mj-style> {% endif %} .email-body { background-color: #262626; } </mj-style>
+    </mj-head>
+    ```
+
+    ```mjml title="Correct: the conditional is contained within a single block"
+    <mj-head>
+      <mj-style>
+        {% if vars.use_dark_mode %}
+          .email-body { background-color: #262626; }
+        {% endif %}
+      </mj-style>
+    </mj-head>
+    ```
+
+  </Accordion>
+</AccordionGroup>
 
 ## Dark mode support in MJML layouts
 
@@ -141,5 +332,6 @@ For more details, see [Styling buttons](/integrations/email/layouts#styling-butt
 
 ## Limitations
 
-- **MJML layouts require the `<mjml>` root tag.** Layouts set to MJML mode must be valid MJML documents.
-- **Partials cannot include MJML.** [HTML partials](/template-editor/partials/html-partials) must contain HTML only. When used in an MJML template, their content is automatically wrapped in `<mjml-raw>` tags where appropriate.
+- **MJML layouts require the `<mjml>` root tag.** Layouts set to MJML mode must be valid MJML documents, with a single `<mjml>` root and no content outside it.
+- **Liquid can't wrap the `<mjml>` root or compile-time components.** Knock compiles MJML before it renders Liquid. See [Using Liquid in MJML](#using-liquid-in-mjml) for the placement rules.
+- **Partials cannot include MJML.** [HTML partials](/template-editor/partials/html-partials) must contain HTML only. When used in an MJML template, their content is automatically wrapped in `<mj-raw>` tags where appropriate.
