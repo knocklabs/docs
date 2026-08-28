@@ -93,7 +93,7 @@ Objects can contain any number of key-value property pairs that you can then ref
 
 ## Object subscribers
 
-You can use [subscriptions](/concepts/subscriptions) to subscribe [recipients](/concepts/recipients) to objects as subscribers. When an object is passed to a workflow trigger, Knock will automatically fan out and run a workflow for every subscriber on that object.
+You can use [subscriptions](/concepts/subscriptions) to subscribe [recipients](/concepts/recipients) to objects as subscribers. When an object is passed to a workflow trigger, Knock will automatically fan out and run a workflow for every subscriber on that object. The object itself will also receive a workflow run, which is useful for sending notifications to shared resources like a Slack channel or a webhook endpoint.
 
 <Callout
   type="info"
@@ -119,7 +119,13 @@ You can use [subscriptions](/concepts/subscriptions) to subscribe [recipients](/
   }
 />
 
-## Referencing object data in templates
+## Object workflow runs
+
+Knock accepts objects as recipients, so an object passed to a workflow trigger gets its own workflow run by default. This is useful when notifying shared resources such as [Slack channels](/integrations/chat/slack/overview#choosing-where-to-store-channel-data-users-vs-objects) or [customer-facing webhooks](/tutorials/customer-webhooks).
+
+In the object's workflow run, Knock executes every applicable step. This may lead to unintended outcomes like object-driven fetch requests. To conditionally execute steps based on recipient type, use a [step condition](/designing-workflows/step-conditions) to evaluate the [recipient's](/template-editor/variables#recipient-user-or-object) `__typename` or `collection`.
+
+## Referencing object data
 
 You can reference object data in templates using the `object` filter to load object data into a template. You can reference an object by a static identifier, or by a dynamic identifier passed in via data in your workflow trigger.
 
