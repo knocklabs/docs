@@ -18,7 +18,7 @@ section: Concepts
 
 A goal is a reusable, environment-scoped outcome that you identify as having special business meaning. For example, you might define a "Customer activated" goal that completes when a user creates their first channel or starts an agent session.
 
-Each goal has an immutable `key`, a title, an optional description, a condition that defines when the goal is met, and versions. When a recipient meets the goal condition, Knock records a **completion**. When that completion can be credited to a [workflow](/concepts/workflows), [broadcast](/concepts/broadcasts), or [guide](/concepts/guides) that has the goal attached, Knock also records an **attributed completion**.
+Each goal has an immutable `key`, a title, an optional description, and a condition that defines when the goal is met. When a recipient meets the goal condition, Knock records a **completion**. When that completion can be credited to a [workflow](/concepts/workflows), [broadcast](/concepts/broadcasts), or [guide](/concepts/guides) that has the goal attached, Knock also records an **attributed completion**.
 
 Use goals to:
 
@@ -31,11 +31,11 @@ Use goals to:
 To create a goal, navigate to the **Goals** page in the Knock dashboard, then create a new goal. Set:
 
 - **Key.** An immutable, environment-unique identifier for the goal.
-- **Title.** A human-readable name for the goal. In the Management API and CLI, this field is `name`.
+- **Title.** A human-readable name for the goal. In the Management API, this field is `name`.
 - **Description.** Optional context about what the goal means for your business.
 - **Condition.** The event that must happen for Knock to record a completion. See [Goal conditions](#goal-conditions).
 
-Goals are scoped to an [environment](/concepts/environments). When you save a goal, Knock publishes it immediately. Goals do not use the commit-and-promote model that workflows and other versioned resources use.
+Goals are scoped to an [environment](/concepts/environments). When you save a goal, Knock publishes it. Goals do not use the commit-and-promote model that workflows and other versioned resources use. Goal definition changes create a new goal version and keep a history of prior versions.
 
 ### Cloning a goal
 
@@ -120,13 +120,13 @@ You can attach a goal to a [workflow](/concepts/workflows), [broadcast](/concept
 A goal attachment includes:
 
 - **Goal key.** The key of the goal to attach.
-- **Attribution window.** The number of days after the attribution anchor during which a completion can be credited to the resource. Defaults to 7 days. Maximum is 30 days. Granularity is 1 day.
+- **Attribution window.** The number of days after the attribution anchor during which a completion can be credited to the resource. Must be between 7 and 30 days (day granularity). Defaults to 7 days.
 
 The attachment lives on the messaging resource's version. Attaching, detaching, or changing the attribution window creates a new version of that workflow, broadcast, or guide, and follows that resource's [commit](/version-control/commits) model.
 
 ## Attribution
 
-When a recipient meets a goal condition, Knock always records a **completion**. If the goal is attached to one or more messaging resources, Knock then decides whether the completion is an **attributed completion**.
+When a recipient meets a goal condition, Knock records a **completion**. If the goal is attached to one or more messaging resources, Knock then decides whether the completion is an **attributed completion**.
 
 ### Attribution window and anchor
 
@@ -143,34 +143,36 @@ If multiple attached resources are eligible for the same completion, Knock attri
 
 ### Example: attribution window
 
-Goal 1 is attached to Workflow A (7-day window) and Guide B (30-day window). Recipient X receives messaging from:
+Goal 1 is attached to Workflow A (7-day window) and Guide B (30-day window). Recipient X received messaging from:
 
-- Workflow A, 1 day ago and 8 days ago
-- Guide B, 6 days ago
+- Workflow A: one run that sent its first message 8 days ago (and another message 1 day ago on that same run)
+- Guide B: 6 days ago
 
 Is Workflow A inside its attribution window?
 
-- No. The first message sent for the most recent Workflow A run was 8 days ago, and the attachment has a 7-day window.
+- No. The attribution anchor is the **first** message sent on the most recent Workflow A run (8 days ago), and the attachment has a 7-day window.
 
 ### Example: last touch
 
-Goal 1 is attached to Workflow A and Guide B. Both attachments have a 30-day window. Recipient X receives messaging from:
+Goal 1 is attached to Workflow A and Guide B. Both attachments have a 30-day window. Recipient X received messaging from:
 
-- Workflow A, 1 day ago and 8 days ago
-- Guide B, 6 days ago
+- Workflow A: first message 8 days ago, most recent message 1 day ago
+- Guide B: 6 days ago
 
 Both resources are inside their windows. Last touch was Workflow A, so Knock attributes the completion to **Workflow A**.
 
 ## Reporting
 
-On the **Goals** page in the dashboard, you can view all goals in the current environment. Open a goal to see:
+On the **Goals** page in the dashboard, you can view all goals in the current environment. The list shows a rolling **30-day activity** sparkline of attributed completions for each goal (day-level granularity). Goals with no attributed completions in the last 30 days omit the sparkline.
 
-- **Completions.** Every time a recipient met the goal condition.
-- **Attributed completions.** The subset of completions Knock credited to an attached messaging resource. You can filter attributed completions by resource.
+Open a goal to see:
 
-Attributed completions are a strict subset of completions. Attribution for analytics can take up to about 15 minutes to appear after a completion.
+- **Overview.** Time series of completions and attributed completions for a selected range, with totals and completion rate. You can break the series down by goal version or by messaging resource, and see attributed completions per attached resource.
+- **Completions log.** A paginated list of individual completions and attributed completions for the same range as the overview. Each row includes the recipient, completion time, triggering event, and (when attributed) the winning messaging resource and message.
 
-Resource-level conversion metrics on workflow, broadcast, and guide analytics pages are not included in this release. Use the goal detail page and resource filters instead.
+Attributed completions are a strict subset of completions. Attribution for analytics can take up to 15 minutes to appear after a completion.
+
+Resource-level conversion metrics on workflow, broadcast, and guide analytics pages are not included in this release. Use the goal detail page and resource breakdowns instead.
 
 ## Goals and the Knock agent
 
@@ -178,9 +180,9 @@ The [Knock agent](/ai/agent) has full read access to goals and their fields. The
 
 ## Managing goals programmatically
 
-You can create, update, clone, and archive goals, and attach them to messaging resources, with the [Management API](/mapi-reference/goals) and the [Knock CLI](/cli/goal).
+You can create, update, clone, and archive goals, and attach them to messaging resources, with the [Management API](/mapi-reference/goals).
 
-Goal upserts publish immediately. Unlike workflows and guides, the goals upsert endpoint does not accept a commit parameter. Attachments are stored on the workflow, broadcast, or guide as a `goal_attachment` (`goal_key` and `attribution_window_days`).
+Goal upserts publish on save. Unlike workflows and guides, the goals upsert endpoint does not accept a commit parameter. Attachments are stored on the workflow, broadcast, or guide as a `goal_attachment` (`goal_key` and `attribution_window_days`).
 
 ## Limitations
 
@@ -191,3 +193,4 @@ The following are not available in this release:
 - Attaching more than one goal to a single messaging resource.
 - Goal conversion metrics on the workflow, broadcast, or guide analytics pages.
 - Promoting goals between environments (clone a goal instead).
+- Managing goals with the Knock CLI (coming in a later release).
