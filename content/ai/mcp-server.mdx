@@ -14,7 +14,7 @@ Here are some examples of how you can use the MCP server in your workflow:
 
 ## Get started
 
-The Knock MCP server is a remote server—no local installation or Node.js setup is required. You connect to `https://mcp.knock.app/mcp` directly from your MCP client and authenticate using your Knock account via OAuth. This means your Knock credentials are managed securely through the standard sign-in flow rather than requiring a service token.
+The Knock MCP server is a remote server—no local installation or Node.js setup is required. You connect to `https://mcp.knock.app/mcp` directly from your MCP client. Interactive clients authenticate with your Knock account via OAuth. For CI and other headless environments, you can authenticate with a [service token](#authenticate-with-a-service-token).
 
 We've added setup instructions below for Claude, Claude Code, and Cursor, but the same instructions apply to any other MCP client-compatible application.
 
@@ -57,9 +57,42 @@ claude mcp add --transport http knock https://mcp.knock.app/mcp
 
 4. When Cursor prompts you to authenticate, sign in with your Knock account.
 
+## Authenticate with a service token
+
+For environments that cannot complete a browser OAuth flow, such as CI pipelines or unattended agents, pass a Knock [service token](/developer-tools/service-tokens) (`knock_st_…`) as a bearer credential. MCP clients that set an `Authorization` header skip OAuth.
+
+This is token passthrough: the same Management API credential authenticates the MCP session and outbound Knock calls. Prefer OAuth for interactive use. Treat the service token as a secret.
+
+Generate a service token from the dashboard under **Settings > Service tokens**, then add it to your MCP client config:
+
+```json title="mcp.json"
+{
+  "mcpServers": {
+    "knock": {
+      "url": "https://mcp.knock.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${KNOCK_SERVICE_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+Replace `${KNOCK_SERVICE_TOKEN}` with your token, or keep the environment variable if your client interpolates it.
+
+Service-token sessions skip the consent screen and enable all MCP capabilities. Restrict access with the service token rather than MCP capability checkboxes.
+
+<Callout
+  type="info"
+  title="OAuth remains the default for interactive clients."
+  text="Claude, Cursor, and other GUI clients should keep using the OAuth sign-in flow. Service token authentication is a compatibility path for headless environments, not MCP-conformant OAuth."
+/>
+
 ## Capabilities
 
-When connecting to the Knock MCP server, you can choose exactly which capabilities to enable. The MCP server exposes a curated subset of Knock functionality — focused on reading and managing resources, running the Knock agent, inspecting environments, and searching documentation. Limiting the active capabilities to only what you need keeps the tool list manageable and reduces the risk of unintended changes.
+When connecting to the Knock MCP server with OAuth, you can choose exactly which capabilities to enable. The MCP server exposes a curated subset of Knock functionality — focused on reading and managing resources, running the Knock agent, inspecting environments, and searching documentation. Limiting the active capabilities to only what you need keeps the tool list manageable and reduces the risk of unintended changes.
+
+When you authenticate with a [service token](#authenticate-with-a-service-token), the consent screen is skipped and all capabilities are enabled.
 
 | Capability           | Description                                                                                 | Enabled by default |
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------ |
@@ -121,6 +154,7 @@ See the [skills page](/ai/skills) for the full catalog of available skills and w
 - [Knock agent](/ai/agent)
 - [CLI](/ai/cli)
 - [Skills](/ai/skills)
+- [Service tokens](/developer-tools/service-tokens)
 - [Building with LLMs](/developer-tools/building-with-llms)
 - [Knock Agent Toolkit](/developer-tools/agent-toolkit/overview)
 
@@ -131,7 +165,8 @@ See the [skills page](/ai/skills) for the full catalog of available skills and w
     Some MCP clients will warn you about having more than 50 tools. To address
     this, enable only the capabilities you need for the task at hand. For
     example, if you're only managing user data, enable the **Manage data**
-    capability and leave the others disabled.
+    capability and leave the others disabled. Service-token sessions enable all
+    capabilities, so you may see this warning in headless clients.
   </Accordion>
   <Accordion title="Why do I receive an error in Cursor when I try to use one of the available MCP tools?">
     If you see an error like _"The model returned an error. Try disabling MCP
@@ -140,9 +175,9 @@ See the [skills page](/ai/skills) for the full catalog of available skills and w
     `claude-sonnet-4` rather than relying on automatic model selection.
   </Accordion>
   <Accordion title="Can I use a service token instead of signing in with my account?">
-    The remote MCP server at `mcp.knock.app/mcp` uses OAuth-based authentication
-    and requires signing in with your Knock account. If you need service
-    token-based authentication for a self-hosted or CI environment, please
-    contact us.
+    Yes. For CI and other headless environments, pass a service token as a
+    bearer credential in your MCP client config. See [authenticate with a
+    service token](#authenticate-with-a-service-token). Interactive clients
+    should keep using OAuth.
   </Accordion>
 </AccordionGroup>
