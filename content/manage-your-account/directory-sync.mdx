@@ -1,7 +1,7 @@
 ---
 title: Directory sync (SCIM)
 description: How to configure directory sync on your account to automate the management of users and their permissions from your identity management platform to Knock.
-tags: ["authentication", "directory sync", "SCIM", "ULM"]
+tags: ["authentication", "directory sync", "SCIM", "ULM", "permission groups"]
 section: Manage your account
 ---
 
@@ -25,7 +25,7 @@ Directory sync allows you to automatically provision users and manage their perm
 
 Once configured, it enables automated syncing of user identity information from identity providers to Knock using SCIM (System for Cross-domain Identity Management), an open standard for managing automated user and group provisioning.
 
-Any users that are assigned in the Knock application in your identity provider will be created in Knock (or vice versa), with their roles and permissions automatically configured based on their group memberships (see the default group to [role mapping](/manage-your-account/directory-sync#group-to-role-mapping) for more details).
+Any users that are assigned in the Knock application in your identity provider will be created in Knock (or vice versa), with their roles and permissions automatically configured based on their group memberships. Group memberships can map to built-in roles or to [custom permission groups](/manage-your-account/roles-and-permissions#custom-permission-groups). See the default group to [role mapping](/manage-your-account/directory-sync#group-to-role-mapping) for more details.
 
 ## Directory sync configuration
 
@@ -45,9 +45,13 @@ Once the setup is complete and user data starts syncing from your identity provi
 
 ## Group-to-role mapping
 
-You can optionally supply a set of group-to-role mappings for your organization. For instance, you might want to always map the "Team Admins" group to the `admin` role within Knock. You must supply this mapping to the Knock support team to set on your account as there is currently no way to self-service this information.
+You can optionally supply a set of group mappings for your organization. For instance, you might map the "Team Admins" group to the `admin` role, or the "Engineering" group to a [custom permission group](/manage-your-account/roles-and-permissions#custom-permission-groups) with the key `engineering`. You must supply this mapping to the Knock support team to set on your account as there is currently no way to self-service this information.
 
-In the case where you want to force a group to a particular role within your IDP, you can use the following group names to automatically allocate the roles to users in that group.
+Mapping values must be a built-in role (`owner`, `admin`, `member`, `production_only_member`, `billing`, `support`) or a custom permission group key. Use the role or key itself (`admin`, `engineering`), not a `knock-role-` prefixed value. Knock's default `knock-role-{key}` group names always apply and cannot be overridden by a custom mapping.
+
+### Built-in role groups
+
+To assign a built-in role from your identity provider, use the following group names. Knock automatically allocates the matching role to users in that group.
 
 | Group name                        | Role                   |
 | --------------------------------- | ---------------------- |
@@ -58,13 +62,29 @@ In the case where you want to force a group to a particular role within your IDP
 | knock-role-billing                | billing                |
 | knock-role-support                | support                |
 
+### Custom permission groups
+
+If your account uses [custom permission groups](/manage-your-account/roles-and-permissions#custom-permission-groups), directory sync can assign those groups as well.
+
+Create a group in your identity provider named `knock-role-{key}`, where `{key}` is the permission group's key. For example, a group named `knock-role-engineering` maps to a custom permission group with the key `engineering`.
+
+You can also include a custom permission group key in the custom mapping you send to Knock support. For example, mapping `"Engineering"` to `"engineering"` assigns that custom permission group to every member of the Engineering identity provider group.
+
+Built-in role names always take precedence over a custom permission group with the same key. Avoid using a permission group key that matches a built-in role (`owner`, `admin`, `member`, `production_only_member`, `billing`, `support`). If you create a custom group whose key is `admin`, `knock-role-admin` still maps to the built-in admin role.
+
+Missing or archived custom permission groups are ignored at sync time. If no live custom group remains, Knock falls back to the highest-privilege mapped built-in role, or to the support role if none is mapped.
+
 ## How Knock assigns roles
 
-If a user does not belong to any group, Knock will assign the **support** role to the user. If a user belongs to more than one of these groups, then Knock will assign the **highest privileged role available** to that user. See [roles and permissions](/manage-your-account/roles-and-permissions) for more details.
+Knock resolves each user's assignment from their identity provider group memberships:
+
+1. **Custom permission groups.** If any membership maps to a live custom permission group, Knock assigns the **Custom** role and the union of those groups. This takes precedence over the owner and admin roles. A member cannot have both a built-in role and custom permission groups.
+2. **Highest-privilege built-in role.** If no live custom permission group matches, Knock assigns the highest-privilege mapped built-in role. See [roles and permissions](/manage-your-account/roles-and-permissions) for more details.
+3. **No mapped group.** If a user does not belong to any mapped group, Knock assigns the **support** role.
 
 ## Preventing account lockout
 
-Because Knock uses your identity provider as the source of truth, role changes coming from your IdP are applied even when they would remove or demote your last account owner. As a result, it's possible to end up with an account that has no owner — for example, if the only user mapped to the `owner` role is removed from your directory (or from the `knock-role-owner` group).
+Because Knock uses your identity provider as the source of truth, role changes coming from your identity provider are applied even when they would remove or demote your last account owner. As a result, it's possible to end up with an account that has no owner — for example, if the only user mapped to the `owner` role is removed from your directory (or from the `knock-role-owner` group).
 
 <Callout
   type="warning"
@@ -74,12 +94,29 @@ Because Knock uses your identity provider as the source of truth, role changes c
       To avoid losing owner access, make sure at least one person is always
       mapped to the <code>owner</code> role — via the{" "}
       <code>knock-role-owner</code> group or your custom group-to-role mapping —
-      and is not removed from your identity provider. If owner access is lost,
-      re-add a user to the owner-granting group from your IdP to restore it, or
-      contact the <a href="mailto:support@knock.app">Knock support team</a>.
+      and is not removed from your identity provider. If a live custom
+      permission group mapping also matches that user, the custom assignment
+      wins and re-adding <code>knock-role-owner</code> does not restore owner
+      access. See{" "}
+      <a href="#custom-permission-groups-and-owner-access">
+        custom permission groups and owner access
+      </a>{" "}
+      for how to recover, or contact the{" "}
+      <a href="mailto:support@knock.app">Knock support team</a>.
     </>
   }
 />
+
+### Custom permission groups and owner access
+
+If a user belongs to both an owner-granting group and a group that maps to a live custom permission group, the custom assignment wins. Re-adding the user to `knock-role-owner` does not restore the owner role while that custom mapping still matches.
+
+To restore the owner role, do one of the following:
+
+- **Remove the custom group memberships.** Remove the user from the identity provider groups that map to custom permission groups.
+- **Archive the permission group.** Archive the custom permission group in Knock so Knock ignores it at sync time.
+
+Then keep the user in `knock-role-owner` or in a group that your custom mapping assigns to `owner`.
 
 ## Frequently asked questions
 
@@ -94,7 +131,10 @@ Because Knock uses your identity provider as the source of truth, role changes c
     If directory sync connection becomes disabled, all users and roles will be left in the state at the time of disconnection and stop syncing from your identity provider.
   </Accordion>
   <Accordion title="Can I use a custom group to role mapping for assigning roles in Knock?" anchorSlug="faq-custom-group-to-role-mapping">
-    Yes, please contact the [Knock support team](mailto:support@knock.app) to configure a custom mapping. Note, however, you cannot override Knock's default role mapping.
+    Yes, please contact the [Knock support team](mailto:support@knock.app) to configure a custom mapping. Values can be a built-in role or a custom permission group key. You cannot override Knock's default `knock-role-{key}` mapping.
+  </Accordion>
+  <Accordion title="Can directory sync assign custom permission groups?" anchorSlug="faq-directory-sync-custom-permission-groups">
+    Yes. Use a group named `knock-role-{key}` in your identity provider, where `{key}` matches the custom permission group's key, or include that key in the custom mapping you send to Knock support. If any membership maps to a live custom permission group, Knock assigns the Custom role and the union of those groups. This takes precedence over the owner and admin roles. Custom permission groups are available on the [Enterprise plan](/manage-your-account/knock-plans). Learn more in [custom permission groups](/manage-your-account/roles-and-permissions#custom-permission-groups).
   </Accordion>
   <Accordion title="Can I continue to invite users to Knock from the Knock dashboard once directory sync is enabled?" anchorSlug="faq-dashboard-invites-with-directory-sync">
     Yes, you can still invite users to Knock from the Knock dashboard, but keep in mind that users created via directory sync will take precedence. This means if you invite a user who is managed via directory sync, the user's role will be updated to reflect the state of your identity provider. Once you enable directory sync, Knock uses your identity provider as the source-of-truth for any users synced via SCIM. 

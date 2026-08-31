@@ -51,6 +51,8 @@ For a complete overview of which permissions are available to which built-in rol
 
 Custom permission groups enable you to define your own roles with specific capabilities. Create and manage them under <a href="https://dashboard.knock.app/~/settings/permissions" target="_blank">**Settings** > **Permissions**</a>.
 
+When you create a permission group, you set a unique **key** (lowercase letters, numbers, underscores, and hyphens). The key cannot be changed after creation. [Directory sync](/manage-your-account/directory-sync#custom-permission-groups) uses this key to map identity provider groups to the permission group.
+
 ### Capabilities
 
 When you create a permission group, you choose which capabilities members in that group receive. Capabilities fall into two scopes:
@@ -89,13 +91,16 @@ If customer data obfuscation has been enabled at the environment level, that set
 
 ### Assigning permission groups
 
-You assign custom permission groups when you [invite a member](/manage-your-account/managing-members) or change their role. You can also add members from a permission group's detail page.
+You assign custom permission groups when you [invite a member](/manage-your-account/managing-members) or change their role. You can also add members from a permission group's detail page, or assign groups through [directory sync](/manage-your-account/directory-sync#custom-permission-groups).
 
 - Choose either a built-in role **or** one or more custom permission groups. You cannot combine a built-in role with custom groups on the same member.
 - When you assign custom groups, the member's role becomes **Custom**. Their effective permissions are the union of every assigned group.
 - An environment is accessible to a custom member if any of their assigned groups grants access to it.
+- When [directory sync](/manage-your-account/directory-sync) is enabled, Knock uses your identity provider as the source of truth for synced users. If a synced user belongs to any group that maps to a live custom permission group, that custom assignment replaces their built-in role, including owner and admin.
 
 Archiving a custom permission group removes its grants from any members who had it assigned. If that was their only group, they keep the Custom role and have no permissions until you assign another group or a built-in role. Knock does not fall back to the support role.
+
+For directory-synced users, Knock recomputes the assignment when you archive a mapped group. Those users fall back to their highest-privilege mapped built-in role, or to support if none is mapped.
 
 ## Roles and permissions lookup table
 
