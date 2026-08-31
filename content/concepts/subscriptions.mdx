@@ -22,7 +22,7 @@ Any Object within Knock can be subscribed to by one or more recipients, and the 
 2. Subscribe one or more recipients to the object by creating a subscription between the recipient and the object
 3. Trigger a workflow for the object
 
-On step #3, Knock will handle the fan out of the workflow trigger **to all recipients that are subscribers**, automatically enqueuing a workflow run for the recipient on your behalf.
+On step #3, Knock will handle the fan-out of the workflow trigger **to the object itself and to all subscribed recipients**, automatically enqueuing a workflow run for each on your behalf.
 
 ## Integrating subscriptions
 
@@ -77,11 +77,11 @@ await knock.objects.deleteSubscriptions("project_alerts", "project-1", {
 });
 ```
 
-### Triggering a workflow for all subscribers of an object
+### Triggering a workflow for object subscribers
 
-By default when you trigger a workflow for an object that has subscriptions attached Knock will fan out to all subscribers and enqueue a new workflow run for that recipient, with the information passed into the workflow trigger.
+By default when you trigger a workflow for an object that has subscriptions attached Knock will enqueue a new workflow run for the object itself **and** fan out to all of its subscribers, enqueuing a workflow run for each of them.
 
-```javascript title="Triggering a workflow for all subscribers of an object"
+```javascript title="Triggering a workflow for an object and its subscribers"
 await knock.workflows.trigger("alert-workflow", {
   recipients: [{ collection: "project_alerts", id: "project-1" }],
   data: {
@@ -211,9 +211,16 @@ Once you've established a nested hierarchy like the above, it's also possible to
     "Workflow runs" page.
   </Accordion>
   <Accordion title="Can I notify both the object AND the subscribers of the object?">
-    Yes, by default when you trigger a workflow for an object that has
-    subscriptions attached Knock will generate a workflow run for the object
-    itself AND all of the attached subscribers.
+    Yes. When you trigger a workflow for an object that has subscriptions
+    attached Knock will generate a workflow run for the object itself and for
+    all of the attached subscribers. See [object
+    subscribers](/concepts/objects#object-subscribers) for more details.
+  </Accordion>
+  <Accordion title="Can I skip the workflow run generated for the object itself?">
+    Yes. Add a [step condition](/designing-workflows/step-conditions) to
+    conditionally execute steps based on recipient type, or contact
+    [support](mailto:support@knock.app) to discuss disabling object runs across
+    your account.
   </Accordion>
   <Accordion title="Can I notify a recipient each time they appear within an object subscription tree?">
     No, currently Knock [deduplicates all recipients](#deduplication-by-default)
