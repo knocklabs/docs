@@ -42,219 +42,209 @@ The Knock template editor uses Liquid syntax for control flow and variable decla
 
 ## Knock-specific Liquid helpers
 
+Knock extends Liquid with helpers that format, transform, and evaluate data when rendering notification templates.
+
+### Date and time
+
+<AccordionGroup>
+  <Accordion title="`timezone`">
+    Takes an ISO 8601 timestamp and returns it in the [IANA tz database timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) provided. You can use the built-in `timestamp` [template variable](/template-editor/variables) to reference the current datetime. When formatting with the `date` filter, we recommend using the `timezone` option on the `date` filter instead.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ timestamp \| timezone: "America/New_York"}}` | 2023-12-31T19:30:00-05:00 |
+
+  </Accordion>
+  <Accordion title="`date`">
+    This filter has been extended to take an additional `timezone` option. It accepts strftime-style format strings, but Knock's Liquid implementation does not support the full strftime specification. Notably, `%e` and `%l` are not fully supported.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ startDate \| date: "%-I:%M %p %Z" , "America/New_York" }}` | 2:30 PM EST |
+
+  </Accordion>
+  <Accordion title="`format_date_in_locale`">
+    Converts an ISO 8601 timestamp to a localized date string. Requires a [`locale`](#localization-parameters) parameter and accepts an optional `date_format`: `"short"` (default), `"medium"`, `"long"`, or `"full"`. See the [date format options](#date-format-options) table below for examples.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ timestamp \| format_date_in_locale: "en-GB", "long" }}` | 31 December 2023 |
+
+  </Accordion>
+  <Accordion title="`format_datetime_in_locale`">
+    Converts an ISO 8601 timestamp to a localized date and time string. Requires [`locale`](#localization-parameters), `date_format`, and `time_format` parameters. Date and time formats can be: `"short"` (default), `"medium"`, `"long"`, or `"full"`. See the [date format options](#date-format-options) and [time format options](#time-format-options) tables below for examples.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ timestamp \| format_datetime_in_locale: "en-GB", "medium", "short" }}` | 31 Dec 2023, 14:30 |
+
+  </Accordion>
+</AccordionGroup>
+
+### Numbers and currency
+
+<AccordionGroup>
+  <Accordion title="`format_number`">
+    Takes an integer and formats it to the local number format of the provided [`locale`](#localization-parameters).
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ 10000 \| format_number: "en" }}` | 10,000 |
+
+  </Accordion>
+  <Accordion title="`currency`">
+    Takes an integer and returns a USD formatted value with two decimal points. You can pass a currency type and a [`locale`](#localization-parameters) through to the currency helper to tell it which currency to use.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ 10 \| currency: "GBP", "en" }}` | £10.00 |
+
+  </Accordion>
+  <Accordion title="`rounded_currency`">
+    Takes an integer and returns a USD formatted value rounded to nearest whole number. You can pass a currency type and a [`locale`](#localization-parameters) through to the currency helper to tell it which currency to use.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ 10.99 \| rounded_currency: "GBP", "en" }}` | £11 |
+
+  </Accordion>
+</AccordionGroup>
+
+### Text and data
+
+<AccordionGroup>
+  <Accordion title="`json`">
+    Takes a value and returns as a formatted JSON string.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ recipient \| json }}` | `{"id": "user_123", "name": "John Hammond"}` |
+
+  </Accordion>
+  <Accordion title="`from_json`">
+    Takes a JSON string and returns a parsed object whose properties can be referenced via their keys.
+
+    | Example |
+    | --- |
+    | `{% assign recipient = input \| from_json %}` |
+
+  </Accordion>
+  <Accordion title="`pluralize`">
+    Takes an integer and a pluralize helper with two strings. If the integer is one, the helper returns the first string. If the helper is greater than one, it returns the second string.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ total_actors \| pluralize: "user", "users" }}` | users |
+
+  </Accordion>
+  <Accordion title="`titlecase`">
+    Takes a string and reformats it into Title case.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ project_name \| titlecase }}` | My Project Name |
+
+  </Accordion>
+  <Accordion title="`from_markdown`">
+    Takes a string of markdown and converts it to HTML.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ data.comment_body \| from_markdown }}` | `<h1>Hello</h1>` |
+
+  </Accordion>
+   <Accordion title="`intersect`">
+    Returns the intersection of two arrays (the elements common to both).
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ arr1 \| intersect: arr2 }}` | `["Acme Corp", "InGen"]` |
+
+  </Accordion>
+  <Accordion title="`compare_versions`">
+    For a given [semantic version](https://semver.org/) string, compares it to a second version string provided as an argument. Returns an integer indicating the order of the versions; `-1` if the first version is less than the second, `0` if they are equal, and `1` if the first version is greater than the second.
+
+    | Example | Output |
+    | --- | --- |
+    | `{{ "1.0.0" \| compare_versions: "2.0.0" }}` | `-1` |
+
+  </Accordion>
+</AccordionGroup>
+
+### Hashing
+
+<AccordionGroup>
+  <Accordion title="`md5`">
+    Takes a string and returns an md5 hash.
+
+    | Example |
+    | --- |
+    | `{{ recipient.id \| md5 }}` |
+
+  </Accordion>
+  <Accordion title="`sha256`">
+    Takes a string and returns an sha256 hash.
+
+    | Example |
+    | --- |
+    | `{{ recipient.id \| sha256 }}` |
+
+  </Accordion>
+  <Accordion title="`hmac_sha256`">
+    Takes a string and returns an hmac hash given a key provided to `hmac_sha256` helper.
+
+    | Example |
+    | --- |
+    | `{{ recipient.id \| hmac_sha256: "some-key" }}` |
+
+  </Accordion>
+</AccordionGroup>
+
+### Localization and formatting
+
+#### Date format options
+
+The `format_date_in_locale` and `format_datetime_in_locale` helpers accept date format options that control how the date portion is displayed.
+
 <Table
-  headers={["Helper", "Description", "Example", "Output"]}
-  codeColumns={[0, 2]}
-  codeCells={[[15, 3]]}
+  headers={["Value", "Description", "Example (en-US)", "Example (en-GB)"]}
   rows={[
+    ["short", "Abbreviated date format.", "12/31/23", "31/12/2023"],
+    ["medium", "Standard date format.", "Dec 31, 2023", "31 Dec 2023"],
+    ["long", "Full date format.", "December 31, 2023", "31 December 2023"],
     [
-      "timezone",
-      <div key="timezone_description">
-        Takes an ISO 8601 timestamp and returns it in the{" "}
-        <a
-          href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            color: "var(--tgph-accent-11)",
-            textDecoration: "underline",
-          }}
-        >
-          IANA tz database timezone
-        </a>{" "}
-        provided. You can use the built-in <code>timestamp</code>{" "}
-        <a
-          href="/template-editor/variables"
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            color: "var(--tgph-accent-11)",
-            textDecoration: "underline",
-          }}
-        >
-          template variable
-        </a>{" "}
-        to reference the current datetime. When formatting with the{" "}
-        <code>date</code> filter, we recommend using the <code>timezone</code>
-        option on the <code>date</code> filter instead.
-      </div>,
-      '{{ timestamp | timezone: "America/New_York"}}',
-      "2023-12-31T19:30:00-05:00",
-    ],
-    [
-      "date",
-      <div key="date_description">
-        This filter has been extended to take an additional{" "}
-        <code>timezone</code> option. It accepts strftime-style format strings,
-        but Knock's Liquid implementation does not support the full strftime
-        specification. Notably, <code>%e</code> and <code>%l</code> are not
-        fully supported.
-      </div>,
-      '{{ startDate | date: "%-I:%M %p %Z" , "America/New_York" }}',
-      "2:30 PM EST",
-    ],
-    [
-      "format_date_in_locale",
-      <div key="format_date_in_locale_description">
-        Converts an ISO 8601 timestamp to a localized date string. Requires a
-        <code>locale</code> parameter and accepts an optional{" "}
-        <code>date_format</code>: <code>"short"</code>
-        (default), <code>"medium"</code>, <code>"long"</code>, or <code>
-          "full"
-        </code>. See the <a
-          href="#date-format-options"
-          style={{
-            color: "var(--tgph-accent-11)",
-            textDecoration: "underline",
-          }}
-        >
-          date format options
-        </a> table below for examples.
-      </div>,
-      '{{ timestamp | format_date_in_locale: "en-GB", "long" }}',
-      "31 December 2023",
-    ],
-    [
-      "format_datetime_in_locale",
-      <div key="format_datetime_in_locale_description">
-        Converts an ISO 8601 timestamp to a localized date and time string.
-        Requires <code>locale</code>, <code>date_format</code>, and{" "}
-        <code>time_format</code> parameters. Date and time formats can be:{" "}
-        <code>"short"</code> (default), <code>"medium"</code>,{" "}
-        <code>"long"</code>, or
-        <code>"full"</code>. See the <a
-          href="#date-format-options"
-          style={{
-            color: "var(--tgph-accent-11)",
-            textDecoration: "underline",
-          }}
-        >
-          date format options
-        </a> and <a
-          href="#time-format-options"
-          style={{
-            color: "var(--tgph-accent-11)",
-            textDecoration: "underline",
-          }}
-        >
-          time format options
-        </a> tables below for examples.
-      </div>,
-      '{{ timestamp | format_datetime_in_locale: "en-GB", "medium", "short" }}',
-      "31 Dec 2023, 14:30",
-    ],
-    [
-      "format_number",
-      <div key="format_number_description">
-        Takes an integer and formats it to the local number format of the
-        provided <code>locale</code>.
-      </div>,
-      '{{ 10000 | format_number: "en" }}',
-      "10,000",
-    ],
-    [
-      "currency",
-      <div key="currency_description">
-        Takes an integer and returns a USD formatted value with two decimal
-        points. You can pass a currency type and a <code>locale</code> through
-        to the currency helper to tell it which currency to use.
-      </div>,
-      '{{ 10 | currency: "GBP", "en" }}',
-      "£10.00",
-    ],
-    [
-      "rounded_currency",
-      <div key="rounded_currency_description">
-        Takes an integer and returns a USD formatted value rounded to nearest
-        whole number. You can pass a currency type and a <code>locale</code>{" "}
-        through to the currency helper to tell it which currency to use.
-      </div>,
-      '{{ 10.99 | rounded_currency: "GBP", "en" }}',
-      "£11",
-    ],
-    [
-      "json",
-      "Takes a value and returns as a formatted JSON string.",
-      "{{ recipient | json }}",
-      '{"id": "user_123", "name": "John Hammond"}',
-    ],
-    [
-      "from_json",
-      "Takes a JSON string and returns a parsed object whose properties can be referenced via their keys.",
-      "{% assign recipient = input | from_json %}",
-      "-",
-    ],
-    [
-      "pluralize",
-      "Takes an integer and a pluralize helper with two strings. If the integer is one, the helper returns the first string. If the helper is greater than one, it returns the second string.",
-      '{{ total_actors | pluralize: "user", "users" }}',
-      "users",
-    ],
-    [
-      "titlecase",
-      "Takes a string and reformats it into Title case.",
-      "{{ project_name | titlecase }}",
-      "My Project Name",
-    ],
-    [
-      "md5",
-      "Takes a string and returns an md5 hash.",
-      "{{ recipient.id | md5 }}",
-      "-",
-    ],
-    [
-      "sha256",
-      "Takes a string and returns an sha256 hash.",
-      "{{ recipient.id | sha256 }}",
-      "-",
-    ],
-    [
-      "hmac_sha256",
-      <div key="hmac_sha256_description">
-        Takes a string and returns an hmac hash given a key provided to{" "}
-        <code>hmac_sha256</code> helper.
-      </div>,
-      '{{ recipient.id | hmac_sha256: "some-key" }}',
-      "-",
-    ],
-    [
-      "intersect",
-      "Returns the intersection of two arrays (the elements common to both).",
-      "{{ arr1 | intersect: arr2 }}",
-      '["Acme Corp", "InGen"]',
-    ],
-    [
-      "from_markdown",
-      "Takes a string of markdown and converts it to HTML.",
-      "{{ data.comment_body | from_markdown }}",
-      "<h1>Hello</h1>",
-    ],
-    [
-      "compare_versions",
-      <div key="compare_versions_description">
-        For a given{" "}
-        <a
-          href="https://semver.org/"
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            color: "var(--tgph-accent-11)",
-            textDecoration: "underline",
-          }}
-        >
-          semantic version
-        </a>{" "}
-        string, compares it to a second version string provided as an argument.
-        Returns an integer indicating the order of the versions; <code>-1</code>{" "}
-        if the first version is less than the second, <code>0</code> if they are
-        equal, and <code>1</code> if the first version is greater than the
-        second.
-      </div>,
-      '{{ "1.0.0" | compare_versions: "2.0.0" }}',
-      "-1",
+      "full",
+      "Complete date format.",
+      "Sunday, December 31, 2023",
+      "Sunday, 31 December 2023",
     ],
   ]}
 />
+
+#### Time format options
+
+The `format_datetime_in_locale` helper accepts time format options that control how the time portion is displayed.
+
+<Table
+  headers={["Value", "Description", "Example (en-US)", "Example (en-GB)"]}
+  rows={[
+    ["short", "Abbreviated time format.", "2:30 PM", "14:30"],
+    ["medium", "Standard time format.", "2:30:45 PM", "14:30:45"],
+    ["long", "Full time format.", "2:30:45 PM EST", "14:30:45 GMT"],
+    [
+      "full",
+      "Complete time format.",
+      "2:30:45 PM Eastern Standard Time",
+      "14:30:45 Greenwich Mean Time",
+    ],
+  ]}
+/>
+
+#### Localization parameters
+
+The `format_date_in_locale`, `format_datetime_in_locale`, `format_number`, `currency`, and `rounded_currency` helpers take an optional locale parameter to format the output into a localized format. If we're missing a locale that you'd like us to support, please [reach out](mailto:support@knock.app).
+
+**Supported locales.** `af`, `ar`, `az`, `be`, `bg`, `bn`, `bs`, `ca`, `cs`, `cy`, `da`, `de`, `de-DE`, `el`, `en`, `en-US`, `en-GB`, `eo`, `es`, `es-419`, `et`, `eu`, `fa`, `fi`, `fr`, `fr-CA`, `fr-FR`, `gl`, `he`, `hi`, `hr`, `hu`, `id`, `is`, `it`, `ja`, `ja-JP`, `ka`, `km`, `kn`, `ko`, `lb`, `lo`, `lt`, `lv`, `mk`, `ml`, `mn`, `mr`, `ms`, `nb`, `ne`, `nl`, `nn`, `no`, `or`, `pa`, `pl`, `pl-PL`, `pt`, `pt-BR`, `rm`, `ro`, `ru`, `sk`, `sl`, `sq`, `sr`, `sv`, `sw`, `ta`, `te`, `th`, `tr`, `tt`, `ug`, `uk`, `ur`, `uz`, `vi`, `wo`, `zh`, `zh-CN`, `zh-Hans`, `zh-Hant`
 
 ## Dynamic data filters
 
@@ -286,47 +276,3 @@ Knock provides a set of Liquid filters that dynamically load data from your Knoc
     ],
   ]}
 />
-
-### Date format options
-
-The `format_date_in_locale` and `format_datetime_in_locale` helpers accept date format options that control how the date portion is displayed:
-
-<Table
-  headers={["Value", "Description", "Example (en-US)", "Example (en-GB)"]}
-  rows={[
-    ["short", "Abbreviated date format.", "12/31/23", "31/12/2023"],
-    ["medium", "Standard date format.", "Dec 31, 2023", "31 Dec 2023"],
-    ["long", "Full date format.", "December 31, 2023", "31 December 2023"],
-    [
-      "full",
-      "Complete date format.",
-      "Sunday, December 31, 2023",
-      "Sunday, 31 December 2023",
-    ],
-  ]}
-/>
-
-### Time format options
-
-The `format_datetime_in_locale` helper accepts time format options that control how the time portion is displayed:
-
-<Table
-  headers={["Value", "Description", "Example (en-US)", "Example (en-GB)"]}
-  rows={[
-    ["short", "Abbreviated time format.", "2:30 PM", "14:30"],
-    ["medium", "Standard time format.", "2:30:45 PM", "14:30:45"],
-    ["long", "Full time format.", "2:30:45 PM EST", "14:30:45 GMT"],
-    [
-      "full",
-      "Complete time format.",
-      "2:30:45 PM Eastern Standard Time",
-      "14:30:45 Greenwich Mean Time",
-    ],
-  ]}
-/>
-
-### Localization parameters
-
-A few of Knock's Liquid helpers (such as `format_date_in_locale`, `format_datetime_in_locale`, `format_number`, `currency`, and `rounded_currency`) take an optional locale parameter to format the output of the helper into a localized format. You can find a list of supported locales below. If we're missing a locale that you'd like us to support, please [reach out](mailto:support@knock.app).
-
-**Supported locales:** `af`, `ar`, `az`, `be`, `bg`, `bn`, `bs`, `ca`, `cs`, `cy`, `da`, `de`, `de-DE`, `el`, `en`, `en-US`, `en-GB`, `eo`, `es`, `es-419`, `et`, `eu`, `fa`, `fi`, `fr`, `fr-CA`, `fr-FR`, `gl`, `he`, `hi`, `hr`, `hu`, `id`, `is`, `it`, `ja`, `ja-JP`, `ka`, `km`, `kn`, `ko`, `lb`, `lo`, `lt`, `lv`, `mk`, `ml`, `mn`, `mr`, `ms`, `nb`, `ne`, `nl`, `nn`, `no`, `or`, `pa`, `pl`, `pl-PL`, `pt`, `pt-BR`, `rm`, `ro`, `ru`, `sk`, `sl`, `sq`, `sr`, `sv`, `sw`, `ta`, `te`, `th`, `tr`, `tt`, `ug`, `uk`, `ur`, `uz`, `vi`, `wo`, `zh`, `zh-CN`, `zh-Hans`, `zh-Hant`
