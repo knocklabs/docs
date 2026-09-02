@@ -105,7 +105,7 @@ A dynamic window must be available to be resolved via the `key` you specify on t
 When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the batch will be **skipped**.
 
 <AccordionGroup>
-  <Accordion title="Using a fixed timestamp">
+  <Accordion title="Using a fixed timestamp" anchorSlug="using-a-fixed-timestamp">
     A fixed timestamp will tell Knock to close the batch window at the exact date time you provide. It must be a valid ISO-8601 timestamp in the future.
 
     #### An example timestamp
@@ -119,7 +119,7 @@ When the key specified is missing or resolves to an invalid value, a correspondi
     You can then reference that in your batch step settings as `data.batchUntil`.
 
   </Accordion>
-  <Accordion title="Using durations">
+  <Accordion title="Using durations" anchorSlug="using-durations">
     A duration will take the current time that the batch step is executing and add the duration to it to produce the batch window closing time. A duration object is an entity that you can set on recipients, tenants, environment variables, or in your data payload and reference on your batch window.
 
     #### Duration properties
@@ -146,7 +146,7 @@ When the key specified is missing or resolves to an invalid value, a correspondi
     You then reference that as `data.batchDuration` in the batch step configuration.
 
   </Accordion>
-  <Accordion title="Using window rules">
+  <Accordion title="Using window rules" anchorSlug="using-window-rules">
     A window rule determines when the next occurrence of the batch window should be executed. It allows you to express rules like "batch until Monday at 9am", or "keep the batch window open for 2 weeks until the next Friday."
 
     The window rule will always be evaluated in the [recipient's timezone](/concepts/recipients#recipient-timezones) (when set) and will fall back to the account default timezone, or "Etc/UTC".
@@ -421,7 +421,7 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="How do I set per-environment batch windows?">
+  <Accordion title="How do I set per-environment batch windows?" anchorSlug="faq-per-environment-batch-windows">
     Often when you're testing your Knock workflows, you'll want your batch windows to be shorter in non-production environments to aid with testing. To set per-environment batch windows you can:
 
     - Create a new variable on the **Variables** page under the **Account** section of your account settings with a relative duration as JSON (`{ "unit": "seconds", "value": 30 }`) and a name of `batchWindow`. You can set per-environment values to specify a shorter or longer window as needed
@@ -430,53 +430,53 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
     - Set the key to be `batchWindow`, which will resolve the batch window from the variable you created
 
   </Accordion>
-  <Accordion title="What happens to an open batch when I update the workflow?">
+  <Accordion title="What happens to an open batch when I update the workflow?" anchorSlug="faq-open-batch-workflow-update">
     If the batch step uses latest mode (the default for new steps), the open batch stays open. New triggers join it, and when the window closes the workflow continues on the latest published version.
 
     If the batch step uses pinned mode, committing a new workflow version opens a new batch. The original batch still closes on its own window and continues on the version that opened it.
 
   </Accordion>
-  <Accordion title="When should I use pinned workflow version mode?">
+  <Accordion title="When should I use pinned workflow version mode?" anchorSlug="faq-pinned-workflow-version-mode">
     Pinned mode is an advanced option. Use it only when you want a batch that is tied to a specific published workflow version, so later commits open a separate batch instead of joining an open batch.
 
     For digest and aggregation use cases, keep latest mode enabled.
 
   </Accordion>
-  <Accordion title="Can I close a batch early?">
+  <Accordion title="Can I close a batch early?" anchorSlug="faq-close-batch-early">
     Right now we don't offer a way to close a batch from a workflow trigger. One workaround is to use a [sliding batch window](/designing-workflows/batch-function#using-a-sliding-batch-window) and then set the max extension window to be a very small duration (i.e. 1 second), meaning that the batch will immediately close when a subsequent trigger occurs.
   </Accordion>
-  <Accordion title="How can items be removed from a batch?">
+  <Accordion title="How can items be removed from a batch?" anchorSlug="faq-removing-items-from-batch">
     You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to remove an item that has been accumulated into an active batch. If all items have been removed from the batch when its window closes, any channel steps proceeding will be skipped.
   </Accordion>
-  <Accordion title="How many items can a batch contain?">
+  <Accordion title="How many items can a batch contain?" anchorSlug="faq-batch-item-limit">
     A batch can support an unbounded number of items per recipient, although we will only ever return either the first 10 or last 10 items to be rendered in your template. On Enterprise plan, you can configure to include up to 100 via the [render limit setting](/designing-workflows/batch-function#setting-the-batch-render-limit-beyond-10).
   </Accordion>
-  <Accordion title="How many items can I reference in my templates from a batch?">
+  <Accordion title="How many items can I reference in my templates from a batch?" anchorSlug="faq-batch-items-in-templates">
     We will by default expose at most 10 activities to your template rendered in your batch (available under the `activities` variable). The `total_activities` will always include the total amount of bundled
     activities in the batch. On Enterprise plan, you can configure to include up to 100 via the [render limit setting](/designing-workflows/batch-function#setting-the-batch-render-limit-beyond-10).
   </Accordion>
-  <Accordion title="How can I change the order of the batch to retrieve the last 10 items instead of the first 10 items?">
+  <Accordion title="How can I change the order of the batch to retrieve the last 10 items instead of the first 10 items?" anchorSlug="faq-batch-item-order">
     You can use the "Batch order" setting on the batch step to set if you want the first 10 items (the default) or the last 10 items added to the batch.
   </Accordion>
-  <Accordion title="Once activities are batched, how can I access them?">
+  <Accordion title="Once activities are batched, how can I access them?" anchorSlug="faq-accessing-batched-activities">
     You can use the `activities` property in your template to access the items included in the batch. Each `activity` will include any `data` sent along with the workflow trigger that was batched.
   </Accordion>
-  <Accordion title="Can I use multiple batch steps in a single workflow?">
+  <Accordion title="Can I use multiple batch steps in a single workflow?" anchorSlug="faq-multiple-batch-steps-per-workflow">
     Yes, but keep the following in mind:
 
     - Batch steps should never be used in sequence. Because the workflow runs underlying individual `activities` are terminated when they are added to a batch, subsequent batch steps will only ever collect a single `activity` and will not serve a useful purpose.
     - While you can use multiple batch steps in parallel (for example, in separate workflow branches), events that take different branch paths can still be batched together unless each step is uniquely identified. The default behavior differs depending on your batch step's [workflow version mode](#setting-the-workflow-version-mode): in latest mode, Knock includes the batch step in the batch key, so parallel batch steps open separate batches. In pinned mode, the default key is `concat(recipient_id, workflow_version_id)`, which is not unique per batch step. To open separate batches for each parallel pinned batch step, configure a unique [batch key](#selecting-a-batch-key) for each step.
 
   </Accordion>
-  <Accordion title="Is batching the same as digesting notifications?">
+  <Accordion title="Is batching the same as digesting notifications?" anchorSlug="faq-batching-vs-digesting">
     Not exactly. The batch function is a powerful tool for aggregating multiple similar events into a single notification. However, you may find that its inherent characteristics (such as [render limits](#setting-the-batch-render-limit-beyond-10), needing to manage [cancellation](#using-workflow-cancellation-with-batches) of batched items that should no longer be included, etc.) mean that it isn't well-suited for powering regular daily or weekly digests that summarize a user's account activity, where notifications should always send at specific intervals and you need to have granular control over the events that are included in those messages. In those cases, referencing your system as the source of truth for the events that should be included in the digest at send time is often a better approach.
     
     See our tutorial on [powering recurring digests with Knock](/tutorials/building-recurring-digests) for more guidance on the pattern that we recommend. If you aren't sure about the best approach for your use case, please [reach out to our support team](mailto:support@knock.app?subject=Building%20recurring%20digests%20with%20Knock) and we'll be happy to help.
   </Accordion>
-  <Accordion title="Do you support per-recipient batch windows and timezones?">
+  <Accordion title="Do you support per-recipient batch windows and timezones?" anchorSlug="faq-per-recipient-batch-windows-timezones">
     No, this is not currently supported. If this is a blocker for your use case, please [get in touch with us](mailto:support@knock.app?subject=Per%20recipient%20batch%20windows).
   </Accordion>
-  <Accordion title="How can I query for messages or feed items that were generated from activities with given workflow trigger call data?">
+  <Accordion title="How can I query for messages or feed items that were generated from activities with given workflow trigger call data?" anchorSlug="faq-query-messages-by-trigger-data">
     When messages are generated from a batch step, the workflow trigger call data for the first (or last) 10 activities of the batch will be combined into one single entity at batch closing time.
     You will be able to filter messages or feed items using the `trigger_data` parameter of our API, which will filter the results to only the items whose workflow trigger call's data
     contain the given `trigger_data` value.
@@ -494,16 +494,16 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
     If we try to filter messages or feed items using the `trigger_data` filter with value`{page: "A"}`, the message in the example won't be returned.
 
   </Accordion>
-  <Accordion title="Can I dynamically extend the batch window?">
+  <Accordion title="Can I dynamically extend the batch window?" anchorSlug="faq-dynamic-batch-window-extension">
     Yes, if you use the [sliding batch window](#using-a-sliding-batch-window) option then the batch window can always be extended past its original setting. When combined with a dynamic batch window from a variable, this allows you to control exactly when a specific batch window should close.
   </Accordion>
-  <Accordion title="Can I close a batch window by the number of items in the batch?">
+  <Accordion title="Can I close a batch window by the number of items in the batch?" anchorSlug="faq-close-batch-by-item-count">
     Yes, you can optionally set the [maximum activity limit](#setting-the-maximum-activity-limit) to conditionally close the batch window based on the number of items contained in the batch.
   </Accordion>
-  <Accordion title="Why are some attachments missing from my batched email?">
+  <Accordion title="Why are some attachments missing from my batched email?" anchorSlug="faq-missing-attachments-batched-email">
     When a workflow includes a batch step, only the attachment(s) from the activity that opened the batch window are sent with subsquent email messages. Attachments from later `activities` in the batch are not included. To send a single email that includes an attachment for every batched `activity`, use a [fetch step](/designing-workflows/fetch-function) after your batch step to collect them. See [sending attachments with batched workflows](/integrations/email/attachments#sending-attachments-with-batched-workflows) for the full workaround.
   </Accordion>
-  <Accordion title="Is the order of my batch activities guaranteed?">
+  <Accordion title="Is the order of my batch activities guaranteed?" anchorSlug="faq-batch-activity-order">
     We cannot guarantee the order of requests made within quick succession (&lt; 2s) and the order they appear in the batch. If you need a guaranteed order, then you will need to enqueue requests with latency in your system.
   </Accordion>
 </AccordionGroup>

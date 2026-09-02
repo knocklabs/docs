@@ -277,6 +277,42 @@ Images should always use the `Image` component from `lib/mdxComponents.tsx`. The
 - Use `border={false}` to disable the default border (e.g. for logos or badges).
 - When wrapping an image in a `<figure>` tag, add `className="text-center"` to the `<figure>` for `mx-auto` centering to work (the Image wrapper uses `inline-block`).
 
+## Accordion anchor slugs
+
+Set an `anchorSlug` on accordions worth linking to directly. It becomes the element `id`, so the accordion opens and scrolls into view when the URL hash matches, and it renders the "copy link" affordance on the accordion header.
+
+Lean toward adding one. Readers and support link to individual panels often, and the affordance only renders when the slug is present, so a page where some accordions have one and others do not reads as broken rather than deliberate.
+
+- Use lowercase `a-z0-9` with words joined by hyphens. No leading, trailing, or doubled hyphens.
+- Use underscores only inside a code identifier reproduced verbatim from the title, such as `format_date_in_locale`.
+- Keep slugs to 50 characters or fewer.
+- Prefix accordions under a "Frequently asked questions" heading with `faq-`, then condense the question to a topic phrase rather than repeating it in full.
+- Prefix the `Settings`, `Overrides`, and `Conditions` accordions under a provider's "Channel configuration" heading with `configuration-`.
+- Prefix with a short token from the enclosing heading or `<Step>` title when a bare title would repeat on the page or match a heading id.
+- Keep each slug unique within its page, and never equal to a heading id or a `<Step>` id on that page.
+
+Skip it when the enclosing heading is the better link target. That covers accordions whose titles repeat across a page, and small groups presenting alternative routes to one outcome, where a reader wants the section rather than one branch. When you skip one, skip its siblings too so the group stays consistent.
+
+✅ Correct:
+
+```mdx
+<Accordion title="Settings" anchorSlug="configuration-settings">
+<Accordion title="`format_number`" anchorSlug="format_number">
+<Accordion title="How do I set per-environment batch windows?" anchorSlug="faq-per-environment-batch-windows">
+<Accordion title="Table definition example" anchorSlug="messages-table-definition-example">
+```
+
+❌ Incorrect:
+
+```mdx
+<Accordion title="Settings">
+<Accordion title="How do I set per-environment batch windows?" anchorSlug="faq-how-do-i-set-per-environment-batch-windows">
+<Accordion title="Supported locales" anchorSlug="supported-locales">
+<Accordion title="Settings" anchorSlug="Settings_Panel">
+```
+
+The first omits `anchorSlug` entirely. The second repeats the question instead of condensing it. The third matches the `## Supported locales` heading id on the same page. The fourth uses uppercase and an underscore that is not a code identifier.
+
 ## List formatting with bold introductory text
 
 When using lists with bold introductory text, use a period after the bold text instead of a colon.
