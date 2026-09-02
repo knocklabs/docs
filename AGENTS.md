@@ -279,7 +279,9 @@ Images should always use the `Image` component from `lib/mdxComponents.tsx`. The
 
 ## Accordion anchor slugs
 
-Every `<Accordion>` in `/content` should set an `anchorSlug`. It becomes the element `id`, so the accordion opens and scrolls into view when the URL hash matches, and it renders the "copy link" affordance on the accordion header.
+Set an `anchorSlug` on accordions worth linking to directly. It becomes the element `id`, so the accordion opens and scrolls into view when the URL hash matches, and it renders the "copy link" affordance on the accordion header.
+
+Lean toward adding one. Readers and support link to individual panels often, and the affordance only renders when the slug is present, so a page where some accordions have one and others do not reads as broken rather than deliberate.
 
 - Use lowercase `a-z0-9` with words joined by hyphens. No leading, trailing, or doubled hyphens.
 - Use underscores only inside a code identifier reproduced verbatim from the title, such as `format_date_in_locale`.
@@ -289,7 +291,7 @@ Every `<Accordion>` in `/content` should set an `anchorSlug`. It becomes the ele
 - Prefix with a short token from the enclosing heading or `<Step>` title when a bare title would repeat on the page or match a heading id.
 - Keep each slug unique within its page, and never equal to a heading id or a `<Step>` id on that page.
 
-Omit `anchorSlug` when the enclosing heading is the better link target. That applies to accordions whose titles repeat across a page, and to small groups presenting alternative routes to one outcome, where a reader wants the section rather than one branch.
+Skip it when the enclosing heading is the better link target. That covers accordions whose titles repeat across a page, and small groups presenting alternative routes to one outcome, where a reader wants the section rather than one branch. When you skip one, skip its siblings too so the group stays consistent.
 
 ✅ Correct:
 

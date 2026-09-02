@@ -244,7 +244,9 @@ When flagging incorrect Callout usage, use this format:
 
 ## Accordion anchorSlug validation
 
-Every `<Accordion>` in `/content` should set an `anchorSlug`. It becomes the element `id`, so the accordion opens and scrolls into view when the URL hash matches, and it renders the "copy link" affordance on the accordion header.
+Set an `anchorSlug` on accordions worth linking to directly. It becomes the element `id`, so the accordion opens and scrolls into view when the URL hash matches, and it renders the "copy link" affordance on the accordion header.
+
+Lean toward adding one. Readers and support link to individual panels often, and the affordance only renders when the slug is present, so a page where some accordions have one and others do not reads as broken rather than deliberate.
 
 ### Validation rules
 
@@ -255,11 +257,11 @@ Every `<Accordion>` in `/content` should set an `anchorSlug`. It becomes the ele
 5. The `Settings`, `Overrides`, and `Conditions` accordions under a provider's "Channel configuration" heading carry a `configuration-` prefix.
 6. The slug is unique within its page, and never equal to a heading id or a `<Step>` id on that page.
 
-An accordion may omit `anchorSlug` when the enclosing heading is the better link target, which covers titles that repeat across a page and small groups presenting alternative routes to one outcome.
+An accordion may skip `anchorSlug` when the enclosing heading is the better link target, which covers titles that repeat across a page and small groups presenting alternative routes to one outcome. Treat a whole group the same way rather than slugging only some of its panels.
 
 ### Review checklist
 
-1. Does every new or edited `<Accordion>` set an `anchorSlug`, or fall under the omission cases above?
+1. Is this accordion worth linking to directly, and if so does it set an `anchorSlug`?
 2. Does the slug match the format and length rules?
 3. Does the `faq-` prefix match whether the accordion sits under a "Frequently asked questions" heading?
 4. Would the slug collide with another accordion, a heading, or a `<Step>` title on the same page?
