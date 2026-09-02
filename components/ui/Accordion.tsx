@@ -31,7 +31,16 @@ type AccordionProps = {
   title: string;
   description?: string;
   defaultOpen?: boolean;
-  /** When set, this slug is used as the element `id` and the accordion opens if the URL hash matches (for deep links). Use a URL-safe hyphenated fragment, e.g. `my-section`. */
+  /**
+   * Element `id` used for deep links (`/page#slug`); the accordion opens and
+   * scrolls into view when the URL hash matches.
+   *
+   * Set this on every Accordion in `/content`: lowercase `a-z0-9` joined by
+   * `-` (underscores only for code identifiers reproduced verbatim from the
+   * title), 50 characters or fewer, `faq-` prefixed under "Frequently asked
+   * questions", unique per page, and never equal to a heading or `<Step>` id
+   * on that page. See "Accordion anchor slugs" in AGENTS.md.
+   */
   anchorSlug?: string;
 };
 
