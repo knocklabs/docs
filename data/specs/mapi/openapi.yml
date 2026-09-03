@@ -310,8 +310,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -5586,6 +5586,146 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageType
       x-validate: null
+    BillingSummary:
+      description: A snapshot of the current draft Orb invoice for the account, including plan, per-metric usage, and remaining credit blocks.
+      example:
+        amount_due: "110.00"
+        credits:
+          - currency: mnr_credits
+            effective_at: "2026-01-01T00:00:00.000000Z"
+            expires_at: "2027-01-01T00:00:00.000000Z"
+            id: crb_year1
+            name: Monthly notified recipients
+            quantity: 10800000
+            remaining: 6760000
+            status: active
+        currency: USD
+        invoice_id: UR2cRSkE42n3XWfz
+        period_end: "2026-09-18T23:59:59.000000Z"
+        period_start: "2026-08-19T00:00:00.000000Z"
+        plan:
+          display_name: Starter
+          id: starter-june-2023
+          type: starter
+        target_date: "2026-09-19"
+        usage:
+          - amount: "90.00"
+            credits_applied: 0
+            metric_id: 5LrfGRz9En96R9Hg
+            name: Messages Sent
+            pricing_currency: USD
+            quantity: 12500
+            quantity_type: usage
+          - amount: "0.00"
+            credits_applied: 0
+            metric_id: C4vGey39VY99wxky
+            name: Monthly notified recipients - guides
+            pricing_currency: USD
+            quantity: 320
+            quantity_type: usage
+          - amount: "20.00"
+            credits_applied: 0
+            metric_id: LPQ3cxs8xN6XPigy
+            name: Workflow Runs
+            pricing_currency: USD
+            quantity: 48
+            quantity_type: usage
+      properties:
+        amount_due:
+          description: The amount due on the draft invoice, as a decimal string.
+          type: string
+          x-struct: null
+          x-validate: null
+        credits:
+          description: Unexpired Orb credit blocks for custom pricing units on the draft invoice, including scheduled and depleted allotments.
+          items:
+            $ref: '#/components/schemas/BillingCreditBlock'
+          type: array
+          x-struct: null
+          x-validate: null
+        currency:
+          description: The invoice currency code, such as USD.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        invoice_id:
+          description: The Orb draft invoice id, if present.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        period_end:
+          description: The end of the current usage period, hoisted from the first usage line item.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        period_start:
+          description: The start of the current usage period, hoisted from the first usage line item.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        plan:
+          description: The Knock plan currently assigned to the account.
+          properties:
+            display_name:
+              description: The human-readable plan name.
+              type: string
+              x-struct: null
+              x-validate: null
+            id:
+              description: The unique identifier of the plan.
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: The plan type.
+              enum:
+                - free
+                - starter
+                - growth
+                - enterprise
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - id
+            - type
+            - display_name
+          type: object
+          x-struct: null
+          x-validate: null
+        target_date:
+          description: The date the draft invoice is scheduled to be issued.
+          format: date
+          type: string
+          x-struct: null
+          x-validate: null
+        usage:
+          description: Per-metric usage line items from the draft invoice.
+          items:
+            $ref: '#/components/schemas/BillingUsageRecord'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - invoice_id
+        - amount_due
+        - currency
+        - target_date
+        - period_start
+        - period_end
+        - plan
+        - usage
+        - credits
+      title: BillingSummary
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BillingSummary
+      x-validate: null
     PreviewTemplateResponse:
       description: A response to a template preview request.
       example:
@@ -5667,6 +5807,68 @@ components:
       title: PreviewTemplateResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewTemplateResponse
+      x-validate: null
+    BillingUsageRecord:
+      description: Usage for a single Orb billable metric on the current draft invoice.
+      example:
+        amount: "90.00"
+        credits_applied: 0
+        metric_id: 5LrfGRz9En96R9Hg
+        name: Messages Sent
+        pricing_currency: USD
+        quantity: 12500
+        quantity_type: usage
+      properties:
+        amount:
+          description: The billed dollar amount for this metric after credits and adjustments.
+          type: string
+          x-struct: null
+          x-validate: null
+        credits_applied:
+          description: Prepaid credits applied to this metric during the current service period.
+          type: integer
+          x-struct: null
+          x-validate: null
+        metric_id:
+          description: The Orb billable metric id.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The Orb billable metric name.
+          type: string
+          x-struct: null
+          x-validate: null
+        pricing_currency:
+          description: The Orb price currency for this line item, used to correlate usage with credit blocks.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        quantity:
+          description: Orb line-item usage quantity for this period. This is not replaced by credits_applied.
+          type: integer
+          x-struct: null
+          x-validate: null
+        quantity_type:
+          description: Whether the GraphQL usage quantity is raw usage or credits applied. Prefer quantity and credits_applied for new clients.
+          enum:
+            - usage
+            - credits
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - metric_id
+        - pricing_currency
+        - quantity
+        - credits_applied
+        - quantity_type
+        - amount
+      title: BillingUsageRecord
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BillingUsageRecord
       x-validate: null
     SourceLogsResponse:
       description: A paginated list of source logs. Include `actions` in the `include` query parameter to return action details for each log.
@@ -6001,6 +6203,79 @@ components:
       title: MessageTypeBooleanField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.BooleanField
+      x-validate: null
+    BillingCreditBlock:
+      description: An unexpired Orb credit block, including scheduled and depleted allotments.
+      example:
+        currency: mnr_credits
+        effective_at: "2026-01-01T00:00:00.000000Z"
+        expires_at: "2027-01-01T00:00:00.000000Z"
+        id: crb_year1
+        name: Monthly notified recipients
+        quantity: 10800000
+        remaining: 6760000
+        status: active
+      properties:
+        currency:
+          description: The Orb custom pricing-unit identifier, such as mnr_credits or ai_credits.
+          type: string
+          x-struct: null
+          x-validate: null
+        effective_at:
+          description: When the block becomes effective.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        expires_at:
+          description: When the block expires.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The Orb credit block id.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The display name for the credit currency.
+          type: string
+          x-struct: null
+          x-validate: null
+        quantity:
+          description: The block's original allocation.
+          type: number
+          x-struct: null
+          x-validate: null
+        remaining:
+          description: The block's remaining balance.
+          type: number
+          x-struct: null
+          x-validate: null
+        status:
+          description: 'Derived block status: scheduled when not yet effective, depleted when remaining is zero or less, otherwise active.'
+          enum:
+            - active
+            - depleted
+            - scheduled
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - name
+        - currency
+        - quantity
+        - remaining
+        - status
+        - effective_at
+        - expires_at
+      title: BillingCreditBlock
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BillingCreditBlock
       x-validate: null
     WorkflowUpdateTenantStep:
       description: An update tenant step. Updates properties of a specific tenant referenced in the workflow.
@@ -9810,8 +10085,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -10847,8 +11122,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -20246,6 +20521,31 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Result)
           }
+  /v1/billing/summary:
+    get:
+      callbacks: {}
+      description: Returns a snapshot of the current draft invoice for the account, including amount due, plan, per-metric usage, and remaining credit blocks.
+      operationId: getBillingSummary
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingSummary'
+          description: OK
+        "429":
+          content:
+            application/json:
+              schema:
+                description: Returned when the account exceeds one request per second for this endpoint.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Too Many Requests
+      summary: Get billing summary
+      tags:
+        - Accounts
   /v1/schemas/{item_type}:
     get:
       callbacks: {}
