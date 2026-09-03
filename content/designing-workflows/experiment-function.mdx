@@ -29,66 +29,51 @@ The experiment function enables you to split recipients into randomized cohorts 
 
 ## How it works
 
-When a workflow run reaches an experiment step, Knock assigns the recipient to a cohort using the following process:
+Each cohort in an experiment has a percentage weight, and those weights divide a scale from 0 to 100 into ranges. When a workflow run reaches an experiment step, Knock assigns the recipient to a cohort using the following process:
 
-1. **Cohort key.** Knock hashes the value of the cohort key (which defaults to `recipient.id` if no key is configured) to assign the recipient a fixed spot on a scale from 0 to 100. The same value always produces the same spot for a given workflow step, so a recipient will always be routed to the same cohort every time the workflow runs.
-2. **Percentage distribution.** Each cohort is assigned a percentage weight, and Knock reads the recipient's spot on the scale against those percentages to pick a cohort. In a 30/70 split, everyone with a spot below 30 goes to the first cohort and everyone else goes to the second.
-3. **Branch execution.** Once assigned, the recipient proceeds through the steps defined in their cohort's branch.
+1. **Cohort key.** Knock hashes the value of the cohort key to assign the recipient a spot on the 0 to 100 scale. The assigned spot is specific to each experiment step, so a recipient's cohort assignment in one experiment has no bearing on their assignment in another.
+2. **Percentage distribution.** Knock reads the recipient's assigned spot on the scale against the experiment's configured cohort ranges to identify the recipient's cohort. For example, in a 30/70 split, recipients assigned a spot below 30 belong to the first cohort and everyone else goes to the second. Hashing the same cohort key always produces the same result, so a recipient is assigned to the same cohort every time the workflow runs.
+3. **Branch execution.** Once assigned to a cohort, the recipient proceeds through the steps defined in their cohort's branch.
+
+## Configuring experiments
+
+A new experiment step starts with two evenly-distributed cohorts. You can add additional cohorts, adjust the percentage distribution between them, and set a cohort key to group similar recipients together.
+
+- **Cohort key.** A cohort key is used to determine a recipient's cohort assignment when your experiment step runs. Configuring one is optional; by default, Knock uses `recipient.id` as the cohort key. Map it to a custom value using the [variables](/template-editor/variables) available to a workflow run.
+- **Percentage weights.** Set the percentage for each cohort to control the distribution of recipients. The total across all cohorts must equal 100%.
 
 <Callout
   type="warning"
   title="Missing cohort key values halt workflow execution."
   text={
     <>
-      If the cohort key has no value for a given workflow run, the experiment
-      step does not fall back to the recipient's ID. Instead, the step errors
-      with <code>cohort_key_missing</code> and the workflow run terminates, so
-      none of the steps that follow it will run. If your cohort key comes from
-      your trigger data or recipient properties, ensure that every trigger of
-      the workflow includes that property. Read more about{" "}
+      When a custom cohort key is configured, it must be available to every
+      workflow run. If the configured key has no value when a workflow run is
+      processed, the experiment step does not fall back to using the default{" "}
+      <code>recipient.id</code> key. Instead, the step errors with{" "}
+      <code>cohort_key_missing</code> and the workflow run terminates, so none
+      of the steps that follow it will run. If your cohort key comes from your
+      trigger data or recipient properties, ensure that every run of the
+      workflow has access to that property. Read more about{" "}
       <a href="#selecting-a-cohort-key">selecting a cohort key</a> below.
     </>
   }
 />
 
-## Configuring cohorts
+### Grouping your recipients
 
-Each experiment step starts with two cohorts by default. You can add additional cohorts or adjust the percentage distribution between them.
+The experiment function randomly assigns recipients to cohorts person-by-person. If you'd like to group recipients together by a shared property to ensure that similar users receive the same messaging, you can configure a custom cohort key.
 
-- **Cohort key.** By default, the key that assigns a recipient to a cohort is the recipient ID. You can optionally map it to a different value using the [variables](/template-editor/variables) available to a workflow run.
-- **Percentage weights.** Set the percentage for each cohort to control the distribution of recipients. The total across all cohorts must equal 100%.
+For example, a key of `tenant.id` groups recipients by [tenant](/multi-tenancy/overview). This guarantees that recipients under a given account receive the same messaging as their teammates. A property such as `recipient.role` means that everyone with the same role will receive the same messaging.
 
-## Selecting a cohort key
+### Selecting a cohort key
 
-The cohort key decides how a recipient is assigned to a cohort. Knock reads the value of the key and uses it to place the recipient on the scale that determines their cohort, so anyone whose cohort key has the same value always lands in the same cohort for that step.
+A cohort key can be configured as one of the following:
 
-### What you can use as a cohort key
+- **A path that references a workflow variable.** A key of `data.account_id` uses the `account_id` property you send in the `data` payload of your workflow trigger. You can also reference other properties like `tenant.id`, `actor.id`, or an [environment variable](/concepts/variables) under the `vars.*` namespace.
+- **A Liquid expression.** A key such as `{{ tenant.id }}-{{ data.order_id }}` combines several variables into one key. Knock uses the expression's resolved value as the cohort key.
 
-A cohort key can be any of the following:
-
-- **A property from your trigger data.** A key of `account_id` uses the `data.account_id` property you send in the `data` payload of your workflow trigger.
-- **Another value from the workflow run.** A key of `tenant.id`, `actor.id`, or `vars.region` uses that [variable](/template-editor/variables) from the workflow run.
-- **A Liquid expression.** A key such as `{{ recipient.id }}-{{ data.order_id }}` combines several variables into one key. Knock uses whatever the expression resolves to as the value.
-
-Keep in mind that when a Liquid expression references data that isn't available, it evaluates as an empty string (`""`) instead of a missing value, so the workflow run continues. Every recipient with missing data will end up with the same empty value as their cohort key, which assigns all of them to the same cohort and skews your results. If you use a Liquid expression for your cohort key, confirm that the data behind it is always present.
-
-### Choosing how to group your recipients
-
-Your cohort key determines how recipients are grouped into cohorts. For example:
-
-- `recipient.id` (the default) splits person by person.
-- `tenant.id` splits by [tenant](/multi-tenancy/overview), so everyone under the same tenant takes the same branch. Use this to ensure that recipients under an account always receive the same messaging as their teammates.
-- A property such as `data.order_id` splits by an order ID from your data payload. This gives consistency for every recipient that is being notified about the same order, but one recipient can land in different cohorts for different orders.
-
-### Cohort assignment per step
-
-Each experiment step splits your recipients on its own. A recipient who lands in a smaller cohort of one experiment is not guaranteed to land in the smaller cohort of a different experiment step that uses the same cohort key and percentage distribution, so running several experiments in a workflow won't concentrate every variant on the same group of people. Within a single step, a recipient's cohort doesn't change between workflow runs unless the value of their cohort key or the percentage distribution changes.
-
-## Terminating workflow execution for a cohort
-
-Each experiment step can end the workflow when its branch finishes, so that recipients in that cohort skip any steps that come after the experiment step. Toggle "Exit the workflow at the end of this branch" on a cohort to enable this.
-
-This is particularly useful for [holdout testing](#holdout-testing): place the message you're measuring after the experiment step, and end the workflow for the holdout cohort so those recipients never reach it. At least one cohort must continue.
+Keep in mind that when a Liquid expression references data that isn't available, it evaluates as an empty string (`""`) instead of a missing value, so the workflow run continues. Every recipient with missing data will end up with the same empty value for their cohort key, which assigns all of them to the same cohort and skews your results. If you use a Liquid expression for your cohort key, confirm that the data behind it is always present.
 
 ## Use cases
 
@@ -152,7 +137,10 @@ A `cohort_key_missing` error in the debugger indicates that the cohort key had n
     for a given step, so a recipient will consistently land in the same branch
     across multiple workflow runs.
   </Accordion>
-  <Accordion title="Can I guarantee that a recipient will land in a specific cohort?">
+  <Accordion
+    title="Can I guarantee that a recipient will land in a specific cohort?"
+    anchorSlug="faq-guarantee-specific-cohort"
+  >
     No. The experiment step assigns recipients to cohorts based on the cohort
     key and percentage distribution. This means that recipients with a shared
     cohort key value will always be grouped together in the same cohort, but you
@@ -161,7 +149,6 @@ A `cohort_key_missing` error in the debugger indicates that the cohort key had n
     conditions that you define, you can use the [branch
     function](/designing-workflows/branch-function) instead.
   </Accordion>
-  <Accordion title="Can I change the percentage distribution after a workflow is live?">
   <Accordion
     title="Can I change the percentage distribution after a workflow is live?"
     anchorSlug="faq-change-cohort-distribution-when-live"
@@ -177,6 +164,14 @@ A `cohort_key_missing` error in the debugger indicates that the cohort key had n
     A cohort set to 0% will not receive any recipients. This can be useful when
     you want to temporarily disable a branch without removing it from the
     workflow.
+  </Accordion>
+  <Accordion
+    title="If I use more than one experiment step in a workflow, will recipients be split into the same cohorts for every step?"
+    anchorSlug="faq-multiple-experiment-steps-same-cohorts"
+  >
+    No. Each experiment step splits its recipients on its own, so a recipient
+    who lands in a given cohort for one step is not guaranteed to land in the
+    same cohort for a different step.
   </Accordion>
   <Accordion
     title="Can I use experiment steps with other workflow functions?"
@@ -197,5 +192,11 @@ A `cohort_key_missing` error in the debugger indicates that the cohort key had n
   >
     The maximum depth for experiment steps is set at 5. If you have needs that
     go beyond this, please reach out to discuss.
+  </Accordion>
+  <Accordion
+    title="Can I use experiment steps in a broadcast?"
+    anchorSlug="faq-experiment-steps-in-broadcasts"
+  >
+    Yes, experiment steps can be used in both workflows and broadcasts.
   </Accordion>
 </AccordionGroup>
