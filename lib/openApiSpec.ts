@@ -164,6 +164,58 @@ function resolveEndpoint(
   return [methodType.toLowerCase(), endpoint];
 }
 
+/**
+ * A model entry as written in stainless.yml. Stainless accepts two shapes:
+ *
+ *   partial: "#/components/schemas/Partial"
+ *   partial:
+ *     openapi_uri: "#/components/schemas/Partial"
+ *     skip: [typescript]
+ *
+ * The object form carries SDK-only options (`skip`, `only`) that let one schema
+ * be exposed under different names per language.
+ */
+type StainlessModelRef = string | { openapi_uri?: string };
+
+type StainlessResourceWithRawModels = {
+  models?: Record<string, StainlessModelRef>;
+  subresources?: Record<string, StainlessResourceWithRawModels>;
+};
+
+function resolveModelRef(ref: StainlessModelRef): string | undefined {
+  return typeof ref === "string" ? ref : ref?.openapi_uri;
+}
+
+/**
+ * Normalize `models` on every resource (and subresource) in place so that each
+ * value is a plain OpenAPI pointer string. The docs render a single page per
+ * schema, so any later entry that points at a schema already listed on the same
+ * resource (a per-language alias) is dropped.
+ */
+function normalizeStainlessModels(
+  resources: Record<string, StainlessResourceWithRawModels> | undefined,
+): void {
+  if (!resources) return;
+
+  for (const resource of Object.values(resources)) {
+    if (resource.models) {
+      const seen = new Set<string>();
+      const normalized: Record<string, string> = {};
+
+      for (const [modelName, ref] of Object.entries(resource.models)) {
+        const uri = resolveModelRef(ref);
+        if (!uri || seen.has(uri)) continue;
+        seen.add(uri);
+        normalized[modelName] = uri;
+      }
+
+      resource.models = normalized;
+    }
+
+    normalizeStainlessModels(resource.subresources);
+  }
+}
+
 // ============================================================================
 // Spec Loading Functions (with caching)
 // ============================================================================
@@ -232,6 +284,7 @@ async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
     );
     const stainlessSpec = parse(spec);
     const result = deepmerge(stainlessSpec, customizations) as StainlessConfig;
+    normalizeStainlessModels(result.resources);
     stainlessSpecCache[specName] = result;
     return result;
   })();
@@ -905,4 +958,6 @@ export {
   getSidebarData,
   // Schema references
   buildSchemaReferences,
+  // Stainless config normalization
+  normalizeStainlessModels,
 };
