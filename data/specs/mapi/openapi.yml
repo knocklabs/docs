@@ -13693,6 +13693,53 @@ paths:
       summary: List goals
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const goal of client.goals.list({ environment: 'development' })) {
+            console.log(goal.condition);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.goals.list(
+              environment="development",
+          )
+          page = page.entries[0]
+          print(page.condition)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Goals.List(context.TODO(), knockmapi.GoalListParams{
+          		Environment: "development",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/workflows/{workflow_key}:
     get:
       callbacks: {}
@@ -14043,7 +14090,7 @@ paths:
           		"workflow_key",
           		knockmapi.WorkflowUpsertParams{
           			Environment: "development",
-          			Workflow: knockmapi.WorkflowUpsertParamsWorkflow{
+          			Workflow: knockmapi.WorkflowRequestParam{
           				Name: "My Workflow",
           				Steps: []knockmapi.WorkflowStepUnionParam{{
           					OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
@@ -14373,10 +14420,10 @@ paths:
           		"partial_key",
           		knockmapi.PartialValidateParams{
           			Environment: "development",
-          			Partial: knockmapi.PartialValidateParamsPartial{
+          			Partial: knockmapi.PartialRequestParam{
           				Content: "<p>Hello, world!</p>",
           				Name:    "My Partial",
-          				Type:    "html",
+          				Type:    knockmapi.PartialRequestTypeHTML,
           			},
           		},
           	)
@@ -14573,6 +14620,74 @@ paths:
       summary: Preview an email layout
       tags:
         - Email layouts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.emailLayouts.preview({
+            environment: 'development',
+            email_layout: {
+              html_layout: '<html><body>Hello {{ recipient.name }}! {{ content }}</body></html>',
+              name: 'Transactional',
+              text_layout: 'Hello {{ recipient.name }}! {{ content }}',
+            },
+            recipient: 'user_123',
+          });
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.email_layouts.preview(
+              environment="development",
+              email_layout={
+                  "html_layout": "<html><body>Hello {{ recipient.name }}! {{ content }}</body></html>",
+                  "name": "Transactional",
+                  "text_layout": "Hello {{ recipient.name }}! {{ content }}",
+              },
+              recipient="user_123",
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          	"github.com/knocklabs/knock-mgmt-go/shared"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.EmailLayouts.Preview(context.TODO(), knockmapi.EmailLayoutPreviewParams{
+          		Environment: "development",
+          		EmailLayout: knockmapi.EmailLayoutRequestParam{
+          			HTMLLayout: "<html><body>Hello {{ recipient.name }}! {{ content }}</body></html>",
+          			Name:       "Transactional",
+          			TextLayout: "Hello {{ recipient.name }}! {{ content }}",
+          		},
+          		Recipient: shared.RecipientReferenceUnionParam{
+          			OfString: knockmapi.String("user_123"),
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -14776,7 +14891,7 @@ paths:
           		"workflow_key",
           		knockmapi.WorkflowValidateParams{
           			Environment: "development",
-          			Workflow: knockmapi.WorkflowValidateParamsWorkflow{
+          			Workflow: knockmapi.WorkflowRequestParam{
           				Name: "My Workflow",
           				Steps: []knockmapi.WorkflowStepUnionParam{{
           					OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
@@ -15014,6 +15129,56 @@ paths:
       summary: Archive a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.archive('goal_key', { environment: 'development' });
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.archive(
+              goal_key="goal_key",
+              environment="development",
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Archive(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalArchiveParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
     get:
       callbacks: {}
       description: Retrieve a goal by its key in a given environment.
@@ -15063,6 +15228,56 @@ paths:
       summary: Get a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const goal = await client.goals.retrieve('goal_key', { environment: 'development' });
+
+          console.log(goal.condition);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          goal = client.goals.retrieve(
+              goal_key="goal_key",
+              environment="development",
+          )
+          print(goal.condition)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	goal, err := client.Goals.Get(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalGetParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", goal.Condition)
+          }
     put:
       callbacks: {}
       description: Updates a goal of a given key, or creates a new one if it does not yet exist. The goal is published immediately; this endpoint does not accept a commit parameter.
@@ -15161,6 +15376,80 @@ paths:
       summary: Upsert a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.upsert('goal_key', {
+            environment: 'development',
+            goal: {
+              condition: { event: { event_type: 'recipient' } },
+              name: 'Trial Conversion',
+            },
+          });
+
+          console.log(response.goal);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.upsert(
+              goal_key="goal_key",
+              environment="development",
+              goal={
+                  "condition": {
+                      "event": {
+                          "event_type": "recipient"
+                      }
+                  },
+                  "name": "Trial Conversion",
+              },
+          )
+          print(response.goal)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Upsert(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalUpsertParams{
+          			Environment: "development",
+          			Goal: knockmapi.GoalRequestParam{
+          				Condition: knockmapi.GoalConditionParam{
+          					Event: knockmapi.GoalConditionEventUnionParam{
+          						OfWorkflowWaitForEventRecipientEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventRecipientEventParam{
+          							EventType: "recipient",
+          						},
+          					},
+          				},
+          				Name: "Trial Conversion",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Goal)
+          }
   /v1/environments:
     get:
       callbacks: {}
@@ -15349,6 +15638,49 @@ paths:
       summary: List assets
       tags:
         - Assets
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const asset of client.assets.list()) {
+            console.log(asset.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.assets.list()
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Assets.List(context.TODO(), knockmapi.AssetListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/broadcasts/{broadcast_key}:
     get:
       callbacks: {}
@@ -15712,6 +16044,76 @@ paths:
       summary: Preview a template
       tags:
         - Templates
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.templates.preview({
+            environment: 'development',
+            channel_type: 'email',
+            recipient: 'user_123',
+            template: {
+              settings: {},
+              subject: 'Hello {{ recipient.name }}',
+            },
+          });
+
+          console.log(response.content_type);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.templates.preview(
+              environment="development",
+              channel_type="email",
+              recipient="user_123",
+              template={
+                  "settings": {},
+                  "subject": "Hello {{ recipient.name }}",
+              },
+          )
+          print(response.content_type)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          	"github.com/knocklabs/knock-mgmt-go/shared"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Templates.Preview(context.TODO(), knockmapi.TemplatePreviewParams{
+          		Environment: "development",
+          		ChannelType: knockmapi.TemplatePreviewParamsChannelTypeEmail,
+          		Recipient: shared.RecipientReferenceUnionParam{
+          			OfString: knockmapi.String("user_123"),
+          		},
+          		Template: knockmapi.TemplatePreviewParamsTemplateUnion{
+          			OfEmailTemplate: &knockmapi.EmailTemplateParam{
+          				Settings: knockmapi.EmailTemplateSettingsParam{},
+          				Subject:  "Hello {{ recipient.name }}",
+          			},
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ContentType)
+          }
   /v1/guides/{guide_key}/activate:
     put:
       callbacks: {}
@@ -16879,9 +17281,9 @@ paths:
           		knockmapi.TranslationUpsertParams{
           			Environment: "development",
           			Namespace:   "namespace",
-          			Translation: knockmapi.TranslationUpsertParamsTranslation{
+          			Translation: knockmapi.TranslationRequestParam{
           				Content: `{"hello":"Hello, world!"}`,
-          				Format:  "json",
+          				Format:  knockmapi.TranslationRequestFormatJson,
           			},
           		},
           	)
@@ -16990,6 +17392,80 @@ paths:
       summary: Validate a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.validate('goal_key', {
+            environment: 'development',
+            goal: {
+              condition: { event: { event_type: 'recipient' } },
+              name: 'Trial Conversion',
+            },
+          });
+
+          console.log(response.goal);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.validate(
+              goal_key="goal_key",
+              environment="development",
+              goal={
+                  "condition": {
+                      "event": {
+                          "event_type": "recipient"
+                      }
+                  },
+                  "name": "Trial Conversion",
+              },
+          )
+          print(response.goal)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Validate(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalValidateParams{
+          			Environment: "development",
+          			Goal: knockmapi.GoalRequestParam{
+          				Condition: knockmapi.GoalConditionParam{
+          					Event: knockmapi.GoalConditionEventUnionParam{
+          						OfWorkflowWaitForEventRecipientEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventRecipientEventParam{
+          							EventType: "recipient",
+          						},
+          					},
+          				},
+          				Name: "Trial Conversion",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Goal)
+          }
   /v1/tags/{name}:
     delete:
       callbacks: {}
@@ -17012,6 +17488,44 @@ paths:
       summary: Delete a tag
       tags:
         - Tags
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.tags.delete('name');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.tags.delete(
+              "name",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.Tags.Delete(context.TODO(), "name")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     put:
       callbacks: {}
       description: Creates a tag by name. If a tag with the same name already exists, updates its description and color. Omitted description and color fields are set to null.
@@ -17071,6 +17585,56 @@ paths:
       summary: Upsert a tag
       tags:
         - Tags
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.tags.upsert('name', { tag: {} });
+
+          console.log(response.tag);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.tags.upsert(
+              name="name",
+              tag={},
+          )
+          print(response.tag)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Tags.Upsert(
+          		context.TODO(),
+          		"name",
+          		knockmapi.TagUpsertParams{
+          			Tag: knockmapi.TagUpsertParamsTag{},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Tag)
+          }
   /v1/sources/{key}/rehearse:
     post:
       callbacks: {}
@@ -17249,6 +17813,51 @@ paths:
       summary: List item schemas
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const schemas = await client.schemas.list({ environment: 'development' });
+
+          console.log(schemas.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          schemas = client.schemas.list(
+              environment="development",
+          )
+          print(schemas.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	schemas, err := client.Schemas.List(context.TODO(), knockmapi.SchemaListParams{
+          		Environment: "development",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", schemas.Entries)
+          }
   /v1/channel_groups:
     get:
       callbacks: {}
@@ -17696,10 +18305,10 @@ paths:
           		"partial_key",
           		knockmapi.PartialUpsertParams{
           			Environment: "development",
-          			Partial: knockmapi.PartialUpsertParamsPartial{
+          			Partial: knockmapi.PartialRequestParam{
           				Content: "<p>Hello, world!</p>",
           				Name:    "My Partial",
-          				Type:    "html",
+          				Type:    knockmapi.PartialRequestTypeHTML,
           			},
           		},
           	)
@@ -18278,7 +18887,7 @@ paths:
           		"guide_key",
           		knockmapi.GuideUpsertParams{
           			Environment: "development",
-          			Guide: knockmapi.GuideUpsertParamsGuide{
+          			Guide: knockmapi.GuideRequestParam{
           				ChannelKey: "in-app-guide",
           				Name:       "Getting Started Guide",
           				Steps: []knockmapi.GuideStepParam{{
@@ -18808,7 +19417,7 @@ paths:
           		"email",
           		knockmapi.MessageTypeValidateParams{
           			Environment: "development",
-          			MessageType: knockmapi.MessageTypeValidateParamsMessageType{
+          			MessageType: knockmapi.MessageTypeRequestParam{
           				Description: knockmapi.String("This is a message type"),
           				Name:        "My Message Type",
           				Preview:     "<div>Hello, world!</div>",
@@ -19514,7 +20123,7 @@ paths:
           		"email",
           		knockmapi.MessageTypeUpsertParams{
           			Environment: "development",
-          			MessageType: knockmapi.MessageTypeUpsertParamsMessageType{
+          			MessageType: knockmapi.MessageTypeRequestParam{
           				Description: knockmapi.String("This is a message type"),
           				Name:        "My Message Type",
           				Preview:     "<div>Hello, world!</div>",
@@ -20038,8 +20647,8 @@ paths:
           		"audience_key",
           		knockmapi.AudienceUpsertParams{
           			Environment: "development",
-          			Audience: knockmapi.AudienceUpsertParamsAudienceUnion{
-          				OfDynamic: &knockmapi.AudienceUpsertParamsAudienceDynamic{
+          			Audience: knockmapi.AudienceRequestUnionParam{
+          				OfDynamic: &knockmapi.AudienceRequestDynamicParam{
           					Name: "Premium users",
           				},
           			},
@@ -20099,6 +20708,51 @@ paths:
       summary: Get preference center configuration
       tags:
         - Preference center
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const preferenceCenter = await client.preferenceCenter.retrieve({ environment: 'development' });
+
+          console.log(preferenceCenter.config);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          preference_center = client.preference_center.retrieve(
+              environment="development",
+          )
+          print(preference_center.config)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	preferenceCenter, err := client.PreferenceCenter.Get(context.TODO(), knockmapi.PreferenceCenterGetParams{
+          		Environment: "development",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", preferenceCenter.Config)
+          }
     put:
       callbacks: {}
       description: Creates or updates the preference center configuration for the given environment.
@@ -20181,6 +20835,87 @@ paths:
       summary: Upsert preference center configuration
       tags:
         - Preference center
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.preferenceCenter.upsert({
+            environment: 'development',
+            config: {
+              body: 'Select which communications you’d like to receive from us.',
+              rows: [
+                {
+                  description: 'Receive promotional and non-essential notifications.',
+                  name: 'Commercial messages',
+                  type: 'commercial_subscribed',
+                },
+              ],
+              show_account_name: true,
+              title: 'Manage preferences',
+            },
+          });
+
+          console.log(response.config);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.preference_center.upsert(
+              environment="development",
+              config={
+                  "body": "Select which communications you’d like to receive from us.",
+                  "rows": [{
+                      "description": "Receive promotional and non-essential notifications.",
+                      "name": "Commercial messages",
+                      "type": "commercial_subscribed",
+                  }],
+                  "show_account_name": True,
+                  "title": "Manage preferences",
+              },
+          )
+          print(response.config)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.PreferenceCenter.Upsert(context.TODO(), knockmapi.PreferenceCenterUpsertParams{
+          		Environment: "development",
+          		Config: map[string]any{
+          			"body": "Select which communications you’d like to receive from us.",
+          			"rows": []any{
+          				map[string]any{
+          					"description": "Receive promotional and non-essential notifications.",
+          					"name":        "Commercial messages",
+          					"type":        "commercial_subscribed",
+          				},
+          			},
+          			"show_account_name": true,
+          			"title":             "Manage preferences",
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Config)
+          }
   /v1/commits:
     get:
       callbacks: {}
@@ -20546,6 +21281,47 @@ paths:
       summary: Get billing summary
       tags:
         - Accounts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const billingSummary = await client.billing.retrieveSummary();
+
+          console.log(billingSummary.invoice_id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          billing_summary = client.billing.retrieve_summary()
+          print(billing_summary.invoice_id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	billingSummary, err := client.Billing.GetSummary(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", billingSummary.InvoiceID)
+          }
   /v1/schemas/{item_type}:
     get:
       callbacks: {}
@@ -20598,6 +21374,56 @@ paths:
       summary: Get an item schema
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const schema = await client.schemas.retrieve('item_type', { environment: 'development' });
+
+          console.log(schema);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          schema = client.schemas.retrieve(
+              item_type="item_type",
+              environment="development",
+          )
+          print(schema)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	schema, err := client.Schemas.Get(
+          		context.TODO(),
+          		"item_type",
+          		knockmapi.SchemaGetParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", schema)
+          }
     put:
       callbacks: {}
       description: 'Applies changes for the item schema properties in the request. Omitted properties are left unchanged; hide a property with `visible: false` rather than removing it. The required permissions depend on what changes: changing a property''s display settings (`visible`/`description`) requires `item_schemas:manage`; changing a property''s type or example, or adding a property, requires `item_schemas:edit`. Adding a property that is already hidden or already has a description requires both.'
@@ -20658,6 +21484,56 @@ paths:
       summary: Upsert item schema properties
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.schemas.upsert('item_type', { environment: 'development' });
+
+          console.log(response);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.schemas.upsert(
+              item_type="item_type",
+              environment="development",
+          )
+          print(response)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Schemas.Upsert(
+          		context.TODO(),
+          		"item_type",
+          		knockmapi.SchemaUpsertParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response)
+          }
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
@@ -20932,6 +21808,47 @@ paths:
       summary: List preference categories
       tags:
         - Preference categories
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const preferenceCategories = await client.preferenceCategories.list();
+
+          console.log(preferenceCategories.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          preference_categories = client.preference_categories.list()
+          print(preference_categories.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	preferenceCategories, err := client.PreferenceCategories.List(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", preferenceCategories.Entries)
+          }
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -21239,7 +22156,7 @@ paths:
           		"email_layout_key",
           		knockmapi.EmailLayoutUpsertParams{
           			Environment: "development",
-          			EmailLayout: knockmapi.EmailLayoutUpsertParamsEmailLayout{
+          			EmailLayout: knockmapi.EmailLayoutRequestParam{
           				HTMLLayout: "<html><body>Hello, world!</body></html>",
           				Name:       "Transactional",
           				TextLayout: "Hello, world!",
@@ -21296,6 +22213,68 @@ paths:
       summary: Preview a partial
       tags:
         - Partials
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.partials.preview({
+            environment: 'development',
+            partial: {
+              content: '<p>Hello, {{ name }}!</p>',
+              name: 'My Partial',
+              type: 'html',
+            },
+          });
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.partials.preview(
+              environment="development",
+              partial={
+                  "content": "<p>Hello, {{ name }}!</p>",
+                  "name": "My Partial",
+                  "type": "html",
+              },
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Partials.Preview(context.TODO(), knockmapi.PartialPreviewParams{
+          		Environment: "development",
+          		Partial: knockmapi.PartialRequestParam{
+          			Content: "<p>Hello, {{ name }}!</p>",
+          			Name:    "My Partial",
+          			Type:    knockmapi.PartialRequestTypeHTML,
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
   /v1/email_layouts/{email_layout_key}/validate:
     put:
       callbacks: {}
@@ -21454,7 +22433,7 @@ paths:
           		"email_layout_key",
           		knockmapi.EmailLayoutValidateParams{
           			Environment: "development",
-          			EmailLayout: knockmapi.EmailLayoutValidateParamsEmailLayout{
+          			EmailLayout: knockmapi.EmailLayoutRequestParam{
           				HTMLLayout: "<html><body>Hello, world!</body></html>",
           				Name:       "Transactional",
           				TextLayout: "Hello, world!",
@@ -21695,6 +22674,7 @@ paths:
 
           	"github.com/knocklabs/knock-mgmt-go"
           	"github.com/knocklabs/knock-mgmt-go/option"
+          	"github.com/knocklabs/knock-mgmt-go/shared"
           )
 
           func main() {
@@ -21707,7 +22687,7 @@ paths:
           		knockmapi.WorkflowStepPreviewTemplateParams{
           			WorkflowKey: "workflow_key",
           			Environment: "development",
-          			Recipient: knockmapi.WorkflowStepPreviewTemplateParamsRecipientUnion{
+          			Recipient: shared.RecipientReferenceUnionParam{
           				OfString: knockmapi.String("dnedry"),
           			},
           		},
@@ -21849,9 +22829,9 @@ paths:
           		"locale_code",
           		knockmapi.TranslationValidateParams{
           			Environment: "development",
-          			Translation: knockmapi.TranslationValidateParamsTranslation{
+          			Translation: knockmapi.TranslationRequestParam{
           				Content: `{"hello":"Hello, world!"}`,
-          				Format:  "json",
+          				Format:  knockmapi.TranslationRequestFormatJson,
           			},
           		},
           	)
@@ -21882,6 +22862,44 @@ paths:
       summary: Delete a preference category
       tags:
         - Preference categories
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.preferenceCategories.delete('name');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.preference_categories.delete(
+              "name",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.PreferenceCategories.Delete(context.TODO(), "name")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     put:
       callbacks: {}
       description: Creates a preference category by name. If a non-archived category with the same name already exists, returns the existing category.
@@ -21919,6 +22937,49 @@ paths:
       summary: Upsert a preference category
       tags:
         - Preference categories
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.preferenceCategories.upsert('name');
+
+          console.log(response.preference_category);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.preference_categories.upsert(
+              "name",
+          )
+          print(response.preference_category)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.PreferenceCategories.Upsert(context.TODO(), "name")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.PreferenceCategory)
+          }
   /v1/branches/{branch_slug}/rebase:
     put:
       callbacks: {}
@@ -21953,6 +23014,56 @@ paths:
       summary: Rebase a branch
       tags:
         - Branches
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const branch = await client.branches.rebase('feature-branch', { environment: 'development' });
+
+          console.log(branch.created_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          branch = client.branches.rebase(
+              branch_slug="feature-branch",
+              environment="development",
+          )
+          print(branch.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	branch, err := client.Branches.Rebase(
+          		context.TODO(),
+          		"feature-branch",
+          		knockmapi.BranchRebaseParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", branch.CreatedAt)
+          }
   /v1/broadcasts:
     get:
       callbacks: {}
@@ -22520,7 +23631,7 @@ paths:
           		"guide_key",
           		knockmapi.GuideValidateParams{
           			Environment: "development",
-          			Guide: knockmapi.GuideValidateParamsGuide{
+          			Guide: knockmapi.GuideRequestParam{
           				ChannelKey: "in-app-guide",
           				Name:       "Getting Started Guide",
           				Steps: []knockmapi.GuideStepParam{{
@@ -22636,7 +23747,7 @@ paths:
           		knockmapi.WorkflowRunParams{
           			Environment: "development",
           			Recipients: []knockmapi.WorkflowRunParamsRecipientUnion{{
-          				OfInlineIdentifyUserRequest: &knockmapi.WorkflowRunParamsRecipientInlineIdentifyUserRequest{
+          				OfInlineIdentifyUserRequest: &knockmapi.InlineIdentifyUserRequestParam{
           					ID: "user_1",
           				},
           			}},
@@ -23051,6 +24162,56 @@ paths:
       summary: Validate an item schema's configuration
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.schemas.validate('item_type', { environment: 'development' });
+
+          console.log(response);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.schemas.validate(
+              item_type="item_type",
+              environment="development",
+          )
+          print(response)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Schemas.Validate(
+          		context.TODO(),
+          		"item_type",
+          		knockmapi.SchemaValidateParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response)
+          }
   /v1/channel_groups/{channel_group_key}:
     delete:
       callbacks: {}
@@ -23601,8 +24762,8 @@ paths:
           		"audience_key",
           		knockmapi.AudienceValidateParams{
           			Environment: "development",
-          			Audience: knockmapi.AudienceValidateParamsAudienceUnion{
-          				OfDynamic: &knockmapi.AudienceValidateParamsAudienceDynamic{
+          			Audience: knockmapi.AudienceRequestUnionParam{
+          				OfDynamic: &knockmapi.AudienceRequestDynamicParam{
           					Name: "Premium users",
           				},
           			},
@@ -23629,6 +24790,47 @@ paths:
       summary: List tags
       tags:
         - Tags
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const tags = await client.tags.list();
+
+          console.log(tags.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          tags = client.tags.list()
+          print(tags.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	tags, err := client.Tags.List(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", tags.Entries)
+          }
   /v1/preference_center/reset:
     put:
       callbacks: {}
@@ -23678,6 +24880,51 @@ paths:
       summary: Reset preference center configuration to default
       tags:
         - Preference center
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.preferenceCenter.reset({ environment: 'development' });
+
+          console.log(response.config);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.preference_center.reset(
+              environment="development",
+          )
+          print(response.config)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.PreferenceCenter.Reset(context.TODO(), knockmapi.PreferenceCenterResetParams{
+          		Environment: "development",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Config)
+          }
   /v1/api_keys/exchange:
     post:
       callbacks: {}
@@ -23844,6 +25091,73 @@ paths:
       summary: Clone a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.clone('goal_key', {
+            environment: 'development',
+            clone: {
+              environment: 'production',
+              key: 'trial-conversion-copy',
+              name: 'Trial Conversion Copy',
+            },
+          });
+
+          console.log(response.goal);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.clone(
+              goal_key="goal_key",
+              environment="development",
+              clone={
+                  "environment": "production",
+                  "key": "trial-conversion-copy",
+                  "name": "Trial Conversion Copy",
+              },
+          )
+          print(response.goal)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Clone(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalCloneParams{
+          			Environment: "development",
+          			Clone: knockmapi.GoalCloneParamsClone{
+          				Environment: "production",
+          				Key:         "trial-conversion-copy",
+          				Name:        "Trial Conversion Copy",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Goal)
+          }
   /v1/workflows/{workflow_key}/activate:
     put:
       callbacks: {}
