@@ -126,6 +126,8 @@ When triggering a workflow for a recipient from a subscription, the `properties`
 
 As an example, if you have a property `role` under your subscription properties, you can access it as `recipient.subscription.role` in the workflow run scope.
 
+Knock resolves these properties once, when it fans out the workflow trigger and enqueues the recipient workflow run. They stay fixed for the life of that run, even if the underlying subscription changes while the run is in flight. See [subscription properties on paused workflow runs](#faq-subscription-properties-on-paused-runs) for more detail.
+
 <Callout
   type="warning"
   emoji="💡"
@@ -261,6 +263,35 @@ Once you've established a nested hierarchy like the above, it's also possible to
   >
     Yes. You can access the object that the recipient is subscribed to using the
     `recipient.subscription.object` property.
+  </Accordion>
+  <Accordion
+    title="Are subscription properties refreshed when a paused workflow run resumes?"
+    anchorSlug="faq-subscription-properties-on-paused-runs"
+  >
+    No. Knock resolves the properties on a subscription at the point of fan-out, when it enqueues the recipient workflow run, and holds those values for the life of the run. If a workflow pauses on a [delay](/designing-workflows/delay-function), [batch](/designing-workflows/batch-function), or [wait for event](/designing-workflows/wait-for-event-function) step, an update you make to the subscription during the pause will not appear under `recipient.subscription` when the run resumes. This is expected behavior.
+
+    The parent object under `recipient.subscription.object` is an exception. Knock re-reads it from your environment each time a step executes, so updates to that object's properties during a pause are reflected.
+
+    If you need the current state of a subscription at send time, use the [`subscriptions` Liquid filter](/template-editor/referencing-data#referencing-subscriptions-via-the-subscriptions-filter), which queries your environment when the template renders. Iterate over the results and match on `recipient.subscription.object` to find the subscription for the object that the run fanned out from.
+
+    ```liquid title="Reading current subscription properties for the object that fanned out the run"
+    {% assign subs = recipient.id | subscriptions %}
+    {% for sub in subs %}
+      {% if sub.object.id == recipient.subscription.object.id and sub.object.collection == recipient.subscription.object.collection %}
+        {% assign current_subscription = sub %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    {% if current_subscription %}
+      Your role on this project is {{ current_subscription.properties.role }}.
+    {% else %}
+      Your role on this project is {{ recipient.subscription.role }}.
+    {% endif %}
+    ```
+
+    Note that the filter returns the 25 oldest subscriptions for the recipient, so a recipient with more than 25 subscriptions may not have a match in the returned set. The example above falls back to `recipient.subscription` for that case.
+
   </Accordion>
   <Accordion
     title="Will the actor included in the workflow trigger receive a notification if they are a subscriber?"
