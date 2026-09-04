@@ -11,16 +11,48 @@ targets:
     publish:
       npm:
         auth_method: oidc
+      release:
+        branch: main
+        prerelease: false
+    staging_repo: knocklabs/knock-mgmt-node-staging
   python:
     package_name: knock_mapi
     production_repo: knocklabs/knock-mgmt-python
     publish:
       pypi: false
+      release:
+        branch: main
+        prerelease: true
+    staging_repo: knocklabs/knock-mgmt-python-staging
   go:
     package_name: knock-mapi
     production_repo: knocklabs/knock-mgmt-go
     options:
       enable_v2: true
+    staging_repo: knocklabs/knock-mgmt-go-staging
+    publish:
+      release:
+        branch: main
+        prerelease: false
+  # Undocumented target that emits a processed OpenAPI spec rather than an SDK.
+  # `files` maps output filename, `transforms` applies the `openapi.transforms`
+  # below, `code-samples` injects the `openapi.code_samples` snippets. Setting
+  # `files` replaces the default outputs.
+  #
+  # `skip: true` keeps this target out of default/auto builds. This target has no
+  # `production_repo` on purpose — we don't want stlc/Stainless to push it
+  # anywhere; the `publish-documented-spec` workflow builds it explicitly and
+  # pushes the spec to knocklabs/docs itself. Without `skip`, the Stainless cloud
+  # auto-build tries to push this repo-less target and reports "push failed".
+  #
+  # `skip` only affects default (`all`) builds — an explicit target still builds:
+  #   stlc build -t openapi   (won't touch the SDK targets' repos/custom code)
+  openapi:
+    skip: true
+    options:
+      files:
+        openapi.documented.json:
+          with: [ transforms, code-samples ]
 environments:
   production: https://control.knock.app
 resources:
@@ -35,7 +67,13 @@ resources:
       message_type_markdown_field: "#/components/schemas/MessageTypeMarkdownField"
       message_type_multi_select_field: "#/components/schemas/MessageTypeMultiSelectField"
       message_type_select_field: "#/components/schemas/MessageTypeSelectField"
+      message_type_text_field: "#/components/schemas/MessageTypeTextField"
       message_type_textarea_field: "#/components/schemas/MessageTypeTextareaField"
+      message_type_color_field: "#/components/schemas/MessageTypeColorField"
+      message_type_number_field: "#/components/schemas/MessageTypeNumberField"
+      message_type_list_field: "#/components/schemas/MessageTypeListField"
+      recipient_reference: "#/components/schemas/RecipientReference"
+      goal_attachment: "#/components/schemas/GoalAttachment"
   templates:
     models:
       chat_template: "#/components/schemas/ChatTemplate"
@@ -45,9 +83,13 @@ resources:
       in_app_feed_template: "#/components/schemas/InAppFeedTemplate"
       request_template: "#/components/schemas/RequestTemplate"
       webhook_template: "#/components/schemas/WebhookTemplate"
+    methods:
+      preview: post /v1/templates/preview
   email_layouts:
     models:
       email_layout: "#/components/schemas/EmailLayout"
+      email_layout_request: "#/components/schemas/EmailLayoutRequest"
+      branding_overrides: "#/components/schemas/BrandingOverrides"
     methods:
       list:
         endpoint: get /v1/email_layouts
@@ -57,6 +99,7 @@ resources:
         endpoint: put /v1/email_layouts/{email_layout_key}
       validate:
         endpoint: put /v1/email_layouts/{email_layout_key}/validate
+      preview: post /v1/email_layouts/preview
   commits:
     models:
       commit: "#/components/schemas/Commit"
@@ -68,7 +111,14 @@ resources:
       promote_one: put /v1/commits/{id}/promote
   partials:
     models:
-      partial: "#/components/schemas/Partial"
+      # NOTE: Rename Partial for TS only to avoid a conflict.
+      partial:
+        openapi_uri: "#/components/schemas/Partial"
+        skip: [ typescript ]
+      partial_resource:
+        openapi_uri: "#/components/schemas/Partial"
+        only: [ typescript ]
+      partial_request: "#/components/schemas/PartialRequest"
     methods:
       list:
         endpoint: get /v1/partials
@@ -78,9 +128,11 @@ resources:
         endpoint: put /v1/partials/{partial_key}
       validate:
         endpoint: put /v1/partials/{partial_key}/validate
+      preview: post /v1/partials/preview
   translations:
     models:
       translation: "#/components/schemas/Translation"
+      translation_request: "#/components/schemas/TranslationRequest"
     methods:
       list:
         endpoint: get /v1/translations
@@ -102,6 +154,7 @@ resources:
       workflow_branch_step: "#/components/schemas/WorkflowBranchStep"
       workflow_chat_step: "#/components/schemas/WorkflowChatStep"
       workflow_in_app_feed_step: "#/components/schemas/WorkflowInAppFeedStep"
+      workflow_in_app_guide_step: "#/components/schemas/WorkflowInAppGuideStep"
       workflow_email_step: "#/components/schemas/WorkflowEmailStep"
       workflow_push_step: "#/components/schemas/WorkflowPushStep"
       workflow_sms_step: "#/components/schemas/WorkflowSmsStep"
@@ -111,11 +164,15 @@ resources:
       workflow_throttle_step: "#/components/schemas/WorkflowThrottleStep"
       workflow_trigger_workflow_step: "#/components/schemas/WorkflowTriggerWorkflowStep"
       workflow_random_cohort_step: "#/components/schemas/WorkflowRandomCohortStep"
+      workflow_random_cohort_step_branch: "#/components/schemas/WorkflowRandomCohortStepBranch"
       workflow_update_data_step: "#/components/schemas/WorkflowUpdateDataStep"
       workflow_update_user_step: "#/components/schemas/WorkflowUpdateUserStep"
       workflow_update_tenant_step: "#/components/schemas/WorkflowUpdateTenantStep"
       workflow_update_object_step: "#/components/schemas/WorkflowUpdateObjectStep"
       workflow_ai_agent_step: "#/components/schemas/WorkflowAIAgentStep"
+      inline_identify_user_request: "#/components/schemas/InlineIdentifyUserRequest"
+      workflow_request: "#/components/schemas/WorkflowRequest"
+      condition_group_all_match: "#/components/schemas/ConditionGroupAllMatch"
     methods:
       list:
         endpoint: get /v1/workflows
@@ -138,7 +195,7 @@ resources:
     models:
       message_type: "#/components/schemas/MessageType"
       message_type_variant: "#/components/schemas/MessageTypeVariant"
-      message_type_text_field: "#/components/schemas/MessageTypeTextField"
+      message_type_request: "#/components/schemas/MessageTypeRequest"
     methods:
       list:
         endpoint: get /v1/message_types
@@ -205,7 +262,9 @@ resources:
       source_status_response: "#/components/schemas/SourceStatusResponse"
       sources_response: "#/components/schemas/SourcesResponse"
     methods:
-      list_sources: get /v1/sources
+      list_sources:
+        endpoint: get /v1/sources
+        paginated: false
       retrieve: get /v1/sources/{key}
       upsert: put /v1/sources/{key}
       retrieve_status: get /v1/sources/{key}/status
@@ -233,6 +292,7 @@ resources:
       guide: "#/components/schemas/Guide"
       guide_step: "#/components/schemas/GuideStep"
       guide_activation_url_pattern: "#/components/schemas/GuideActivationUrlPattern"
+      guide_request: "#/components/schemas/GuideRequest"
     methods:
       list:
         endpoint: get /v1/guides
@@ -254,6 +314,7 @@ resources:
       delete: delete /v1/branches/{branch_slug}
       retrieve: get /v1/branches/{branch_slug}
       create: post /v1/branches/{branch_slug}
+      rebase: put /v1/branches/{branch_slug}/rebase
   broadcasts:
     models:
       broadcast_request: "#/components/schemas/BroadcastRequest"
@@ -271,12 +332,64 @@ resources:
       dynamic_audience: "#/components/schemas/DynamicAudience"
       static_audience: "#/components/schemas/StaticAudience"
       audience_condition: "#/components/schemas/AudienceCondition"
+      audience_request: "#/components/schemas/AudienceRequest"
     methods:
       archive: delete /v1/audiences/{audience_key}
       retrieve: get /v1/audiences/{audience_key}
       upsert: put /v1/audiences/{audience_key}
       validate: put /v1/audiences/{audience_key}/validate
       list: get /v1/audiences
+  goals:
+    methods:
+      list: get /v1/goals
+      archive: delete /v1/goals/{goal_key}
+      retrieve: get /v1/goals/{goal_key}
+      upsert: put /v1/goals/{goal_key}
+      validate: put /v1/goals/{goal_key}/validate
+      clone: post /v1/goals/{goal_key}/clone
+    models:
+      goal_condition: "#/components/schemas/GoalCondition"
+      goal_request: "#/components/schemas/GoalRequest"
+      goal: "#/components/schemas/Goal"
+  assets:
+    methods:
+      list: get /v1/assets
+    models:
+      asset: "#/components/schemas/Asset"
+  tags:
+    methods:
+      delete: delete /v1/tags/{name}
+      upsert: put /v1/tags/{name}
+      list: get /v1/tags
+    models:
+      tag: "#/components/schemas/Tag"
+  schemas:
+    methods:
+      list:
+        endpoint: get /v1/schemas
+        paginated: false
+      retrieve: get /v1/schemas/{item_type}
+      upsert: put /v1/schemas/{item_type}
+      validate: put /v1/schemas/{item_type}/validate
+    models:
+      item_schema: "#/components/schemas/ItemSchema"
+  preference_center:
+    methods:
+      retrieve: get /v1/preference_center
+      upsert: put /v1/preference_center
+      reset: put /v1/preference_center/reset
+  billing:
+    methods:
+      retrieve_summary: get /v1/billing/summary
+    models:
+      billing_summary: "#/components/schemas/BillingSummary"
+  preference_categories:
+    methods:
+      list: get /v1/preference_categories
+      delete: delete /v1/preference_categories/{name}
+      upsert: put /v1/preference_categories/{name}
+    models:
+      preference_category: "#/components/schemas/PreferenceCategory"
 settings:
   disable_mock_tests: true
   license: Apache-2.0
@@ -317,6 +430,17 @@ client_settings:
 openapi:
   code_samples:
     stainless: true
+  # NOTE: A suggested workaround from Stainless to get around a bug in stlc with
+  # how `format: time` is handled in Go.
+  transforms:
+    - command: remove
+      reason: drop time format to work around Go build errors
+      args:
+        target: "$..properties[?(@ && @.type === 'string' && @.format === 'time')]"
+        keys: [ "format" ]
+query_settings:
+  nested_format: brackets
+  array_format: brackets
 readme:
   example_requests:
     default:
