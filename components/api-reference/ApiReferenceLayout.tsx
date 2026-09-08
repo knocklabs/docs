@@ -34,6 +34,7 @@ function convertToLegacySidebarFormat(
     (resource: SidebarSection) => ({
       title: resource.title,
       slug: resource.slug,
+      isBeta: resource.isBeta,
       pages: [
         { slug: "/", title: "Overview" },
         ...resource.pages.map((page) => ({
