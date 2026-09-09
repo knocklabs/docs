@@ -15,7 +15,7 @@ const Header = ({ children }) => (
 
 const Wrapper = ({ children }) => {
   return (
-    <Stack direction="column" pt="2" gap="3" data-property-row-wrapper>
+    <Stack direction="column" gap="3" data-property-row-wrapper>
       {children}
     </Stack>
   );
@@ -27,6 +27,7 @@ const Container = ({ children }) => {
       borderBottom="px"
       borderColor="gray-3"
       data-property-row-container
+      pt="3"
       pb="2"
     >
       {children}
