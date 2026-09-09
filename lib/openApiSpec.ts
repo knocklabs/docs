@@ -22,6 +22,7 @@ type StainlessResourceMethod =
 
 type StainlessResource = {
   name?: string;
+  isBeta?: boolean;
   description?: string;
   models?: Record<string, string>;
   methods?: Record<string, StainlessResourceMethod>;
@@ -125,6 +126,7 @@ type SidebarPage = {
 type SidebarSection = {
   title: string;
   slug: string;
+  isBeta?: boolean;
   pages: SidebarPage[];
 };
 
@@ -731,6 +733,7 @@ async function getSidebarData(specName: SpecName): Promise<SidebarData> {
       return {
         title: resource.name || resourceName,
         slug: pathPrefix,
+        isBeta: resource.isBeta ?? false,
         pages: buildResourceSidebarPages(resource, openApiSpec, pathPrefix),
       };
     });
