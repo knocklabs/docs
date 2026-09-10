@@ -1,11 +1,10 @@
 ---
 title: Goals
-description: Learn how to define measurable outcomes, attach them to messaging, and track attributed completions in Knock.
+description: Learn how to define measurable outcomes, attach them to resources, and track attributed completions in Knock.
 tags:
   [
     "goals",
     "attribution",
-    "conversions",
     "completions",
     "outcomes",
     "analytics",
@@ -23,7 +22,7 @@ Each goal has an immutable `key`, a title, an optional description, and a condit
 Use goals to:
 
 - Tell Knock what you are trying to accomplish with customer messaging, beyond opens and clicks.
-- Measure how often an outcome happens, and how often messaging can be credited for it.
+- Measure how often an outcome happens, and which messaging resource it should be attributed to.
 - Give the [Knock agent](/ai/agent) context about intent so it can propose and improve messaging against those outcomes.
 
 ## Creating a goal
@@ -37,23 +36,23 @@ To create a goal, navigate to the **Goals** page in the Knock dashboard, then cr
 
 Goals are scoped to an [environment](/concepts/environments). Create and edit them on the environment's `main` [branch](/version-control/branches). Goals cannot be created or updated on a branch.
 
-When you save a goal, Knock publishes it. Goals do not use the commit-and-promote model that workflows and other versioned resources use.
+When you save a goal, Knock publishes it and measurement starts immediately. Goals have version history but do not use the full commit-and-promote model that other versioned resources use.
 
 ### Versioning
 
-Changes to a goal's title, description, or condition create a new goal version. Attachments reference the goal by **key**, not a pinned version. New completions use the latest published definition. Completions that already happened stay associated with the version that was live when they occurred. On the goal overview, you can break reporting down by goal version.
+Changes to a goal's title, description, or condition create a new goal version. Messaging Resource Attachments reference the goal by **key**, not pinned version. New completions use the latest condition. Completions that already happened stay associated with previous versions.
 
 ### Cloning a goal
 
-You can [clone a goal](/version-control/environments#clone-resources-across-environments) into the same environment or another environment. Cloning copies the latest version of the goal (key, title, description, and condition). It does **not** copy attachments to workflows, broadcasts, or guides.
+You can [clone a goal](/version-control/environments#clone-resources-across-environments) into the same environment or another environment. Clone creates a new goal: you set a new key and title. In the dashboard, these default to `{key}-copy` and `{name} (Copy)`. In the Management API, you pass `key` and `name`. Cloning copies the latest description and condition. It does **not** copy attachments to workflows, broadcasts, or guides.
 
-Goals are not promotable between environments. To use the same goal definition elsewhere, clone it.
+Goals are not promotable between environments. To use the same goal definition elsewhere, clone it to the destination environment.
 
 ### Archiving a goal
 
-Archiving a goal soft-deletes it. Knock stops calculating new completions and attributions for the archived goal, and retains historical versions and completions. You cannot un-archive a goal.
+Archiving a goal soft-deletes it in every environment that shares the same project and key. Knock stops calculating new completions and attributions, retains historical versions and completions, and rewrites the key with an `-archived` suffix so the original key is free to reuse. You cannot un-archive a goal.
 
-If a workflow, broadcast, or guide still has the goal attached, detach it before you archive.
+Detach the goal from every workflow, broadcast, and guide in the project before you archive. Knock refuses the archive if any of those resources still have the goal attached.
 
 ## Goal conditions
 
@@ -61,15 +60,12 @@ A goal condition defines what must happen for Knock to record a completion. Goal
 
 Supported event types:
 
-| Event type                | Description                                                                                                | Match conditions                                              |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| **Integration source**    | An event from a connected [integration source](/integrations/sources/overview), such as Segment or Stripe. | Optional. Filter on event properties under `event.*`.         |
-| **Audience entry / exit** | A recipient enters or exits an [audience](/concepts/audiences).                                            | Not required.                                                 |
-| **Recipient updated**     | A [user](/concepts/users) property changes. Users only; not [objects](/concepts/objects).                  | Required. Filter on recipient properties under `recipient.*`. |
+| Event type                | Description                                                                                                | Match conditions                                      |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Integration source**    | An event from a connected [integration source](/integrations/sources/overview), such as Segment or Stripe. | Optional. Filter on event properties under `event.*`. |
+| **Audience entry / exit** | A recipient enters or exits a [dynamic audience](/concepts/audiences). Static audiences are not supported. | Not required.                                         |
 
 For supported operators, see the [conditions docs](/concepts/conditions).
-
-Goal conditions do not support message events, workflow run events, wait timeouts, or on-match / on-timeout controls. Those remain wait for event–only concepts.
 
 ### When Knock records a completion
 
@@ -78,57 +74,7 @@ Knock records a completion when it sees a matching event for a recipient in that
 What has to be true depends on the event type:
 
 - **Integration source.** The environment has a connected [source](/integrations/sources/overview) that ingested the event, and the event is associated with a recipient Knock knows about.
-- **Audience entry / exit.** The [audience](/concepts/audiences) exists in the same environment, and the recipient entered or exited it.
-- **Recipient updated.** You [identified](/managing-recipients/identifying-recipients) the recipient as a user and updated a property that matches the condition. Recipient-updated goals do not complete for objects.
-
-### Example: recipient property updated
-
-The following examples show the `condition` payload used by the [Management API](/mapi-reference/goals). In the dashboard, pick the event type and match conditions in the goal editor.
-
-```json
-{
-  "event": {
-    "event_type": "recipient",
-    "event_key": "updated"
-  },
-  "match_conditions": [
-    {
-      "operator": "and",
-      "conditions": [
-        {
-          "variable": "recipient.is_paid",
-          "operator": "equal_to",
-          "argument": "true"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Example: source event with a property filter
-
-```json
-{
-  "event": {
-    "event_type": "integration_source",
-    "event_key": "order.completed",
-    "integration_source_key": "stripe"
-  },
-  "match_conditions": [
-    {
-      "operator": "and",
-      "conditions": [
-        {
-          "variable": "event.data.amount",
-          "operator": "greater_than",
-          "argument": "0"
-        }
-      ]
-    }
-  ]
-}
-```
+- **Audience entry / exit.** The [dynamic audience](/concepts/audiences) exists in the same environment, and the recipient entered or exited it.
 
 ## Attaching a goal to messaging
 
@@ -140,7 +86,7 @@ To attach a goal, open the [workflow](/concepts/workflows), [broadcast](/concept
 A goal attachment includes:
 
 - **Goal key.** The key of the goal to attach.
-- **Attribution window.** The number of days after the attribution anchor during which a completion can be credited to the resource. Must be between 7 and 30 days (day granularity). Defaults to 7 days.
+- **Attribution window.** The number of days after the attribution anchor during which a completion can be credited to the resource. Must be between 1 and 30 days (day granularity). Defaults to 7 days.
 
 The attachment lives on the messaging resource's version. Attaching, detaching, or changing the attribution window creates a new version of that workflow, broadcast, or guide, and follows that resource's commit model.
 
@@ -183,20 +129,16 @@ Both resources are inside their windows. Last touch was Workflow A, so Knock att
 
 ## Reporting
 
-On the **Goals** page in the dashboard, you can view all goals in the current environment. The list shows a rolling **30-day activity** sparkline of attributed completions for each goal (day-level granularity). Goals with no attributed completions in the last 30 days omit the sparkline.
+Open a goal on the **Goals** page to see:
 
-Open a goal to see:
-
-- **Overview.** Time series of completions and attributed completions for a selected range, with totals and completion rate. You can break the series down by goal version or by messaging resource, and see attributed completions per attached resource.
-- **Completions log.** A paginated list of individual completions and attributed completions for the same range as the overview. Each row includes the recipient, completion time, triggering event, and (when attributed) the winning messaging resource and message.
+- **Overview.** Time series of completions and attributed completions for a selected range, with totals and completion rate. Completion rate is attributed completions divided by unique recipients messaged in that range.
+- **Completions log.** A paginated list of individual completions and attributed completions for the same range as the overview. Each row includes the recipient, completion time, triggering event, and (when attributed) the winning messaging resource.
 
 Attributed completions are a strict subset of completions. Attribution for analytics can take up to 15 minutes to appear after a completion.
 
-Resource-level conversion metrics on workflow, broadcast, and guide analytics pages are not included in this release. Use the goal detail page and resource breakdowns instead.
-
 ## Goals and the Knock agent
 
-The [Knock agent](/ai/agent) has full read access to goals and their fields. The agent can propose and create goals, reuse an existing goal, or define a new one when building or improving messaging. Goal context helps the agent reason about what your messaging is trying to accomplish, even when a goal is not yet attached to a resource.
+The [Knock agent](/ai/agent) has full read access to goals and their fields. The agent can propose, create, and update goals, reuse an existing goal, or define a new one when building or improving messaging. It can attach a goal by setting `goal_attachment` on a workflow, broadcast, or guide. The agent cannot archive or clone a goal. Goal context helps the agent reason about what your messaging is trying to accomplish, even when a goal is not yet attached to a resource.
 
 ## Managing goals programmatically
 
@@ -209,10 +151,9 @@ Goal upserts publish on save. Unlike workflows and guides, the goals upsert endp
 The following are not available in this release:
 
 - Using a goal as exit criteria to cancel an in-flight workflow run.
+- Recipient-updated goal conditions.
 - Tenant-property goal conditions.
-- Recipient-updated conditions for [objects](/concepts/objects). Recipient-updated goals apply to users only.
 - Attaching more than one goal to a single messaging resource.
-- Goal conversion metrics on the workflow, broadcast, or guide analytics pages.
 - Promoting goals between environments (clone a goal instead).
 - Creating, editing, or attaching goals on a [branch](/version-control/branches).
 - Managing goals with the Knock CLI (coming in a later release).
