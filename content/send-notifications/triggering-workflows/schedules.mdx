@@ -17,15 +17,16 @@ You can create a workflow schedule via the API. Schedules cannot be created in t
 
 ```typescript title="Creating a schedule for multiple recipients"
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
-const schedules = await knock.workflows.createSchedules("park-alert", {
+const schedules = await client.schedules.create({
+  workflow: "park-alert",
   recipients: ["jhammond", "esattler", "dnedry"],
   repeats: [
-    // Repeat daily at 9.30am only on weekdays
+    // Repeat daily at 9:30am only on weekdays
     {
       frequency: "daily",
-      days: "weekdays",
+      days: ["mon", "tue", "wed", "thu", "fri"],
       hours: 9,
       minutes: 30,
     },
