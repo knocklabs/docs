@@ -1,20 +1,77 @@
 ---
 title: Account timezone
-description: Learn how to set the default timezone for your account.
+description: Learn how to set an account timezone and understand when the selected timezone will be applied.
 tags: ["default timezone", "recipient timezone"]
 section: Manage your account
 ---
 
-## Overview
+## Setting account timezone
 
-You can set a default timezone for your account by navigating to the **General** page under your account settings and selecting a timezone.
+You can update your account's default timezone on the <a href="https://dashboard.knock.app/~/settings/account" target="_blank" rel="noopener">**General**</a> page of your dashboard settings.
 
 <Image
   src="/images/manage-your-account/account-timezone.png"
   alt="Account timezone settings in the Knock dashboard"
   width={1356}
   height={1452}
-  className="rounded-md mx-auto border border-gray-200"
+  className="mx-auto"
 />
 
-The account timezone will be used as a fallback for [send windows](/designing-workflows/send-windows) and [schedules](/concepts/schedules) if the recipient does not have a timezone set. If no account timezone is set, Knock falls back to `Etc/UTC`.
+This setting applies to the entire account and informs how Knock evaluates time-based workflow behavior. Timestamps shown throughout the dashboard, such as in logs and message activity, render based on your browser's local timezone rather than the account timezone.
+
+## Timezone-aware features
+
+These features require timezone resolution:
+
+- **Channel step [send windows](/designing-workflows/send-windows).** Determines when a message from the step is allowed to send.
+- **Recurring workflow [schedules](/concepts/schedules).** Determines when the next scheduled workflow run will execute.
+- **Window rules in [batch](/designing-workflows/batch-function), [delay](/designing-workflows/delay-function), and [throttle](/designing-workflows/throttle-function) steps.** Determines when a batch window, delay, or throttle is active.
+
+Steps configured with a fixed duration or with a timestamp from your trigger data are not timezone dependent.
+
+## Resolving timezones
+
+When a workflow evaluates time-based behavior, Knock resolves the timezone in this order:
+
+1. **Recipient timezone.** The timezone is localized to the recipient when there is a valid `timezone` [property](/concepts/recipients#recipient-timezones) available on the user or object.
+2. **Account timezone.** Recipients without a valid `timezone` of their own fall back to the account setting.
+3. **Default timezone.** The timezone defaults to `Etc/UTC` when recipient and account timezones are not set.
+
+<Callout
+  type="info"
+  title="Send windows for push channel steps."
+  text={
+    <>
+      For push channel steps, an optional device-level <code>timezone</code> in
+      the recipient's{" "}
+      <a href="/integrations/push/device-metadata">push channel data</a> takes
+      priority over the timezones above. When device timezones are set, the send
+      window is evaluated per device, so a recipient with devices in different
+      timezones can receive the push notification at different times. Devices
+      without a timezone fall through to the steps above.
+    </>
+  }
+/>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How does Knock handle daylight saving time?" anchorSlug="faq-daylight-saving">
+    `Etc/UTC` does not observe daylight saving time, so any rule resolved against it holds the same UTC time all year. Regions that observe daylight saving time change their offset from UTC twice a year, so the local time your recipients experience moves with it.
+
+    For example, let's say your account timezone is `Etc/UTC`, you haven't set `timezone` on your users, and you schedule a recurring notification for 14:00. All of your users will receive that recurring notification at 14:00 UTC. Recipients on the East Coast of the United States receive it at 9:00 ET through the winter, when their local time runs five hours behind UTC. When their local time moves to four hours behind UTC in the spring, the same 14:00 notification arrives at 10:00 ET instead.
+
+    Setting the account timezone to the region you operate in, such as `America/New_York`, or setting `timezone` per recipient can help maintain a stable user experience for recurring notifications throughout the year.
+
+  </Accordion>
+  <Accordion title="What happens when I change the account timezone?" anchorSlug="faq-changing-account-timezone">
+    Changing the account timezone takes effect immediately. Where you use timezone-aware features, the new account timezone will impact when recipients without their own `timezone` receive messages. Your schedules, send windows, and window rules retain their existing configurations and begin to resolve against the new timezone where applicable.
+
+    Time the change deliberately to avoid sending messages at unexpected times.
+
+  </Accordion>
+  <Accordion title="When should I set an account timezone?" anchorSlug="faq-when-to-set">
+    We recommend determining how your account will resolve timezones before you implement any timezone-aware features. Revisiting that decision later may require adjusting recurring schedules or updating various configurations across active workflows.
+
+  </Accordion>
+</AccordionGroup>

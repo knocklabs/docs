@@ -57,19 +57,6 @@ You can conditionally include the link by checking if the variable is present:
 {% endif %}
 ```
 
-<Callout
-  type="info"
-  title="Unsubscribe links are separate from preference center custom domains."
-  text={
-    <>
-      Preference center{" "}
-      <a href="/manage-your-account/custom-domains">custom domains</a> apply to{" "}
-      <code>vars.manage_preferences_url</code> links only. They do not affect{" "}
-      <code>vars.commercial_unsubscribe_url</code>.
-    </>
-  }
-/>
-
 ## Configuring the confirmation page
 
 When a user unsubscribes by clicking the unsubscribe link, Knock displays a confirmation page showing they have been successfully unsubscribed from commercial messages. You can customize this page by navigating to **Platform** > **Preferences**, then clicking the **Unsubscribe** tab.
@@ -105,6 +92,24 @@ When a user unsubscribes by clicking the unsubscribe link, Knock displays a conf
 When a recipient clicks the unsubscribe link, their `default` preference set will be updated, marking `commercial_subscribed` as `false`. They will be opted-out of commercial messages, and they will continue to receive transactional messages based on their other preferences.
 
 This recipient-level preference will take precedence over other environment or tenant preferences. Learn more about [preference merging](/preferences/overview#preference-evaluation-rules).
+
+## Setting `commercial_subscribed` via API
+
+The unsubscribe link writes this preference for you, but you can also set it yourself. This is useful to sync an opt-out you captured elsewhere in your product, or to backfill preferences across your existing users.
+
+`commercial_subscribed` lives on the recipient's `default` preference set. Call the [set user preferences endpoint](/api-reference/users/set_preferences) with a `merge` persistence strategy to update this key without replacing the rest of the preference set.
+
+```javascript title="Opt a user out of commercial messages"
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+await knock.users.setPreferences("user-id", "default", {
+  __persistence_strategy__: "merge",
+  commercial_subscribed: false,
+});
+```
+
+To update many users at once, use [bulk set preferences](/preferences/overview#bulk-set-user-preferences).
 
 ## Learn more
 

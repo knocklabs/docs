@@ -1,5 +1,5 @@
 ---
-description: Rules for validating Callout component usage and type selection
+description: Rules for validating Callout component usage and Accordion anchorSlug conventions
 globs:
   - content/**/*.mdx
 alwaysApply: true
@@ -241,3 +241,78 @@ Flag a Callout for review when:
 When flagging incorrect Callout usage, use this format:
 
 > **Callout type mismatch:** This Callout uses `type="[current]"` but the content suggests it should be `type="[suggested]"` because [reason]. Consider updating the type to better match the severity and nature of the message.
+
+## Accordion anchorSlug validation
+
+Set an `anchorSlug` on accordions worth linking to directly. It becomes the element `id`, so the accordion opens and scrolls into view when the URL hash matches, and it renders the "copy link" affordance on the accordion header.
+
+Lean toward adding one. Readers and support link to individual panels often, and the affordance only renders when the slug is present, so a page where some accordions have one and others do not reads as broken rather than deliberate.
+
+### Validation rules
+
+1. The slug is lowercase `a-z0-9` with words joined by hyphens, and has no leading, trailing, or doubled hyphens.
+2. Underscores appear only inside a code identifier reproduced verbatim from the title, such as `format_date_in_locale`.
+3. The slug is 50 characters or fewer.
+4. An accordion under a "Frequently asked questions" heading carries a `faq-` prefix and condenses the question to a topic phrase. An accordion outside such a section does not carry that prefix.
+5. The `Settings`, `Overrides`, and `Conditions` accordions under a provider's "Channel configuration" heading carry a `configuration-` prefix.
+6. The slug is unique within its page, and never equal to a heading id or a `<Step>` id on that page.
+
+An accordion may skip `anchorSlug` when the enclosing heading is the better link target, which covers titles that repeat across a page and small groups presenting alternative routes to one outcome. Treat a whole group the same way rather than slugging only some of its panels.
+
+### Review checklist
+
+1. Is this accordion worth linking to directly, and if so does it set an `anchorSlug`?
+2. Does the slug match the format and length rules?
+3. Does the `faq-` prefix match whether the accordion sits under a "Frequently asked questions" heading?
+4. Would the slug collide with another accordion, a heading, or a `<Step>` title on the same page?
+5. Does an FAQ slug condense the question rather than repeat it?
+
+### Examples of incorrect usage
+
+❌ **Incorrect:** No anchor, so the accordion cannot be linked to
+
+```mdx
+<Accordion title="Settings">
+```
+
+✅ **Correct:** Prefixed with its "Channel configuration" section
+
+```mdx
+<Accordion title="Settings" anchorSlug="configuration-settings">
+```
+
+❌ **Incorrect:** Repeats the full question and exceeds 50 characters
+
+```mdx
+<Accordion
+  title="How do I set per-environment batch windows?"
+  anchorSlug="faq-how-do-i-set-per-environment-batch-windows"
+>
+```
+
+✅ **Correct:** Condensed to a topic phrase
+
+```mdx
+<Accordion
+  title="How do I set per-environment batch windows?"
+  anchorSlug="faq-per-environment-batch-windows"
+>
+```
+
+❌ **Incorrect:** Duplicates the `## Supported locales` heading id on the same page
+
+```mdx
+<Accordion title="Supported locales" anchorSlug="supported-locales">
+```
+
+✅ **Correct:** Distinct from the heading id
+
+```mdx
+<Accordion title="Supported locales" anchorSlug="locale-list">
+```
+
+### Suggested review message format
+
+When flagging incorrect `anchorSlug` usage, use this format:
+
+> **Accordion anchorSlug issue:** This accordion's `anchorSlug` [is missing / collides with [target] / repeats the full question / exceeds 50 characters] because [reason]. Consider using `anchorSlug="[suggestion]"`.

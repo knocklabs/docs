@@ -14,6 +14,9 @@ tags:
     "clone",
     "cloning",
     "duplicate",
+    "rename",
+    "renaming",
+    "slug",
   ]
 section: Concepts
 ---
@@ -37,7 +40,10 @@ With Knock environments you:
 - For production-critical use cases, create content in your development environment, then **promote** it to production.
 
 <AccordionGroup>
-  <Accordion title="A typical Knock customer setup">
+  <Accordion
+    title="A typical Knock customer setup"
+    anchorSlug="a-typical-knock-customer-setup"
+  >
     Here's a typical setup for customers using Knock with two environments. 1.
     **Development environment.** Usually used by engineering and product teams.
     Contains your development data, and any transactional workflows or other
@@ -54,7 +60,7 @@ With Knock environments you:
 Each environment has a set of **data resources** that are per-environment and will never be shared between environments. These data resources are not version-controlled.
 
 <AccordionGroup>
-  <Accordion title="See all per-environment data resources">
+  <Accordion title="See all per-environment data resources" anchorSlug="see-all-per-environment-data-resources">
     The following data resources are per-environment and not version-controlled:
 
     - Users
@@ -79,7 +85,7 @@ Each environment has its own set of API keys which you use to send data to the e
 Each environment has a set of **content resources** that are managed via version control. These are resources associated with the creation and orchestration of the content you send to your customers.
 
 <AccordionGroup>
-  <Accordion title="See all version-controlled content resources">
+  <Accordion title="See all version-controlled content resources" anchorSlug="see-all-version-controlled-content-resources">
     The following content resources are version-controlled:
 
     - Workflows
@@ -102,7 +108,7 @@ Here's how content resources work:
 These rules enable two ways of working with content and shipping it to your end users in production:
 
 <AccordionGroup>
-  <Accordion title="Create in development and promote to production">
+  <Accordion title="Create in development and promote to production" anchorSlug="create-in-development-and-promote-to-production">
     For content managed by engineering, such as high-volume transactional workflows, this path ensures that content can only be updated in development before being promoted to production.
 
     1. Create and update the content in your development environment
@@ -110,7 +116,7 @@ These rules enable two ways of working with content and shipping it to your end 
     3. Promote the changes to your production environment when ready
 
   </Accordion>
-  <Accordion title="Create directly in production">
+  <Accordion title="Create directly in production" anchorSlug="create-directly-in-production">
     For content managed by growth, marketing, and product, such as feature announcements and lifecycle workflows, this path is faster and doesn't require the promotion step.
     1. Create and update the content in your production environment
     2. Publish (commit) the changes to your production environment when ready
@@ -257,6 +263,52 @@ A new environment is not empty. Knock seeds it from the environment directly bel
   }
 />
 
+## Rename an environment
+
+You can rename any additional environment that you created. Your Development and Production environments cannot be renamed.
+
+<Steps titleSize="h4">
+  {/* prettier-ignore */}
+  <Step title="Go to the Environments page">
+    Navigate to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings.
+  </Step>
+  <Step title="Select the environment you want to rename">
+    Open the action menu next to the environment you want to rename, select
+    **Edit environment**, update the **Name** field, and click **Update**.
+  </Step>
+  <Step title="Update any slug references">
+    Knock derives an environment's slug from its name, so renaming an
+    environment also changes its slug. Update the following after you rename an
+    environment:
+    <ul>
+      <li>
+        **CLI commands and CI pipelines.** Any `--environment` flag that uses
+        the old slug, such as `knock workflow list --environment=staging`.
+      </li>
+      <li>
+        **Management API requests.** Any `environment` or `to_environment` query
+        parameter that uses the old slug.
+      </li>
+    </ul>
+  </Step>
+</Steps>
+
+A renamed environment keeps its unique ID, its API keys, and its position in your promotion path. Workflows, guides, layouts, and other content are untouched, and no data moves between environments. Any environment-specific [custom permissions](/manage-your-account/roles-and-permissions#custom-permission-groups) are also preserved on the renamed environment.
+
+Renaming an environment requires the `owner` or `admin` role, or a custom role with environment management permissions.
+
+<Callout
+  type="info"
+  title="Branch environments cannot be renamed."
+  text={
+    <>
+      A <a href="/version-control/branches">branch</a> takes the name you give
+      it when you create it, and that name is fixed for the life of the branch.
+      If you need a different name, delete the branch and create a new one.
+    </>
+  }
+/>
+
 ## Environment access controls
 
 We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
@@ -264,16 +316,22 @@ We recognize the importance of protecting your sensitive data, so we designed Kn
 There are two tools you can use to control access to your data in the Knock dashboard:
 
 - [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers built-in roles for common team functions, and on Enterprise plans [custom permission groups](/manage-your-account/roles-and-permissions#custom-permission-groups) with per-environment access controls. For example, you can give support team members access to debug issues without permission to change notification logic, or deny access to an environment entirely.
-- [Customer data obfuscation.](/manage-your-account/data-obfuscation) You can use our per-environment data obfuscation controls to configure whether you want your team members to be able to view customer data in the Knock dashboard.
+- [Customer data obfuscation.](/manage-your-account/data-obfuscation) Use environment-level controls to hide customer data for every team member in an environment. On Enterprise plans, [custom permission groups](/manage-your-account/roles-and-permissions#customer-data-obfuscation) can also set per-environment obfuscation rules.
 
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Can I programmatically create or delete environments?">
-    No, you cannot programmatically create or delete environments. You can only
-    create and delete environments through the Knock dashboard at this time.
+  <Accordion
+    title="Can I programmatically create, rename, or delete environments?"
+    anchorSlug="faq-programmatically-manage-environments"
+  >
+    Not at this time. You can only create, rename, and delete environments
+    through the Knock dashboard.
   </Accordion>
-  <Accordion title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?">
+  <Accordion
+    title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?"
+    anchorSlug="faq-move-resource-from-production-to-development"
+  >
     Yes. Use [cloning resources across
     environments](/version-control/environments#clone-resources-across-environments)
     to copy the resource into your development environment. By default a `-copy`

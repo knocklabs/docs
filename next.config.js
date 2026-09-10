@@ -79,6 +79,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/designing-workflows/trigger-guide-step",
+        destination: "/designing-workflows/in-app-guide-step",
+        permanent: true,
+      },
+      {
+        source: "/manage-your-account/managing-usage",
+        destination: "/manage-your-account/knock-plans",
+        permanent: true,
+      },
+      {
         source: "/developer-tools/integrating-into-cicd",
         destination: "/tutorials/integrating-into-cicd",
         permanent: true,

@@ -1819,6 +1819,8 @@ components:
                   action_url: '{{ vars.app_url }}'
                   markdown_body: Hello **{{ recipient.name }}**
                 type: channel
+            tags:
+              - in-review
             target_audience_key: premium-users
             updated_at: "2023-02-08T22:15:19.846681Z"
             valid: true
@@ -1943,6 +1945,8 @@ components:
                 action_url: '{{ vars.app_url }}'
                 markdown_body: Hello **{{ recipient.name }}**
               type: channel
+          tags:
+            - in-review
           target_audience_key: premium-users
           updated_at: "2023-02-08T22:15:19.846681Z"
           valid: true
@@ -2807,6 +2811,7 @@ components:
           x-validate: null
         description:
           description: A description of the audience.
+          maxLength: 255
           nullable: true
           type: string
           x-struct: null
@@ -3272,6 +3277,8 @@ components:
                 action_url: '{{ vars.app_url }}'
                 markdown_body: Hello **{{ recipient.name }}**
               type: channel
+          tags:
+            - in-review
           target_audience_key: all-users
       properties:
         broadcast:
@@ -4921,6 +4928,8 @@ components:
               action_url: '{{ vars.app_url }}'
               markdown_body: Hello **{{ recipient.name }}**
             type: channel
+        tags:
+          - in-review
         target_audience_key: all-users
       properties:
         categories:
@@ -4985,6 +4994,15 @@ components:
               - $ref: '#/components/schemas/WorkflowRandomCohortStep'
             description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
             type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        tags:
+          description: A list of resource tags attached to the broadcast. Tags must exist in the project's tag catalog.
+          items:
+            type: string
             x-struct: null
             x-validate: null
           type: array
@@ -5568,6 +5586,146 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageType
       x-validate: null
+    BillingSummary:
+      description: A snapshot of the current draft Orb invoice for the account, including plan, per-metric usage, and remaining credit blocks.
+      example:
+        amount_due: "110.00"
+        credits:
+          - currency: mnr_credits
+            effective_at: "2026-01-01T00:00:00.000000Z"
+            expires_at: "2027-01-01T00:00:00.000000Z"
+            id: crb_year1
+            name: Monthly notified recipients
+            quantity: 10800000
+            remaining: 6760000
+            status: active
+        currency: USD
+        invoice_id: UR2cRSkE42n3XWfz
+        period_end: "2026-09-18T23:59:59.000000Z"
+        period_start: "2026-08-19T00:00:00.000000Z"
+        plan:
+          display_name: Starter
+          id: starter-june-2023
+          type: starter
+        target_date: "2026-09-19"
+        usage:
+          - amount: "90.00"
+            credits_applied: 0
+            metric_id: 5LrfGRz9En96R9Hg
+            name: Messages Sent
+            pricing_currency: USD
+            quantity: 12500
+            quantity_type: usage
+          - amount: "0.00"
+            credits_applied: 0
+            metric_id: C4vGey39VY99wxky
+            name: Monthly notified recipients - guides
+            pricing_currency: USD
+            quantity: 320
+            quantity_type: usage
+          - amount: "20.00"
+            credits_applied: 0
+            metric_id: LPQ3cxs8xN6XPigy
+            name: Workflow Runs
+            pricing_currency: USD
+            quantity: 48
+            quantity_type: usage
+      properties:
+        amount_due:
+          description: The amount due on the draft invoice, as a decimal string.
+          type: string
+          x-struct: null
+          x-validate: null
+        credits:
+          description: Unexpired Orb credit blocks for custom pricing units on the draft invoice, including scheduled and depleted allotments.
+          items:
+            $ref: '#/components/schemas/BillingCreditBlock'
+          type: array
+          x-struct: null
+          x-validate: null
+        currency:
+          description: The invoice currency code, such as USD.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        invoice_id:
+          description: The Orb draft invoice id, if present.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        period_end:
+          description: The end of the current usage period, hoisted from the first usage line item.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        period_start:
+          description: The start of the current usage period, hoisted from the first usage line item.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        plan:
+          description: The Knock plan currently assigned to the account.
+          properties:
+            display_name:
+              description: The human-readable plan name.
+              type: string
+              x-struct: null
+              x-validate: null
+            id:
+              description: The unique identifier of the plan.
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: The plan type.
+              enum:
+                - free
+                - starter
+                - growth
+                - enterprise
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - id
+            - type
+            - display_name
+          type: object
+          x-struct: null
+          x-validate: null
+        target_date:
+          description: The date the draft invoice is scheduled to be issued.
+          format: date
+          type: string
+          x-struct: null
+          x-validate: null
+        usage:
+          description: Per-metric usage line items from the draft invoice.
+          items:
+            $ref: '#/components/schemas/BillingUsageRecord'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - invoice_id
+        - amount_due
+        - currency
+        - target_date
+        - period_start
+        - period_end
+        - plan
+        - usage
+        - credits
+      title: BillingSummary
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BillingSummary
+      x-validate: null
     PreviewTemplateResponse:
       description: A response to a template preview request.
       example:
@@ -5649,6 +5807,68 @@ components:
       title: PreviewTemplateResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewTemplateResponse
+      x-validate: null
+    BillingUsageRecord:
+      description: Usage for a single Orb billable metric on the current draft invoice.
+      example:
+        amount: "90.00"
+        credits_applied: 0
+        metric_id: 5LrfGRz9En96R9Hg
+        name: Messages Sent
+        pricing_currency: USD
+        quantity: 12500
+        quantity_type: usage
+      properties:
+        amount:
+          description: The billed dollar amount for this metric after credits and adjustments.
+          type: string
+          x-struct: null
+          x-validate: null
+        credits_applied:
+          description: Prepaid credits applied to this metric during the current service period.
+          type: integer
+          x-struct: null
+          x-validate: null
+        metric_id:
+          description: The Orb billable metric id.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The Orb billable metric name.
+          type: string
+          x-struct: null
+          x-validate: null
+        pricing_currency:
+          description: The Orb price currency for this line item, used to correlate usage with credit blocks.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        quantity:
+          description: Orb line-item usage quantity for this period. This is not replaced by credits_applied.
+          type: integer
+          x-struct: null
+          x-validate: null
+        quantity_type:
+          description: Whether the GraphQL usage quantity is raw usage or credits applied. Prefer quantity and credits_applied for new clients.
+          enum:
+            - usage
+            - credits
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - metric_id
+        - pricing_currency
+        - quantity
+        - credits_applied
+        - quantity_type
+        - amount
+      title: BillingUsageRecord
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BillingUsageRecord
       x-validate: null
     SourceLogsResponse:
       description: A paginated list of source logs. Include `actions` in the `include` query parameter to return action details for each log.
@@ -5983,6 +6203,79 @@ components:
       title: MessageTypeBooleanField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.BooleanField
+      x-validate: null
+    BillingCreditBlock:
+      description: An unexpired Orb credit block, including scheduled and depleted allotments.
+      example:
+        currency: mnr_credits
+        effective_at: "2026-01-01T00:00:00.000000Z"
+        expires_at: "2027-01-01T00:00:00.000000Z"
+        id: crb_year1
+        name: Monthly notified recipients
+        quantity: 10800000
+        remaining: 6760000
+        status: active
+      properties:
+        currency:
+          description: The Orb custom pricing-unit identifier, such as mnr_credits or ai_credits.
+          type: string
+          x-struct: null
+          x-validate: null
+        effective_at:
+          description: When the block becomes effective.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        expires_at:
+          description: When the block expires.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The Orb credit block id.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The display name for the credit currency.
+          type: string
+          x-struct: null
+          x-validate: null
+        quantity:
+          description: The block's original allocation.
+          type: number
+          x-struct: null
+          x-validate: null
+        remaining:
+          description: The block's remaining balance.
+          type: number
+          x-struct: null
+          x-validate: null
+        status:
+          description: 'Derived block status: scheduled when not yet effective, depleted when remaining is zero or less, otherwise active.'
+          enum:
+            - active
+            - depleted
+            - scheduled
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - name
+        - currency
+        - quantity
+        - remaining
+        - status
+        - effective_at
+        - expires_at
+      title: BillingCreditBlock
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BillingCreditBlock
       x-validate: null
     WorkflowUpdateTenantStep:
       description: An update tenant step. Updates properties of a specific tenant referenced in the workflow.
@@ -6586,6 +6879,8 @@ components:
               action_url: '{{ vars.app_url }}'
               markdown_body: Hello **{{ recipient.name }}**
             type: channel
+        tags:
+          - in-review
         target_audience_key: premium-users
         updated_at: "2023-02-08T22:15:19.846681Z"
         valid: true
@@ -6696,6 +6991,15 @@ components:
               - $ref: '#/components/schemas/WorkflowRandomCohortStep'
             description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
             type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        tags:
+          description: A list of resource tags attached to the broadcast. Tags must exist in the project's tag catalog.
+          items:
+            type: string
             x-struct: null
             x-validate: null
           type: array
@@ -8386,6 +8690,7 @@ components:
           x-validate: null
         description:
           description: A description of the audience.
+          maxLength: 255
           nullable: true
           type: string
           x-struct: null
@@ -8608,6 +8913,7 @@ components:
       properties:
         description:
           description: A description of the audience.
+          maxLength: 255
           nullable: true
           type: string
           x-struct: null
@@ -8829,7 +9135,21 @@ components:
               x-struct: null
               x-validate: null
             model:
-              description: The AI model to use in `provider:model` format (e.g. `anthropic:claude-haiku-4-5`, `openai:gpt-5.2-chat-latest`). See the documentation for a list of supported models.
+              description: The AI model to use in `provider:model` format.
+              enum:
+                - anthropic:claude-haiku-4-5
+                - anthropic:claude-sonnet-5
+                - anthropic:claude-opus-5
+                - anthropic:claude-sonnet-4-5
+                - anthropic:claude-sonnet-4-6
+                - anthropic:claude-opus-4-5
+                - anthropic:claude-opus-4-6
+                - openai:gpt-5.6-sol
+                - openai:gpt-5.6-terra
+                - openai:gpt-5.6-luna
+                - openai:gpt-5.2-chat-latest
+                - openai:gpt-5.2
+                - openai:gpt-5.2-pro
               example: anthropic:claude-haiku-4-5
               type: string
               x-struct: null
@@ -10432,6 +10752,7 @@ components:
       properties:
         description:
           description: A description of the audience.
+          maxLength: 255
           nullable: true
           type: string
           x-struct: null
@@ -11388,6 +11709,7 @@ components:
         owner: system
         slug: development
         updated_at: "2022-10-31T19:59:03Z"
+        visibility: visible
       properties:
         created_at:
           description: The timestamp of when the environment was created.
@@ -11451,6 +11773,15 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        visibility:
+          description: Whether the environment is part of the account catalog.
+          enum:
+            - visible
+            - hidden
+          example: visible
+          type: string
+          x-struct: null
+          x-validate: null
       required:
         - name
         - slug
@@ -11458,6 +11789,7 @@ components:
         - created_at
         - updated_at
         - owner
+        - visibility
       title: Environment
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Environment
@@ -13163,6 +13495,7 @@ components:
             owner: system
             slug: development
             updated_at: "2022-10-31T19:59:03Z"
+            visibility: visible
         page_info:
           after: null
           before: null
@@ -13285,16 +13618,16 @@ paths:
       description: Returns a paginated list of goals for the given environment.
       operationId: listGoals
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -13386,6 +13719,49 @@ paths:
       summary: List goals
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const goal of client.goals.list()) {
+            console.log(goal.condition);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.goals.list()
+          page = page.entries[0]
+          print(page.condition)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Goals.List(context.TODO(), knockmapi.GoalListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/workflows/{workflow_key}:
     get:
       callbacks: {}
@@ -13400,16 +13776,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -13452,7 +13828,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const workflow = await client.workflows.retrieve('workflow_key', { environment: 'development' });
+          const workflow = await client.workflows.retrieve('workflow_key');
 
           console.log(workflow.valid);
         python: |-
@@ -13464,7 +13840,6 @@ paths:
           )
           workflow = client.workflows.retrieve(
               workflow_key="workflow_key",
-              environment="development",
           )
           print(workflow.valid)
         go: |
@@ -13485,9 +13860,7 @@ paths:
           	workflow, err := client.Workflows.Get(
           		context.TODO(),
           		"workflow_key",
-          		knockmapi.WorkflowGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.WorkflowGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -13510,16 +13883,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -13680,7 +14053,6 @@ paths:
           });
 
           const response = await client.workflows.upsert('workflow_key', {
-            environment: 'development',
             workflow: {
               name: 'My Workflow',
               steps: [
@@ -13703,7 +14075,6 @@ paths:
           )
           response = client.workflows.upsert(
               workflow_key="workflow_key",
-              environment="development",
               workflow={
                   "name": "My Workflow",
                   "steps": [{
@@ -13735,8 +14106,7 @@ paths:
           		context.TODO(),
           		"workflow_key",
           		knockmapi.WorkflowUpsertParams{
-          			Environment: "development",
-          			Workflow: knockmapi.WorkflowUpsertParamsWorkflow{
+          			Workflow: knockmapi.WorkflowRequestParam{
           				Name: "My Workflow",
           				Steps: []knockmapi.WorkflowStepUnionParam{{
           					OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
@@ -13837,7 +14207,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
           required: false
@@ -13912,16 +14282,16 @@ paths:
         Note: this endpoint only operates on partials in the “development” environment.
       operationId: validatePartial
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -14020,7 +14390,6 @@ paths:
           });
 
           const response = await client.partials.validate('partial_key', {
-            environment: 'development',
             partial: {
               content: '<p>Hello, world!</p>',
               name: 'My Partial',
@@ -14038,7 +14407,6 @@ paths:
           )
           response = client.partials.validate(
               partial_key="partial_key",
-              environment="development",
               partial={
                   "content": "<p>Hello, world!</p>",
                   "name": "My Partial",
@@ -14065,11 +14433,10 @@ paths:
           		context.TODO(),
           		"partial_key",
           		knockmapi.PartialValidateParams{
-          			Environment: "development",
-          			Partial: knockmapi.PartialValidateParamsPartial{
+          			Partial: knockmapi.PartialRequestParam{
           				Content: "<p>Hello, world!</p>",
           				Name:    "My Partial",
-          				Type:    "html",
+          				Type:    knockmapi.PartialRequestTypeHTML,
           			},
           		},
           	)
@@ -14141,7 +14508,7 @@ paths:
       description: Returns connected sources for the project.
       operationId: listSources
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
           required: false
@@ -14231,16 +14598,16 @@ paths:
         This is useful for previewing layouts in isolation, before saving them.
       operationId: previewEmailLayout
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -14266,6 +14633,71 @@ paths:
       summary: Preview an email layout
       tags:
         - Email layouts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.emailLayouts.preview({
+            email_layout: {
+              html_layout: '<html><body>Hello {{ recipient.name }}! {{ content }}</body></html>',
+              name: 'Transactional',
+              text_layout: 'Hello {{ recipient.name }}! {{ content }}',
+            },
+            recipient: 'user_123',
+          });
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.email_layouts.preview(
+              email_layout={
+                  "html_layout": "<html><body>Hello {{ recipient.name }}! {{ content }}</body></html>",
+                  "name": "Transactional",
+                  "text_layout": "Hello {{ recipient.name }}! {{ content }}",
+              },
+              recipient="user_123",
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          	"github.com/knocklabs/knock-mgmt-go/shared"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.EmailLayouts.Preview(context.TODO(), knockmapi.EmailLayoutPreviewParams{
+          		EmailLayout: knockmapi.EmailLayoutRequestParam{
+          			HTMLLayout: "<html><body>Hello {{ recipient.name }}! {{ content }}</body></html>",
+          			Name:       "Transactional",
+          			TextLayout: "Hello {{ recipient.name }}! {{ content }}",
+          		},
+          		Recipient: shared.RecipientReferenceUnionParam{
+          			OfString: knockmapi.String("user_123"),
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -14283,16 +14715,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -14413,7 +14845,6 @@ paths:
           });
 
           const response = await client.workflows.validate('workflow_key', {
-            environment: 'development',
             workflow: {
               name: 'My Workflow',
               steps: [
@@ -14436,7 +14867,6 @@ paths:
           )
           response = client.workflows.validate(
               workflow_key="workflow_key",
-              environment="development",
               workflow={
                   "name": "My Workflow",
                   "steps": [{
@@ -14468,8 +14898,7 @@ paths:
           		context.TODO(),
           		"workflow_key",
           		knockmapi.WorkflowValidateParams{
-          			Environment: "development",
-          			Workflow: knockmapi.WorkflowValidateParamsWorkflow{
+          			Workflow: knockmapi.WorkflowRequestParam{
           				Name: "My Workflow",
           				Steps: []knockmapi.WorkflowStepUnionParam{{
           					OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
@@ -14491,19 +14920,19 @@ paths:
   /v1/message_types:
     get:
       callbacks: {}
-      description: Returns a paginated list of message types available in a given environment.
+      description: Returns a paginated list of message types. When the environment is omitted, the account default is used. Root environments share the Development catalog.
       operationId: listMessageTypes
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -14621,7 +15050,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const messageType of client.messageTypes.list({ environment: 'development' })) {
+          for await (const messageType of client.messageTypes.list()) {
             console.log(messageType.valid);
           }
         python: |-
@@ -14631,9 +15060,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.message_types.list(
-              environment="development",
-          )
+          page = client.message_types.list()
           page = page.entries[0]
           print(page.valid)
         go: |
@@ -14651,9 +15078,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.MessageTypes.List(context.TODO(), knockmapi.MessageTypeListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.MessageTypes.List(context.TODO(), knockmapi.MessageTypeListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -14662,7 +15087,7 @@ paths:
   /v1/goals/{goal_key}:
     delete:
       callbacks: {}
-      description: Archives a given goal across all environments.
+      description: Archives a given goal across all environments. Refuses if any workflow, guide, or broadcast is attached to the goal.
       operationId: archiveGoal
       parameters:
         - description: The key of the goal to archive.
@@ -14673,10 +15098,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -14707,6 +15132,53 @@ paths:
       summary: Archive a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.archive('goal_key');
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.archive(
+              goal_key="goal_key",
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Archive(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalArchiveParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
     get:
       callbacks: {}
       description: Retrieve a goal by its key in a given environment.
@@ -14720,16 +15192,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -14756,15 +15228,62 @@ paths:
       summary: Get a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const goal = await client.goals.retrieve('goal_key');
+
+          console.log(goal.condition);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          goal = client.goals.retrieve(
+              goal_key="goal_key",
+          )
+          print(goal.condition)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	goal, err := client.Goals.Get(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", goal.Condition)
+          }
     put:
       callbacks: {}
       description: Updates a goal of a given key, or creates a new one if it does not yet exist. The goal is published immediately; this endpoint does not accept a commit parameter.
       operationId: upsertGoal
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -14854,10 +15373,81 @@ paths:
       summary: Upsert a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.upsert('goal_key', {
+            goal: {
+              condition: { event: { event_type: 'recipient' } },
+              name: 'Trial Conversion',
+            },
+          });
+
+          console.log(response.goal);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.upsert(
+              goal_key="goal_key",
+              goal={
+                  "condition": {
+                      "event": {
+                          "event_type": "recipient"
+                      }
+                  },
+                  "name": "Trial Conversion",
+              },
+          )
+          print(response.goal)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Upsert(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalUpsertParams{
+          			Goal: knockmapi.GoalRequestParam{
+          				Condition: knockmapi.GoalConditionParam{
+          					Event: knockmapi.GoalConditionEventUnionParam{
+          						OfWorkflowWaitForEventRecipientEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventRecipientEventParam{
+          							EventType: "recipient",
+          						},
+          					},
+          				},
+          				Name: "Trial Conversion",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Goal)
+          }
   /v1/environments:
     get:
       callbacks: {}
-      description: Returns a paginated list of environments. The environments will be returned in order of their index, with the `development` environment first.
+      description: Returns a paginated list of visible environments in catalog order.
       operationId: listEnvironments
       parameters:
         - description: The cursor to fetch entries after.
@@ -14902,6 +15492,7 @@ paths:
                       owner: system
                       slug: development
                       updated_at: "2022-10-31T19:59:03Z"
+                      visibility: visible
                   page_info:
                     after: null
                     before: null
@@ -15042,6 +15633,49 @@ paths:
       summary: List assets
       tags:
         - Assets
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const asset of client.assets.list()) {
+            console.log(asset.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.assets.list()
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Assets.List(context.TODO(), knockmapi.AssetListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/broadcasts/{broadcast_key}:
     get:
       callbacks: {}
@@ -15056,16 +15690,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -15108,7 +15742,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const broadcast = await client.broadcasts.retrieve('broadcast_key', { environment: 'development' });
+          const broadcast = await client.broadcasts.retrieve('broadcast_key');
 
           console.log(broadcast.valid);
         python: |-
@@ -15120,7 +15754,6 @@ paths:
           )
           broadcast = client.broadcasts.retrieve(
               broadcast_key="broadcast_key",
-              environment="development",
           )
           print(broadcast.valid)
         go: |
@@ -15141,9 +15774,7 @@ paths:
           	broadcast, err := client.Broadcasts.Get(
           		context.TODO(),
           		"broadcast_key",
-          		knockmapi.BroadcastGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.BroadcastGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -15164,16 +15795,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -15212,6 +15843,8 @@ paths:
                         action_url: '{{ vars.app_url }}'
                         markdown_body: Hello **{{ recipient.name }}**
                       type: channel
+                  tags:
+                    - in-review
                   target_audience_key: all-users
               properties:
                 broadcast:
@@ -15256,6 +15889,8 @@ paths:
                           action_url: '{{ vars.app_url }}'
                           markdown_body: Hello **{{ recipient.name }}**
                         type: channel
+                    tags:
+                      - in-review
                     target_audience_key: premium-users
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -15281,7 +15916,6 @@ paths:
           });
 
           const response = await client.broadcasts.upsert('broadcast_key', {
-            environment: 'development',
             broadcast: {
               name: 'My Broadcast',
               steps: [
@@ -15304,7 +15938,6 @@ paths:
           )
           response = client.broadcasts.upsert(
               broadcast_key="broadcast_key",
-              environment="development",
               broadcast={
                   "name": "My Broadcast",
                   "steps": [{
@@ -15336,7 +15969,6 @@ paths:
           		context.TODO(),
           		"broadcast_key",
           		knockmapi.BroadcastUpsertParams{
-          			Environment: "development",
           			Broadcast: knockmapi.BroadcastRequestParam{
           				Name: "My Broadcast",
           				Steps: []knockmapi.BroadcastRequestStepUnionParam{{
@@ -15366,16 +15998,16 @@ paths:
         For email templates, you can optionally specify a layout by key or provide inline layout content.
       operationId: previewTemplate
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -15401,6 +16033,73 @@ paths:
       summary: Preview a template
       tags:
         - Templates
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.templates.preview({
+            channel_type: 'email',
+            recipient: 'user_123',
+            template: {
+              settings: {},
+              subject: 'Hello {{ recipient.name }}',
+            },
+          });
+
+          console.log(response.content_type);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.templates.preview(
+              channel_type="email",
+              recipient="user_123",
+              template={
+                  "settings": {},
+                  "subject": "Hello {{ recipient.name }}",
+              },
+          )
+          print(response.content_type)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          	"github.com/knocklabs/knock-mgmt-go/shared"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Templates.Preview(context.TODO(), knockmapi.TemplatePreviewParams{
+          		ChannelType: knockmapi.TemplatePreviewParamsChannelTypeEmail,
+          		Recipient: shared.RecipientReferenceUnionParam{
+          			OfString: knockmapi.String("user_123"),
+          		},
+          		Template: knockmapi.TemplatePreviewParamsTemplateUnion{
+          			OfEmailTemplate: &knockmapi.EmailTemplateParam{
+          				Settings: knockmapi.EmailTemplateSettingsParam{},
+          				Subject:  "Hello {{ recipient.name }}",
+          			},
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ContentType)
+          }
   /v1/guides/{guide_key}/activate:
     put:
       callbacks: {}
@@ -15418,16 +16117,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -15505,10 +16204,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.guides.activate('guide_key', {
-            environment: 'development',
-            status: true,
-          });
+          const response = await client.guides.activate('guide_key', { status: true });
 
           console.log(response.guide);
         python: |-
@@ -15520,7 +16216,6 @@ paths:
           )
           response = client.guides.activate(
               guide_key="guide_key",
-              environment="development",
               status=True,
           )
           print(response.guide)
@@ -15542,9 +16237,7 @@ paths:
           	response, err := client.Guides.Activate(
           		context.TODO(),
           		"guide_key",
-          		knockmapi.GuideActivateParams{
-          			Environment: "development",
-          		},
+          		knockmapi.GuideActivateParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -15696,16 +16389,16 @@ paths:
       description: Returns a paginated list of guides available in a given environment.
       operationId: listGuides
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -15830,7 +16523,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const guide of client.guides.list({ environment: 'development' })) {
+          for await (const guide of client.guides.list()) {
             console.log(guide.guide_audience_conditions);
           }
         python: |-
@@ -15840,9 +16533,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.guides.list(
-              environment="development",
-          )
+          page = client.guides.list()
           page = page.entries[0]
           print(page.guide_audience_conditions)
         go: |
@@ -15860,9 +16551,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Guides.List(context.TODO(), knockmapi.GuideListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Guides.List(context.TODO(), knockmapi.GuideListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -15874,16 +16563,16 @@ paths:
       description: Returns a paginated list of audiences for the given environment.
       operationId: listAudiences
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -15988,7 +16677,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const audience of client.audiences.list({ environment: 'development' })) {
+          for await (const audience of client.audiences.list()) {
             console.log(audience);
           }
         python: |-
@@ -15998,9 +16687,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.audiences.list(
-              environment="development",
-          )
+          page = client.audiences.list()
           page = page.entries[0]
           print(page)
         go: |
@@ -16018,9 +16705,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Audiences.List(context.TODO(), knockmapi.AudienceListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Audiences.List(context.TODO(), knockmapi.AudienceListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -16068,16 +16753,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -16175,7 +16860,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const translation of client.translations.list({ environment: 'development' })) {
+          for await (const translation of client.translations.list()) {
             console.log(translation.content);
           }
         python: |-
@@ -16185,9 +16870,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.translations.list(
-              environment="development",
-          )
+          page = client.translations.list()
           page = page.entries[0]
           print(page.content)
         go: |
@@ -16205,9 +16888,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Translations.List(context.TODO(), knockmapi.TranslationListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Translations.List(context.TODO(), knockmapi.TranslationListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -16227,16 +16908,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -16323,9 +17004,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const translation = await client.translations.retrieve('locale_code', {
-            environment: 'development',
-          });
+          const translation = await client.translations.retrieve('locale_code');
 
           console.log(translation.translation);
         python: |-
@@ -16337,7 +17016,6 @@ paths:
           )
           translation = client.translations.retrieve(
               locale_code="locale_code",
-              environment="development",
           )
           print(translation.translation)
         go: |
@@ -16358,9 +17036,7 @@ paths:
           	translation, err := client.Translations.Get(
           		context.TODO(),
           		"locale_code",
-          		knockmapi.TranslationGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.TranslationGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -16383,16 +17059,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -16524,7 +17200,6 @@ paths:
           });
 
           const response = await client.translations.upsert('locale_code', {
-            environment: 'development',
             namespace: 'namespace',
             translation: { content: '{"hello":"Hello, world!"}', format: 'json' },
           });
@@ -16539,7 +17214,6 @@ paths:
           )
           response = client.translations.upsert(
               locale_code="locale_code",
-              environment="development",
               namespace="namespace",
               translation={
                   "content": "{\"hello\":\"Hello, world!\"}",
@@ -16566,11 +17240,10 @@ paths:
           		context.TODO(),
           		"locale_code",
           		knockmapi.TranslationUpsertParams{
-          			Environment: "development",
-          			Namespace:   "namespace",
-          			Translation: knockmapi.TranslationUpsertParamsTranslation{
+          			Namespace: "namespace",
+          			Translation: knockmapi.TranslationRequestParam{
           				Content: `{"hello":"Hello, world!"}`,
-          				Format:  "json",
+          				Format:  knockmapi.TranslationRequestFormatJson,
           			},
           		},
           	)
@@ -16585,16 +17258,16 @@ paths:
       description: Validates a goal payload without persisting it.
       operationId: validateGoal
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -16679,6 +17352,77 @@ paths:
       summary: Validate a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.validate('goal_key', {
+            goal: {
+              condition: { event: { event_type: 'recipient' } },
+              name: 'Trial Conversion',
+            },
+          });
+
+          console.log(response.goal);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.validate(
+              goal_key="goal_key",
+              goal={
+                  "condition": {
+                      "event": {
+                          "event_type": "recipient"
+                      }
+                  },
+                  "name": "Trial Conversion",
+              },
+          )
+          print(response.goal)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Validate(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalValidateParams{
+          			Goal: knockmapi.GoalRequestParam{
+          				Condition: knockmapi.GoalConditionParam{
+          					Event: knockmapi.GoalConditionEventUnionParam{
+          						OfWorkflowWaitForEventRecipientEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventRecipientEventParam{
+          							EventType: "recipient",
+          						},
+          					},
+          				},
+          				Name: "Trial Conversion",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Goal)
+          }
   /v1/tags/{name}:
     delete:
       callbacks: {}
@@ -16701,6 +17445,44 @@ paths:
       summary: Delete a tag
       tags:
         - Tags
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.tags.delete('name');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.tags.delete(
+              "name",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.Tags.Delete(context.TODO(), "name")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     put:
       callbacks: {}
       description: Creates a tag by name. If a tag with the same name already exists, updates its description and color. Omitted description and color fields are set to null.
@@ -16760,6 +17542,56 @@ paths:
       summary: Upsert a tag
       tags:
         - Tags
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.tags.upsert('name', { tag: {} });
+
+          console.log(response.tag);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.tags.upsert(
+              name="name",
+              tag={},
+          )
+          print(response.tag)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Tags.Upsert(
+          		context.TODO(),
+          		"name",
+          		knockmapi.TagUpsertParams{
+          			Tag: knockmapi.TagUpsertParamsTag{},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Tag)
+          }
   /v1/sources/{key}/rehearse:
     post:
       callbacks: {}
@@ -16774,10 +17606,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -16809,7 +17641,6 @@ paths:
           });
 
           const sourceRehearseResponse = await client.dataSources.rehearse('key', {
-            environment: 'development',
             payload: { body: 'bar', headers: 'bar' },
           });
 
@@ -16823,7 +17654,6 @@ paths:
           )
           source_rehearse_response = client.data_sources.rehearse(
               key="key",
-              environment="development",
               payload={
                   "body": "bar",
                   "headers": "bar",
@@ -16849,7 +17679,6 @@ paths:
           		context.TODO(),
           		"key",
           		knockmapi.DataSourceRehearseParams{
-          			Environment: "development",
           			SourceRehearseRequest: knockmapi.SourceRehearseRequestParam{
           				Payload: map[string]any{
           					"body":    "bar",
@@ -16877,16 +17706,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -16938,6 +17767,47 @@ paths:
       summary: List item schemas
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const schemas = await client.schemas.list();
+
+          console.log(schemas.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          schemas = client.schemas.list()
+          print(schemas.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	schemas, err := client.Schemas.List(context.TODO(), knockmapi.SchemaListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", schemas.Entries)
+          }
   /v1/channel_groups:
     get:
       callbacks: {}
@@ -17079,16 +17949,16 @@ paths:
       description: Get a partial by its key.
       operationId: getPartial
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -17139,9 +18009,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const partialResource = await client.partials.retrieve('partial_key', {
-            environment: 'development',
-          });
+          const partialResource = await client.partials.retrieve('partial_key');
 
           console.log(partialResource.valid);
         python: |-
@@ -17153,7 +18021,6 @@ paths:
           )
           partial = client.partials.retrieve(
               partial_key="partial_key",
-              environment="development",
           )
           print(partial.valid)
         go: |
@@ -17174,9 +18041,7 @@ paths:
           	partial, err := client.Partials.Get(
           		context.TODO(),
           		"partial_key",
-          		knockmapi.PartialGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.PartialGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -17191,16 +18056,16 @@ paths:
         Note: this endpoint only operates on partials in the “development” environment.
       operationId: upsertPartial
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -17339,7 +18204,6 @@ paths:
           });
 
           const response = await client.partials.upsert('partial_key', {
-            environment: 'development',
             partial: {
               content: '<p>Hello, world!</p>',
               name: 'My Partial',
@@ -17357,7 +18221,6 @@ paths:
           )
           response = client.partials.upsert(
               partial_key="partial_key",
-              environment="development",
               partial={
                   "content": "<p>Hello, world!</p>",
                   "name": "My Partial",
@@ -17384,11 +18247,10 @@ paths:
           		context.TODO(),
           		"partial_key",
           		knockmapi.PartialUpsertParams{
-          			Environment: "development",
-          			Partial: knockmapi.PartialUpsertParamsPartial{
+          			Partial: knockmapi.PartialRequestParam{
           				Content: "<p>Hello, world!</p>",
           				Name:    "My Partial",
-          				Type:    "html",
+          				Type:    knockmapi.PartialRequestTypeHTML,
           			},
           		},
           	)
@@ -17403,16 +18265,16 @@ paths:
       description: Returns a list of variables. When an environment is specified, returns per-environment variables. Otherwise, returns project-scoped variables with per-environment overrides.
       operationId: listVariables
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used for authorization while the response remains project-scoped.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -17508,7 +18370,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const variable of client.variables.list({ environment: 'development' })) {
+          for await (const variable of client.variables.list()) {
             console.log(variable.inserted_at);
           }
         python: |-
@@ -17518,9 +18380,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.variables.list(
-              environment="development",
-          )
+          page = client.variables.list()
           page = page.entries[0]
           print(page.inserted_at)
         go: |
@@ -17538,9 +18398,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Variables.List(context.TODO(), knockmapi.VariableListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Variables.List(context.TODO(), knockmapi.VariableListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -17633,16 +18491,16 @@ paths:
       description: Get a guide by its key.
       operationId: getGuide
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -17693,7 +18551,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const guide = await client.guides.retrieve('guide_key', { environment: 'development' });
+          const guide = await client.guides.retrieve('guide_key');
 
           console.log(guide.guide_audience_conditions);
         python: |-
@@ -17705,7 +18563,6 @@ paths:
           )
           guide = client.guides.retrieve(
               guide_key="guide_key",
-              environment="development",
           )
           print(guide.guide_audience_conditions)
         go: |
@@ -17726,9 +18583,7 @@ paths:
           	guide, err := client.Guides.Get(
           		context.TODO(),
           		"guide_key",
-          		knockmapi.GuideGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.GuideGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -17743,16 +18598,16 @@ paths:
         Note: this endpoint only operates on guides in the "development" environment.
       operationId: upsertGuide
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -17909,7 +18764,6 @@ paths:
           });
 
           const response = await client.guides.upsert('guide_key', {
-            environment: 'development',
             guide: {
               channel_key: 'in-app-guide',
               name: 'Getting Started Guide',
@@ -17934,7 +18788,6 @@ paths:
           )
           response = client.guides.upsert(
               guide_key="guide_key",
-              environment="development",
               guide={
                   "channel_key": "in-app-guide",
                   "name": "Getting Started Guide",
@@ -17966,8 +18819,7 @@ paths:
           		context.TODO(),
           		"guide_key",
           		knockmapi.GuideUpsertParams{
-          			Environment: "development",
-          			Guide: knockmapi.GuideUpsertParamsGuide{
+          			Guide: knockmapi.GuideRequestParam{
           				ChannelKey: "in-app-guide",
           				Name:       "Getting Started Guide",
           				Steps: []knockmapi.GuideStepParam{{
@@ -17998,10 +18850,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -18033,7 +18885,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const source = await client.dataSources.retrieve('key', { environment: 'development' });
+          const source = await client.dataSources.retrieve('key');
 
           console.log(source.created_at);
         python: |-
@@ -18045,7 +18897,6 @@ paths:
           )
           source = client.data_sources.retrieve(
               key="key",
-              environment="development",
           )
           print(source.created_at)
         go: |
@@ -18066,9 +18917,7 @@ paths:
           	source, err := client.DataSources.Get(
           		context.TODO(),
           		"key",
-          		knockmapi.DataSourceGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.DataSourceGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -18088,10 +18937,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -18188,7 +19037,6 @@ paths:
           });
 
           const response = await client.dataSources.upsert('key', {
-            environment: 'development',
             source: { name: 'Universal HTTP Source' },
           });
 
@@ -18202,7 +19050,6 @@ paths:
           )
           response = client.data_sources.upsert(
               key="key",
-              environment="development",
               source={
                   "name": "Universal HTTP Source"
               },
@@ -18227,7 +19074,6 @@ paths:
           		context.TODO(),
           		"key",
           		knockmapi.DataSourceUpsertParams{
-          			Environment: "development",
           			Source: knockmapi.SourceRequestParam{
           				Name: "Universal HTTP Source",
           			},
@@ -18332,7 +19178,8 @@ paths:
       description: |
         Validates a message type payload without persisting it.
 
-        Note: this endpoint only operates on message types in the `development` environment.
+        When the environment is omitted, the account default is used.
+        Message types are an account-shared catalog stored in Development.
       operationId: validateMessageType
       parameters:
         - description: The key of the message type to validate.
@@ -18344,16 +19191,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -18451,7 +19298,6 @@ paths:
           });
 
           const response = await client.messageTypes.validate('email', {
-            environment: 'development',
             message_type: {
               description: 'This is a message type',
               name: 'My Message Type',
@@ -18469,7 +19315,6 @@ paths:
           )
           response = client.message_types.validate(
               message_type_key="email",
-              environment="development",
               message_type={
                   "description": "This is a message type",
                   "name": "My Message Type",
@@ -18496,8 +19341,7 @@ paths:
           		context.TODO(),
           		"email",
           		knockmapi.MessageTypeValidateParams{
-          			Environment: "development",
-          			MessageType: knockmapi.MessageTypeValidateParamsMessageType{
+          			MessageType: knockmapi.MessageTypeRequestParam{
           				Description: knockmapi.String("This is a message type"),
           				Name:        "My Message Type",
           				Preview:     "<div>Hello, world!</div>",
@@ -18725,16 +19569,16 @@ paths:
       description: List all partials for a given environment.
       operationId: listPartials
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -18846,7 +19690,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const partialResource of client.partials.list({ environment: 'development' })) {
+          for await (const partialResource of client.partials.list()) {
             console.log(partialResource.valid);
           }
         python: |-
@@ -18856,9 +19700,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.partials.list(
-              environment="development",
-          )
+          page = client.partials.list()
           page = page.entries[0]
           print(page.valid)
         go: |
@@ -18876,9 +19718,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Partials.List(context.TODO(), knockmapi.PartialListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Partials.List(context.TODO(), knockmapi.PartialListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -18887,7 +19727,7 @@ paths:
   /v1/message_types/{message_type_key}:
     get:
       callbacks: {}
-      description: Retrieve a message type by its key, in a given environment.
+      description: Retrieve a message type by its key. When the environment is omitted, the account default is used. Root environments share the Development catalog.
       operationId: getMessageType
       parameters:
         - description: The key of the message type to retrieve.
@@ -18899,16 +19739,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -18951,7 +19791,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const messageType = await client.messageTypes.retrieve('email', { environment: 'development' });
+          const messageType = await client.messageTypes.retrieve('email');
 
           console.log(messageType.valid);
         python: |-
@@ -18963,7 +19803,6 @@ paths:
           )
           message_type = client.message_types.retrieve(
               message_type_key="email",
-              environment="development",
           )
           print(message_type.valid)
         go: |
@@ -18984,9 +19823,7 @@ paths:
           	messageType, err := client.MessageTypes.Get(
           		context.TODO(),
           		"email",
-          		knockmapi.MessageTypeGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.MessageTypeGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -18998,7 +19835,9 @@ paths:
       description: |
         Updates a message type, or creates a new one if it does not yet exist.
 
-        Note: this endpoint only operates in the `development` environment.
+        When the environment is omitted, the account default is used.
+        Message types are an account-shared catalog stored in Development. Requests
+        against other root environments read and write that same catalog.
       operationId: upsertMessageType
       parameters:
         - description: The key of the message type to upsert.
@@ -19010,16 +19849,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -19157,7 +19996,6 @@ paths:
           });
 
           const response = await client.messageTypes.upsert('email', {
-            environment: 'development',
             message_type: {
               description: 'This is a message type',
               name: 'My Message Type',
@@ -19175,7 +20013,6 @@ paths:
           )
           response = client.message_types.upsert(
               message_type_key="email",
-              environment="development",
               message_type={
                   "description": "This is a message type",
                   "name": "My Message Type",
@@ -19202,8 +20039,7 @@ paths:
           		context.TODO(),
           		"email",
           		knockmapi.MessageTypeUpsertParams{
-          			Environment: "development",
-          			MessageType: knockmapi.MessageTypeUpsertParamsMessageType{
+          			MessageType: knockmapi.MessageTypeRequestParam{
           				Description: knockmapi.String("This is a message type"),
           				Name:        "My Message Type",
           				Preview:     "<div>Hello, world!</div>",
@@ -19355,10 +20191,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -19397,7 +20233,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.audiences.archive('audience_key', { environment: 'development' });
+          const response = await client.audiences.archive('audience_key');
 
           console.log(response.result);
         python: |-
@@ -19409,7 +20245,6 @@ paths:
           )
           response = client.audiences.archive(
               audience_key="audience_key",
-              environment="development",
           )
           print(response.result)
         go: |
@@ -19430,9 +20265,7 @@ paths:
           	response, err := client.Audiences.Archive(
           		context.TODO(),
           		"audience_key",
-          		knockmapi.AudienceArchiveParams{
-          			Environment: "development",
-          		},
+          		knockmapi.AudienceArchiveParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -19452,16 +20285,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -19504,7 +20337,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const audience = await client.audiences.retrieve('audience_key', { environment: 'development' });
+          const audience = await client.audiences.retrieve('audience_key');
 
           console.log(audience);
         python: |-
@@ -19516,7 +20349,6 @@ paths:
           )
           audience = client.audiences.retrieve(
               audience_key="audience_key",
-              environment="development",
           )
           print(audience)
         go: |
@@ -19537,9 +20369,7 @@ paths:
           	audience, err := client.Audiences.Get(
           		context.TODO(),
           		"audience_key",
-          		knockmapi.AudienceGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.AudienceGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -19551,16 +20381,16 @@ paths:
       description: Updates an audience of a given key, or creates a new one if it does not yet exist.
       operationId: upsertAudience
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -19686,7 +20516,6 @@ paths:
           });
 
           const response = await client.audiences.upsert('audience_key', {
-            environment: 'development',
             audience: { name: 'Premium users', type: 'dynamic' },
           });
 
@@ -19700,7 +20529,6 @@ paths:
           )
           response = client.audiences.upsert(
               audience_key="audience_key",
-              environment="development",
               audience={
                   "name": "Premium users",
                   "type": "dynamic",
@@ -19726,9 +20554,8 @@ paths:
           		context.TODO(),
           		"audience_key",
           		knockmapi.AudienceUpsertParams{
-          			Environment: "development",
-          			Audience: knockmapi.AudienceUpsertParamsAudienceUnion{
-          				OfDynamic: &knockmapi.AudienceUpsertParamsAudienceDynamic{
+          			Audience: knockmapi.AudienceRequestUnionParam{
+          				OfDynamic: &knockmapi.AudienceRequestDynamicParam{
           					Name: "Premium users",
           				},
           			},
@@ -19745,10 +20572,10 @@ paths:
       description: Returns the preference center configuration for the given environment.
       operationId: getPreferenceCenter
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -19788,15 +20615,56 @@ paths:
       summary: Get preference center configuration
       tags:
         - Preference center
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const preferenceCenter = await client.preferenceCenter.retrieve();
+
+          console.log(preferenceCenter.config);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          preference_center = client.preference_center.retrieve()
+          print(preference_center.config)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	preferenceCenter, err := client.PreferenceCenter.Get(context.TODO(), knockmapi.PreferenceCenterGetParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", preferenceCenter.Config)
+          }
     put:
       callbacks: {}
       description: Creates or updates the preference center configuration for the given environment.
       operationId: upsertPreferenceCenter
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -19870,22 +20738,100 @@ paths:
       summary: Upsert preference center configuration
       tags:
         - Preference center
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.preferenceCenter.upsert({
+            config: {
+              body: 'Select which communications you’d like to receive from us.',
+              rows: [
+                {
+                  description: 'Receive promotional and non-essential notifications.',
+                  name: 'Commercial messages',
+                  type: 'commercial_subscribed',
+                },
+              ],
+              show_account_name: true,
+              title: 'Manage preferences',
+            },
+          });
+
+          console.log(response.config);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.preference_center.upsert(
+              config={
+                  "body": "Select which communications you’d like to receive from us.",
+                  "rows": [{
+                      "description": "Receive promotional and non-essential notifications.",
+                      "name": "Commercial messages",
+                      "type": "commercial_subscribed",
+                  }],
+                  "show_account_name": True,
+                  "title": "Manage preferences",
+              },
+          )
+          print(response.config)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.PreferenceCenter.Upsert(context.TODO(), knockmapi.PreferenceCenterUpsertParams{
+          		Config: map[string]any{
+          			"body": "Select which communications you’d like to receive from us.",
+          			"rows": []any{
+          				map[string]any{
+          					"description": "Receive promotional and non-essential notifications.",
+          					"name":        "Commercial messages",
+          					"type":        "commercial_subscribed",
+          				},
+          			},
+          			"show_account_name": true,
+          			"title":             "Manage preferences",
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Config)
+          }
   /v1/commits:
     get:
       callbacks: {}
       description: Returns a paginated list of commits in a given environment. The commits are ordered from most recent first.
       operationId: listCommits
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20021,7 +20967,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const commit of client.commits.list({ environment: 'development' })) {
+          for await (const commit of client.commits.list()) {
             console.log(commit.id);
           }
         python: |-
@@ -20031,9 +20977,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.commits.list(
-              environment="development",
-          )
+          page = client.commits.list()
           page = page.entries[0]
           print(page.id)
         go: |
@@ -20051,9 +20995,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Commits.List(context.TODO(), knockmapi.CommitListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Commits.List(context.TODO(), knockmapi.CommitListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -20064,16 +21006,16 @@ paths:
       description: Commit all changes across all resources in the development environment.
       operationId: commitAllChanges
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20173,7 +21115,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.commits.commitAll({ environment: 'development' });
+          const response = await client.commits.commitAll();
 
           console.log(response.result);
         python: |-
@@ -20183,9 +21125,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          response = client.commits.commit_all(
-              environment="development",
-          )
+          response = client.commits.commit_all()
           print(response.result)
         go: |
           package main
@@ -20202,13 +21142,77 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	response, err := client.Commits.CommitAll(context.TODO(), knockmapi.CommitCommitAllParams{
-          		Environment: "development",
-          	})
+          	response, err := client.Commits.CommitAll(context.TODO(), knockmapi.CommitCommitAllParams{})
           	if err != nil {
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.Result)
+          }
+  /v1/billing/summary:
+    get:
+      callbacks: {}
+      description: Returns a snapshot of the current draft invoice for the account, including amount due, plan, per-metric usage, and remaining credit blocks.
+      operationId: getBillingSummary
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingSummary'
+          description: OK
+        "429":
+          content:
+            application/json:
+              schema:
+                description: Returned when the account exceeds one request per second for this endpoint.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Too Many Requests
+      summary: Get billing summary
+      tags:
+        - Accounts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const billingSummary = await client.billing.retrieveSummary();
+
+          console.log(billingSummary.invoice_id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          billing_summary = client.billing.retrieve_summary()
+          print(billing_summary.invoice_id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	billingSummary, err := client.Billing.GetSummary(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", billingSummary.InvoiceID)
           }
   /v1/schemas/{item_type}:
     get:
@@ -20232,16 +21236,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20262,6 +21266,53 @@ paths:
       summary: Get an item schema
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const schema = await client.schemas.retrieve('item_type');
+
+          console.log(schema);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          schema = client.schemas.retrieve(
+              item_type="item_type",
+          )
+          print(schema)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	schema, err := client.Schemas.Get(
+          		context.TODO(),
+          		"item_type",
+          		knockmapi.SchemaGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", schema)
+          }
     put:
       callbacks: {}
       description: 'Applies changes for the item schema properties in the request. Omitted properties are left unchanged; hide a property with `visible: false` rather than removing it. The required permissions depend on what changes: changing a property''s display settings (`visible`/`description`) requires `item_schemas:manage`; changing a property''s type or example, or adding a property, requires `item_schemas:edit`. Adding a property that is already hidden or already has a description requires both.'
@@ -20283,16 +21334,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20322,6 +21373,53 @@ paths:
       summary: Upsert item schema properties
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.schemas.upsert('item_type');
+
+          console.log(response);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.schemas.upsert(
+              item_type="item_type",
+          )
+          print(response)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Schemas.Upsert(
+          		context.TODO(),
+          		"item_type",
+          		knockmapi.SchemaUpsertParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response)
+          }
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
@@ -20337,16 +21435,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20387,6 +21485,8 @@ paths:
                           action_url: '{{ vars.app_url }}'
                           markdown_body: Hello **{{ recipient.name }}**
                         type: channel
+                    tags:
+                      - in-review
                     target_audience_key: premium-users
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -20411,7 +21511,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.broadcasts.cancel('broadcast_key', { environment: 'development' });
+          const response = await client.broadcasts.cancel('broadcast_key');
 
           console.log(response.broadcast);
         python: |-
@@ -20423,7 +21523,6 @@ paths:
           )
           response = client.broadcasts.cancel(
               broadcast_key="broadcast_key",
-              environment="development",
           )
           print(response.broadcast)
         go: |
@@ -20444,9 +21543,7 @@ paths:
           	response, err := client.Broadcasts.Cancel(
           		context.TODO(),
           		"broadcast_key",
-          		knockmapi.BroadcastCancelParams{
-          			Environment: "development",
-          		},
+          		knockmapi.BroadcastCancelParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -20459,10 +21556,10 @@ paths:
       description: Returns a paginated list of branches. The branches will be returned in order of their last commit time (newest first).
       operationId: listBranches
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -20540,7 +21637,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const branch of client.branches.list({ environment: 'development' })) {
+          for await (const branch of client.branches.list()) {
             console.log(branch.created_at);
           }
         python: |-
@@ -20550,9 +21647,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.branches.list(
-              environment="development",
-          )
+          page = client.branches.list()
           page = page.entries[0]
           print(page.created_at)
         go: |
@@ -20570,9 +21665,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Branches.List(context.TODO(), knockmapi.BranchListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Branches.List(context.TODO(), knockmapi.BranchListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -20594,6 +21687,47 @@ paths:
       summary: List preference categories
       tags:
         - Preference categories
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const preferenceCategories = await client.preferenceCategories.list();
+
+          console.log(preferenceCategories.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          preference_categories = client.preference_categories.list()
+          print(preference_categories.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	preferenceCategories, err := client.PreferenceCategories.List(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", preferenceCategories.Entries)
+          }
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -20608,16 +21742,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20660,9 +21794,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const emailLayout = await client.emailLayouts.retrieve('email_layout_key', {
-            environment: 'development',
-          });
+          const emailLayout = await client.emailLayouts.retrieve('email_layout_key');
 
           console.log(emailLayout.branding_overrides);
         python: |-
@@ -20674,7 +21806,6 @@ paths:
           )
           email_layout = client.email_layouts.retrieve(
               email_layout_key="email_layout_key",
-              environment="development",
           )
           print(email_layout.branding_overrides)
         go: |
@@ -20695,9 +21826,7 @@ paths:
           	emailLayout, err := client.EmailLayouts.Get(
           		context.TODO(),
           		"email_layout_key",
-          		knockmapi.EmailLayoutGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.EmailLayoutGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -20720,16 +21849,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20855,7 +21984,6 @@ paths:
           });
 
           const response = await client.emailLayouts.upsert('email_layout_key', {
-            environment: 'development',
             email_layout: {
               html_layout: '<html><body>Hello, world!</body></html>',
               name: 'Transactional',
@@ -20873,7 +22001,6 @@ paths:
           )
           response = client.email_layouts.upsert(
               email_layout_key="email_layout_key",
-              environment="development",
               email_layout={
                   "html_layout": "<html><body>Hello, world!</body></html>",
                   "name": "Transactional",
@@ -20900,8 +22027,7 @@ paths:
           		context.TODO(),
           		"email_layout_key",
           		knockmapi.EmailLayoutUpsertParams{
-          			Environment: "development",
-          			EmailLayout: knockmapi.EmailLayoutUpsertParamsEmailLayout{
+          			EmailLayout: knockmapi.EmailLayoutRequestParam{
           				HTMLLayout: "<html><body>Hello, world!</body></html>",
           				Name:       "Transactional",
           				TextLayout: "Hello, world!",
@@ -20923,16 +22049,16 @@ paths:
         sample data.
       operationId: previewPartial
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -20958,6 +22084,65 @@ paths:
       summary: Preview a partial
       tags:
         - Partials
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.partials.preview({
+            partial: {
+              content: '<p>Hello, {{ name }}!</p>',
+              name: 'My Partial',
+              type: 'html',
+            },
+          });
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.partials.preview(
+              partial={
+                  "content": "<p>Hello, {{ name }}!</p>",
+                  "name": "My Partial",
+                  "type": "html",
+              },
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Partials.Preview(context.TODO(), knockmapi.PartialPreviewParams{
+          		Partial: knockmapi.PartialRequestParam{
+          			Content: "<p>Hello, {{ name }}!</p>",
+          			Name:    "My Partial",
+          			Type:    knockmapi.PartialRequestTypeHTML,
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
   /v1/email_layouts/{email_layout_key}/validate:
     put:
       callbacks: {}
@@ -20975,16 +22160,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -21070,7 +22255,6 @@ paths:
           });
 
           const response = await client.emailLayouts.validate('email_layout_key', {
-            environment: 'development',
             email_layout: {
               html_layout: '<html><body>Hello, world!</body></html>',
               name: 'Transactional',
@@ -21088,7 +22272,6 @@ paths:
           )
           response = client.email_layouts.validate(
               email_layout_key="email_layout_key",
-              environment="development",
               email_layout={
                   "html_layout": "<html><body>Hello, world!</body></html>",
                   "name": "Transactional",
@@ -21115,8 +22298,7 @@ paths:
           		context.TODO(),
           		"email_layout_key",
           		knockmapi.EmailLayoutValidateParams{
-          			Environment: "development",
-          			EmailLayout: knockmapi.EmailLayoutValidateParamsEmailLayout{
+          			EmailLayout: knockmapi.EmailLayoutRequestParam{
           				HTMLLayout: "<html><body>Hello, world!</body></html>",
           				Name:       "Transactional",
           				TextLayout: "Hello, world!",
@@ -21284,16 +22466,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -21329,7 +22511,6 @@ paths:
 
           const response = await client.workflows.steps.previewTemplate('step_ref', {
             workflow_key: 'workflow_key',
-            environment: 'development',
             recipient: 'dnedry',
           });
 
@@ -21344,7 +22525,6 @@ paths:
           response = client.workflows.steps.preview_template(
               step_ref="step_ref",
               workflow_key="workflow_key",
-              environment="development",
               recipient="dnedry",
           )
           print(response.content_type)
@@ -21357,6 +22537,7 @@ paths:
 
           	"github.com/knocklabs/knock-mgmt-go"
           	"github.com/knocklabs/knock-mgmt-go/option"
+          	"github.com/knocklabs/knock-mgmt-go/shared"
           )
 
           func main() {
@@ -21368,8 +22549,7 @@ paths:
           		"step_ref",
           		knockmapi.WorkflowStepPreviewTemplateParams{
           			WorkflowKey: "workflow_key",
-          			Environment: "development",
-          			Recipient: knockmapi.WorkflowStepPreviewTemplateParamsRecipientUnion{
+          			Recipient: shared.RecipientReferenceUnionParam{
           				OfString: knockmapi.String("dnedry"),
           			},
           		},
@@ -21396,16 +22576,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -21470,7 +22650,6 @@ paths:
           });
 
           const response = await client.translations.validate('locale_code', {
-            environment: 'development',
             translation: { content: '{"hello":"Hello, world!"}', format: 'json' },
           });
 
@@ -21484,7 +22663,6 @@ paths:
           )
           response = client.translations.validate(
               locale_code="locale_code",
-              environment="development",
               translation={
                   "content": "{\"hello\":\"Hello, world!\"}",
                   "format": "json",
@@ -21510,10 +22688,9 @@ paths:
           		context.TODO(),
           		"locale_code",
           		knockmapi.TranslationValidateParams{
-          			Environment: "development",
-          			Translation: knockmapi.TranslationValidateParamsTranslation{
+          			Translation: knockmapi.TranslationRequestParam{
           				Content: `{"hello":"Hello, world!"}`,
-          				Format:  "json",
+          				Format:  knockmapi.TranslationRequestFormatJson,
           			},
           		},
           	)
@@ -21544,6 +22721,44 @@ paths:
       summary: Delete a preference category
       tags:
         - Preference categories
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.preferenceCategories.delete('name');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.preference_categories.delete(
+              "name",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.PreferenceCategories.Delete(context.TODO(), "name")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     put:
       callbacks: {}
       description: Creates a preference category by name. If a non-archived category with the same name already exists, returns the existing category.
@@ -21581,16 +22796,59 @@ paths:
       summary: Upsert a preference category
       tags:
         - Preference categories
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.preferenceCategories.upsert('name');
+
+          console.log(response.preference_category);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.preference_categories.upsert(
+              "name",
+          )
+          print(response.preference_category)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.PreferenceCategories.Upsert(context.TODO(), "name")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.PreferenceCategory)
+          }
   /v1/branches/{branch_slug}/rebase:
     put:
       callbacks: {}
       description: Rebases a branch onto the development environment, bringing in new and updated resources while preserving commits made on the branch.
       operationId: rebaseBranch
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -21615,22 +22873,69 @@ paths:
       summary: Rebase a branch
       tags:
         - Branches
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const branch = await client.branches.rebase('feature-branch');
+
+          console.log(branch.created_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          branch = client.branches.rebase(
+              branch_slug="feature-branch",
+          )
+          print(branch.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	branch, err := client.Branches.Rebase(
+          		context.TODO(),
+          		"feature-branch",
+          		knockmapi.BranchRebaseParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", branch.CreatedAt)
+          }
   /v1/broadcasts:
     get:
       callbacks: {}
       description: Returns a paginated list of broadcasts available in a given environment. The broadcasts are returned ordered by creation time (newest first).
       operationId: listBroadcasts
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -21711,6 +23016,8 @@ paths:
                             action_url: '{{ vars.app_url }}'
                             markdown_body: Hello **{{ recipient.name }}**
                           type: channel
+                      tags:
+                        - in-review
                       target_audience_key: premium-users
                       updated_at: "2023-02-08T22:15:19.846681Z"
                       valid: true
@@ -21749,7 +23056,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const broadcast of client.broadcasts.list({ environment: 'development' })) {
+          for await (const broadcast of client.broadcasts.list()) {
             console.log(broadcast.valid);
           }
         python: |-
@@ -21759,9 +23066,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.broadcasts.list(
-              environment="development",
-          )
+          page = client.broadcasts.list()
           page = page.entries[0]
           print(page.valid)
         go: |
@@ -21779,9 +23084,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Broadcasts.List(context.TODO(), knockmapi.BroadcastListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Broadcasts.List(context.TODO(), knockmapi.BroadcastListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -21793,16 +23096,16 @@ paths:
       description: Returns a paginated list of workflows available in a given environment. The workflows are returned alphabetically by `key`.
       operationId: listWorkflows
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -21949,7 +23252,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const workflow of client.workflows.list({ environment: 'development' })) {
+          for await (const workflow of client.workflows.list()) {
             console.log(workflow.valid);
           }
         python: |-
@@ -21959,9 +23262,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.workflows.list(
-              environment="development",
-          )
+          page = client.workflows.list()
           page = page.entries[0]
           print(page.valid)
         go: |
@@ -21979,9 +23280,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.Workflows.List(context.TODO(), knockmapi.WorkflowListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.Workflows.List(context.TODO(), knockmapi.WorkflowListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -22004,16 +23303,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -22122,7 +23421,6 @@ paths:
           });
 
           const response = await client.guides.validate('guide_key', {
-            environment: 'development',
             guide: {
               channel_key: 'in-app-guide',
               name: 'Getting Started Guide',
@@ -22147,7 +23445,6 @@ paths:
           )
           response = client.guides.validate(
               guide_key="guide_key",
-              environment="development",
               guide={
                   "channel_key": "in-app-guide",
                   "name": "Getting Started Guide",
@@ -22179,8 +23476,7 @@ paths:
           		context.TODO(),
           		"guide_key",
           		knockmapi.GuideValidateParams{
-          			Environment: "development",
-          			Guide: knockmapi.GuideValidateParamsGuide{
+          			Guide: knockmapi.GuideRequestParam{
           				ChannelKey: "in-app-guide",
           				Name:       "Getting Started Guide",
           				Steps: []knockmapi.GuideStepParam{{
@@ -22211,16 +23507,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -22254,10 +23550,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.workflows.run('workflow_key', {
-            environment: 'development',
-            recipients: [{ id: 'user_1' }],
-          });
+          const response = await client.workflows.run('workflow_key', { recipients: [{ id: 'user_1' }] });
 
           console.log(response.workflow_run_id);
         python: |-
@@ -22269,7 +23562,6 @@ paths:
           )
           response = client.workflows.run(
               workflow_key="workflow_key",
-              environment="development",
               recipients=[{
                   "id": "user_1"
               }],
@@ -22294,9 +23586,8 @@ paths:
           		context.TODO(),
           		"workflow_key",
           		knockmapi.WorkflowRunParams{
-          			Environment: "development",
           			Recipients: []knockmapi.WorkflowRunParamsRecipientUnion{{
-          				OfInlineIdentifyUserRequest: &knockmapi.WorkflowRunParamsRecipientInlineIdentifyUserRequest{
+          				OfInlineIdentifyUserRequest: &knockmapi.InlineIdentifyUserRequestParam{
           					ID: "user_1",
           				},
           			}},
@@ -22322,16 +23613,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -22379,6 +23670,8 @@ paths:
                           action_url: '{{ vars.app_url }}'
                           markdown_body: Hello **{{ recipient.name }}**
                         type: channel
+                    tags:
+                      - in-review
                     target_audience_key: premium-users
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -22403,7 +23696,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.broadcasts.send('broadcast_key', { environment: 'development' });
+          const response = await client.broadcasts.send('broadcast_key');
 
           console.log(response.broadcast);
         python: |-
@@ -22415,7 +23708,6 @@ paths:
           )
           response = client.broadcasts.send(
               broadcast_key="broadcast_key",
-              environment="development",
           )
           print(response.broadcast)
         go: |
@@ -22436,9 +23728,7 @@ paths:
           	response, err := client.Broadcasts.Send(
           		context.TODO(),
           		"broadcast_key",
-          		knockmapi.BroadcastSendParams{
-          			Environment: "development",
-          		},
+          		knockmapi.BroadcastSendParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -22460,16 +23750,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -22500,6 +23790,8 @@ paths:
                         action_url: '{{ vars.app_url }}'
                         markdown_body: Hello **{{ recipient.name }}**
                       type: channel
+                  tags:
+                    - in-review
                   target_audience_key: all-users
               properties:
                 broadcast:
@@ -22544,6 +23836,8 @@ paths:
                           action_url: '{{ vars.app_url }}'
                           markdown_body: Hello **{{ recipient.name }}**
                         type: channel
+                    tags:
+                      - in-review
                     target_audience_key: premium-users
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -22569,7 +23863,6 @@ paths:
           });
 
           const response = await client.broadcasts.validate('broadcast_key', {
-            environment: 'development',
             broadcast: {
               name: 'My Broadcast',
               steps: [
@@ -22592,7 +23885,6 @@ paths:
           )
           response = client.broadcasts.validate(
               broadcast_key="broadcast_key",
-              environment="development",
               broadcast={
                   "name": "My Broadcast",
                   "steps": [{
@@ -22624,7 +23916,6 @@ paths:
           		context.TODO(),
           		"broadcast_key",
           		knockmapi.BroadcastValidateParams{
-          			Environment: "development",
           			Broadcast: knockmapi.BroadcastRequestParam{
           				Name: "My Broadcast",
           				Steps: []knockmapi.BroadcastRequestStepUnionParam{{
@@ -22666,16 +23957,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -22705,6 +23996,53 @@ paths:
       summary: Validate an item schema's configuration
       tags:
         - Schemas
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.schemas.validate('item_type');
+
+          console.log(response);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.schemas.validate(
+              item_type="item_type",
+          )
+          print(response)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Schemas.Validate(
+          		context.TODO(),
+          		"item_type",
+          		knockmapi.SchemaValidateParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response)
+          }
   /v1/channel_groups/{channel_group_key}:
     delete:
       callbacks: {}
@@ -22990,7 +24328,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
           required: false
@@ -23119,16 +24457,16 @@ paths:
       description: Validates an audience payload without persisting it.
       operationId: validateAudience
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -23214,7 +24552,6 @@ paths:
           });
 
           const response = await client.audiences.validate('audience_key', {
-            environment: 'development',
             audience: { name: 'Premium users', type: 'dynamic' },
           });
 
@@ -23228,7 +24565,6 @@ paths:
           )
           response = client.audiences.validate(
               audience_key="audience_key",
-              environment="development",
               audience={
                   "name": "Premium users",
                   "type": "dynamic",
@@ -23254,9 +24590,8 @@ paths:
           		context.TODO(),
           		"audience_key",
           		knockmapi.AudienceValidateParams{
-          			Environment: "development",
-          			Audience: knockmapi.AudienceValidateParamsAudienceUnion{
-          				OfDynamic: &knockmapi.AudienceValidateParamsAudienceDynamic{
+          			Audience: knockmapi.AudienceRequestUnionParam{
+          				OfDynamic: &knockmapi.AudienceRequestDynamicParam{
           					Name: "Premium users",
           				},
           			},
@@ -23283,16 +24618,57 @@ paths:
       summary: List tags
       tags:
         - Tags
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const tags = await client.tags.list();
+
+          console.log(tags.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          tags = client.tags.list()
+          print(tags.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	tags, err := client.Tags.List(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", tags.Entries)
+          }
   /v1/preference_center/reset:
     put:
       callbacks: {}
       description: Resets the preference center configuration for the given environment to the built-in default content. The `enabled` flag is preserved.
       operationId: resetPreferenceCenter
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -23332,16 +24708,57 @@ paths:
       summary: Reset preference center configuration to default
       tags:
         - Preference center
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.preferenceCenter.reset();
+
+          console.log(response.config);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.preference_center.reset()
+          print(response.config)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.PreferenceCenter.Reset(context.TODO(), knockmapi.PreferenceCenterResetParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Config)
+          }
   /v1/api_keys/exchange:
     post:
       callbacks: {}
-      description: Given an authenticated service token and an environment, will exchange the service token for a secret API key that can be used to make requests to the public API.
+      description: Given an authenticated service token, exchanges it for a secret API key that can be used to make requests to the public API.
       operationId: exchangeForApiKey
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -23379,7 +24796,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.apiKeys.exchange({ environment: 'development' });
+          const response = await client.apiKeys.exchange();
 
           console.log(response.api_key);
         python: |-
@@ -23389,9 +24806,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          response = client.api_keys.exchange(
-              environment="development",
-          )
+          response = client.api_keys.exchange()
           print(response.api_key)
         go: |
           package main
@@ -23408,9 +24823,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	response, err := client.APIKeys.Exchange(context.TODO(), knockmapi.APIKeyExchangeParams{
-          		Environment: "development",
-          	})
+          	response, err := client.APIKeys.Exchange(context.TODO(), knockmapi.APIKeyExchangeParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -23422,10 +24835,10 @@ paths:
       description: Clones a goal into a destination environment.
       operationId: cloneGoal
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -23498,6 +24911,70 @@ paths:
       summary: Clone a goal
       tags:
         - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.goals.clone('goal_key', {
+            clone: {
+              environment: 'production',
+              key: 'trial-conversion-copy',
+              name: 'Trial Conversion Copy',
+            },
+          });
+
+          console.log(response.goal);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.goals.clone(
+              goal_key="goal_key",
+              clone={
+                  "environment": "production",
+                  "key": "trial-conversion-copy",
+                  "name": "Trial Conversion Copy",
+              },
+          )
+          print(response.goal)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Goals.Clone(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalCloneParams{
+          			Clone: knockmapi.GoalCloneParamsClone{
+          				Environment: "production",
+          				Key:         "trial-conversion-copy",
+          				Name:        "Trial Conversion Copy",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Goal)
+          }
   /v1/workflows/{workflow_key}/activate:
     put:
       callbacks: {}
@@ -23515,16 +24992,16 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -23637,10 +25114,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.workflows.activate('workflow_key', {
-            environment: 'development',
-            status: true,
-          });
+          const response = await client.workflows.activate('workflow_key', { status: true });
 
           console.log(response.workflow);
         python: |-
@@ -23652,7 +25126,6 @@ paths:
           )
           response = client.workflows.activate(
               workflow_key="workflow_key",
-              environment="development",
               status=True,
           )
           print(response.workflow)
@@ -23675,8 +25148,7 @@ paths:
           		context.TODO(),
           		"workflow_key",
           		knockmapi.WorkflowActivateParams{
-          			Environment: "development",
-          			Status:      true,
+          			Status: true,
           		},
           	)
           	if err != nil {
@@ -23757,16 +25229,16 @@ paths:
       description: Returns a paginated list of email layouts available in a given environment.
       operationId: listEmailLayouts
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
           in: query
           name: branch
           required: false
@@ -23875,7 +25347,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const emailLayout of client.emailLayouts.list({ environment: 'development' })) {
+          for await (const emailLayout of client.emailLayouts.list()) {
             console.log(emailLayout.branding_overrides);
           }
         python: |-
@@ -23885,9 +25357,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          page = client.email_layouts.list(
-              environment="development",
-          )
+          page = client.email_layouts.list()
           page = page.entries[0]
           print(page.branding_overrides)
         go: |
@@ -23905,9 +25375,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	page, err := client.EmailLayouts.List(context.TODO(), knockmapi.EmailLayoutListParams{
-          		Environment: "development",
-          	})
+          	page, err := client.EmailLayouts.List(context.TODO(), knockmapi.EmailLayoutListParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -24008,10 +25476,10 @@ paths:
       description: Deletes a branch by the `branch_slug`.
       operationId: deleteBranch
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -24040,7 +25508,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          await client.branches.delete('feature-branch', { environment: 'development' });
+          await client.branches.delete('feature-branch');
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -24050,7 +25518,6 @@ paths:
           )
           client.branches.delete(
               branch_slug="feature-branch",
-              environment="development",
           )
         go: |
           package main
@@ -24069,9 +25536,7 @@ paths:
           	err := client.Branches.Delete(
           		context.TODO(),
           		"feature-branch",
-          		knockmapi.BranchDeleteParams{
-          			Environment: "development",
-          		},
+          		knockmapi.BranchDeleteParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -24082,10 +25547,10 @@ paths:
       description: Returns a single branch by the `branch_slug`.
       operationId: getBranch
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -24118,7 +25583,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const branch = await client.branches.retrieve('feature-branch', { environment: 'development' });
+          const branch = await client.branches.retrieve('feature-branch');
 
           console.log(branch.created_at);
         python: |-
@@ -24130,7 +25595,6 @@ paths:
           )
           branch = client.branches.retrieve(
               branch_slug="feature-branch",
-              environment="development",
           )
           print(branch.created_at)
         go: |
@@ -24151,9 +25615,7 @@ paths:
           	branch, err := client.Branches.Get(
           		context.TODO(),
           		"feature-branch",
-          		knockmapi.BranchGetParams{
-          			Environment: "development",
-          		},
+          		knockmapi.BranchGetParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -24165,10 +25627,10 @@ paths:
       description: Creates a new branch off of the development environment with the given slug.
       operationId: createBranch
       parameters:
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -24201,7 +25663,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const branch = await client.branches.create('feature-branch', { environment: 'development' });
+          const branch = await client.branches.create('feature-branch');
 
           console.log(branch.created_at);
         python: |-
@@ -24213,7 +25675,6 @@ paths:
           )
           branch = client.branches.create(
               branch_slug="feature-branch",
-              environment="development",
           )
           print(branch.created_at)
         go: |
@@ -24234,9 +25695,7 @@ paths:
           	branch, err := client.Branches.New(
           		context.TODO(),
           		"feature-branch",
-          		knockmapi.BranchNewParams{
-          			Environment: "development",
-          		},
+          		knockmapi.BranchNewParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -24257,10 +25716,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug.
+        - description: The environment slug. When omitted, the account's default environment is used.
           in: query
           name: environment
-          required: true
+          required: false
           schema:
             example: development
             type: string
@@ -24365,7 +25824,7 @@ paths:
           });
 
           // Automatically fetches more pages as needed.
-          for await (const sourceLog of client.dataSources.listLogs('key', { environment: 'development' })) {
+          for await (const sourceLog of client.dataSources.listLogs('key')) {
             console.log(sourceLog.id);
           }
         python: |-
@@ -24377,7 +25836,6 @@ paths:
           )
           page = client.data_sources.list_logs(
               key="key",
-              environment="development",
           )
           page = page.entries[0]
           print(page.id)
@@ -24399,9 +25857,7 @@ paths:
           	page, err := client.DataSources.ListLogs(
           		context.TODO(),
           		"key",
-          		knockmapi.DataSourceListLogsParams{
-          			Environment: "development",
-          		},
+          		knockmapi.DataSourceListLogsParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -24444,5 +25900,5 @@ tags:
     name: Assets
   - description: Preference categories are a project-level catalog of categories that can be applied to workflows and broadcasts.
     name: Preference categories
-  - description: Tags are a project-level catalog of labels that can be applied to workflows, partials, and guides.
+  - description: Tags are a project-level catalog of labels that can be applied to workflows, partials, guides, and broadcasts.
     name: Tags
