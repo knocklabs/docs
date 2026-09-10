@@ -1774,6 +1774,7 @@ components:
       example:
         email_based_user_id_resolution: true
         link_tracking: true
+        link_tracking_uses_short_links: true
       properties:
         email_based_user_id_resolution:
           description: Whether to resolve chat provider user IDs using a Knock user's email address. Only relevant for Slack channels for the time being.
@@ -1783,6 +1784,12 @@ components:
           x-validate: null
         link_tracking:
           description: Whether to track link clicks on chat notifications.
+          example: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+        link_tracking_uses_short_links:
+          description: Whether tracked chat links should use compact short URLs instead of long tracked links. Only applied when link tracking is enabled. Not used by WhatsApp, which already uses short links.
           example: true
           type: boolean
           x-struct: null
@@ -4106,6 +4113,31 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    BroadcastRunResponse:
+      additionalProperties: false
+      description: A response to a broadcast run request.
+      example:
+        broadcast_run_id: 123e4567-e89b-12d3-a456-426614174000
+        request_id: req_123
+      properties:
+        broadcast_run_id:
+          description: The ID of the broadcast run.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        request_id:
+          description: The ID of the run request.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - request_id
+        - broadcast_run_id
+      title: BroadcastRunResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BroadcastRunResponse
+      x-validate: null
     EmailVisualBlocks:
       description: The visual blocks that make up the email template.
       example:
@@ -4667,7 +4699,7 @@ components:
           x-validate: null
         data:
           additionalProperties: true
-          description: The data payload parsed by the source.
+          description: The full event data sent from the source. For legacy sources, this is the properties or traits object.
           nullable: true
           type: object
           x-struct: null
@@ -7625,6 +7657,60 @@ components:
       title: SourceLogAction
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceLogAction
+      x-validate: null
+    BroadcastRunRequest:
+      additionalProperties: false
+      description: A request to run a broadcast for a recipient.
+      example:
+        recipient:
+          id: user_1
+        settings:
+          sandbox_mode: true
+          skip_delay: true
+        tenant: tenant_1
+      properties:
+        recipient:
+          additionalProperties: false
+          description: The user to run the broadcast for.
+          properties:
+            id:
+              description: The ID of the user.
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - id
+          type: object
+          x-struct: null
+          x-validate: null
+        settings:
+          additionalProperties: false
+          description: Settings that control how the broadcast run executes.
+          properties:
+            sandbox_mode:
+              description: Whether to generate messages without sending them to downstream providers.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            skip_delay:
+              description: Whether to skip delay steps during the run.
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        tenant:
+          description: The tenant to associate the broadcast run with. Must not contain whitespace.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - recipient
+      title: BroadcastRunRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BroadcastRunRequest
       x-validate: null
     ChannelGroupRuleRequest:
       description: A rule that determines if a channel should be executed as part of a channel group.
@@ -22038,6 +22124,109 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.EmailLayout)
+          }
+  /v1/broadcasts/{broadcast_key}/run:
+    put:
+      callbacks: {}
+      description: Runs the current version of a broadcast for the provided recipient without publishing the broadcast.
+      operationId: runBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BroadcastRunRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastRunResponse'
+          description: OK
+      summary: Run a broadcast
+      tags:
+        - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.broadcasts.run('broadcast_key', { recipient: { id: 'user_1' } });
+
+          console.log(response.broadcast_run_id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.broadcasts.run(
+              broadcast_key="broadcast_key",
+              recipient={
+                  "id": "user_1"
+              },
+          )
+          print(response.broadcast_run_id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Broadcasts.Run(
+          		context.TODO(),
+          		"broadcast_key",
+          		knockmapi.BroadcastRunParams{
+          			Recipient: knockmapi.BroadcastRunParamsRecipient{
+          				ID: "user_1",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.BroadcastRunID)
           }
   /v1/partials/preview:
     post:
