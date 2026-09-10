@@ -86,49 +86,53 @@ To attach a goal, open the [workflow](/concepts/workflows), [broadcast](/concept
 A goal attachment includes:
 
 - **Goal key.** The key of the goal to attach.
-- **Attribution window.** The number of days after the attribution anchor during which a completion can be credited to the resource. Must be between 1 and 30 days (day granularity). Defaults to 7 days.
+- **Attribution window.** The number of days after a message is sent during which a completion can be credited to the resource. Each new message from that resource to the recipient resets the window. Must be between 1 and 30 days (day granularity). Defaults to 7 days.
 
 The attachment lives on the messaging resource's version. Attaching, detaching, or changing the attribution window creates a new version of that workflow, broadcast, or guide, and follows that resource's commit model.
 
 ## Attribution
 
-When a recipient meets a goal condition, Knock records a **completion**, including when the goal has no attached resources. If the goal is attached to one or more messaging resources, Knock then decides whether the completion is an **attributed completion**.
+When a recipient meets a goal condition, Knock records a **completion**, including when the goal has no attached resources. Knock only attributes a completion after the goal is attached to a messaging resource.
 
-# NOCOMMIT TODO ANDY CONFIRM THIS
-### Attribution window and anchor
+Knock attributes a completion to the last message sent to the recipient from an attached resource, as long as that message was sent within the attachment's attribution window.
 
-The attribution window is set per attachment when you attach the goal. The window starts at a per-recipient **attribution anchor**:
+### Attribution window
 
-- **Workflows and broadcasts.** First message sent to the recipient for the most recent run of that resource.
-- **Guides.** Guide message created for the recipient (this happens asynchronously).
+The attribution window is set per attachment. Knock measures it from when a message is sent to the recipient from that resource. When a recipient sees a [guide](/concepts/guides), Knock records a sent message, so guides use the same send event as [workflows](/concepts/workflows) and [broadcasts](/concepts/broadcasts).
 
-A resource is **eligible for attribution** when its attribution anchor falls within the attachment's window relative to the completion time.
+Each new message from an attached resource to the recipient resets that resource's window. A resource is **eligible for attribution** when it has sent a message to the recipient within its window relative to the completion time.
 
 ### Last-touch attribution
 
-If multiple attached resources are eligible for the same completion, Knock attributes the completion to the resource that messaged the recipient most recently (last touch).
+If multiple attached resources are eligible for the same completion, Knock attributes the completion to the resource that sent the most recent message (last touch).
 
+### One attribution per message
 
-# NOCOMMIT TODO ANDY CONFIRM THIS
-### Example: attribution window
+If the recipient meets the goal again with no new message in between, Knock records another completion but does not attribute it. A new message from an attached resource makes the next completion eligible for attribution again.
 
-Goal 1 is attached to Workflow A (7-day window) and Guide B (30-day window). Recipient X received messaging from:
+### Example: last message resets the window
 
-- Workflow A: one run that sent its first message 8 days ago (and another message 1 day ago on that same run)
-- Guide B: 6 days ago
+Goal 1 is attached to Workflow A (7-day window) and Guide B (30-day window). Recipient X received:
 
-Is Workflow A inside its attribution window?
+- Workflow A: a message 8 days ago, then another message 1 day ago
+- Guide B: a message 6 days ago
 
-- No. The attribution anchor is the **first** message sent on the most recent Workflow A run (8 days ago), and the attachment has a 7-day window.
+Workflow A is inside its window. The window is measured from the last message sent (1 day ago), not the first message on the run.
 
-### Example: last touch
+Both resources are eligible. Last touch is Workflow A, so Knock attributes the completion to **Workflow A**.
 
-Goal 1 is attached to Workflow A and Guide B. Both attachments have a 30-day window. Recipient X received messaging from:
+### Example: last message outside its window
 
-- Workflow A: first message 8 days ago, most recent message 1 day ago
-- Guide B: 6 days ago
+Goal 1 is attached to Workflow A (30-day window) and Workflow B (7-day window). Recipient X received:
 
-Both resources are inside their windows. Last touch was Workflow A, so Knock attributes the completion to **Workflow A**.
+- Workflow A: a message 10 days ago
+- Workflow B: a message 8 days ago
+
+Workflow B sent the most recent message, but that send is outside B's 7-day window. Workflow A is inside its 30-day window. Knock attributes the completion to **Workflow A**.
+
+### Example: one attribution per message
+
+Recipient X receives a message from Workflow A, then completes the goal twice with no new message in between. Knock records two completions. Only the first is attributed to Workflow A. After Workflow A sends another message, the next completion can be attributed again.
 
 ## Reporting
 
