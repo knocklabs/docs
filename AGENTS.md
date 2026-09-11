@@ -111,6 +111,7 @@ Here is a list of Knock concept/feature names that should not be capitalized unl
 - Messages
 - Environments
 - Audiences
+- Goals
 
 ## Case: always use sentence case
 
