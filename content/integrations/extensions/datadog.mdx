@@ -39,6 +39,7 @@ This integration will send a stream of metrics as they happen from your Knock ac
 - Channel provider
 - Integration source type
 - Error reason
+- Tenant (opt-in)
 
 Please refer to your Datadog pricing agreement for information on how custom metrics sent to Datadog are priced for your account.
 
@@ -46,13 +47,26 @@ At this time there is no way to selectively enable specific metrics, however met
 
 A workflow can have one or more [categories](/concepts/workflows#workflow-categories). For applicable metrics, each category will have a unique tag on the emitted metrics; a workflow with categories `transactional` and `updates` will have the tags `workflow_category:transactional` and `workflow_category:updates`.
 
+### Include tenant as a metric tag
+
+To add a `tenant:<tenant_id>` tag to workflow and message metrics, enable **Include tenant as a metric tag** in the Datadog extension settings. Knock includes this tag when a [tenant](/concepts/tenants) is associated with the workflow run or message. Integration source metrics do not include a tenant tag.
+
+This setting is off by default.
+
+<Callout
+  type="warning"
+  title="High-cardinality metrics."
+  text="Tenant IDs can produce a large number of unique tag values. Enabling this setting increases metric cardinality and may increase your Datadog costs. Keep this setting off unless you need to filter or group Knock metrics by tenant."
+/>
+
 ## Installing the integration
 
 1. Visit the **Extensions** page under the **Integrations** section of your Knock dashboard account settings
 2. Click "Configure Datadog"
 3. Enter a Datadog API Key from Datadog's <a href="https://app.datadoghq.com/organization-settings/api-keys" target="_blank" rel="noopener">API Keys</a> page (we recommend creating a dedicated key just for Knock)
 4. Pick the correct site for your Datadog account (visit <a href="https://docs.datadoghq.com/getting_started/site/" target="_blank" rel="noopener">Datadog's docs</a> for more information)
-5. Click "Connect"
+5. Optionally enable **Include tenant as a metric tag** to add `tenant:<tenant_id>` tags to workflow and message metrics
+6. Click "Connect"
 
 ## Dashboard starter kit
 
@@ -130,6 +144,7 @@ Get started with our Datadog dashboard starter kit to start monitoring Knock met
 </Attributes>
 
 - All metrics are segmented by `environment` name (e.g. `production`, `development`)
+- When **Include tenant as a metric tag** is enabled, Knock also segments applicable workflow and message metrics by `tenant`
 - For each of the error cases, [the Knock dashboard](https://dashboard.knock.app) can provide more insights into specific failures (e.g. misconfigured workflow, channel, or integration action)
 
 ## Uninstalling the integration
