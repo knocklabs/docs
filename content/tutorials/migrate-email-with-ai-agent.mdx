@@ -1,0 +1,190 @@
+---
+title: Migrate email templates to Knock with an AI coding agent
+description: Learn how to migrate your existing email templates into Knock layouts, partials, and workflows using an AI coding agent, the Knock CLI, and the Knock MCP server.
+tags:
+  [
+    "migrate",
+    "email",
+    "migration",
+    "templates",
+    "MJML",
+    "skills",
+    "MCP server",
+    "Knock CLI",
+    "React Email",
+  ]
+section: Tutorials
+---
+
+Storing your email templates in Knock comes with [many advantages](/template-editor/overview#faq-storing-templates-in-knock). In this tutorial, you'll use the `knock-email-template-migration` [skill](/ai/skills) with an AI coding agent to migrate a directory of existing email templates into Knock. The skill parses your existing templates into reusable building blocks in Knock: shared headers and footers become [email layouts](/integrations/email/layouts), repeated components become [partials](/template-editor/partials) that can be used as blocks in the dashboard's template editor, and each email is added as a channel step on a [workflow](/concepts/workflows) with a documented [trigger payload](/send-notifications/triggering-workflows/overview).
+
+The skill does the analysis, planning, building, and verification to ensure that the migrated templates are a faithful representation of the original. You'll answer a few questions up front, approve the plan before anything is written to Knock, and sign off on the final result.
+
+## How the migration runs
+
+The skill runs in five phases and keeps a record of each decision it makes along the way. This record can be used to resume a migration from where it left off, or take a second pass over more templates later.
+
+1. **Preflight and intake.** The agent checks that the [Knock CLI](/developer-tools/knock-cli) and [MCP server](/ai/mcp-server) are available and connected, inventories the resources already in your Knock account, copies your templates into your local workspace, and confirms its intake answers with you.
+2. **Analyze.** The agent groups your templates by shared content, then analyzes them one at a time.
+3. **Plan and checkpoint.** The agent proposes its plan for layouts, partials, variable mapping, and workflows, then stops for your approval. Nothing is written to Knock before this point.
+4. **Build.** The agent creates partials, then layouts, then workflows, validating, pushing, reading back, and [committing](/version-control/commits) each stage to your Development [environment](/version-control/environments).
+5. **Verify and report.** The agent renders every template, compares it to the original, and writes a final report with the trigger payload contract for each workflow and instructions for [promoting to production](/version-control/commits#promoting-commits).
+
+## Prerequisites
+
+Before getting started, you'll need the following:
+
+- A <a href="https://dashboard.knock.app/" target="_blank">Knock account</a> with a configured [email provider](/integrations/email/overview). Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank">**Integrations** > **Channels**</a> in your dashboard to set this up if you haven't already.
+- Your email template files. Knock supports HTML and [MJML](/integrations/email/mjml) natively; component-based templates such as React Email need to be rendered to HTML first, and the skill will ask you to run your build if it can't.
+- An AI coding agent that supports agent skills, such as Claude Code, Cursor, or Codex, using the most capable model available to you.
+- The Knock CLI installed and [authenticated](/developer-tools/knock-cli#authenticating-the-cli).
+- The Knock MCP server connected to your agent. See the [get started](/ai/mcp-server#get-started) section of the MCP server docs for setup instructions.
+- Optional: a [service token](/developer-tools/service-tokens) for your Knock account. This is only needed if the MCP server isn't available to your agent, or if you'd like to keep a full archive of every rendered template during the verification step of your migration. It's used to make requests to the [management API](/developer-tools/management-api) directly.
+
+<AccordionGroup>
+  <Accordion
+    title="Provide a service token to your agent before starting the migration"
+    anchorSlug="provide-a-service-token"
+  >
+    1. Have an account owner or admin generate a dedicated token for the migration. In the dashboard, go to <a href="https://dashboard.knock.app/~/settings/service-tokens" target="_blank">**Settings** > **Service tokens**</a> and click **+ New token**. Name it for the migration so it's easy to find and revoke later. The token is only shown once, so copy it somewhere secure.
+
+    2. In the terminal session you'll launch your agent from, paste the token as an environment variable export so your agent can use it without you ever pasting it into the chat:
+
+       ```bash title="Exporting the service token"
+       export KNOCK_SERVICE_TOKEN=knock_st_...
+       ```
+
+    3. Start your agent from that same terminal session. The skill checks for the variable when it needs it and confirms that the token authenticates successfully.
+
+    4. Once you complete your migration, revoke the token from its three-dot menu on the **Service tokens** page.
+
+  </Accordion>
+</AccordionGroup>
+
+### MCP capabilities
+
+When you connect to the MCP server, you'll be prompted to select which [capabilities](/ai/mcp-server#capabilities) to enable. The skill uses the following:
+
+| Capability           | Requirement | Purpose                                                                      |
+| -------------------- | ----------- | ---------------------------------------------------------------------------- |
+| **Read resources**   | Required    | Inspect existing resources and environment variables                         |
+| **Manage resources** | Required    | Render template previews for verification                                    |
+| **Manage data**      | Required    | Create the test recipient that previews render for                           |
+| **Documentation**    | Recommended | Look up Knock concepts and Liquid helpers during the migration               |
+| **Debug**            | Recommended | Inspect message logs when verifying workflows with branch or step conditions |
+
+### Install the skills
+
+Install the migration skill along with the `knock-cli` [skill](/ai/skills#knock-cli), which teaches your agent the CLI mechanics the migration relies on:
+
+```bash title="Installing the migration and CLI skills"
+npx skills add knocklabs/skills --skill knock-email-template-migration knock-cli
+```
+
+Run this command from the project directory where you want the migration to live. Skills activate automatically when you ask your agent for a related task.
+
+## Background
+
+While not required reading, you may want to familiarize yourself with the following Knock concepts so you can follow the agent's plan and the questions it asks:
+
+- [Workflows](/concepts/workflows) and [channel steps](/designing-workflows/channel-step)
+- [Email layouts](/integrations/email/layouts)
+- [Partials](/template-editor/partials)
+- Referencing [variables](/template-editor/variables) and [your Knock data](/template-editor/referencing-data) in templates
+- [Knock Liquid helpers](/template-editor/reference-liquid-helpers)
+- [Commits](/version-control/commits) and [environments](/version-control/environments)
+
+## Migration steps
+
+<Steps titleSize="h3">
+  <Step title="Start the migration">
+    Open your agent in the project directory and prompt it to begin your migration. Some agents may require you to invoke the skill explicitly with `/knock-email-template-migration` or `$knock-email-template-migration`.
+
+    ```markdown title="Example prompt to start the migration"
+    /knock-email-template-migration migrate the email templates in ./email-templates into Knock
+    ```
+
+    The skill will activate and run the preflight phase: it confirms that the CLI is authenticated, finds your email channel in Knock, checks that the MCP server is connected, and inventories any workflows, layouts, and partials already in your Development environment so that nothing gets overwritten by the migration.
+
+    The agent then asks you some intake questions. For example, it may ask you where your template files are and whether anything should be skipped, where the new Knock resource files should live in your local project directory, whether templates should be built from editable blocks (the default) or kept as raw HTML, whether to migrate into your Development environment or a [branch](/version-control/branches), and any naming conventions to follow.
+
+  </Step>
+  <Step title="Template analysis">
+    The agent scans your full set of templates, grouping any that share a header and footer into families, then analyzes each template and writes its findings to an analysis file in the workspace.
+
+    This phase is read-only and does not write anything to Knock. For large sets of templates, it works in batches and can spread the per-template analysis across parallel tasks if your agent supports them.
+
+  </Step>
+  <Step title="Review the migration plan">
+    Once the analysis is complete, the agent stops for your review and approval. You'll be presented with any blocking decisions that need to be made before the migration can proceed. You'll also choose which method you want to use to verify the final migration result: rendered previews with a side-by-side visual comparison (the default), previews plus live test sends to your inbox, or previews plus a full archive of every rendered Knock template in your local workspace.
+
+    Finally, you'll be asked to approve a few lists of decisions proposed by the agent, based on its analysis:
+
+    - **Defaults** the agent will apply unless you veto them, such as inferred subject lines that are not explicitly in the source template.
+    - **Suspected source mistakes** like typos or content the original template's logic could never display. The default is to reproduce your templates faithfully, but you can ask the agent to correct them in the migrated templates instead.
+    - **Suggested optimizations** the agent will not apply unless you ask, such as moving a recipient's name to Knock's `recipient` namespace or a support email address to an [environment variable](/concepts/variables) instead of requiring these values to be passed when you trigger the workflow.
+
+  </Step>
+  <Step title="Watch the build">
+    With the plan approved, the agent builds in dependency order: partials first, then layouts, then one workflow per template. Each resource is validated, pushed with the CLI, read back from Knock to confirm it matches, and committed to your Development environment before the next stage begins.
+
+    You don't need to do anything here beyond letting it run. If the agent hits something it can't resolve, it records the question in its `MIGRATION.md` file and asks for your input.
+
+  </Step>
+  <Step title="Review the verification">
+    Once all of your resources have been created and pushed to Knock, the agent proceeds with verifying the migration result based on the method you chose during the plan review. It compares your Knock-rendered emails with your original templates to ensure that everything has been migrated correctly.
+
+    If you chose the option to send test emails to your inbox, the agent sends a test for each workflow (or for an agreed sample on large sets), and waits for you to confirm them in your inbox before marking the migration verified.
+
+  </Step>
+  <Step title="Read the report and promote to production">
+    The agent writes a `REPORT.md` file with everything it created, including a list of the reusable partial components your team can use to build new emails, open action items such as environment variables that need to be set in the dashboard, and instructions for promoting your migrated resources to production.
+
+    The report also includes the trigger `data` that each workflow expects when it's triggered; these can be shared with the engineers who will build the integrations that send these emails. When you're ready, you can promote the migration's [commits](/version-control/commits) to your Production environment with the Knock CLI. Each resource can be promoted by commit ID so that unrelated changes pending in your Development environment aren't promoted unintentionally. Partials and layouts should be promoted before or along with the workflows that depend on them.
+
+    ```bash title="Promoting a migration commit"
+    knock commit list --resource-type=workflow --resource-id=<workflow-key>
+    knock commit promote --only=<commit-id>
+    ```
+
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+- **The preflight phase stops at the MCP check.** Confirm the server is connected for this project and that the capabilities above are enabled. Most agents configure MCP servers per project directory, so a server that works elsewhere isn't automatically available in a new one.
+- **A render doesn't match the original.** Point the agent at the specific difference and ask it to re-verify the template.
+- **The migration was interrupted.** Start a new session in the same directory and ask the agent to continue. The skill records its progress as it works, so it can resume from where it left off.
+- **You have more templates to add later on.** Ask the agent to migrate them into the same directory. The skill reuses the layouts and partials it already built and appends a new pass to the record rather than starting over.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Can I migrate React Email or other component-based templates?"
+    anchorSlug="faq-component-templates"
+  >
+    Yes. Render or export them to HTML first, then run the migration on the
+    output. The skill detects component sources and will ask you to run your
+    build if it finds them.
+  </Accordion>
+  <Accordion
+    title="How many templates can I migrate at once?"
+    anchorSlug="faq-template-count"
+  >
+    There is no hard limit. The skill analyzes one template at a time, keeps
+    track of its progress, and can spread analysis across parallel tasks, so
+    large sets are a matter of time rather than context. For very large sets it
+    works in batches and can resume across sessions.
+  </Accordion>
+  <Accordion
+    title="Can I use the Knock agent in the dashboard instead?"
+    anchorSlug="faq-dashboard-agent"
+  >
+    If you want to migrate a small handful of templates, you can paste HTML into
+    the Knock agent and ask it to create a layout, partial, or workflow
+    directly. It won't perform the analysis, the plan checkpoint, or the
+    rendered verification this tutorial describes, so for a full set of
+    templates the skill is the better path.
+  </Accordion>
+</AccordionGroup>
