@@ -99,6 +99,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/tutorials/migrate-email-with-mcp-server",
+        destination: "/tutorials/migrate-email-with-ai-agent",
+        permanent: true,
+      },
+      {
         source: "/developer-tools/skills",
         destination: "/ai/skills",
         permanent: true,
