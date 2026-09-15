@@ -37,11 +37,11 @@ Wait for an event from a connected [integration source](/integrations/sources/ov
 Configure:
 
 - **Event.** The source event to wait for. Knock identifies the event by its event key and integration source key, which remain stable when you promote workflows between environments.
-- **Recipient path.** A JSON path into the source event that contains the Knock user ID. The path must start with `body.` or `headers.`, for example `body.userId` or `body.customerId`. If you leave the field blank, Knock uses `body.userId`. In the Management API, this field is `recipient_path`.
+- **Recipient path.** The path on the incoming event that contains the Knock user ID. For [Segment](/integrations/sources/segment) events, use `userId`. For a [custom source](/integrations/sources/custom), use a path under `body.` or `headers.`, usually `body.userId` (or `body.customerId`). In the Management API, this field is `recipient_path`.
 
 Your Knock environment must have at least one configured source that has received the event you want to wait for.
 
-Knock always scopes matching to the workflow recipient for that run. Knock reads the user ID from the recipient path on the incoming event and resumes only waits registered for that recipient. An event with no resolvable recipient at that path does not match paused waits for that event key.
+Knock always scopes matching to the workflow recipient for that run. Knock reads the user ID from the recipient path and resumes only waits registered for that recipient. If the path is blank or omitted, or the event has no value there, Knock does not resume any paused wait for that event.
 
 Source event payload fields are available under `event.data.*`. Envelope fields such as `user_id`, `inserted_at`, and `preprocess_output` are available at the top level of `event.*`.
 
@@ -245,9 +245,9 @@ When match conditions reject an incoming event, Knock logs a `wait_conditions_ev
     anchorSlug="faq-source-event-no-recipient"
   >
     Knock does not match the event to paused wait for event steps. Integration
-    source matching is always recipient-scoped. Set the recipient path to the
-    JSON path where the event stores the Knock user ID, and confirm incoming
-    events include a value at that path.
+    source matching is always recipient-scoped. If the recipient path is blank
+    or omitted, or the event has no value at that path, the wait does not
+    resume.
   </Accordion>
   <Accordion
     title="Do I need a source configured to use wait for event?"
