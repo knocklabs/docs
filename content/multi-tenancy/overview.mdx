@@ -14,7 +14,7 @@ You use tenants in Knock to:
 - Apply [per-tenant branding](/multi-tenancy/per-tenant-branding) in emails.
 - Define [per-tenant preference defaults](/multi-tenancy/per-tenant-preferences#create-a-per-tenant-default-preferenceset) that apply to all users within that tenant and [per-user, per-tenant preferences](/multi-tenancy/per-tenant-preferences#set-a-per-tenant-user-preferenceset).
 - Apply [per-tenant translations](/multi-tenancy/per-tenant-translations).
-- Hold shared channel credentials as [channel data](/managing-recipients/setting-channel-data), so one integration connection can serve recipients and objects in the tenant.
+- Hold shared chat credentials and select [tenant-scoped chat connections](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant), so the same recipient can route to a different destination for each tenant.
 - Include tenant IDs as an opt-in tag on [Datadog](/integrations/extensions/datadog) and [New Relic](/integrations/extensions/new-relic) metrics.
 
 ## How tenants work
@@ -98,8 +98,17 @@ Once a workflow run has been triggered with a `tenant`, the Knock workflow engin
 - Apply any branding overrides to templates rendered.
 - Apply any preference defaults to the recipient's preference set.
 - Fetch any recipient-specific tenant preference sets.
+- Select chat connections tagged with the tenant ID, with untagged connections as a fallback.
 
 Tagging messages by tenant makes it possible to query for tenant-specific messages in both the API and the dashboard, and to scope in-app feeds to a specific tenant.
+
+## Tenant-scoped chat connections
+
+A user or object can store several Slack, Microsoft Teams, or Discord connections and route each tenant's workflow runs to a different destination. Add `knock_tenant_id` to each connection and set it to the corresponding Knock tenant ID. Then pass that tenant ID when you trigger the workflow.
+
+For example, a project object shared by Acme and Globex can store one Slack channel for each company. A workflow triggered with `tenant: "acme"` sends only to connections tagged with `knock_tenant_id: "acme"`. If no connection matches, Knock falls back to untagged connections and never sends to a connection tagged for another tenant.
+
+See [scoping chat connections by tenant](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant) for setup examples, complete selection behavior, and how tenant-stored Slack and Microsoft Teams credentials work with scoped connections.
 
 ## Tenant data in templates
 

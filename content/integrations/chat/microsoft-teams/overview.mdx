@@ -239,6 +239,8 @@ When you're sending as a Microsoft Teams bot, every notification needs two thing
 
 The **destination** is stored on the recipient (a [`User`](/concepts/users) or [`Object`](/concepts/objects)). The **scope** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares the same Entra tenant ID. The two sections below cover each location.
 
+If one recipient stores destinations for several tenants, add `knock_tenant_id` to each `MsTeamsConnection`. This field is a Knock tenant ID, not a Microsoft Entra tenant ID. When you trigger the workflow with a tenant, Knock uses connections tagged with that Knock tenant ID. If none match, Knock uses only untagged connections. This selection happens before Knock applies any `ms_teams_tenant_id` stored on the tenant. See [tenant-scoped chat connections](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant) for the full selection behavior and an example.
+
 If you're using an incoming webhook instead of a bot, none of the above applies: the webhook URL is self-contained and requires no scope or destination.
 
 ### Recipient channel data requirements
@@ -256,20 +258,22 @@ An `MsTeamsConnection` can have one of two schemas, depending on whether you're 
     If you're using a Microsoft Teams bot, your `MsTeamsConnection` schema looks like this. You'll use
     either `ms_teams_channel_id` or `ms_teams_user_id` depending on whether you're storing connection data to message a channel or user in Microsoft Teams:
 
-    | Property            | Type     | Description                    |
-    | ------------------- | -------- | ------------------------------ |
-    | ms_teams_tenant_id  | `string` | A Microsoft Entra tenant ID    |
-    | ms_teams_team_id    | `string` | A Microsoft Teams team ID      |
-    | ms_teams_channel_id | `string` | A Microsoft Teams channel ID   |
-    | ms_teams_user_id    | `string` | A Microsoft Teams user ID      |
+    | Property            | Type     | Description                                                                                                                                    |
+    | ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+    | ms_teams_tenant_id  | `string` | A Microsoft Entra tenant ID. Not required when the ID is [stored on a tenant](#tenant-channel-data-requirements).                                |
+    | ms_teams_team_id    | `string` | A Microsoft Teams team ID.                                                                                                                     |
+    | ms_teams_channel_id | `string` | A Microsoft Teams channel ID.                                                                                                                  |
+    | ms_teams_user_id    | `string` | A Microsoft Teams user ID.                                                                                                                     |
+    | knock_tenant_id     | `string` | The optional Knock tenant ID that scopes this connection. This field is distinct from `ms_teams_tenant_id`.                                     |
 
   </Accordion>
   <Accordion title="MsTeamsConnection with an incoming webhook url" anchorSlug="msteamsconnection-with-an-incoming-webhook-url" description="For internal or one-off integrations">
      If you're using an incoming webhook, your `MsTeamsConnection` schema is quite simple:
 
-    | Property             | Type     | Description                                                                 |
-    | -------------------- | -------- | --------------------------------------------------------------------------- |
+    | Property             | Type     | Description                                                                            |
+    | -------------------- | -------- | -------------------------------------------------------------------------------------- |
     | incoming_webhook.url | `string` | The Microsoft Teams incoming webhook URL (to be used instead of the properties above) |
+    | knock_tenant_id      | `string` | The optional Knock tenant ID that scopes this connection.                              |
 
   </Accordion>
 </AccordionGroup>
