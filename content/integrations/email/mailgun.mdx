@@ -66,7 +66,7 @@ The following channel settings should be configured per [environment](/concepts/
       <Attribute
         name="Domain"
         type="string | liquid*"
-        description="The domain verified with Mailgun for sending emails. Supports Liquid tags for dynamic domains."
+        description="The domain verified with Mailgun for sending emails. Supports Liquid tags for dynamic domains, including per-tenant sending domains."
       />
       <Attribute
         name="Mailgun region"
@@ -132,6 +132,16 @@ The following channel settings should be configured per [environment](/concepts/
     Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
   </Accordion>
 </AccordionGroup>
+
+## Using a per-tenant domain
+
+The domain field supports [Liquid](/template-editor/overview), so you can store a sending domain as a custom property on each [tenant](/multi-tenancy/overview) and resolve it at send time:
+
+```liquid title="Per-tenant Mailgun domain"
+{{ tenant.mailgun_domain | default: "somedefault.com" }}
+```
+
+When the workflow run includes a tenant with a `mailgun_domain` property, Knock sends through that domain. Otherwise Knock uses `somedefault.com`. The resolved domain must be verified with Mailgun.
 
 ## Additional data sent
 
