@@ -247,18 +247,10 @@ For more granular control, you can override the specific CSS classes used by the
 
 ### Individual subcomponents
 
-For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own banner. This approach gives you full control over the layout and styling while maintaining the guide behavior:
+For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own banner. The SDK exports subcomponents as members of the `BannerView` object. This approach gives you full control over the layout and styling while maintaining the guide behavior:
 
 ```tsx title="Compose your own banner with subcomponents"
-import {
-  useGuide,
-  BannerContainer,
-  BannerContent,
-  BannerText,
-  BannerActions,
-  BannerButton,
-  BannerCloseButton,
-} from "@knocklabs/react";
+import { useGuide, BannerView } from "@knocklabs/react";
 import { useEffect } from "react";
 
 const CustomBanner = () => {
@@ -271,7 +263,8 @@ const CustomBanner = () => {
   if (!step) return null;
 
   return (
-    <BannerContainer
+    <BannerView.Root
+      step={step}
       style={{
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         color: "white",
@@ -280,49 +273,58 @@ const CustomBanner = () => {
         marginBottom: "16px",
       }}
     >
-      <BannerContent>
-        <BannerText>
-          <strong>{step.content.title}</strong>
-          <p>{step.content.body}</p>
-        </BannerText>
+      <BannerView.Content>
+        <BannerView.Title style={{ fontWeight: "bold" }} />
+        <BannerView.Body />
+      </BannerView.Content>
 
-        <BannerActions>
-          {step.content.actions?.map((action, index) => (
-            <BannerButton
-              key={index}
-              onClick={() => {
-                step.markAsInteracted();
-                // Handle action
-              }}
-              style={{
-                background: "rgba(255, 255, 255, 0.2)",
-                color: "white",
-                padding: "6px 12px",
-                borderRadius: "4px",
-                border: "none",
-              }}
-            >
-              {action.label}
-            </BannerButton>
-          ))}
-
-          <BannerCloseButton
-            onClick={() => step.markAsArchived()}
+      <BannerView.Actions>
+        {step.content.secondary_button && (
+          <BannerView.SecondaryButton
             style={{
               background: "transparent",
-              color: "rgba(255, 255, 255, 0.8)",
-              border: "none",
-              padding: "4px",
+              color: "white",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              border: "1px solid rgba(255, 255, 255, 0.5)",
             }}
-          >
-            ×
-          </BannerCloseButton>
-        </BannerActions>
-      </BannerContent>
-    </BannerContainer>
+          />
+        )}
+        {step.content.primary_button && (
+          <BannerView.PrimaryButton
+            style={{
+              background: "rgba(255, 255, 255, 0.2)",
+              color: "white",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              border: "none",
+            }}
+          />
+        )}
+        <BannerView.DismissButton
+          style={{
+            background: "transparent",
+            color: "rgba(255, 255, 255, 0.8)",
+            border: "none",
+            padding: "4px",
+          }}
+        />
+      </BannerView.Actions>
+    </BannerView.Root>
   );
 };
 ```
+
+The available `BannerView` subcomponents are:
+
+- `BannerView.Root` — The container component that provides context to child components. Requires the `step` prop.
+- `BannerView.Content` — Wraps the title and body content.
+- `BannerView.Title` — Renders the banner title from `step.content.title`.
+- `BannerView.Body` — Renders the banner body from `step.content.body`.
+- `BannerView.Actions` — Container for action buttons.
+- `BannerView.PrimaryButton` — Renders the primary action button from `step.content.primary_button`.
+- `BannerView.SecondaryButton` — Renders the secondary action button from `step.content.secondary_button`.
+- `BannerView.DismissButton` — Renders a dismiss button that archives the guide when clicked.
 
 This approach is ideal when you want to customize a piece of the pre-built component or change its structure.
 
