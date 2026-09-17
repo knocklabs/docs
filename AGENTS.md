@@ -232,18 +232,20 @@ Trigger the workflow from the [workflows API](/api-reference/workflows/trigger).
 
 Reach for a raw `<a>` only where markdown can't go — inside a JSX prop, such as a `Callout` `text` or a `Table` cell. MDX renders a markdown link and an `<a>` as the same plain anchor, so in prose the markdown form is the one to use.
 
-External links open in a new tab and carry `rel`:
+External links open in a new tab and carry `rel="noopener"`:
 
 ```mdx
-<a href="https://example.com" target="_blank" rel="noopener noreferrer">
+<a href="https://example.com" target="_blank" rel="noopener">
   Example
 </a>
 ```
 
+Don't add `noreferrer`. It strips the `Referer` header, which hides from the destination that the traffic came from the docs — costing attribution on links to Knock's own properties and telling partners and providers nothing about where their referrals originate. `noopener` is the part that does the security work.
+
 Check the links in every file you edit, not just the ones you added or changed. Fix what's wrong.
 
 - Internal links: the path resolves against `/content`, and any anchor matches a heading id on the target page.
-- External links: `target="_blank"` and `rel="noopener noreferrer"` are both present.
+- External links: `target="_blank"` and `rel="noopener"` are both present.
 
 ## Images
 
