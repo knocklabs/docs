@@ -294,46 +294,28 @@ const CustomCard = () => {
 
   if (!step) return null;
 
+  const { title, body, primary_button, secondary_button } = step.content;
+
   return (
-    <CardView.Root
-      step={step}
-      style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        borderRadius: "16px",
-        padding: "24px",
-        margin: "16px 0",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-      }}
-    >
+    <CardView.Root style={{ background: "#eef2ff" }}>
       <CardView.Content>
-        <CardView.Title style={{ color: "white", fontSize: "20px" }} />
-        <CardView.DismissButton style={{ color: "rgba(255, 255, 255, 0.8)" }} />
+        <CardView.Title title={title} style={{ fontSize: "18px" }} />
+        <CardView.DismissButton onClick={() => step.markAsArchived()} />
+        <CardView.Body body={body} />
       </CardView.Content>
 
-      <CardView.Body style={{ color: "rgba(255, 255, 255, 0.9)" }} />
-
       <CardView.Actions>
-        {step.content.secondary_button && (
-          <CardView.SecondaryButton
-            style={{
-              background: "transparent",
-              color: "white",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-              borderRadius: "8px",
-              padding: "10px 20px",
-            }}
+        {primary_button && (
+          <CardView.PrimaryButton
+            text={primary_button.text}
+            onClick={() => step.markAsInteracted()}
           />
         )}
-        {step.content.primary_button && (
-          <CardView.PrimaryButton
-            style={{
-              background: "rgba(255, 255, 255, 0.2)",
-              color: "white",
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-              borderRadius: "8px",
-              padding: "10px 20px",
-            }}
+
+        {secondary_button && (
+          <CardView.SecondaryButton
+            text={secondary_button.text}
+            onClick={() => step.markAsInteracted()}
           />
         )}
       </CardView.Actions>
@@ -344,15 +326,18 @@ const CustomCard = () => {
 
 The available `CardView` subcomponents are:
 
-- `CardView.Root` — The container component that provides context to child components. Requires the `step` prop.
-- `CardView.Content` — Wraps the title and other header content.
-- `CardView.Title` — Renders the card title from `step.content.title`.
-- `CardView.Body` — Renders the card body from `step.content.body`.
-- `CardView.Img` — Renders an image if included in the card content.
-- `CardView.Actions` — Container for action buttons.
-- `CardView.PrimaryButton` — Renders the primary action button from `step.content.primary_button`.
-- `CardView.SecondaryButton` — Renders the secondary action button from `step.content.secondary_button`.
-- `CardView.DismissButton` — Renders a dismiss button that archives the guide when clicked.
+| Subcomponent               | Renders                                                                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `CardView.Default`         | The full default card. Takes a `content` object, plus optional `colorMode`, `onDismiss`, `onButtonClick`, and `onImageClick` props. |
+| `CardView.Root`            | The outer card container.                                                                                                           |
+| `CardView.Content`         | A wrapper for the title and body.                                                                                                   |
+| `CardView.Title`           | The text passed to its `title` prop.                                                                                                |
+| `CardView.Body`            | The HTML passed to its `body` prop.                                                                                                 |
+| `CardView.Img`             | An image. Takes the standard `img` props, such as `src` and `alt`.                                                                  |
+| `CardView.Actions`         | A wrapper for the buttons.                                                                                                          |
+| `CardView.PrimaryButton`   | A primary button labeled with its `text` prop.                                                                                      |
+| `CardView.SecondaryButton` | A secondary button labeled with its `text` prop.                                                                                    |
+| `CardView.DismissButton`   | A dismiss button. Wire up `onClick` to archive the guide.                                                                           |
 
 This approach is ideal when you want to customize a piece of the pre-built component or change its structure.
 

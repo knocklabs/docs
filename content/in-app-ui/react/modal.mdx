@@ -257,48 +257,28 @@ const CustomModal = () => {
 
   if (!step) return null;
 
+  const { title, body, primary_button, secondary_button } = step.content;
+
   return (
-    <ModalView.Root step={step}>
-      <ModalView.Overlay onClick={() => step.markAsArchived()} />
-      <ModalView.Content
-        style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "white",
-          borderRadius: "16px",
-        }}
-      >
-        <ModalView.Close
-          style={{
-            position: "absolute",
-            top: "16px",
-            right: "16px",
-            color: "rgba(255, 255, 255, 0.8)",
-          }}
-        />
-        <ModalView.Title style={{ color: "white", fontSize: "20px" }} />
-        <ModalView.Body style={{ color: "rgba(255, 255, 255, 0.9)" }} />
+    <ModalView.Root onOpenChange={(open) => !open && step.markAsArchived()}>
+      <ModalView.Overlay />
+      <ModalView.Content style={{ background: "#eef2ff" }}>
+        <ModalView.Close />
+        <ModalView.Title title={title} style={{ fontSize: "18px" }} />
+        <ModalView.Body body={body} />
 
         <ModalView.Actions>
-          {step.content.secondary_button && (
+          {secondary_button && (
             <ModalView.SecondaryButton
-              style={{
-                background: "transparent",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "8px",
-                color: "white",
-                padding: "8px 16px",
-              }}
+              text={secondary_button.text}
+              onClick={() => step.markAsInteracted()}
             />
           )}
-          {step.content.primary_button && (
+
+          {primary_button && (
             <ModalView.PrimaryButton
-              style={{
-                background: "rgba(255, 255, 255, 0.2)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "8px",
-                color: "white",
-                padding: "8px 16px",
-              }}
+              text={primary_button.text}
+              onClick={() => step.markAsInteracted()}
             />
           )}
         </ModalView.Actions>
@@ -310,16 +290,19 @@ const CustomModal = () => {
 
 The available `ModalView` subcomponents are:
 
-- `ModalView.Root` — The container component that provides context to child components. Requires the `step` prop.
-- `ModalView.Overlay` — The backdrop overlay behind the modal.
-- `ModalView.Content` — The main modal container.
-- `ModalView.Title` — Renders the modal title from `step.content.title`.
-- `ModalView.Body` — Renders the modal body from `step.content.body`.
-- `ModalView.Img` — Renders an image if included in the modal content.
-- `ModalView.Actions` — Container for action buttons.
-- `ModalView.PrimaryButton` — Renders the primary action button from `step.content.primary_button`.
-- `ModalView.SecondaryButton` — Renders the secondary action button from `step.content.secondary_button`.
-- `ModalView.Close` — Renders a close button that archives the guide when clicked.
+| Subcomponent                | Renders                                                                                                                                              |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ModalView.Default`         | The full default modal. Takes a `content` object, plus optional `colorMode`, `onOpenChange`, `onDismiss`, `onButtonClick`, and `onImageClick` props. |
+| `ModalView.Root`            | The Radix dialog root and portal. Opens by default and reports closes through `onOpenChange`.                                                        |
+| `ModalView.Overlay`         | The backdrop behind the modal.                                                                                                                       |
+| `ModalView.Content`         | The modal container.                                                                                                                                 |
+| `ModalView.Title`           | The text passed to its `title` prop.                                                                                                                 |
+| `ModalView.Body`            | The HTML passed to its `body` prop.                                                                                                                  |
+| `ModalView.Img`             | An image. Takes the standard `img` props, such as `src` and `alt`.                                                                                   |
+| `ModalView.Actions`         | A wrapper for the buttons.                                                                                                                           |
+| `ModalView.PrimaryButton`   | A primary button labeled with its `text` prop.                                                                                                       |
+| `ModalView.SecondaryButton` | A secondary button labeled with its `text` prop.                                                                                                     |
+| `ModalView.Close`           | A close button that dismisses the dialog.                                                                                                            |
 
 This approach is ideal when you want to customize a piece of the pre-built component or change its structure.
 
