@@ -5,32 +5,11 @@ import Meta from "@/components/Meta";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Head from "next/head";
 import { motion } from "framer-motion";
 import { MenuItem } from "@telegraph/menu";
 import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
-
-const RECOVERY_LINKS = [
-  {
-    title: "Documentation home",
-    url: "/",
-    description: "Start from the documentation homepage",
-  },
-  {
-    title: "Sitemap",
-    url: "/sitemap.xml",
-    description: "Browse all available pages",
-  },
-  {
-    title: "LLM index",
-    url: "/llms.txt",
-    description: "Machine-readable documentation index",
-  },
-  {
-    title: "Full documentation",
-    url: "/llms-full.txt",
-    description: "Complete documentation in plain text",
-  },
-];
+import { DOCUMENTATION_LINKS } from "@/lib/documentationLinks";
 
 /**
  * Not seeing 404 page in development? Please read!
@@ -82,96 +61,71 @@ export default function NotFound() {
   }, [path]);
 
   return (
-    <Page.Container>
-      <Meta title="Page not found | Knock Docs" />
-      <Page.Masthead
-        skipHighlight
-        mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
-      />
-      <Page.Wrapper>
-        {/* This is usually where the sidebar goes. This is the only place we don't have one. This makes sure the CSS grid has an item here. */}
-        <Box />
-        <Page.Content>
-          <Box>
-            <Heading as="h1" size="7" mt="8" mb="4">
-              404 - Page not found
-            </Heading>
-            <Text as="p" size="4" color="gray">
-              The page you are looking for has moved or does not exist.
-            </Text>
-            <Box my="8">
-              <hr />
-            </Box>
-            {results && results.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <Box>
-                  <Text as="p" size="2" mb="4" color="gray">
-                    Try one of these related pages:
-                  </Text>
-                  <Box as="ul">
-                    {results.map((result, index) => (
-                      <motion.li
-                        key={result.url}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.08 }}
-                        style={{ marginLeft: "-10px" }}
-                      >
-                        <MenuItem py="5" w="full">
-                          <Text
-                            as={Link}
-                            href={result.url}
-                            color="accent"
-                            size="2"
-                          >
-                            {result.title}
-                          </Text>
-                        </MenuItem>
-                      </motion.li>
-                    ))}
-                  </Box>
-                </Box>
-              </motion.div>
-            )}
-
-            <Box my="8">
-              <hr />
-            </Box>
-
+    <Box bg="surface-1" style={{ minHeight: "100vh" }}>
+      <Page.Container>
+        <Meta title="Page not found | Knock Docs" />
+        <Head>
+          {DOCUMENTATION_LINKS.map((link) => (
+            <link key={link.href} rel="help" {...link} />
+          ))}
+        </Head>
+        <Page.Masthead
+          skipHighlight
+          mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
+        />
+        <Page.Wrapper>
+          {/* This is usually where the sidebar goes. This is the only place we don't have one. This makes sure the CSS grid has an item here. */}
+          <Box />
+          <Page.Content>
             <Box>
-              <Text as="p" size="2" mb="4" color="gray">
-                Recovery options:
+              <Heading as="h1" size="7" mt="8" mb="4">
+                404 - Page not found
+              </Heading>
+              <Text as="p" size="4" color="gray">
+                The page you are looking for has moved or does not exist.
               </Text>
-              <Box as="ul">
-                {RECOVERY_LINKS.map((link, index) => (
-                  <motion.li
-                    key={link.url}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.08 }}
-                    style={{ marginLeft: "-10px" }}
-                  >
-                    <MenuItem py="5" w="full">
-                      <Box>
-                        <Text as={Link} href={link.url} color="accent" size="2">
-                          {link.title}
-                        </Text>
-                        <Text as="p" size="1" color="gray">
-                          {link.description}
-                        </Text>
-                      </Box>
-                    </MenuItem>
-                  </motion.li>
-                ))}
-              </Box>
+              {results && results.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Box my="8">
+                    <hr />
+                  </Box>
+                  <Box>
+                    <Text as="p" size="2" mb="4" color="gray">
+                      Try one of these related pages:
+                    </Text>
+                    <Box as="ul">
+                      {results.map((result, index) => (
+                        <motion.li
+                          key={result.url}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: index * 0.08 }}
+                          style={{ marginLeft: "-10px" }}
+                        >
+                          <MenuItem py="5" w="full">
+                            <Text
+                              as={Link}
+                              href={result.url}
+                              color="accent"
+                              size="2"
+                            >
+                              {result.title}
+                            </Text>
+                          </MenuItem>
+                        </motion.li>
+                      ))}
+                    </Box>
+                  </Box>
+                </motion.div>
+              )}
             </Box>
-          </Box>
-        </Page.Content>
-      </Page.Wrapper>
-    </Page.Container>
+          </Page.Content>
+        </Page.Wrapper>
+      </Page.Container>
+    </Box>
   );
 }

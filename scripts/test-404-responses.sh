@@ -25,26 +25,27 @@ else
     exit 1
 fi
 
-# Test 1b: HTML 404 contains recovery links
+# Test 1b: HTML 404 exposes help links in metadata, not a visible recovery list
 echo ""
-echo "Test 1b: Verify HTML 404 contains recovery links"
+echo "Test 1b: Verify HTML 404 contains non-rendered help links"
 HTML_RESPONSE=$(curl -s "$BASE_URL$RANDOM_PATH")
 
-# Check for sitemap link in HTML
-if echo "$HTML_RESPONSE" | grep -q "sitemap.xml"; then
-    echo "✅ PASS: HTML contains sitemap link"
-else
-    echo "❌ FAIL: HTML missing sitemap link"
-    exit 1
-fi
-
-# Check for llms.txt link in HTML
-if echo "$HTML_RESPONSE" | grep -q "llms.txt"; then
-    echo "✅ PASS: HTML contains llms.txt link"
-else
-    echo "❌ FAIL: HTML missing llms.txt link"
-    exit 1
-fi
+printf '%s' "$HTML_RESPONSE" | node -e '
+const assert = require("node:assert/strict");
+const html = require("node:fs").readFileSync(0, "utf8");
+const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? "";
+const links = head.match(/<link\b[^>]*>/gi) ?? [];
+for (const href of ["/", "/sitemap.xml", "/llms.txt", "/llms-full.txt"]) {
+  assert(links.some(link => link.includes(`href="${href}"`) && link.includes(`rel="help"`)),
+    `Missing help metadata for ${href}`);
+}
+const body = html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? "";
+assert(body.includes("404 - Page not found"), "Missing human-readable 404 message");
+assert(!body.includes("Recovery options:"), "Recovery list should not be rendered");
+assert(!/<a\b[^>]*href="\/(?:sitemap\.xml|llms(?:-full)?\.txt)"/i.test(body),
+  "Machine-readable documentation links should not be rendered");
+console.log("✅ PASS: All four help links are in the document head, without a visible recovery list");
+'
 
 # Test 2: Markdown 404 status code
 echo ""
