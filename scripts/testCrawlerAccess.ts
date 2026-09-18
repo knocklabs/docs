@@ -11,7 +11,7 @@
  *
  * Exit codes:
  *   0 - All crawlers can access the site
- *   1 - One or more crawlers are blocked
+ *   1 - One or more requests failed or were blocked
  *
  * @see https://is-agentic.com/scan/docs.knock.app for the external verification scan
  */
@@ -35,7 +35,7 @@ interface TestResult {
 async function testCrawlerAccess(
   baseUrl: string,
   userAgent: string,
-  page: string
+  page: string,
 ): Promise<TestResult> {
   const url = `${baseUrl}${page}`;
 
@@ -48,9 +48,9 @@ async function testCrawlerAccess(
         "Accept-Language": "en-US,en;q=0.5",
       },
       redirect: "follow",
+      signal: AbortSignal.timeout(15_000),
     });
 
-    const contentType = response.headers.get("content-type") || "";
     const text = await response.text();
 
     const challengePage =
@@ -82,7 +82,7 @@ async function testCrawlerAccess(
       page,
       status: 0,
       ok: false,
-      blocked: true,
+      blocked: false,
       challengePage: false,
       error: error instanceof Error ? error.message : String(error),
     };
@@ -91,27 +91,39 @@ async function testCrawlerAccess(
 
 function formatResult(result: TestResult): string {
   const statusIcon = result.ok ? "✅" : result.blocked ? "❌" : "⚠️";
-  const statusText = result.challengePage
+  const statusText = result.error
+    ? `ERROR: ${result.error}`
+    : result.challengePage
     ? "CHALLENGE PAGE"
     : result.blocked
-      ? "BLOCKED"
-      : result.error
-        ? `ERROR: ${result.error}`
-        : `OK (${result.status})`;
+    ? `BLOCKED (${result.status})`
+    : `${result.ok ? "OK" : "FAILED"} (${result.status})`;
 
-  return `${statusIcon} ${result.userAgent.padEnd(20)} ${result.page.padEnd(35)} ${statusText}`;
+  return `${statusIcon} ${result.userAgent.padEnd(20)} ${result.page.padEnd(
+    35,
+  )} ${statusText}`;
 }
 
 async function main() {
   const baseUrl = process.argv[2] || DEFAULT_BASE_URL;
 
-  console.log("╔════════════════════════════════════════════════════════════════════╗");
-  console.log("║                  AI Crawler Reachability Test                       ║");
-  console.log("╠════════════════════════════════════════════════════════════════════╣");
+  console.log(
+    "╔════════════════════════════════════════════════════════════════════╗",
+  );
+  console.log(
+    "║                  AI Crawler Reachability Test                       ║",
+  );
+  console.log(
+    "╠════════════════════════════════════════════════════════════════════╣",
+  );
   console.log(`║ Base URL: ${baseUrl.padEnd(57)} ║`);
-  console.log(`║ Crawlers: ${AI_CRAWLER_USER_AGENTS.length.toString().padEnd(57)} ║`);
+  console.log(
+    `║ Crawlers: ${AI_CRAWLER_USER_AGENTS.length.toString().padEnd(57)} ║`,
+  );
   console.log(`║ Pages:    ${TEST_PAGES.length.toString().padEnd(57)} ║`);
-  console.log("╚════════════════════════════════════════════════════════════════════╝");
+  console.log(
+    "╚════════════════════════════════════════════════════════════════════╝",
+  );
   console.log("");
 
   const results: TestResult[] = [];
@@ -137,6 +149,7 @@ async function main() {
 
   console.log(`Total tests:     ${totalTests}`);
   console.log(`Passed:          ${passedTests} ✅`);
+  console.log(`Failed:          ${totalTests - passedTests}`);
   console.log(`Blocked:         ${blockedTests} ❌`);
   console.log(`Challenge pages: ${challengeTests} ⚠️`);
   console.log("");
@@ -152,16 +165,19 @@ async function main() {
     console.log("");
   }
 
-  const allPassed = blockedTests === 0;
+  const allPassed = passedTests === totalTests;
 
   if (allPassed) {
     console.log("✅ All AI crawlers can access the documentation site");
   } else {
-    console.log("❌ Some AI crawlers are blocked from accessing the site");
+    console.log("❌ Some AI crawler requests failed or were blocked");
     console.log("\nRecommended actions:");
-    console.log("  1. Check Vercel Bot Protection settings in the dashboard");
-    console.log("  2. Review WAF/CDN rules for the blocked user agents");
-    console.log("  3. Add explicit allow rules for legitimate AI crawlers");
+    console.log("  - Check failed URLs and the HTTP or network errors above");
+    if (blockedTests > 0) {
+      console.log("  - Check Vercel Bot Protection settings in the dashboard");
+      console.log("  - Review WAF/CDN rules for the blocked user agents");
+      console.log("  - Add explicit allow rules for legitimate AI crawlers");
+    }
   }
 
   process.exit(allPassed ? 0 : 1);
