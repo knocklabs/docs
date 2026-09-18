@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 function isMarkdownRequest(request: NextRequest): boolean {
   const acceptHeader = request.headers.get("accept") || "";
-  return acceptHeader.includes("text/markdown");
+  return acceptHeader.split(",").some((entry) => {
+    const [type, ...parameters] = entry.trim().toLowerCase().split(";");
+    const quality = parameters.find((parameter) =>
+      parameter.trim().startsWith("q="),
+    );
+    return (
+      type.trim() === "text/markdown" &&
+      (!quality || Number(quality.trim().slice(2)) > 0)
+    );
+  });
 }
 
 function isStaticAsset(pathname: string): boolean {
@@ -14,6 +23,8 @@ function isStaticAsset(pathname: string): boolean {
     pathname.startsWith("/videos") ||
     pathname.endsWith(".txt") ||
     pathname.endsWith(".json") ||
+    pathname.endsWith(".yaml") ||
+    pathname.endsWith(".yml") ||
     pathname.endsWith(".xml") ||
     pathname.endsWith(".ico") ||
     pathname.endsWith(".png") ||
@@ -24,20 +35,6 @@ function isStaticAsset(pathname: string): boolean {
 }
 
 function getMarkdownApiPath(pathname: string): string {
-  // Handle special reference paths that should serve top-level files
-  if (pathname === "/cli" || pathname.startsWith("/cli/")) {
-    return "/api/md/cli";
-  }
-  if (pathname === "/api-reference" || pathname.startsWith("/api-reference/")) {
-    return "/api/md/api-reference";
-  }
-  if (
-    pathname === "/mapi-reference" ||
-    pathname.startsWith("/mapi-reference/")
-  ) {
-    return "/api/md/mapi-reference";
-  }
-
   // Remove trailing slash if present
   const cleanPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
@@ -57,10 +54,8 @@ function getMarkdownApiPath(pathname: string): string {
  * routes to an API endpoint that serves markdown content with proper
  * 404 handling for agent recovery.
  *
- * Special cases:
- * - `/cli/*` paths serve `/cli.md`
- * - `/api-reference/*` paths serve `/api-reference.md`
- * - `/mapi-reference/*` paths serve `/mapi-reference.md`
+ * Reference paths map to their per-page generated files so an unknown
+ * reference URL returns a 404 instead of an unrelated overview document.
  *
  * 404 responses include recovery links to sitemap, llms.txt, docs index,
  * and search API as required by Is Agentic guidelines.
@@ -69,39 +64,41 @@ export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Skip static assets
-  if (isStaticAsset(pathname)) {
-    return NextResponse.next();
-  }
-
-  // Handle direct .md file requests - serve directly from public/
-  if (pathname.endsWith(".md")) {
-    return NextResponse.next();
-  }
-
-  // Skip API routes (except our markdown API which will be rewritten to)
-  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/md/")) {
+  if (
+    isStaticAsset(pathname) ||
+    pathname === "/api" ||
+    pathname.startsWith("/api/")
+  ) {
     return NextResponse.next();
   }
 
   // Handle markdown content negotiation
-  if (isMarkdownRequest(request)) {
-    const markdownPath = getMarkdownApiPath(pathname);
+  if (isMarkdownRequest(request) || pathname.endsWith(".md")) {
+    const markdownPath = getMarkdownApiPath(pathname.replace(/\.md$/, ""));
 
     // For llms.txt, serve directly from public/
     if (markdownPath === "/llms.txt") {
       const url = request.nextUrl.clone();
       url.pathname = "/llms.txt";
-      return NextResponse.rewrite(url);
+      const response = NextResponse.rewrite(url);
+      response.headers.set("Vary", "Accept");
+      return response;
     }
 
     // Route to the markdown API which handles 404s properly
     const url = request.nextUrl.clone();
     url.pathname = markdownPath;
-    return NextResponse.rewrite(url);
+    // Do not let a slug query parameter replace the actual requested path.
+    url.searchParams.delete("slug");
+    const response = NextResponse.rewrite(url);
+    response.headers.set("Vary", "Accept");
+    return response;
   }
 
   // Let the request proceed normally
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("Vary", "Accept");
+  return response;
 }
 
 export const config = {
