@@ -81,7 +81,7 @@ export function proxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/llms.txt";
       const response = NextResponse.rewrite(url);
-      response.headers.set("Vary", "Accept");
+      response.headers.set("Vary", "Accept, Accept-Encoding");
       return response;
     }
 
@@ -91,13 +91,13 @@ export function proxy(request: NextRequest) {
     // Do not let a slug query parameter replace the actual requested path.
     url.searchParams.delete("slug");
     const response = NextResponse.rewrite(url);
-    response.headers.set("Vary", "Accept");
+    response.headers.set("Vary", "Accept, Accept-Encoding");
     return response;
   }
 
   // Let the request proceed normally
   const response = NextResponse.next();
-  response.headers.set("Vary", "Accept");
+  response.headers.set("Vary", "Accept, Accept-Encoding");
   return response;
 }
 

@@ -25,7 +25,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  res.setHeader("Vary", "Accept");
+  res.setHeader("Vary", "Accept, Accept-Encoding");
   res.setHeader("Content-Type", "text/markdown; charset=utf-8");
 
   if (req.method !== "GET" && req.method !== "HEAD") {
