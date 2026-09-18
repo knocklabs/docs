@@ -51,6 +51,48 @@ const nextConfig = {
       `;
 
     return [
+      // Markdown files served directly should have proper Content-Type
+      // and Vary header for cache-safe content negotiation
+      {
+        source: "/:path*.md",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/markdown; charset=utf-8",
+          },
+          {
+            key: "Vary",
+            value: "Accept, Accept-Encoding",
+          },
+        ],
+      },
+      // llms.txt and llms-full.txt need proper headers
+      {
+        source: "/llms.txt",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/plain; charset=utf-8",
+          },
+          {
+            key: "Vary",
+            value: "Accept, Accept-Encoding",
+          },
+        ],
+      },
+      {
+        source: "/llms-full.txt",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/plain; charset=utf-8",
+          },
+          {
+            key: "Vary",
+            value: "Accept, Accept-Encoding",
+          },
+        ],
+      },
       {
         source: "/",
         headers: [
