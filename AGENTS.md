@@ -230,9 +230,9 @@ Trigger the workflow from the [workflows API](/api-reference/workflows/trigger).
 - No trailing slash.
 - Anchors append the target heading's id: `/preferences/overview#channels-vs-channel-types`.
 
-Reach for a raw `<a>` only where markdown can't go — inside a JSX prop, such as a `Callout` `text` or a `Table` cell. MDX renders a markdown link and an `<a>` as the same plain anchor, so in prose the markdown form is the one to use.
+Reach for a raw `<a>` where markdown can't go — inside a JSX prop, such as a `Callout` `text` or a `Table` cell, or for an external link, which needs `target` and `rel`. MDX renders a markdown link and an `<a>` as the same plain anchor otherwise, so use markdown wherever both are equivalent.
 
-External links open in a new tab and carry `rel="noopener"`:
+External links carry `target="_blank"` and `rel="noopener"`.
 
 ```mdx
 <a href="https://example.com" target="_blank" rel="noopener">
@@ -240,12 +240,12 @@ External links open in a new tab and carry `rel="noopener"`:
 </a>
 ```
 
-Don't add `noreferrer`. It strips the `Referer` header, which hides from the destination that the traffic came from the docs — costing attribution on links to Knock's own properties and telling partners and providers nothing about where their referrals originate. `noopener` is the part that does the security work.
+Dashboard links (`dashboard.knock.app`) skip `rel` entirely — it's a Knock property. Substitute `~` for the account and environment slugs, which resolves to the signed-in user's own account and environment: `https://dashboard.knock.app/acme/development/broadcasts` becomes `https://dashboard.knock.app/~/broadcasts`.
 
 Check the links in every file you edit, not just the ones you added or changed. Fix what's wrong.
 
 - Internal links: the path resolves against `/content`, and any anchor matches a heading id on the target page.
-- External links: `target="_blank"` and `rel="noopener"` are both present.
+- External links: `target="_blank"` and `rel="noopener"` are both present, except dashboard links, which skip `rel`.
 
 ## Images
 
