@@ -1,8 +1,12 @@
 import posthog from "posthog-js";
 
 export const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const POSTHOG_HOST =
-  process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+
+// Use reverse proxy path to avoid ad-blocker tracking prevention
+// The /ingest path is rewritten to us.i.posthog.com in next.config.js
+const POSTHOG_API_HOST = "/ingest";
+// UI host is used for toolbar and session recording links
+const POSTHOG_UI_HOST = "https://us.posthog.com";
 
 let initialized = false;
 
@@ -12,7 +16,8 @@ export function init(): void {
   if (!POSTHOG_KEY) return;
 
   posthog.init(POSTHOG_KEY, {
-    api_host: POSTHOG_HOST,
+    api_host: POSTHOG_API_HOST,
+    ui_host: POSTHOG_UI_HOST,
     capture_pageview: false, // We handle page views manually on route changes
     capture_pageleave: true,
   });
