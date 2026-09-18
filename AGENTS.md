@@ -69,6 +69,25 @@ Documentation content lives in `/content` and is organized into:
 - `preferences/` - User preference management
 - `send-notifications/` - Triggering and debugging workflows
 
+## Frontmatter
+
+Every page in `/content` opens with frontmatter. `title`, `description`, and `section` are required.
+
+| Field                          | Notes                                                                               |
+| ------------------------------ | ----------------------------------------------------------------------------------- |
+| `title`                        | The page's H1 and browser tab title. Sentence case.                                 |
+| `description`                  | One sentence. See below.                                                            |
+| `section`                      | The page's grouping in search. Nested sections use `Parent > Child`.                |
+| `tags`                         | Search keywords. See below.                                                         |
+| `metaTitle`, `metaDescription` | Override the title and description for search engines only, leaving the page as is. |
+| `layout`                       | Only when the page needs a non-default layout.                                      |
+
+`description` does double duty: it renders as the subtitle under the page title, and it's the snippet a reader sees in search results. Write one sentence that says what the page covers, and make it stand on its own — a reader meets it before they've read anything else on the page. Keep it to a line, and don't restate the page's opening paragraph: the reader sees both in sequence, so a description that paraphrases the intro spends the line twice.
+
+`tags` are written into the search index, so a tag earns its place by grouping this page with others. A tag that appears on one page matches only what the title already matches. Check that a tag is in use elsewhere in `/content` before adding it, and prefer an existing tag over a more precise new one.
+
+Match `section` to a value already in use. A new section value creates a group of one.
+
 ---
 
 # Knock writing style guide
@@ -83,155 +102,83 @@ Documentation content lives in `/content` and is organized into:
 
 > Example: Knock enables you to ship in-app notifications in a day.
 
-## Knock product names are proper nouns and should be capitalized, unless being used as a verb
+## Knock product names are proper nouns and should be capitalized
 
-Here is a list of Knock product names (singular/plural) that should be capitalized:
+Capitalize these Knock product names:
 
 - Agent Toolkit
 - Management API
 
-Best practice is to not use Knock product names as verbs. Use a synonym instead.
+In "Knock MCP server", "server" stays lowercase.
 
-If you must use a Knock product name as a verb, do not capitalize the word.
+## Knock concept and feature names are not proper nouns and should not be capitalized
 
-## Knock concept or feature names are not proper nouns and should not be capitalized
+Don't capitalize these:
 
-Here is a list of Knock concept/feature names that should not be capitalized unless at beginning of sentence:
+- guides
+- workflows
+- broadcasts
+- tenants
+- users
+- objects
+- translations
+- schedules
+- subscriptions
+- preferences
+- messages
+- environments
+- audiences
+- agents
+- agent function
 
-- Guides
-- Workflows
-- Broadcasts
-- Tenants
-- Users
-- Objects
-- Translations
-- Schedules
-- Subscriptions
-- Preferences
-- Messages
-- Environments
-- Audiences
-- Goals
+"Agent" is lowercase everywhere except in "Agent Toolkit". Write "the Knock agent" in long-form prose and "Knock agents" for the plural.
 
 ## Case: always use sentence case
 
-We always use sentence case, even for titles. This means that a header should always be capitalized as "How Knock works" and not "How Knock Works". The only exception to this rule is for proper nouns (i.e. Knock products such as Broadcasts).
+Sentence case everywhere, titles and headers included: capitalize the first word and proper nouns, nothing else. "How Knock works", not "How Knock Works". Never title case.
 
-### Sentence case rules
-
-1. **Headers and titles**: Only capitalize the first word and proper nouns
-
-   - ✅ "Feed component documentation"
-   - ❌ "Feed Component Documentation"
-   - ✅ "How to use the feed API"
-   - ❌ "How To Use The Feed API"
-
-2. **Technical terms**: Keep technical terms in sentence case unless they are proper nouns
-
-   - ✅ "CSS variables"
-   - ❌ "CSS Variables"
-   - ✅ "API reference"
-   - ❌ "API Reference"
-   - ✅ "React Native components"
-   - ❌ "React Native Components"
-
-3. **Component names**: Keep component names in sentence case unless they are proper nouns
-
-   - ✅ "Notification feed"
-   - ❌ "Notification Feed"
-   - ✅ "Feed provider"
-   - ❌ "Feed Provider"
-
-4. **Feature names**: Keep feature names in sentence case unless they are proper nouns
-
-   - ✅ "Theme support"
-   - ❌ "Theme Support"
-   - ✅ "Custom UI guide"
-   - ❌ "Custom UI Guide"
-
-5. **Common patterns to avoid**:
-
-   - ❌ Capitalizing every word in a title
-   - ❌ Capitalizing feature names
-   - ❌ Capitalizing component names
-   - ❌ Capitalizing common nouns in titles
-
-6. **Proper nouns that should remain capitalized**:
-   - Knock product names (Agent Toolkit, Management API)
-   - Brand names (React, iOS, Android)
-   - Programming languages (JavaScript, TypeScript)
-   - Framework names (React Native)
-
-### List item formatting
-
-When creating numbered or bulleted lists with bold introductory text, apply sentence case to all content:
+This covers headers, page titles, bold list-item labels, technical terms, component names, and feature names.
 
 ✅ Correct:
 
-1. **Simple A/B test flag**
-2. **User tier segments**
-3. **Engagement metrics**
-
-❌ Incorrect:
-
-1. **Simple A/B Test Flag**
-2. **User Tier Segments**
-3. **Engagement Metrics**
-
-This applies to all list contexts, including:
-
-- Numbered lists with bold descriptions
-- Sub-bullet points with bold labels
-- Step-by-step procedures with bold headings
-
-### Technical terms and feature descriptions
-
-Technical terms, feature names, and descriptive phrases should follow sentence case rules:
-
-✅ Correct:
-
+- "Feed component documentation"
+- "How to use the feed API"
+- "CSS variables"
+- "Notification feed"
 - **Email template configuration**
-- **Branch step logic**
-- **Webhook configuration**
-- **Statistical significance**
 
 ❌ Incorrect:
 
+- "Feed Component Documentation"
+- "How To Use The Feed API"
+- "CSS Variables"
+- "Notification Feed"
 - **Email Template Configuration**
-- **Branch Step Logic**
-- **Webhook Configuration**
-- **Statistical Significance**
 
-### Style guide checklist for editors
+Stays capitalized:
 
-Before publishing, review content for these common sentence case violations:
+- Knock product names — see the list above.
+- Brand names (React, iOS, Android), programming languages (JavaScript, TypeScript), framework names (React Native).
 
-- [ ] All headers and subheaders use sentence case
-- [ ] Bold list items use sentence case
-- [ ] Technical terms in bold use sentence case
-- [ ] Template names use sentence case
-- [ ] Feature descriptions use sentence case
-- [ ] Only proper nouns (brand names, product names) are capitalized
+Regex patterns that surface title case violations:
 
-### Common patterns to search for during editing
+- `\*\*[A-Z][a-z]+ [A-Z]` — bold text
+- `#{1,6} [A-Z][a-z]+ [A-Z]` — headers
+- `\d+\. \*\*[A-Z][a-z]+ [A-Z]` — numbered list items
 
-Use these regex patterns to find potential title case violations:
+These over-match on headings whose second word is a proper noun, so read the hits rather than fixing them in bulk.
 
-- `\*\*[A-Z][a-z]+ [A-Z]` - Finds bold text with potential title case
-- `#{1,6} [A-Z][a-z]+ [A-Z]` - Finds headers with potential title case
-- `\d+\. \*\*[A-Z][a-z]+ [A-Z]` - Finds numbered list items with potential title case
+## Heading length
 
-## Case: do not use title case
+Headings become table-of-contents entries and a long one wraps into two or three lines, which can be difficult for readers. Keep them short where the wording allows.
 
-A title such as "Feed component documentation" should always be in sentence case. Only the first word in the title is capitalized (unless the title includes proper nouns.) Do NOT use title case, example: "Feed Component Documentation".
+Treat this as a consideration, not a limit. Some ideas don't compress, and a heading that reads well is worth more than a short one that doesn't. Past roughly 50 characters, stop and see whether it can be tightened.
+
+Flag long headings in a file you're editing rather than rewriting them. A heading's text generates its anchor id, so changing one breaks every link pointing at it — `#anchors` elsewhere in the docs, and links people have shared outside the repo.
 
 ## Avoid adverbs
 
-We avoid using adverbs in our writing.
-
-They are often unnecessary, and they lead to copy that is trying too hard to convince our audience of something.
-
-Example:
+Adverbs are usually unnecessary, and they make copy sound like it's working to convince the reader.
 
 - With adverb: "The delay step is **incredibly** useful for scheduling reminders or other longer lived notifications."
 - Without adverb: "The delay step is useful for scheduling reminders or other longer lived notifications."
@@ -242,7 +189,7 @@ We use the oxford comma.
 
 ## No exclamation marks
 
-We don't use exclamation marks in our blog post copy or our documentation. Okay to use them in social posts.
+Don't use exclamation marks in prose. Code samples are exempt — `!=` and `!important` aren't punctuation.
 
 ## We don't use "&"
 
@@ -258,7 +205,7 @@ API, never api or Api
 
 ## Avoid using "guides" for documentation
 
-Since "Guides" is a Knock feature name, we should avoid using the word "guides" when referring to documentation that helps users learn how to do something. Instead, use "docs" or "tutorials".
+Since guides is a Knock feature name, don't use the word for documentation that teaches a reader how to do something. Use "docs" or "tutorials" instead.
 
 ✅ Correct:
 
@@ -270,13 +217,73 @@ Since "Guides" is a Knock feature name, we should avoid using the word "guides" 
 - "Check out our guides on how to set up notifications"
 - "Follow this guide to implement the feed"
 
+## Links
+
+Internal links use a root-relative markdown link:
+
+```mdx
+Trigger the workflow from the [workflows API](/api-reference/workflows/trigger).
+```
+
+- Never link to a page in this repo through `https://docs.knock.app/…`.
+- No file extensions. Link to `/concepts/workflows`, not `/concepts/workflows.mdx`.
+- No trailing slash.
+- Anchors append the target heading's id: `/preferences/overview#channels-vs-channel-types`.
+
+Reach for a raw `<a>` where markdown can't go — inside a JSX prop, such as a `Callout` `text` or a `Table` cell, or for an external link, which needs `target` and `rel`. MDX renders a markdown link and an `<a>` as the same plain anchor otherwise, so use markdown wherever both are equivalent.
+
+External links carry `target="_blank"` and `rel="noopener"`.
+
+```mdx
+<a href="https://example.com" target="_blank" rel="noopener">
+  Example
+</a>
+```
+
+Dashboard links (`dashboard.knock.app`) skip `rel` entirely — it's a Knock property. Substitute `~` for the account and environment slugs, which resolves to the signed-in user's own account and environment: `https://dashboard.knock.app/acme/development/broadcasts` becomes `https://dashboard.knock.app/~/broadcasts`.
+
+Check the links in every file you edit, not just the ones you added or changed. Fix what's wrong.
+
+- Internal links: the path resolves against `/content`, and any anchor matches a heading id on the target page.
+- External links: `target="_blank"` and `rel="noopener"` are both present, except dashboard links, which skip `rel`.
+
 ## Images
 
-Images should always use the `Image` component from `lib/mdxComponents.tsx`. The component automatically applies `rounded-md`, `border`, and `border-gray-200` styling — do not add these classes manually in `className`.
+Use the `Image` component from `lib/mdxComponents.tsx` for every image, including ones you'd otherwise write as markdown `![]()`. It wraps the image in a block-level `fit-content` container and applies the border and rounding itself. Its props are typed there too.
 
-- Use `className="mx-auto"` to center images.
-- Use `border={false}` to disable the default border (e.g. for logos or badges).
-- When wrapping an image in a `<figure>` tag, add `className="text-center"` to the `<figure>` for `mx-auto` centering to work (the Image wrapper uses `inline-block`).
+- `className="mx-auto"` centers it.
+- `border={false}` removes the border, for logos and badges.
+- Don't restate the component's own border or radius classes in `className`.
+
+## Callouts
+
+`Callout` takes a `type` that sets the emoji and the background color together. Props and the full type-to-emoji mapping are typed in `components/ui/Callout.tsx`.
+
+| `type`              | Use for                                |
+| ------------------- | -------------------------------------- |
+| `info`              | General notes. The default.            |
+| `warning`           | Caveats and things to watch for.       |
+| `alert`             | Breaking changes, destructive actions. |
+| `enterprise`        | Enterprise-tier features.              |
+| `beta`              | Beta or in-development features.       |
+| `roadmap`           | Planned but not shipped.               |
+| `community_sourced` | Community-contributed tutorials.       |
+
+- Give `title` the point of the note, not a label. `title="Note:"` wastes the line the reader looks at first.
+- `community_sourced` fills in its own title and text. Pass it alone: `<Callout type="community_sourced" />`.
+- Use the `emoji` prop only when no `type` fits the content. Without a `type`, the callout falls back to the gray `default` background unless you also pass `bgColor`.
+- Pass `text` as a fragment when it contains links or code: `text={<>… <a href="/concepts/workflows">workflows</a> …</>}`.
+- `style` replaces the component's own width style, so passing it cancels `maxWidth` and `isCentered`'s 90% cap.
+- Plan-gating callouts use `title="Enterprise plan feature."` and a `text` that names the feature and links "Enterprise plan" to `https://knock.app/pricing`.
+
+A callout works by interrupting the page. Too many on one page undermines their ability to stand out. Place them against the page's structure, not on every point worth noticing.
+
+- Never stack two callouts back to back. Content that needs two consecutive interruptions belongs in prose or in its own section.
+- Limit callouts to the points a reader can't afford to miss. When a page accumulates them, its headings and ordering usually aren't carrying the content, and the fix is restructuring the page rather than adding another callout.
+
+## Feature matrices
+
+Use `FeaturesMatrix` for availability grids — which features are supported across a set of options, such as channels, plans, or SDKs. It renders check and X marks from a `columns` and `rowGroups` object rather than markup. Use `Table` for anything whose cells hold values rather than yes-or-no.
 
 ## Accordion anchor slugs
 
@@ -314,6 +321,10 @@ Skip it when the enclosing heading is the better link target. That covers accord
 
 The first omits `anchorSlug` entirely. The second repeats the question instead of condensing it. The third matches the `## Supported locales` heading id on the same page. The fourth uses uppercase and an underscore that is not a code identifier.
 
+## FAQ sections
+
+FAQ sections use the heading `Frequently asked questions` at `##`, sit last on the page, and wrap their accordions in an `AccordionGroup`.
+
 ## List formatting with bold introductory text
 
 When using lists with bold introductory text, use a period after the bold text instead of a colon.
@@ -338,13 +349,12 @@ When using lists with bold introductory text, use a period after the bold text i
 
 ## Active voice
 
-- Always use active voice in your writing. Active voice makes your writing clearer and more direct.
+Write in active voice.
 
-- Avoid using passive voice. Passive voice can make sentences longer and more difficult to understand.
+- Active: "The workflow sends the notification."
+- Passive: "The notification is sent by the workflow."
 
-> Example of active voice: "The team completed the project."
-
-> Example of passive voice: "The project was completed by the team."
+Passive is the right choice when the actor is the system and naming it adds nothing, or when the sentence is about what happened to its object: "The message is marked as read when the feed opens." Don't contort a sentence to avoid it.
 
 # Tutorial writing guidelines for /content/tutorials/\*
 
@@ -352,11 +362,7 @@ The following guidelines apply specifically to content in the `/content/tutorial
 
 ## Always link to Knock docs when possible
 
-Any time you first reference a Knock API, a Knock concept, or any other concept that lives in the Knock documentation (https://docs.knock.app), link to it so the reader can learn more about the concept you're referencing. ALWAYS DOUBLE CHECK YOUR LINKS AND MAKE SURE THEY DO NOT 404.
-
-## Use of notes and callouts
-
-Use the `Callout` component to highlight important notes or in-development features. Clearly label these sections with icons or labels like "🚧 **Note**".
+Any time you first reference a Knock API, a Knock concept, or any other concept covered elsewhere in this documentation, link to it so the reader can learn more.
 
 ## Consistent terminology
 
