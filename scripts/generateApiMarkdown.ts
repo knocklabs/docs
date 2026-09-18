@@ -6,7 +6,7 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import yaml from "yaml";
-import { resolveEndpointFromMethod } from "../components/ui/ApiReference/helpers";
+import { resolveEndpointFromMethod, generateCurlRequestExample } from "../components/ui/ApiReference/helpers";
 import { getAtPointer } from "../lib/jsonPointer";
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
 import {
@@ -251,6 +251,8 @@ async function generateApiReferenceMarkdownFiles(
     );
     writeMarkdownFile(rootOverviewPath, allOverviewContent);
 
+    const baseUrl = stainlessSpec.environments.production;
+
     // Add resource content
     for (const resourceName of resourceOrder) {
       const resource = stainlessSpec.resources[resourceName];
@@ -275,6 +277,7 @@ async function generateApiReferenceMarkdownFiles(
             methodName,
             method,
             openApiSpec,
+            baseUrl,
           );
           combinedContent += methodContent;
           resourceContent += methodContent;
@@ -302,6 +305,7 @@ async function generateApiReferenceMarkdownFiles(
             subresourceName,
             subresource,
             openApiSpec,
+            baseUrl,
           );
           combinedContent += subresourceContent;
           resourceContent += subresourceContent;
@@ -313,6 +317,7 @@ async function generateApiReferenceMarkdownFiles(
             [subresourceName],
             subresource,
             openApiSpec,
+            baseUrl,
           );
         }
       }
@@ -375,6 +380,7 @@ function generateSubresourcePages(
   subresourcePath: string[],
   subresource: any,
   openApiSpec: any,
+  baseUrl: string,
 ) {
   // Build the directory path for this subresource
   const subresourceDir = path.join(
@@ -432,6 +438,7 @@ function generateSubresourcePages(
         methodName,
         method,
         openApiSpec,
+        baseUrl,
       );
 
       if (methodContent.trim()) {
@@ -472,6 +479,7 @@ function generateSubresourcePages(
         [...subresourcePath, nestedName],
         nestedSubresource,
         openApiSpec,
+        baseUrl,
       );
     }
   }
@@ -516,6 +524,7 @@ function getMethodMarkdownContent(
   methodName: string,
   method: any,
   openApiSpec: any,
+  baseUrl: string,
 ): string {
   const [methodType, endpoint] = resolveEndpointFromMethod(
     method as string | { endpoint: string },
@@ -533,6 +542,19 @@ function getMethodMarkdownContent(
   // Add endpoint information
   content += `#### Endpoint\n\n`;
   content += `\`${methodType.toUpperCase()} ${endpoint}\`\n\n`;
+
+  const requestBodyContent =
+    openApiOperation.requestBody?.content?.["application/json"];
+  const requestBody = requestBodyContent?.schema;
+  const requestExample = requestBodyContent?.example || requestBody?.example;
+
+  content += `#### cURL example\n\n`;
+  content += `\`\`\`bash\n${generateCurlRequestExample({
+    baseUrl,
+    methodType,
+    endpoint,
+    body: requestExample,
+  })}\n\`\`\`\n\n`;
 
   // Add rate limit info if available
   if (openApiOperation["x-ratelimit-tier"]) {
@@ -567,15 +589,11 @@ function getMethodMarkdownContent(
   }
 
   // Add request body if present
-  const requestBodyContent =
-    openApiOperation.requestBody?.content?.["application/json"];
-  const requestBody = requestBodyContent?.schema;
   if (requestBody) {
     content += `#### Request body\n\n`;
     if (requestBody.description) {
       content += `${requestBody.description}\n\n`;
     }
-    const requestExample = requestBodyContent?.example || requestBody.example;
     if (requestExample) {
       content += `##### Example\n\n`;
       content += `\`\`\`json\n${JSON.stringify(
@@ -619,6 +637,7 @@ function getSubresourceMarkdownContent(
   subresourceName: string,
   subresource: any,
   openApiSpec: any,
+  baseUrl: string,
 ): string {
   let content = "";
 
@@ -647,7 +666,12 @@ function getSubresourceMarkdownContent(
   // Add method content for subresource
   if (subresource.methods) {
     for (const [methodName, method] of Object.entries(subresource.methods)) {
-      content += getMethodMarkdownContent(methodName, method, openApiSpec);
+      content += getMethodMarkdownContent(
+        methodName,
+        method,
+        openApiSpec,
+        baseUrl,
+      );
     }
   }
 
