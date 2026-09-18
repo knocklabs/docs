@@ -154,6 +154,7 @@ Before enabling delivery status webhooks, you need:
     4. Select the events you want to track:
        - **email.delivered** - Tracks successful delivery
        - **email.bounced** - Tracks bounce events
+       - **email.complained** - Tracks spam complaints reported by recipients
     5. Click "Add Endpoint" to save
     6. Resend will automatically verify the endpoint
 
@@ -169,12 +170,18 @@ When delivery status webhooks are enabled for Resend, Knock will update message 
 | email.delivered   | `delivered`  | The email was successfully delivered to the recipient's mail server |
 | email.bounced     | `bounced`    | The email bounced due to invalid recipient or domain                |
 
+### Complaint events
+
+When a recipient marks an email as spam, Resend sends an `email.complained` webhook event to Knock. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview). Resend does not include a complaint reason in the event.
+
 ### Troubleshooting
 
 If delivery status updates aren't appearing in Knock:
 
 1. **Check webhook endpoint status.** Verify the endpoint shows as "Active" in the Resend webhooks dashboard.
-2. **Verify event selection.** Ensure you've enabled both `email.delivered` and `email.bounced` events.
+2. **Verify event selection.** Ensure you've enabled the `email.delivered`, `email.bounced`, and `email.complained` events.
 3. **Test with verified domains.** Ensure you're sending from a verified domain in Resend.
 4. **Check webhook payload.** Review webhook delivery logs in Resend to ensure events are being sent.
 

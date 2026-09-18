@@ -240,6 +240,22 @@ Before enabling delivery status webhooks, you need:
       </>
     }
   </Text>
+  <Text as="li" size="2" ml="4" data-tgph-list-item>
+    {
+      <>
+        <strong>
+          <a
+            href="https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/event#spam-report-events"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Spam Report
+          </a>
+        </strong>
+        {" - Tracks spam complaints reported by recipients"}
+      </>
+    }
+  </Text>
 </ul>
 
     5. Click "Save" to activate the webhook
@@ -258,12 +274,18 @@ When delivery status webhooks are enabled for SendGrid, Knock will update messag
 | bounce              | `bounced`    | The email bounced due to invalid recipient, domain, or mailbox full. Only hard bounces with type `"bounce"` will be updated to the `bounced` status in Knock. Bounce events with type `"blocked"` are considered soft bounces in SendGrid and will not be updated. |
 | dropped             | `bounced`    | The email was not delivered due to invalid or previously-bounced recipient.                                                                                                                                                                                        |
 
+### Complaint events
+
+When a recipient marks an email as spam, SendGrid sends a `spamreport` webhook event to Knock. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview).
+
 ### Troubleshooting
 
 If delivery status updates aren't appearing in Knock:
 
 1. **Check Event Webhook status.** Verify the Event Webhook is enabled in your SendGrid Mail Settings.
-2. **Verify event selection.** Ensure both "Delivered" and "Bounce" events are selected in your Event Webhook configuration.
+2. **Verify event selection.** Ensure the "Delivered", "Bounce", "Dropped", and "Spam Report" events are selected in your Event Webhook configuration.
 3. **Verify sender identity.** Ensure you're sending from a verified sender identity or domain in SendGrid.
 4. **Test the webhook.** Use SendGrid's "Test Your Integration" button to send a test event and verify connectivity.
 5. **Check event history.** Review the Event Webhook activity in SendGrid to ensure events are being sent.

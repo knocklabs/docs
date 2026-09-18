@@ -179,6 +179,7 @@ Before enabling delivery status webhooks, you need:
     3. Add the webhook URL from Knock to these webhook types:
        - **Delivered messages** - Click "Add webhook URL", paste the Knock webhook URL, and save
        - **Permanent failure** - Click "Add webhook URL", paste the Knock webhook URL, and save
+       - **Spam complaints** - Click "Add webhook URL", paste the Knock webhook URL, and save
     4. Mailgun will automatically begin sending events to Knock
 
   </Step>
@@ -193,11 +194,17 @@ When delivery status webhooks are enabled for Mailgun, Knock will update message
 | delivered          | `delivered`  | The email was successfully delivered to the recipient's mail server |
 | failed             | `bounced`    | The email failed permanently due to invalid recipient or domain     |
 
+### Complaint events
+
+When a recipient marks an email as spam, Mailgun sends a `complained` webhook event to Knock. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview). Mailgun adds the recipient to your domain's complaints suppression list after a spam complaint, so later sends to that address fail permanently.
+
 ### Troubleshooting
 
 If delivery status updates aren't appearing in Knock:
 
-1. **Check webhook configuration.** Verify both "Delivered messages" and "Permanent failure" webhooks are configured with the correct Knock webhook URL for your domain.
+1. **Check webhook configuration.** Verify the "Delivered messages", "Permanent failure", and "Spam complaints" webhooks are configured with the correct Knock webhook URL for your domain.
 2. **Verify domain.** Ensure you're sending from a verified domain in Mailgun that matches the domain configured in your webhooks.
 3. **Check webhook region.** Ensure your Mailgun region (US or EU) matches the region configured in your Knock channel settings.
 4. **Test webhooks.** Send a test email and check the Webhooks page in Mailgun to verify events are being sent.

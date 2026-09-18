@@ -273,7 +273,7 @@ Before enabling delivery status webhooks, you need:
     2. Select your Amazon SES channel
     3. Click "Manage configuration" for the environment you want to configure
     4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
-    6. Copy the generated webhook URL - you'll need this in the next step
+    5. Copy the generated webhook URL - you'll need this in the next step
   </Step>
 
   <Step title="Configure SNS topic in AWS">
@@ -284,6 +284,7 @@ Before enabling delivery status webhooks, you need:
     3. Configure the topic to send notifications for:
        - **Delivery** notifications
        - **Bounce** notifications
+       - **Complaint** notifications
     4. Add an HTTPS subscription to the topic with the webhook URL from Knock
     5. Knock will automatically confirm the subscription
 
@@ -295,8 +296,9 @@ Before enabling delivery status webhooks, you need:
     1. Go to **Verified identities** in the SES Console
     2. Select the domain or email address you're using with Knock
     3. Go to the **Notifications** tab
-    4. Under **Feedback notifications**, configure:
+    4. Under **Feedback notifications**, click "Edit" and select your SNS topic for each feedback type:
        - **Bounces**: Select your SNS topic
+       - **Complaints**: Select your SNS topic
        - **Deliveries**: Select your SNS topic
     5. Save your configuration
 
@@ -310,7 +312,20 @@ When delivery status webhooks are enabled for SES, Knock will update message sta
 | SES Event Type | Knock Status | Description                                                         |
 | -------------- | ------------ | ------------------------------------------------------------------- |
 | Delivery       | `delivered`  | The email was successfully delivered to the recipient's mail server |
-| Bounce         | `bounced`    | The bounced due to invalid recipient or domain                      |
+| Bounce         | `bounced`    | The email bounced due to invalid recipient or domain                |
+
+### Complaint events
+
+When a recipient marks an email as spam, SES publishes a `Complaint` notification to your SNS topic. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview).
+
+Knock handles two special cases in SES `Complaint` notifications:
+
+| SES complaint notification                                                    | Knock behavior                                                                                                                                                               |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `complaintFeedbackType` is `not-spam`                                         | Ignored. The receiving mailbox provider retracted an earlier complaint, so Knock does not record an event.                                                                   |
+| `complaintSubType` is `OnAccountSuppressionList` or `OnTenantSuppressionList` | Recorded as a bounce. SES did not attempt delivery because the address is on a suppression list, so Knock updates the message to `bounced` instead of recording a complaint. |
 
 ### Troubleshooting
 
