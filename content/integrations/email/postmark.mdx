@@ -28,7 +28,7 @@ The following channel settings should be configured per [environment](/concepts/
 <AccordionGroup>
   <Accordion title="Settings" anchorSlug="configuration-settings">
     Fields marked with an `*` are required.
-    
+
     **Knock settings**
     <Attributes>
       <Attribute
@@ -88,7 +88,7 @@ The following channel settings should be configured per [environment](/concepts/
   </Accordion>
   <Accordion title="Overrides" anchorSlug="configuration-overrides">
     When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
-    
+
     <Attributes>
       <Attribute
         name="To"
@@ -117,6 +117,7 @@ The following channel settings should be configured per [environment](/concepts/
         description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
       />
     </Attributes>
+
   </Accordion>
   <Accordion title="Conditions" anchorSlug="configuration-conditions">
     Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
@@ -165,11 +166,13 @@ Before enabling delivery status webhooks, you need:
     In the Postmark dashboard, configure webhooks to send delivery events to Knock:
 
     1. Go to your <a href="https://account.postmarkapp.com/servers" target="_blank">Postmark server</a> and select the server you're using with Knock
-    2. Navigate to the **Webhooks** tab
-    3. Add the webhook URL from Knock to both webhook configurations:
-       - **Delivery webhook** - Add the Knock webhook URL and click "Save delivery webhook"
-       - **Bounce webhook** - Add the Knock webhook URL and click "Save bounce webhook"
-    4. Postmark will automatically begin sending events to Knock
+    2. Select the message stream you're sending with, and open the **Webhooks** tab
+    3. Click "Add webhook" and paste the webhook URL from Knock
+    4. Select the events to send to Knock:
+       - **Delivery** - Tracks successful delivery
+       - **Bounce** - Tracks bounce events
+       - **Spam complaint** - Tracks spam complaints reported by recipients
+    5. Postmark will automatically begin sending events to Knock
 
   </Step>
 </Steps>
@@ -182,6 +185,12 @@ When delivery status webhooks are enabled for Postmark, Knock will update messag
 | ------------------- | ------------ | ------------------------------------------------------------------- |
 | Delivery            | `delivered`  | The email was successfully delivered to the recipient's mail server |
 | Bounce              | `bounced`    | The email bounced due to invalid recipient or domain                |
+
+### Complaint events
+
+When a recipient marks an email as spam, Postmark sends a `SpamComplaint` webhook event to Knock. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview). Postmark deactivates the recipient's address after a spam complaint, so later sends to that address bounce.
 
 ### Troubleshooting
 

@@ -39,7 +39,7 @@ The following channel settings should be configured per [environment](/concepts/
 <AccordionGroup>
   <Accordion title="Settings" anchorSlug="configuration-settings">
     Fields marked with an `*` are required.
-    
+
     **Knock settings**
     <Attributes>
       <Attribute
@@ -104,7 +104,7 @@ The following channel settings should be configured per [environment](/concepts/
   </Accordion>
   <Accordion title="Overrides" anchorSlug="configuration-overrides">
     When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
-    
+
     <Attributes>
       <Attribute
         name="To"
@@ -133,6 +133,7 @@ The following channel settings should be configured per [environment](/concepts/
         description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
       />
     </Attributes>
+
   </Accordion>
   <Accordion title="Conditions" anchorSlug="configuration-conditions">
     Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
@@ -240,6 +241,22 @@ Before enabling delivery status webhooks, you need:
       </>
     }
   </Text>
+  <Text as="li" size="2" ml="4" data-tgph-list-item>
+    {
+      <>
+        <strong>
+          <a
+            href="https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/event#spam-report-events"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Spam Report
+          </a>
+        </strong>
+        {" - Tracks spam complaints reported by recipients"}
+      </>
+    }
+  </Text>
 </ul>
 
     5. Click "Save" to activate the webhook
@@ -257,6 +274,12 @@ When delivery status webhooks are enabled for SendGrid, Knock will update messag
 | delivered           | `delivered`  | The email was successfully delivered to the recipient's mail server.                                                                                                                                                                                               |
 | bounce              | `bounced`    | The email bounced due to invalid recipient, domain, or mailbox full. Only hard bounces with type `"bounce"` will be updated to the `bounced` status in Knock. Bounce events with type `"blocked"` are considered soft bounces in SendGrid and will not be updated. |
 | dropped             | `bounced`    | The email was not delivered due to invalid or previously-bounced recipient.                                                                                                                                                                                        |
+
+### Complaint events
+
+When a recipient marks an email as spam, SendGrid sends a `spamreport` webhook event to Knock. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview).
 
 ### Troubleshooting
 

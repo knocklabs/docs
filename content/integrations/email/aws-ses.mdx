@@ -25,7 +25,7 @@ You can create a new Amazon SES channel in the dashboard under **Channels and so
   </Step>
   <Step title="Choose an AWS Authentication Scheme">
     Knock supports two authentication schemes with Amazon SES:
-  
+
     <AccordionGroup>
       <Accordion title="Option 1: Create an AWS IAM User with security credentials">
         To send notifications via Amazon SES using an IAM User, Knock requires the **access key ID** and a **secret access key** of an AWS user with SES send permissions. (Specifically, the `ses:SendEmail` and `ses:SendRawEmail` permissions.)
@@ -107,7 +107,7 @@ The following channel settings should be configured per [environment](/concepts/
 <AccordionGroup>
   <Accordion title="Settings" anchorSlug="configuration-settings">
     Fields marked with an `*` are required.
-    
+
     **Knock settings**
     <Attributes>
       <Attribute
@@ -182,7 +182,7 @@ The following channel settings should be configured per [environment](/concepts/
   </Accordion>
   <Accordion title="Overrides" anchorSlug="configuration-overrides">
     When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
-    
+
     <Attributes>
       <Attribute
         name="To"
@@ -211,6 +211,7 @@ The following channel settings should be configured per [environment](/concepts/
         description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
       />
     </Attributes>
+
   </Accordion>
   <Accordion title="Conditions" anchorSlug="configuration-conditions">
     Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
@@ -273,7 +274,7 @@ Before enabling delivery status webhooks, you need:
     2. Select your Amazon SES channel
     3. Click "Manage configuration" for the environment you want to configure
     4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
-    6. Copy the generated webhook URL - you'll need this in the next step
+    5. Copy the generated webhook URL - you'll need this in the next step
   </Step>
 
   <Step title="Configure SNS topic in AWS">
@@ -284,6 +285,7 @@ Before enabling delivery status webhooks, you need:
     3. Configure the topic to send notifications for:
        - **Delivery** notifications
        - **Bounce** notifications
+       - **Complaint** notifications
     4. Add an HTTPS subscription to the topic with the webhook URL from Knock
     5. Knock will automatically confirm the subscription
 
@@ -296,8 +298,9 @@ Before enabling delivery status webhooks, you need:
     2. Select the domain or email address you're using with Knock
     3. Go to the **Notifications** tab
     4. Under **Feedback notifications**, configure:
-       - **Bounces**: Select your SNS topic
        - **Deliveries**: Select your SNS topic
+       - **Bounces**: Select your SNS topic
+       - **Complaints**: Select your SNS topic
     5. Save your configuration
 
   </Step>
@@ -310,7 +313,18 @@ When delivery status webhooks are enabled for SES, Knock will update message sta
 | SES Event Type | Knock Status | Description                                                         |
 | -------------- | ------------ | ------------------------------------------------------------------- |
 | Delivery       | `delivered`  | The email was successfully delivered to the recipient's mail server |
-| Bounce         | `bounced`    | The bounced due to invalid recipient or domain                      |
+| Bounce         | `bounced`    | The email bounced due to invalid recipient or domain                |
+
+### Complaint events
+
+When a recipient marks an email as spam, SES publishes a `Complaint` notification to your SNS topic. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview).
+
+Knock handles two special cases in SES `Complaint` notifications, as follows:
+
+- **`complaintFeedbackType` is `not-spam`**: Knock ignores the notification. The receiving mailbox provider retracted an earlier complaint, so Knock does not record an event.
+- **`complaintSubType` is `OnAccountSuppressionList` or `OnTenantSuppressionList`**: Knock records a bounce. SES did not attempt delivery because the address is on a suppression list, so Knock updates the message to `bounced` instead of recording a complaint.
 
 ### Troubleshooting
 

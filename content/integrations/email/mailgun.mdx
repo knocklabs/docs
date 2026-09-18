@@ -28,7 +28,7 @@ The following channel settings should be configured per [environment](/concepts/
 <AccordionGroup>
   <Accordion title="Settings" anchorSlug="configuration-settings">
     Fields marked with an `*` are required.
-    
+
     **Knock settings**
     <Attributes>
       <Attribute
@@ -98,7 +98,7 @@ The following channel settings should be configured per [environment](/concepts/
   </Accordion>
   <Accordion title="Overrides" anchorSlug="configuration-overrides">
     When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
-    
+
     <Attributes>
       <Attribute
         name="To"
@@ -127,6 +127,7 @@ The following channel settings should be configured per [environment](/concepts/
         description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
       />
     </Attributes>
+
   </Accordion>
   <Accordion title="Conditions" anchorSlug="configuration-conditions">
     Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
@@ -189,6 +190,7 @@ Before enabling delivery status webhooks, you need:
     3. Add the webhook URL from Knock to these webhook types:
        - **Delivered messages** - Click "Add webhook URL", paste the Knock webhook URL, and save
        - **Permanent failure** - Click "Add webhook URL", paste the Knock webhook URL, and save
+       - **Spam complaints** - Click "Add webhook URL", paste the Knock webhook URL, and save
     4. Mailgun will automatically begin sending events to Knock
 
   </Step>
@@ -202,6 +204,12 @@ When delivery status webhooks are enabled for Mailgun, Knock will update message
 | ------------------ | ------------ | ------------------------------------------------------------------- |
 | delivered          | `delivered`  | The email was successfully delivered to the recipient's mail server |
 | failed             | `bounced`    | The email failed permanently due to invalid recipient or domain     |
+
+### Complaint events
+
+When a recipient marks an email as spam, Mailgun sends a `complained` webhook event to Knock. Knock records a [`message.complaint`](/developer-tools/outbound-webhooks/event-types#messagecomplaint) event on the message. A complaint does not change the message's delivery status, because the message was delivered before the recipient reported it.
+
+You can see complaint events in the message timeline in the Knock dashboard, and subscribe to them with [outbound webhooks](/developer-tools/outbound-webhooks/overview). Mailgun adds the recipient to your domain's complaints suppression list after a spam complaint, so later sends to that address fail permanently.
 
 ### Troubleshooting
 
