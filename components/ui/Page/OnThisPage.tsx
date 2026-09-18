@@ -127,9 +127,13 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Card titles are semantic headings, but only anchored content headings
+    // belong in the table of contents. Never create an inert `#` link.
     const documentHeaders = Array.from(
-      document.querySelectorAll(".docs-content h1, h2, h3"),
-    ) as HTMLHeadingElement[];
+      document.querySelectorAll<HTMLHeadingElement>(
+        ".docs-content h1[id], .docs-content h2[id], .docs-content h3[id]",
+      ),
+    ).filter((heading) => heading.id.trim().length > 0);
 
     setHeaders(buildHeaderTree(documentHeaders));
   }, [title, sourcePath]);
