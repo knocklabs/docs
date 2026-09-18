@@ -9,6 +9,9 @@ const withRemoteRefresh = require("next-remote-refresh")({
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/api/md/*": ["./public/**/*.md"],
+  },
 
   transpilePackages: ["next-mdx-remote", "streamdown"],
 

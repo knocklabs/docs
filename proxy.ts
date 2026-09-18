@@ -1,35 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Proxy to serve markdown versions of documentation pages.
- *
- * When a request includes `Accept: text/markdown` header, the proxy
- * redirects to the pre-generated markdown file in the public directory.
- *
- * Special cases:
- * - `/cli/*` paths serve `/cli.md`
- * - `/api-reference/*` paths serve `/api-reference.md`
- * - `/mapi-reference/*` paths serve `/mapi-reference.md`
- */
-export function proxy(request: NextRequest) {
+function isMarkdownRequest(request: NextRequest): boolean {
   const acceptHeader = request.headers.get("accept") || "";
+  return acceptHeader.split(",").some((entry) => {
+    const [type, ...parameters] = entry.trim().toLowerCase().split(";");
+    const quality = parameters.find((parameter) =>
+      parameter.trim().startsWith("q="),
+    );
+    return (
+      type.trim() === "text/markdown" &&
+      (!quality || Number(quality.trim().slice(2)) > 0)
+    );
+  });
+}
 
-  // Only handle requests with Accept: text/markdown
-  if (!acceptHeader.includes("text/markdown")) {
-    return NextResponse.next();
-  }
-
-  const pathname = request.nextUrl.pathname;
-
-  // Skip static assets, API routes, and Next.js internals
-  if (
+function isStaticAsset(pathname: string): boolean {
+  return (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/icons") ||
     pathname.startsWith("/images") ||
     pathname.startsWith("/videos") ||
-    pathname.endsWith(".md") ||
     pathname.endsWith(".txt") ||
     pathname.endsWith(".json") ||
     pathname.endsWith(".yaml") ||
@@ -40,43 +31,74 @@ export function proxy(request: NextRequest) {
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".svg") ||
     pathname.endsWith(".mp4")
+  );
+}
+
+function getMarkdownApiPath(pathname: string): string {
+  // Remove trailing slash if present
+  const cleanPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+  // Root path serves llms.txt (handled separately)
+  if (cleanPath === "" || cleanPath === "/") {
+    return "/llms.txt";
+  }
+
+  // For all other paths, route to the markdown API
+  return `/api/md${cleanPath}`;
+}
+
+/**
+ * Proxy to serve markdown versions of documentation pages.
+ *
+ * When a request includes `Accept: text/markdown` header, the proxy
+ * routes to an API endpoint that serves markdown content with proper
+ * 404 handling for agent recovery.
+ *
+ * Reference paths map to their per-page generated files so an unknown
+ * reference URL returns a 404 instead of an unrelated overview document.
+ *
+ * 404 responses include recovery links to sitemap, llms.txt, docs index,
+ * and search API as required by Is Agentic guidelines.
+ */
+export function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Skip static assets
+  if (
+    isStaticAsset(pathname) ||
+    pathname === "/api" ||
+    pathname.startsWith("/api/")
   ) {
     return NextResponse.next();
   }
 
-  let markdownPath: string;
+  // Handle markdown content negotiation
+  if (isMarkdownRequest(request) || pathname.endsWith(".md")) {
+    const markdownPath = getMarkdownApiPath(pathname.replace(/\.md$/, ""));
 
-  // Handle special reference paths that should serve top-level files
-  if (pathname === "/cli" || pathname.startsWith("/cli/")) {
-    markdownPath = "/cli.md";
-  } else if (
-    pathname === "/api-reference" ||
-    pathname.startsWith("/api-reference/")
-  ) {
-    markdownPath = "/api-reference.md";
-  } else if (
-    pathname === "/mapi-reference" ||
-    pathname.startsWith("/mapi-reference/")
-  ) {
-    markdownPath = "/mapi-reference.md";
-  } else {
-    // For all other paths, map to the corresponding .md file
-    // Remove trailing slash if present
-    const cleanPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
-
-    // Root path serves llms.txt (index)
-    if (cleanPath === "" || cleanPath === "/") {
-      markdownPath = "/llms.txt";
-    } else {
-      markdownPath = `${cleanPath}.md`;
+    // For llms.txt, serve directly from public/
+    if (markdownPath === "/llms.txt") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/llms.txt";
+      const response = NextResponse.rewrite(url);
+      response.headers.set("Vary", "Accept");
+      return response;
     }
+
+    // Route to the markdown API which handles 404s properly
+    const url = request.nextUrl.clone();
+    url.pathname = markdownPath;
+    // Do not let a slug query parameter replace the actual requested path.
+    url.searchParams.delete("slug");
+    const response = NextResponse.rewrite(url);
+    response.headers.set("Vary", "Accept");
+    return response;
   }
 
-  // Rewrite to the markdown file in public directory
-  const url = request.nextUrl.clone();
-  url.pathname = markdownPath;
-
-  return NextResponse.rewrite(url);
+  // Let the request proceed normally
+  const response = NextResponse.next();
+  response.headers.set("Vary", "Accept");
+  return response;
 }
 
 export const config = {
