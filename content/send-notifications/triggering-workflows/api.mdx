@@ -202,11 +202,13 @@ For example, the final merged data available to Ellie Sattler's workflow run wou
 
 ## Multi-tenancy in notifications
 
-You can optionally pass a `tenant` to your `trigger` call. If you are a product that allows users to belong to multiple tenants,
-you'll want to pass a `tenant` to Knock in your trigger calls so that you can make sure a given user's in-app feed is scoped to the
-tenants to which they belong in your product.
+You can optionally pass a `tenant` to your `trigger` call. For products where users belong to multiple tenants, this scopes the workflow run to the account, organization, or workspace where the event occurred.
 
-You can read more about [supporting multi-tenancy in our documentation](/concepts/tenants).
+The tenant scopes in-app feed messages and controls [tenant-scoped chat connection selection](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant). When a Slack, Microsoft Teams, or Discord recipient has connections tagged with `knock_tenant_id`, Knock uses connections that match the `tenant` in the trigger. If none match, Knock falls back to untagged connections.
+
+The `knock_tenant_id` on a connection does not set the workflow run's tenant. You must pass the tenant in the trigger for connection selection to apply.
+
+You can read more about [supporting multi-tenancy](/concepts/tenants).
 
 ## Testing workflows with trigger settings
 

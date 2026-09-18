@@ -225,6 +225,12 @@ We just need to make sure we include our project as one of the recipients for th
 
 Depending on how you have configured your integration you should be seeing either your Discord bot or an incoming webhook ping the appropriate Discord channel.
 
+## Route connections by tenant
+
+If the same user or object needs a different Discord destination for each tenant in your application, add the optional `knock_tenant_id` field to each `DiscordConnection`. Set it to the corresponding [Knock tenant ID](/multi-tenancy/overview), then include that tenant when you trigger the workflow.
+
+When the trigger includes a tenant, Knock uses matching tenant-scoped connections. If none match, Knock uses untagged connections as a fallback. You can scope bot-based connections and incoming webhooks. See [tenant-scoped chat connections](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant) for an example and the full selection behavior.
+
 ## Channel data requirements
 
 In order to send a message to a recipient, you'll need to have the following [channel data](/managing-recipients/setting-channel-data) set for the recipient.
@@ -245,6 +251,11 @@ In order to send a message to a recipient, you'll need to have the following [ch
     type="string*"
     description="The incoming webhook URL."
   />
+  <Attribute
+    name="knock_tenant_id"
+    type="string"
+    description="The optional Knock tenant ID that scopes this connection."
+  />
 </Attributes>
 
 ### `DiscordConnection` with a bot token
@@ -254,5 +265,10 @@ In order to send a message to a recipient, you'll need to have the following [ch
     name="channel_id"
     type="string*"
     description="A Discord channel ID."
+  />
+  <Attribute
+    name="knock_tenant_id"
+    type="string"
+    description="The optional Knock tenant ID that scopes this connection."
   />
 </Attributes>
