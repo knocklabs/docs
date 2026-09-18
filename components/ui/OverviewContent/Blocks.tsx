@@ -106,7 +106,7 @@ export const Tool = ({
       >
         <IconRenderer icon={_icon} size="8" bg="black" />
         <Box mt="2">
-          <Heading as="h4" size="2" weight="medium" mb="1" align="center">
+          <Heading as="h3" size="2" weight="medium" mb="1" align="center">
             {title}
           </Heading>
           <Text
@@ -206,7 +206,7 @@ export const ConceptCard = ({
           }}
         />
         <Box mt="4">
-          <Heading as="h4" size="2" weight="medium" mb="1">
+          <Heading as="h3" size="2" weight="medium" mb="1">
             {title}
           </Heading>
           <Text
@@ -258,7 +258,7 @@ export const BuildingBlock = ({
           style={{ flexShrink: 0 }}
         />
         <Box h="full">
-          <Heading as="h4" size="2" weight="medium" mb="1">
+          <Heading as="h3" size="2" weight="medium" mb="1">
             {title}
           </Heading>
           <Text as="p" size="1" color="gray" style={{ marginBottom: "0" }}>
