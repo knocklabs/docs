@@ -32,6 +32,8 @@ export function proxy(request: NextRequest) {
     pathname.endsWith(".md") ||
     pathname.endsWith(".txt") ||
     pathname.endsWith(".json") ||
+    pathname.endsWith(".yaml") ||
+    pathname.endsWith(".yml") ||
     pathname.endsWith(".xml") ||
     pathname.endsWith(".ico") ||
     pathname.endsWith(".png") ||
