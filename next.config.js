@@ -135,7 +135,7 @@ const nextConfig = {
       },
       {
         source: "/integrations/in-app-feed",
-        destination: "/integrations/in-app/knock",
+        destination: "/integrations/in-app/feeds",
         permanent: true,
       },
       {
@@ -144,8 +144,13 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/integrations/in-app/knock",
+        destination: "/integrations/in-app/feeds",
+        permanent: true,
+      },
+      {
         source: "/integrations/in-app-feed/overview",
-        destination: "/integrations/in-app/knock",
+        destination: "/integrations/in-app/feeds",
         permanent: true,
       },
       {
