@@ -53,7 +53,7 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Send web push with FCM",
   },
   {
-    slug: `${baseSlug}/migrate-email-with-mcp-server`,
+    slug: `${baseSlug}/migrate-email-with-ai-agent`,
     title: "Email template migration",
   },
   {
