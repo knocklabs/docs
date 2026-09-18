@@ -170,7 +170,7 @@ These over-match on headings whose second word is a proper noun, so read the hit
 
 ## Heading length
 
-Headings become table-of-contents entries, and a long one wraps there into two or three lines which can be diffiicult for readers. Keep them short where the wording allows.
+Headings become table-of-contents entries and a long one wraps into two or three lines, which can be difficult for readers. Keep them short where the wording allows.
 
 Treat this as a consideration, not a limit. Some ideas don't compress, and a heading that reads well is worth more than a short one that doesn't. Past roughly 50 characters, stop and see whether it can be tightened.
 
