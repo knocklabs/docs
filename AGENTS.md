@@ -73,14 +73,14 @@ Documentation content lives in `/content` and is organized into:
 
 Every page in `/content` opens with frontmatter. `title`, `description`, and `section` are required.
 
-| Field                          | Notes                                                                                |
-| ------------------------------ | ------------------------------------------------------------------------------------ |
-| `title`                        | The page's H1 and browser tab title. Sentence case.                                    |
-| `description`                  | One sentence. See below.                                                               |
-| `section`                      | The page's grouping in search. Nested sections use `Parent > Child`.                   |
-| `tags`                         | Search keywords. See below.                                                            |
-| `metaTitle`, `metaDescription` | Override the title and description for search engines only, leaving the page as is.    |
-| `layout`                       | Only when the page needs a non-default layout.                                         |
+| Field                          | Notes                                                                               |
+| ------------------------------ | ----------------------------------------------------------------------------------- |
+| `title`                        | The page's H1 and browser tab title. Sentence case.                                 |
+| `description`                  | One sentence. See below.                                                            |
+| `section`                      | The page's grouping in search. Nested sections use `Parent > Child`.                |
+| `tags`                         | Search keywords. See below.                                                         |
+| `metaTitle`, `metaDescription` | Override the title and description for search engines only, leaving the page as is. |
+| `layout`                       | Only when the page needs a non-default layout.                                      |
 
 `description` does double duty: it renders as the subtitle under the page title, and it's the snippet a reader sees in search results. Write one sentence that says what the page covers, and make it stand on its own — a reader meets it before they've read anything else on the page. Keep it to a line, and don't restate the page's opening paragraph: the reader sees both in sequence, so a description that paraphrases the intro spends the line twice.
 
