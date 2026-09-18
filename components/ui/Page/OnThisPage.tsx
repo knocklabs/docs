@@ -131,7 +131,7 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
     // belong in the table of contents. Never create an inert `#` link.
     const documentHeaders = Array.from(
       document.querySelectorAll<HTMLHeadingElement>(
-        ".docs-content h1[id], .docs-content h2[id], .docs-content h3[id]",
+        "[data-content-body] h1[id], [data-content-body] h2[id], [data-content-body] h3[id]",
       ),
     ).filter((heading) => heading.id.trim().length > 0);
 
