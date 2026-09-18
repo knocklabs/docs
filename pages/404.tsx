@@ -9,6 +9,29 @@ import { motion } from "framer-motion";
 import { MenuItem } from "@telegraph/menu";
 import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 
+const RECOVERY_LINKS = [
+  {
+    title: "Documentation home",
+    url: "/",
+    description: "Start from the documentation homepage",
+  },
+  {
+    title: "Sitemap",
+    url: "/sitemap.xml",
+    description: "Browse all available pages",
+  },
+  {
+    title: "LLM index",
+    url: "/llms.txt",
+    description: "Machine-readable documentation index",
+  },
+  {
+    title: "Full documentation",
+    url: "/llms-full.txt",
+    description: "Complete documentation in plain text",
+  },
+];
+
 /**
  * Not seeing 404 page in development? Please read!
  * First, the 404 page does load when you build. This is only a local development issue.
@@ -114,6 +137,38 @@ export default function NotFound() {
                 </Box>
               </motion.div>
             )}
+
+            <Box my="8">
+              <hr />
+            </Box>
+
+            <Box>
+              <Text as="p" size="2" mb="4" color="gray">
+                Recovery options:
+              </Text>
+              <Box as="ul">
+                {RECOVERY_LINKS.map((link, index) => (
+                  <motion.li
+                    key={link.url}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.08 }}
+                    style={{ marginLeft: "-10px" }}
+                  >
+                    <MenuItem py="5" w="full">
+                      <Box>
+                        <Text as={Link} href={link.url} color="accent" size="2">
+                          {link.title}
+                        </Text>
+                        <Text as="p" size="1" color="gray">
+                          {link.description}
+                        </Text>
+                      </Box>
+                    </MenuItem>
+                  </motion.li>
+                ))}
+              </Box>
+            </Box>
           </Box>
         </Page.Content>
       </Page.Wrapper>
