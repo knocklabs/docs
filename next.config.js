@@ -782,6 +782,47 @@ const nextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    return [
+      // OpenAPI specs at conventional paths
+      // API spec (primary Knock API)
+      {
+        source: "/openapi.json",
+        destination: "/api/openapi?spec=api&format=json",
+      },
+      {
+        source: "/openapi.yaml",
+        destination: "/api/openapi?spec=api&format=yaml",
+      },
+      // Management API spec
+      {
+        source: "/mapi/openapi.json",
+        destination: "/api/openapi?spec=mapi&format=json",
+      },
+      {
+        source: "/mapi/openapi.yaml",
+        destination: "/api/openapi?spec=mapi&format=yaml",
+      },
+      // Also support /api-reference/openapi paths for discoverability
+      {
+        source: "/api-reference/openapi.json",
+        destination: "/api/openapi?spec=api&format=json",
+      },
+      {
+        source: "/api-reference/openapi.yaml",
+        destination: "/api/openapi?spec=api&format=yaml",
+      },
+      {
+        source: "/mapi-reference/openapi.json",
+        destination: "/api/openapi?spec=mapi&format=json",
+      },
+      {
+        source: "/mapi-reference/openapi.yaml",
+        destination: "/api/openapi?spec=mapi&format=yaml",
+      },
+    ];
+  },
 };
 
 module.exports = withRemoteRefresh(nextConfig);

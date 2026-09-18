@@ -330,6 +330,41 @@ async function generateAllLlmsFiles() {
     const indexContent = ["# Knock Documentation\n"];
     const fullContent = ["# Knock Documentation\n"];
 
+    // OpenAPI SPECIFICATIONS
+    indexContent.push("## OpenAPI specifications\n");
+    indexContent.push(
+      "Machine-readable API specifications in OpenAPI 3.x format:\n",
+    );
+    indexContent.push(
+      "- [Knock API OpenAPI (JSON)](/openapi.json): OpenAPI specification for the Knock API",
+    );
+    indexContent.push(
+      "- [Knock API OpenAPI (YAML)](/openapi.yaml): OpenAPI specification for the Knock API",
+    );
+    indexContent.push(
+      "- [Management API OpenAPI (JSON)](/mapi/openapi.json): OpenAPI specification for the Knock Management API",
+    );
+    indexContent.push(
+      "- [Management API OpenAPI (YAML)](/mapi/openapi.yaml): OpenAPI specification for the Knock Management API",
+    );
+    indexContent.push("");
+
+    fullContent.push("## OpenAPI specifications\n");
+    fullContent.push(
+      "Machine-readable API specifications in OpenAPI 3.x format:\n",
+    );
+    fullContent.push(
+      "- Knock API: /openapi.json (JSON) or /openapi.yaml (YAML)",
+    );
+    fullContent.push(
+      "- Management API: /mapi/openapi.json (JSON) or /mapi/openapi.yaml (YAML)",
+    );
+    fullContent.push("");
+
+    // DIVIDER
+    indexContent.push("---\n");
+    fullContent.push("---\n");
+
     // HOMEPAGE
     await processSections(PLATFORM_SIDEBAR, indexContent, fullContent);
 
