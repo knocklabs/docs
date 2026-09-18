@@ -4,12 +4,12 @@ import { Page } from "@/components/ui/Page";
 import Meta from "@/components/Meta";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Head from "next/head";
 import { motion } from "framer-motion";
 import { MenuItem } from "@telegraph/menu";
 import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 import { DOCUMENTATION_LINKS } from "@/lib/documentationLinks";
+import { fetchRelatedPages, type RelatedPage } from "@/lib/relatedPages";
 
 /**
  * Not seeing 404 page in development? Please read!
@@ -30,34 +30,27 @@ import { DOCUMENTATION_LINKS } from "@/lib/documentationLinks";
  * I didn't want to refactor anything so I wrote this comment instead.
  */
 
-// Hit our /api/search endpoint to get related pages from innkeep
-// You'll need the server-side API key in .env for this to work.
-async function search(query: string) {
-  const response = await fetch(`/api/search`, {
-    method: "POST",
-    body: JSON.stringify({ query }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return response.json();
-}
-
 export default function NotFound() {
   const router = useRouter();
   const path = router.asPath;
-  const [results, setResults] = useState<any[] | null>(null);
+  const [results, setResults] = useState<RelatedPage[]>([]);
 
   useEffect(() => {
     if (!path) return;
-    search(path)
-      .then((data) => {
-        // First five results
-        setResults(data.results.slice(0, 5));
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    setResults([]);
+
+    fetchRelatedPages(path, controller.signal)
+      .then((pages) => {
+        if (!controller.signal.aborted) setResults(pages);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, [path]);
 
   return (
@@ -84,7 +77,7 @@ export default function NotFound() {
               <Text as="p" size="4" color="gray">
                 The page you are looking for has moved or does not exist.
               </Text>
-              {results && results.length > 0 && (
+              {results.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -108,7 +101,7 @@ export default function NotFound() {
                         >
                           <MenuItem py="5" w="full">
                             <Text
-                              as={Link}
+                              as="a"
                               href={result.url}
                               color="accent"
                               size="2"
