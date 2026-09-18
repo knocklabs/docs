@@ -247,18 +247,10 @@ For more granular control, you can override the specific CSS classes used by the
 
 ### Individual subcomponents
 
-For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own banner. This approach gives you full control over the layout and styling while maintaining the guide behavior:
+For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own banner. The SDK exports subcomponents as members of the `BannerView` object. This approach gives you full control over the layout and styling while maintaining the guide behavior:
 
 ```tsx title="Compose your own banner with subcomponents"
-import {
-  useGuide,
-  BannerContainer,
-  BannerContent,
-  BannerText,
-  BannerActions,
-  BannerButton,
-  BannerCloseButton,
-} from "@knocklabs/react";
+import { useGuide, BannerView } from "@knocklabs/react";
 import { useEffect } from "react";
 
 const CustomBanner = () => {
@@ -270,59 +262,50 @@ const CustomBanner = () => {
 
   if (!step) return null;
 
+  const { title, body, primary_button, secondary_button } = step.content;
+
   return (
-    <BannerContainer
-      style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "white",
-        padding: "16px 24px",
-        borderRadius: "8px",
-        marginBottom: "16px",
-      }}
-    >
-      <BannerContent>
-        <BannerText>
-          <strong>{step.content.title}</strong>
-          <p>{step.content.body}</p>
-        </BannerText>
+    <BannerView.Root style={{ background: "#eef2ff" }}>
+      <BannerView.Content>
+        <BannerView.Title title={title} style={{ fontWeight: 600 }} />
+        <BannerView.Body body={body} />
+      </BannerView.Content>
 
-        <BannerActions>
-          {step.content.actions?.map((action, index) => (
-            <BannerButton
-              key={index}
-              onClick={() => {
-                step.markAsInteracted();
-                // Handle action
-              }}
-              style={{
-                background: "rgba(255, 255, 255, 0.2)",
-                color: "white",
-                padding: "6px 12px",
-                borderRadius: "4px",
-                border: "none",
-              }}
-            >
-              {action.label}
-            </BannerButton>
-          ))}
+      <BannerView.Actions>
+        {secondary_button && (
+          <BannerView.SecondaryButton
+            text={secondary_button.text}
+            onClick={() => step.markAsInteracted()}
+          />
+        )}
 
-          <BannerCloseButton
-            onClick={() => step.markAsArchived()}
-            style={{
-              background: "transparent",
-              color: "rgba(255, 255, 255, 0.8)",
-              border: "none",
-              padding: "4px",
-            }}
-          >
-            ×
-          </BannerCloseButton>
-        </BannerActions>
-      </BannerContent>
-    </BannerContainer>
+        {primary_button && (
+          <BannerView.PrimaryButton
+            text={primary_button.text}
+            onClick={() => step.markAsInteracted()}
+          />
+        )}
+
+        <BannerView.DismissButton onClick={() => step.markAsArchived()} />
+      </BannerView.Actions>
+    </BannerView.Root>
   );
 };
 ```
+
+The available `BannerView` subcomponents are:
+
+| Subcomponent                 | Renders                                                                                                               |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `BannerView.Default`         | The full default banner. Takes a `content` object, plus optional `colorMode`, `onDismiss`, and `onButtonClick` props. |
+| `BannerView.Root`            | The outer banner container.                                                                                           |
+| `BannerView.Content`         | A wrapper for the title and body.                                                                                     |
+| `BannerView.Title`           | The text passed to its `title` prop.                                                                                  |
+| `BannerView.Body`            | The HTML passed to its `body` prop.                                                                                   |
+| `BannerView.Actions`         | A wrapper for the buttons.                                                                                            |
+| `BannerView.PrimaryButton`   | A primary button labeled with its `text` prop.                                                                        |
+| `BannerView.SecondaryButton` | A secondary button labeled with its `text` prop.                                                                      |
+| `BannerView.DismissButton`   | A dismiss button. Wire up `onClick` to archive the guide.                                                             |
 
 This approach is ideal when you want to customize a piece of the pre-built component or change its structure.
 

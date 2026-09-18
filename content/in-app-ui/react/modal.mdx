@@ -242,18 +242,10 @@ For more granular control, you can override the specific CSS classes used by the
 
 ### Individual subcomponents
 
-For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own modal. This approach gives you full control over the layout and styling while maintaining the guide behavior:
+For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own modal. The SDK exports subcomponents as members of the `ModalView` object. This approach gives you full control over the layout and styling while maintaining the guide behavior:
 
 ```tsx title="Compose your own modal with subcomponents"
-import {
-  useGuide,
-  ModalOverlay,
-  ModalContainer,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-} from "@knocklabs/react";
+import { useGuide, ModalView } from "@knocklabs/react";
 import { useEffect } from "react";
 
 const CustomModal = () => {
@@ -265,50 +257,52 @@ const CustomModal = () => {
 
   if (!step) return null;
 
+  const { title, body, primary_button, secondary_button } = step.content;
+
   return (
-    <ModalOverlay onClick={() => step.markAsArchived()}>
-      <ModalContainer
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "white",
-          borderRadius: "16px",
-        }}
-      >
-        <ModalHeader>
-          <h2>{step.content.title}</h2>
-          <ModalCloseButton onClick={() => step.markAsArchived()} />
-        </ModalHeader>
+    <ModalView.Root onOpenChange={(open) => !open && step.markAsArchived()}>
+      <ModalView.Overlay />
+      <ModalView.Content style={{ background: "#eef2ff" }}>
+        <ModalView.Close />
+        <ModalView.Title title={title} style={{ fontSize: "18px" }} />
+        <ModalView.Body body={body} />
 
-        <ModalBody>
-          <p>{step.content.body}</p>
-        </ModalBody>
+        <ModalView.Actions>
+          {secondary_button && (
+            <ModalView.SecondaryButton
+              text={secondary_button.text}
+              onClick={() => step.markAsInteracted()}
+            />
+          )}
 
-        <ModalFooter>
-          {step.content.actions?.map((action, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                step.markAsInteracted();
-                // Handle action
-              }}
-              style={{
-                background: "rgba(255, 255, 255, 0.2)",
-                border: "1px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "8px",
-                color: "white",
-                padding: "8px 16px",
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
-        </ModalFooter>
-      </ModalContainer>
-    </ModalOverlay>
+          {primary_button && (
+            <ModalView.PrimaryButton
+              text={primary_button.text}
+              onClick={() => step.markAsInteracted()}
+            />
+          )}
+        </ModalView.Actions>
+      </ModalView.Content>
+    </ModalView.Root>
   );
 };
 ```
+
+The available `ModalView` subcomponents are:
+
+| Subcomponent                | Renders                                                                                                                                              |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ModalView.Default`         | The full default modal. Takes a `content` object, plus optional `colorMode`, `onOpenChange`, `onDismiss`, `onButtonClick`, and `onImageClick` props. |
+| `ModalView.Root`            | The Radix dialog root and portal. Opens by default and reports closes through `onOpenChange`.                                                        |
+| `ModalView.Overlay`         | The backdrop behind the modal.                                                                                                                       |
+| `ModalView.Content`         | The modal container.                                                                                                                                 |
+| `ModalView.Title`           | The text passed to its `title` prop.                                                                                                                 |
+| `ModalView.Body`            | The HTML passed to its `body` prop.                                                                                                                  |
+| `ModalView.Img`             | An image. Takes the standard `img` props, such as `src` and `alt`.                                                                                   |
+| `ModalView.Actions`         | A wrapper for the buttons.                                                                                                                           |
+| `ModalView.PrimaryButton`   | A primary button labeled with its `text` prop.                                                                                                       |
+| `ModalView.SecondaryButton` | A secondary button labeled with its `text` prop.                                                                                                     |
+| `ModalView.Close`           | A close button that dismisses the dialog.                                                                                                            |
 
 This approach is ideal when you want to customize a piece of the pre-built component or change its structure.
 
