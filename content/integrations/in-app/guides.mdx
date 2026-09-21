@@ -19,16 +19,9 @@ The in-app guide channel powers in-product messaging such as banners, modals, pa
 
 This page covers how guides work as a channel. For implementation details, see our [guides documentation](/in-app-ui/guides/overview) under building in-app UI.
 
-**Related resources**:
-
-- [Guides overview](/in-app-ui/guides/overview)
-- [Creating guides](/in-app-ui/guides/create-guides)
-- [Rendering guides](/in-app-ui/guides/render-guides)
-- [Feeds v. guides](/in-app-ui/feeds-vs-guides)
-
 ## How the guide channel works
 
-Unlike other Knock channels, the in-app guide channel does not deliver messages directly from a workflow step. Instead, guides are **fetched on demand**:
+Unlike other Knock channels, the in-app guide channel does not generate messages directly from a workflow step. Instead, guides create messages in the background that are fetched on demand for eligible users:
 
 1. **You create a guide in the dashboard.** Each guide has [content](/in-app-ui/guides/create-guides#drafting-content) based on a [message type](/in-app-ui/message-types), [targeting rules](/in-app-ui/guides/create-guides#targeting) that determine which users are eligible, and [activation rules](/in-app-ui/guides/create-guides#activation) that determine where in your product the guide appears.
 2. **Your application requests guides for the current user.** Using a [client SDK](/in-app-ui/guides/render-guides#client-side-sdks) or the [guides API](/api-reference/users/guides/), your application asks Knock for the guides the current user is eligible to see, optionally passing runtime `data` and a `tenant` to inform targeting and personalization.
@@ -39,26 +32,12 @@ Because eligibility is evaluated when a guide is fetched, a guide reflects the u
 
 ## Configuring the guide channel
 
-The in-app guide channel is listed under <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank">**Channels and sources**</a> in your Knock dashboard. It has its own unique channel ID, which you use to initialize the guides provider in your client SDK or to call the guides API directly. See [guide identifiers](/in-app-ui/guides/render-guides#guide-identifiers) for more on the identifiers you'll work with when implementing guides.
+The in-app guide channel is listed under <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank">**Channels and sources**</a> in your Knock dashboard. It has its own unique channel ID, which you use to initialize the guides provider in your client SDK or to call the guides API directly. Knock currently supports only one guide channel per account, so you will not be able to add additional guides channels.
 
 Guides themselves are created and managed under the <a href="https://dashboard.knock.app/~/guides" target="_blank">**Guides**</a> page in your dashboard. Guides are [version controlled](/version-control/commits) like workflows, so you can create a guide in your development environment and promote it to production when ready.
 
-Guides depend on [message types](/in-app-ui/message-types), which define the schema of the content authored in a guide. Knock provides a set of default message types, and you can create your own to match the components in your application.
-
-## Message delivery and statuses
-
-When Knock returns a guide to a user, it generates a message for that guide and user. Messages produced by guides are not counted toward your message sent usage; instead, guides are priced by [engaged users](/concepts/guides#guides-pricing).
-
-Guide messages track a subset of Knock's [engagement statuses](/send-notifications/message-statuses#engagement-status):
-
-- **Seen.** The guide was rendered and visible to the user.
-- **Interacted.** The user took an action within the guide, such as clicking a button or link.
-- **Archived.** The user dismissed the guide. Archiving removes the guide from that user's eligibility.
-
-Knock's pre-built components track these statuses for you. If you build your own components, you update statuses using the SDK helpers or the guides API. See [handling engagement](/in-app-ui/guides/handling-engagement) for details, and [guide analytics and observability](/in-app-ui/guides/analytics-and-observability) for how to review guide performance in the dashboard.
-
 ## Using guides with workflows and broadcasts
 
-Guides are not a channel step in the same way as email or the in-app feed, but you can influence guide eligibility from a workflow or broadcast. The [in-app guide step](/designing-workflows/in-app-guide-step) enrolls a recipient into a guide's targeting the moment the step runs, so a cross-channel campaign can make a user eligible for an onboarding modal or an upgrade banner.
+Guides are not a channel step in the same way as email or the in-app feed, but you can influence guide eligibility from a workflow or broadcast. The [in-app guide step](/designing-workflows/in-app-guide-step) enrolls a recipient into a guide's targeting the moment the step runs, so a cross-channel campaign can make a user eligible for an onboarding modal or an upgrade banner in your application.
 
 You can also manage eligibility through [audiences](/concepts/audiences): use the [update audience function](/designing-workflows/update-audience-function) to add a user to a static audience referenced in a guide's targeting rules, or the [update user function](/designing-workflows/update-user-function) to change properties that a guide's targeting conditions depend on.
