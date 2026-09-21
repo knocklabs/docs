@@ -186,6 +186,8 @@ Every Slack notification needs two things, and Knock lets them live in different
 
 The **destination** is stored on the recipient (a [`User`](/concepts/users) or [`Object`](/concepts/objects)). The **auth** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares a single connection. The two sections below cover each location.
 
+If one recipient stores destinations for several tenants, add `knock_tenant_id` to each `SlackConnection`. When you trigger the workflow with a tenant, Knock uses connections tagged with that Knock tenant ID. If none match, Knock uses only untagged connections. This selection happens before Knock applies any access token stored on the tenant. See [tenant-scoped chat connections](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant) for the full selection behavior and an example.
+
 ### Recipient channel data requirements
 
 Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook or an access token Slack connection. Both will need to live under the `connections` key.
@@ -202,11 +204,12 @@ Here's an overview of the data requirements for [setting recipient channel data]
       If you're using standard Slack OAuth with access token scopes, your `SlackConnection` schema looks like this. You'll use
     either a `channel_id` or `user_id` depending on whether you're storing connection data to message a channel or user in Slack:
 
-    | Property     | Type     | Description                                                                                                                                                                                                                            |
-    | ------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | access_token | `string` | A bot access token. Not required when the access token is <a href="/integrations/chat/slack/overview#tenant-channel-data-requirements" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>stored on a tenant</a>. |
-    | channel_id   | `string` | A Slack channel ID.                                                                                                                                                                                                                    |
-    | user_id      | `string` | A Slack user ID.                                                                                                                                                                                                                       |
+    | Property        | Type     | Description                                                                                                                                                                                                                              |
+    | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | access_token    | `string` | A bot access token. Not required when the access token is <a href="/integrations/chat/slack/overview#tenant-channel-data-requirements" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>stored on a tenant</a>. |
+    | channel_id      | `string` | A Slack channel ID.                                                                                                                                                                                                                      |
+    | user_id         | `string` | A Slack user ID.                                                                                                                                                                                                                         |
+    | knock_tenant_id | `string` | The optional Knock tenant ID that scopes this connection.                                                                                                                                                                                |
 
     <br/>
 
@@ -226,9 +229,10 @@ Here's an overview of the data requirements for [setting recipient channel data]
   <Accordion title="SlackConnection with an incoming webhook url" anchorSlug="slackconnection-with-an-incoming-webhook-url" description="For internal or one-off integrations">
      If you're using a Slack app with the `incoming-webhook` scope your `SlackConnection` schema is quite simple:
 
-    | Property             | Type     | Description                     |
-    | -------------------- | -------- | ------------------------------- |
-    | incoming_webhook.url | `string` | The Slack incoming webhook URL. |
+    | Property             | Type     | Description                                                 |
+    | -------------------- | -------- | ----------------------------------------------------------- |
+    | incoming_webhook.url | `string` | The Slack incoming webhook URL.                             |
+    | knock_tenant_id      | `string` | The optional Knock tenant ID that scopes this connection.   |
 
 
     ```json title="Slack channel_data with an incoming webhook URL"
