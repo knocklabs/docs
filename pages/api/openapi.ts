@@ -47,7 +47,7 @@ export default async function handler(
         code: "method_not_allowed",
         message: `${req.method} method is not accepted.`,
         status: 405,
-        type: "request_error",
+        type: "invalid_request_error",
       });
   }
 
@@ -58,7 +58,7 @@ export default async function handler(
       code: "invalid_spec",
       message: 'Invalid spec. Use "api" or "mapi".',
       status: 400,
-      type: "request_error",
+      type: "invalid_request_error",
     });
   }
 
@@ -84,7 +84,7 @@ export default async function handler(
       code: "openapi_spec_unavailable",
       message: "Failed to load OpenAPI spec.",
       status: 500,
-      type: "server_error",
+      type: "api_error",
     });
   }
 }
