@@ -18,6 +18,7 @@ import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import {
   augmentSnippetsWithCurlRequest,
   formatResponseStatusCodes,
+  resolveResponses,
   resolveResponseSchemas,
 } from "../helpers";
 
@@ -55,6 +56,10 @@ function ApiReferenceMethod({
 
   const responseSchemas: OpenAPIV3.SchemaObject[] =
     resolveResponseSchemas(method);
+
+  const responseExamples = resolveResponses(method).filter(
+    ({ example }) => !!example,
+  );
 
   const requestBody: OpenAPIV3.SchemaObject | undefined =
     method.requestBody?.content?.["application/json"]?.schema;
@@ -234,19 +239,20 @@ function ApiReferenceMethod({
             },
           )}
         />
-        {responseSchemas.map(
-          (responseSchema) =>
-            responseSchema?.example && (
-              <CodeBlock
-                key={responseSchema.title}
-                title="Response"
-                language="json"
-                languages={["json"]}
-              >
-                {JSON.stringify(responseSchema?.example, null, 2)}
-              </CodeBlock>
-            ),
-        )}
+        {responseExamples.map(({ statusCode, example }) => (
+          <CodeBlock
+            key={`response-example-${statusCode}`}
+            title={
+              responseExamples.length > 1
+                ? `Response (${statusCode})`
+                : "Response"
+            }
+            language="json"
+            languages={["json"]}
+          >
+            {JSON.stringify(example, null, 2)}
+          </CodeBlock>
+        ))}
       </ExampleColumn>
     </Section>
   );

@@ -15,23 +15,65 @@ function resolveEndpointFromMethod(
   return [methodType, endpoint];
 }
 
-function resolveResponseSchemas(method: OpenAPIV3.OperationObject) {
-  const responseSchemas: OpenAPIV3.SchemaObject[] = Object.values(
-    method.responses || {},
-  )
-    .map((r) => r.content?.["application/json"]?.schema)
-    .filter(
-      // There are some responses that do not have a schema, e.g. "204 No Content"
-      (r) => !!r,
-    )
-    .map((responseSchema) => {
-      if (responseSchema?.allOf) {
-        return responseSchema.allOf[0];
-      }
-      return responseSchema;
-    });
+type ResolvedResponse = {
+  statusCode: string;
+  schema: OpenAPIV3.SchemaObject;
+  example?: unknown;
+};
 
-  return responseSchemas;
+/**
+ * Resolves each JSON response of an operation to its schema and example.
+ *
+ * An example declared on the response content takes precedence over the
+ * schema's own example, so responses that share a schema — such as the error
+ * responses that reference the shared error model — keep a payload specific to
+ * their status code.
+ */
+function resolveResponses(
+  method: OpenAPIV3.OperationObject,
+): ResolvedResponse[] {
+  return Object.entries(method.responses ?? {})
+    .map(([statusCode, response]): ResolvedResponse | null => {
+      const content = response.content?.["application/json"];
+      const contentSchema = content?.schema;
+      const schema = contentSchema?.allOf
+        ? contentSchema.allOf[0]
+        : contentSchema;
+
+      // There are some responses that do not have a schema, e.g. "204 No Content"
+      if (!schema) {
+        return null;
+      }
+
+      return {
+        statusCode,
+        schema,
+        example: content?.example ?? schema.example,
+      };
+    })
+    .filter((response): response is ResolvedResponse => !!response);
+}
+
+/**
+ * Lists the distinct response schemas of an operation, keeping the order they
+ * are declared in. Responses that share a schema collapse into one entry.
+ */
+function resolveResponseSchemas(method: OpenAPIV3.OperationObject) {
+  const seen = new Set<string>();
+
+  return resolveResponses(method).reduce<OpenAPIV3.SchemaObject[]>(
+    (schemas, { schema, statusCode }) => {
+      const key = schema.title ?? statusCode;
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        schemas.push(schema);
+      }
+
+      return schemas;
+    },
+    [],
+  );
 }
 
 /**
@@ -245,5 +287,6 @@ export {
   formatResponseStatusCodes,
   getSidebarContent,
   resolveEndpointFromMethod,
+  resolveResponses,
   resolveResponseSchemas,
 };
