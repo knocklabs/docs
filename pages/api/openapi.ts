@@ -43,14 +43,22 @@ export default async function handler(
     return res
       .status(405)
       .setHeader("Allow", "GET")
-      .json({ error: `${req.method} method is not accepted.` });
+      .json({
+        code: "method_not_allowed",
+        message: `${req.method} method is not accepted.`,
+        status: 405,
+        type: "invalid_request_error",
+      });
   }
 
   const specName = (req.query.spec as string) || "api";
 
   if (specName !== "api" && specName !== "mapi") {
     return res.status(400).json({
-      error: 'Invalid spec. Use "api" or "mapi".',
+      code: "invalid_spec",
+      message: 'Invalid spec. Use "api" or "mapi".',
+      status: 400,
+      type: "invalid_request_error",
     });
   }
 
@@ -72,6 +80,11 @@ export default async function handler(
     return res.status(200).json(jsonContent);
   } catch (error) {
     console.error(`Error loading OpenAPI spec (${specName}):`, error);
-    return res.status(500).json({ error: "Failed to load OpenAPI spec." });
+    return res.status(500).json({
+      code: "openapi_spec_unavailable",
+      message: "Failed to load OpenAPI spec.",
+      status: 500,
+      type: "server_error",
+    });
   }
 }

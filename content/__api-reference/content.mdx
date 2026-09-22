@@ -488,6 +488,36 @@ Knock uses standard <a href="https://developer.mozilla.org/en-US/Web/HTTP/Status
 
 - `5xx` error status codes indicate a Knock server error.
 
+For failed requests, the Knock API returns an `application/json` response with the following shared error structure:
+
+<Table
+  headers={["Field", "Type", "Description"]}
+  codeColumns={[0, 1]}
+  rows={[
+    [
+      "code",
+      "string",
+      "A stable, machine-readable code that identifies the error.",
+    ],
+    ["message", "string", "A human-readable explanation of the error."],
+    ["status", "integer", "The HTTP status code for the error."],
+    ["type", "string", "The category of error."],
+  ]}
+/>
+
+```json title="Example error response"
+{
+  "code": "api_key_missing",
+  "message": "No valid API key provided",
+  "status": 401,
+  "type": "authentication_error"
+}
+```
+
+Branch on `code` to handle an error in your application, and use `type` to group codes into a category. The `message` may change to improve its explanation, so don't match on it. See [error codes](/api-reference/overview/error-codes) for the codes you're most likely to encounter and how to resolve each one.
+
+A request to a path the API does not route returns JSON in a different shape, `{ "errors": { "detail": "404 Not Found" } }`. Check that the path matches an endpoint in this reference.
+
 </ContentColumn>
 </Section>
 
@@ -509,7 +539,7 @@ Here's a list of common `4xx` error codes you may encounter while working with t
 
 <ErrorExample
   title="api_key_missing"
-  description="The API key you provided is invalid."
+  description="The API key you provided is invalid. To resolve, send a valid API key in the Authorization header and retry the request."
 />
 
 <ErrorExample
