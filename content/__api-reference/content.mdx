@@ -505,11 +505,7 @@ For failed requests, the Knock API returns an `application/json` response with t
   ]}
 />
 
-Use `code` to handle an error in your application. The `message` may change to improve its explanation. See [error codes](/api-reference/overview/error-codes) for common codes and their resolution steps.
-
-`type` groups codes into a category you can branch on before you handle a specific `code`. `authentication_error` covers credential and access problems, and `api_error` covers server-side failures.
-
-```json title="401 authentication error"
+```json title="Example error response"
 {
   "code": "api_key_missing",
   "message": "No valid API key provided",
@@ -518,18 +514,7 @@ Use `code` to handle an error in your application. The `message` may change to i
 }
 ```
 
-To resolve this error, send a valid API key in the `Authorization` header and retry the request.
-
-```json title="500 server error"
-{
-  "code": "internal_server_error",
-  "message": "An unexpected error occurred",
-  "status": 500,
-  "type": "api_error"
-}
-```
-
-Retry a server error with exponential backoff. If the error persists, contact Knock support and include the response's `x-request-id` header.
+Branch on `code` to handle an error in your application, and use `type` to group codes into a category. The `message` may change to improve its explanation, so don't match on it. See [error codes](/api-reference/overview/error-codes) for the codes you're most likely to encounter and how to resolve each one.
 
 A request to a path the API does not route returns JSON in a different shape, `{ "errors": { "detail": "404 Not Found" } }`. Check that the path matches an endpoint in this reference.
 
@@ -554,7 +539,7 @@ Here's a list of common `4xx` error codes you may encounter while working with t
 
 <ErrorExample
   title="api_key_missing"
-  description="The API key you provided is invalid."
+  description="The API key you provided is invalid. To resolve, send a valid API key in the Authorization header and retry the request."
 />
 
 <ErrorExample

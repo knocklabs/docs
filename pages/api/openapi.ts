@@ -84,7 +84,7 @@ export default async function handler(
       code: "openapi_spec_unavailable",
       message: "Failed to load OpenAPI spec.",
       status: 500,
-      type: "api_error",
+      type: "server_error",
     });
   }
 }
