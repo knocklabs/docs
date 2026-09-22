@@ -310,8 +310,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -637,13 +637,15 @@ components:
         entries:
           - condition:
               event:
-                event_key: updated
-                event_type: recipient
+                event_key: order.completed
+                event_type: integration_source
+                integration_source_key: stripe
+                recipient_path: body.userId
               match_conditions:
                 - conditions:
-                    - argument: "true"
-                      operator: equal_to
-                      variable: recipient.is_paid
+                    - argument: "100"
+                      operator: greater_than
+                      variable: event.amount
                   operator: and
             created_at: "2024-06-01T00:00:00Z"
             description: Tracks when a trial user converts to paid
@@ -6757,13 +6759,15 @@ components:
         goal:
           condition:
             event:
-              event_key: updated
-              event_type: recipient
+              event_key: order.completed
+              event_type: integration_source
+              integration_source_key: stripe
+              recipient_path: body.userId
             match_conditions:
               - conditions:
-                  - argument: "true"
-                    operator: equal_to
-                    variable: recipient.is_paid
+                  - argument: "100"
+                    operator: greater_than
+                    variable: event.amount
                 operator: and
           created_at: "2024-06-01T00:00:00Z"
           description: Tracks when a trial user converts to paid
@@ -7136,26 +7140,27 @@ components:
       description: A goal condition consisting of a polymorphic event and optional match conditions.
       example:
         event:
-          event_key: updated
-          event_type: recipient
+          event_key: order.completed
+          event_type: integration_source
+          integration_source_key: stripe
+          recipient_path: body.userId
         match_conditions:
           - conditions:
-              - argument: "true"
-                operator: equal_to
-                variable: recipient.is_paid
+              - argument: "100"
+                operator: greater_than
+                variable: event.amount
             operator: and
       properties:
         event:
           anyOf:
-            - $ref: '#/components/schemas/WorkflowWaitForEventRecipientEvent'
             - $ref: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
             - $ref: '#/components/schemas/WorkflowWaitForEventAudienceEvent'
-          description: The event to track. Supports recipient, integration_source, and audience event types.
+          description: The event to track. Supports integration_source and audience event types.
           type: object
           x-struct: null
           x-validate: null
         match_conditions:
-          description: A list of condition groups. Required for recipient events; each group uses an operator (and/or) with nested conditions.
+          description: Optional list of condition groups; each group uses an operator (and/or) with nested conditions.
           items:
             $ref: '#/components/schemas/ConditionGroup'
           type: array
@@ -7803,13 +7808,15 @@ components:
         goal:
           condition:
             event:
-              event_key: updated
-              event_type: recipient
+              event_key: order.completed
+              event_type: integration_source
+              integration_source_key: stripe
+              recipient_path: body.userId
             match_conditions:
               - conditions:
-                  - argument: "true"
-                    operator: equal_to
-                    variable: recipient.is_paid
+                  - argument: "100"
+                    operator: greater_than
+                    variable: event.amount
                 operator: and
           description: Tracks when a trial user converts to paid
           name: Trial Conversion
@@ -10194,8 +10201,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -10467,13 +10474,15 @@ components:
       example:
         condition:
           event:
-            event_key: updated
-            event_type: recipient
+            event_key: order.completed
+            event_type: integration_source
+            integration_source_key: stripe
+            recipient_path: body.userId
           match_conditions:
             - conditions:
-                - argument: "true"
-                  operator: equal_to
-                  variable: recipient.is_paid
+                - argument: "100"
+                  operator: greater_than
+                  variable: event.amount
               operator: and
         description: Tracks when a trial user converts to paid
         name: Trial Conversion
@@ -11231,8 +11240,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -12267,13 +12276,15 @@ components:
       example:
         condition:
           event:
-            event_key: updated
-            event_type: recipient
+            event_key: order.completed
+            event_type: integration_source
+            integration_source_key: stripe
+            recipient_path: body.userId
           match_conditions:
             - conditions:
-                - argument: "true"
-                  operator: equal_to
-                  variable: recipient.is_paid
+                - argument: "100"
+                  operator: greater_than
+                  variable: event.amount
               operator: and
         created_at: "2024-06-01T00:00:00Z"
         description: Tracks when a trial user converts to paid
@@ -13773,13 +13784,15 @@ paths:
                   entries:
                     - condition:
                         event:
-                          event_key: updated
-                          event_type: recipient
+                          event_key: order.completed
+                          event_type: integration_source
+                          integration_source_key: stripe
+                          recipient_path: body.userId
                         match_conditions:
                           - conditions:
-                              - argument: "true"
-                                operator: equal_to
-                                variable: recipient.is_paid
+                              - argument: "100"
+                                operator: greater_than
+                                variable: event.amount
                             operator: and
                       created_at: "2024-06-01T00:00:00Z"
                       description: Tracks when a trial user converts to paid
@@ -15409,13 +15422,15 @@ paths:
                 goal:
                   condition:
                     event:
-                      event_key: updated
-                      event_type: recipient
+                      event_key: order.completed
+                      event_type: integration_source
+                      integration_source_key: stripe
+                      recipient_path: body.userId
                     match_conditions:
                       - conditions:
-                          - argument: "true"
-                            operator: equal_to
-                            variable: recipient.is_paid
+                          - argument: "100"
+                            operator: greater_than
+                            variable: event.amount
                         operator: and
                   description: Tracks when a trial user converts to paid
                   name: Trial Conversion
@@ -15440,13 +15455,15 @@ paths:
                   goal:
                     condition:
                       event:
-                        event_key: updated
-                        event_type: recipient
+                        event_key: order.completed
+                        event_type: integration_source
+                        integration_source_key: stripe
+                        recipient_path: body.userId
                       match_conditions:
                         - conditions:
-                            - argument: "true"
-                              operator: equal_to
-                              variable: recipient.is_paid
+                            - argument: "100"
+                              operator: greater_than
+                              variable: event.amount
                           operator: and
                     created_at: "2024-06-01T00:00:00Z"
                     description: Tracks when a trial user converts to paid
@@ -15478,7 +15495,13 @@ paths:
 
           const response = await client.goals.upsert('goal_key', {
             goal: {
-              condition: { event: { event_type: 'recipient' } },
+              condition: {
+                event: {
+                  event_key: 'order.completed',
+                  event_type: 'integration_source',
+                  integration_source_key: 'stripe',
+                },
+              },
               name: 'Trial Conversion',
             },
           });
@@ -15496,7 +15519,9 @@ paths:
               goal={
                   "condition": {
                       "event": {
-                          "event_type": "recipient"
+                          "event_key": "order.completed",
+                          "event_type": "integration_source",
+                          "integration_source_key": "stripe",
                       }
                   },
                   "name": "Trial Conversion",
@@ -15525,8 +15550,10 @@ paths:
           			Goal: knockmapi.GoalRequestParam{
           				Condition: knockmapi.GoalConditionParam{
           					Event: knockmapi.GoalConditionEventUnionParam{
-          						OfWorkflowWaitForEventRecipientEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventRecipientEventParam{
-          							EventType: "recipient",
+          						OfWorkflowWaitForEventIntegrationSourceEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventIntegrationSourceEventParam{
+          							EventKey:             "order.completed",
+          							EventType:            "integration_source",
+          							IntegrationSourceKey: "stripe",
           						},
           					},
           				},
@@ -17388,13 +17415,15 @@ paths:
                 goal:
                   condition:
                     event:
-                      event_key: updated
-                      event_type: recipient
+                      event_key: order.completed
+                      event_type: integration_source
+                      integration_source_key: stripe
+                      recipient_path: body.userId
                     match_conditions:
                       - conditions:
-                          - argument: "true"
-                            operator: equal_to
-                            variable: recipient.is_paid
+                          - argument: "100"
+                            operator: greater_than
+                            variable: event.amount
                         operator: and
                   description: Tracks when a trial user converts to paid
                   name: Trial Conversion
@@ -17419,13 +17448,15 @@ paths:
                   goal:
                     condition:
                       event:
-                        event_key: updated
-                        event_type: recipient
+                        event_key: order.completed
+                        event_type: integration_source
+                        integration_source_key: stripe
+                        recipient_path: body.userId
                       match_conditions:
                         - conditions:
-                            - argument: "true"
-                              operator: equal_to
-                              variable: recipient.is_paid
+                            - argument: "100"
+                              operator: greater_than
+                              variable: event.amount
                           operator: and
                     created_at: "2024-06-01T00:00:00Z"
                     description: Tracks when a trial user converts to paid
@@ -17457,7 +17488,13 @@ paths:
 
           const response = await client.goals.validate('goal_key', {
             goal: {
-              condition: { event: { event_type: 'recipient' } },
+              condition: {
+                event: {
+                  event_key: 'order.completed',
+                  event_type: 'integration_source',
+                  integration_source_key: 'stripe',
+                },
+              },
               name: 'Trial Conversion',
             },
           });
@@ -17475,7 +17512,9 @@ paths:
               goal={
                   "condition": {
                       "event": {
-                          "event_type": "recipient"
+                          "event_key": "order.completed",
+                          "event_type": "integration_source",
+                          "integration_source_key": "stripe",
                       }
                   },
                   "name": "Trial Conversion",
@@ -17504,8 +17543,10 @@ paths:
           			Goal: knockmapi.GoalRequestParam{
           				Condition: knockmapi.GoalConditionParam{
           					Event: knockmapi.GoalConditionEventUnionParam{
-          						OfWorkflowWaitForEventRecipientEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventRecipientEventParam{
-          							EventType: "recipient",
+          						OfWorkflowWaitForEventIntegrationSourceEvent: &knockmapi.GoalConditionEventWorkflowWaitForEventIntegrationSourceEventParam{
+          							EventKey:             "order.completed",
+          							EventType:            "integration_source",
+          							IntegrationSourceKey: "stripe",
           						},
           					},
           				},
@@ -25081,13 +25122,15 @@ paths:
                   goal:
                     condition:
                       event:
-                        event_key: updated
-                        event_type: recipient
+                        event_key: order.completed
+                        event_type: integration_source
+                        integration_source_key: stripe
+                        recipient_path: body.userId
                       match_conditions:
                         - conditions:
-                            - argument: "true"
-                              operator: equal_to
-                              variable: recipient.is_paid
+                            - argument: "100"
+                              operator: greater_than
+                              variable: event.amount
                           operator: and
                     created_at: "2024-06-01T00:00:00Z"
                     description: Tracks when a trial user converts to paid
