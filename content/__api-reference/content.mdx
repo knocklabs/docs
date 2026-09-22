@@ -488,6 +488,47 @@ Knock uses standard <a href="https://developer.mozilla.org/en-US/Web/HTTP/Status
 
 - `5xx` error status codes indicate a Knock server error.
 
+For failed requests, the Knock API returns an `application/json` response with the following shared error structure:
+
+<Table
+  headers={["Field", "Type", "Description"]}
+  codeColumns={[0, 1]}
+  rows={[
+    [
+      "code",
+      "string",
+      "A stable, machine-readable code that identifies the error.",
+    ],
+    ["message", "string", "A human-readable explanation of the error."],
+    ["status", "integer", "The HTTP status code for the error."],
+    ["type", "string", "The category of error."],
+  ]}
+/>
+
+Use `code` to handle an error in your application. The `message` may change to improve its explanation. See [error codes](/api-reference/overview/error-codes) for common codes and their resolution steps.
+
+```json title="401 authentication error"
+{
+  "code": "api_key_missing",
+  "message": "No valid API key provided",
+  "status": 401,
+  "type": "authentication_error"
+}
+```
+
+To resolve this error, send a valid API key in the `Authorization` header and retry the request.
+
+```json title="500 server error"
+{
+  "code": "internal_server_error",
+  "message": "An unexpected error occurred",
+  "status": 500,
+  "type": "api_error"
+}
+```
+
+Retry a server error with exponential backoff. If the error persists, contact Knock support and include the response's `x-request-id` header.
+
 </ContentColumn>
 </Section>
 
