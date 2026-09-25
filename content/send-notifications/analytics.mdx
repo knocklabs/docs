@@ -25,7 +25,7 @@ The [Analytics](https://dashboard.knock.app/~/analytics) page in the Knock dashb
   className="mx-auto"
 />
 
-Metrics found on the Analytics page are scoped to the [environment](/concepts/environments) you're viewing and reflect your account's [data retention period](/manage-your-account/data-retention). The top of the page summarizes message activity for your selected time range and filters. Knock generates a [message](/concepts/messages) each time a workflow or broadcast runs a channel step for a recipient and the summary metrics roll those messages up by [delivery status](/send-notifications/message-statuses#delivery-status).
+Metrics found on the Analytics page are scoped to the [environment](/version-control/environments) you're viewing and reflect your account's [data retention period](/manage-your-account/data-retention). The top of the page summarizes message activity for your selected time range and filters. Knock generates a [message](/concepts/messages) each time a workflow or broadcast runs a channel step for a recipient and the summary metrics roll those messages up by [delivery status](/send-notifications/message-statuses#delivery-status).
 
 Below the summary metrics, you'll find two additional views:
 
@@ -70,13 +70,53 @@ For example, grouping by engagement status renders a separate line for read, lin
   className="mx-auto"
 />
 
+## Workflow analytics
+
+Each workflow has an **Analytics** tab on its detail page that reports run, delivery, and engagement metrics for that workflow alone. Sent [broadcasts](/concepts/broadcasts) have the same tab.
+
+The tab has two panes:
+
+- **Steps.** The workflow's steps, shown as a read-only canvas or as a table. Each step with activity in the selected window shows its counts, such as reached, delivered, read, and clicked. The table view also lists removed steps that still have data in the window.
+- **Details.** A workflow overview by default. Select a step to see the same metrics scoped to that step.
+
+Use the time range selector to choose a window within your account's [data retention period](/manage-your-account/data-retention), or click and drag across any chart to zoom into a range. Use the comparison menu to compare against the previous period, the same period last month, a custom start date, or, on a step, another step in the workflow.
+
+Charts also mark each workflow version [committed](/version-control/commits) to the environment within the window, so you can line up changes in your metrics with changes to the workflow.
+
+### Workflow overview
+
+The overview shows up to four cards:
+
+- **Runs.** Workflow runs completed out of those triggered, with counts of in-progress, errored, and canceled runs.
+- **Messages.** Messages delivered out of those sent, with counts of bounced, undelivered, and not sent messages.
+- **Engagements.** One metric per engagement status that applies to the workflow's channel types, such as seen, read, clicked, or interacted, as a rate of delivered messages.
+- **Top links clicked.** The most-clicked links across the workflow's messages, and the step each was sent from.
+
+The engagements and top links cards have a **Unique** and **Total** toggle. **Unique** counts each recipient once in the window and is an approximate count. **Total** counts every event, including repeats from the same recipient.
+
+### Metric definitions
+
+| Metric      | Definition                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Triggered   | Workflow runs started for a recipient.                                                                                    |
+| Completed   | Workflow runs that completed without errors.                                                                              |
+| Reached     | Workflow runs that started a given step.                                                                                  |
+| Sent        | Messages that made it from Knock to the delivery provider, marked as [sent](/send-notifications/message-statuses#6-sent). |
+| Delivered   | Messages the provider confirmed as [delivered](/send-notifications/message-statuses#7-delivered).                         |
+| Bounced     | Messages the provider reported as [bounced](/send-notifications/message-statuses#2-bounced).                              |
+| Undelivered | Messages the provider reported as [undelivered](/send-notifications/message-statuses#1-undelivered).                      |
+| Not sent    | Messages processed in [sandbox mode](/send-notifications/message-statuses#5-not-sent) and never sent.                     |
+| Engagement  | [Engagement events](/send-notifications/message-statuses#engagement-status) such as seen, read, clicked, and interacted.  |
+
+Each count is dated to when its own event occurred. A message delivered or clicked after the window in which its run started is counted in the later window, so a step's delivered count can exceed what its reached count implies. See [understanding message events](#understanding-message-events) for how events are counted and dated.
+
 ## Understanding message events
 
-Knock analytics are based on [message events](/send-notifications/message-statuses#message-events) which affects how engagement is counted and dated.
+Knock analytics are based on [message events](/send-notifications/message-statuses#message-events), which affect how engagement is counted and dated.
 
 ### Event counts
 
-Engagement metrics include every event, not just the first occurence. A recipient who clicks the same message three times is reported as three clicks rather than one.
+Engagement metrics include every event, not just the first occurrence. A recipient who clicks the same message three times is reported as three clicks rather than one.
 
 ### Event dates
 
