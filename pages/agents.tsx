@@ -319,15 +319,34 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
               nudgePadding={2}
               gap="6"
             >
-              {AGENT_PLUGINS.map((plugin) => (
-                <ContentCard
-                  key={plugin.title}
-                  title={plugin.title}
-                  href={plugin.href}
-                  icon={plugin.icon}
-                  newTab
-                />
-              ))}
+              {AGENT_PLUGINS.map((plugin) => {
+                const Icon = plugin.icon;
+
+                return (
+                  <Stack
+                    key={plugin.title}
+                    as="a"
+                    href={plugin.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    direction="column"
+                    gap="2"
+                    p="4"
+                    border="px"
+                    borderColor="gray-4"
+                    rounded="3"
+                    h="full"
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <Box w="10" h="10" bg="gray-2" p="2" borderRadius="2">
+                      <Icon />
+                    </Box>
+                    <Heading as="h3" size="3" weight="medium" mb="0">
+                      {plugin.title}
+                    </Heading>
+                  </Stack>
+                );
+              })}
             </Section.Content>
           </Section.Container>
 
