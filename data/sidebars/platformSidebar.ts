@@ -53,6 +53,16 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/cli", title: "Knock CLI" },
       { slug: "/mcp-server", title: "Knock MCP server" },
       { slug: "/skills", title: "Skills" },
+      {
+        slug: "/plugins",
+        title: "Plugins",
+        pages: [
+          { slug: "/claude", title: "Claude" },
+          { slug: "/chatgpt", title: "ChatGPT" },
+          { slug: "/cursor", title: "Cursor" },
+          { slug: "/grok-bot", title: "Grok Bot" },
+        ],
+      },
     ],
   },
   {
