@@ -134,7 +134,7 @@ export const ContentCard = ({
   newTab,
 }: {
   title: string;
-  description: string;
+  description?: string;
   href: string;
   icon?: IconType;
   style?: React.CSSProperties;
@@ -162,9 +162,11 @@ export const ContentCard = ({
         <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>
-        <Text as="span" size="1" color="gray">
-          {description}
-        </Text>
+        {description && (
+          <Text as="span" size="1" color="gray">
+            {description}
+          </Text>
+        )}
       </Stack>
     </Box>
   );

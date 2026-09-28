@@ -52,25 +52,21 @@ const CURSOR_PLUGIN_URL = "https://cursor.com/marketplace/knock";
 const AGENT_PLUGINS = [
   {
     title: "Claude",
-    description: "Connect Knock in Claude Cowork and Claude Desktop.",
     href: "https://claude.ai/directory/connectors/knock",
     icon: ClaudeBrandmark,
   },
   {
     title: "ChatGPT",
-    description: "Install the Knock plugin in ChatGPT and Codex.",
     href: "https://chatgpt.com/plugins/plugin_asdk_app_6a8dddd50424819196928510eff4c70f",
     icon: CodexBrandmark,
   },
   {
     title: "Cursor",
-    description: "Install the Knock plugin in Cursor.",
     href: CURSOR_PLUGIN_URL,
     icon: CursorBrandmark,
   },
   {
     title: "Grok Bot",
-    description: "Install the Knock plugin in Grok Bot.",
     href: CURSOR_PLUGIN_URL,
     icon: GrokBrandmark,
   },
@@ -327,7 +323,6 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
                 <ContentCard
                   key={plugin.title}
                   title={plugin.title}
-                  description={plugin.description}
                   href={plugin.href}
                   icon={plugin.icon}
                   newTab
