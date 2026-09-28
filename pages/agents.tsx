@@ -29,6 +29,10 @@ import { KNOCK_SETUP_PROMPT } from "@/components/ui/AgentSetupPrompt";
 import {
   CODING_TOOL_OPTIONS,
   CodingToolIcon,
+  ClaudeBrandmark,
+  CodexBrandmark,
+  CursorBrandmark,
+  GrokBrandmark,
 } from "@/components/ui/CodingToolIcon";
 import { ContentCard } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
@@ -42,6 +46,35 @@ import {
 type AgentsPageProps = {
   skills: AgentSkill[];
 };
+
+const CURSOR_PLUGIN_URL = "https://cursor.com/marketplace/knock";
+
+const AGENT_PLUGINS = [
+  {
+    title: "Claude",
+    description: "Connect Knock in Claude Cowork and Claude Desktop.",
+    href: "https://claude.ai/directory/connectors/knock",
+    icon: ClaudeBrandmark,
+  },
+  {
+    title: "ChatGPT",
+    description: "Install the Knock plugin in ChatGPT and Codex.",
+    href: "https://chatgpt.com/plugins/plugin_asdk_app_6a8dddd50424819196928510eff4c70f",
+    icon: CodexBrandmark,
+  },
+  {
+    title: "Cursor",
+    description: "Install the Knock plugin in Cursor.",
+    href: CURSOR_PLUGIN_URL,
+    icon: CursorBrandmark,
+  },
+  {
+    title: "Grok Bot",
+    description: "Install the Knock plugin in Grok Bot.",
+    href: CURSOR_PLUGIN_URL,
+    icon: GrokBrandmark,
+  },
+] as const;
 
 const CopyPromptButton = ({
   prompt,
@@ -280,6 +313,30 @@ export default function AgentsPage({ skills }: AgentsPageProps) {
 
         <Box mx="auto" px="6" pb="9" w="full" style={{ maxWidth: "1080px" }}>
           <Section.Container style={{ marginTop: 0 }}>
+            <Section.Header title="Plugins" id="plugins" />
+            <Section.Content
+              className="md-one-column"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+              }}
+              nudgePadding={2}
+              gap="6"
+            >
+              {AGENT_PLUGINS.map((plugin) => (
+                <ContentCard
+                  key={plugin.title}
+                  title={plugin.title}
+                  description={plugin.description}
+                  href={plugin.href}
+                  icon={plugin.icon}
+                  newTab
+                />
+              ))}
+            </Section.Content>
+          </Section.Container>
+
+          <Section.Container>
             <Section.Header title="Skills" href="/ai/skills" id="skills" />
             <Section.Content
               className="md-one-column"

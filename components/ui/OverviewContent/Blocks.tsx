@@ -147,6 +147,7 @@ export const ContentCard = ({
         as={Link}
         href={href}
         target={newTab ? "_blank" : undefined}
+        rel={newTab ? "noopener noreferrer" : undefined}
         w="full"
         h="full"
         flexDirection="column"
