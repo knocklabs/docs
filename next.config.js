@@ -830,6 +830,11 @@ const nextConfig = {
         destination: "/cli/branch",
         permanent: true,
       },
+      {
+        source: "/integrations/sources/http",
+        destination: "/integrations/sources/custom",
+        permanent: true,
+      },
     ];
   },
 
