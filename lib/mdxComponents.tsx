@@ -34,7 +34,6 @@ import {
   ResponsiveThreeColumn,
   ResponsiveTwoColumn,
 } from "../components/ui/OverviewContent/Blocks";
-import { Button } from "@telegraph/button";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -124,7 +123,6 @@ export const MDX_COMPONENTS = {
   OverviewSectionHeader: OverviewSection.Header,
   OverviewSectionContent: OverviewSection.Content,
   Text,
-  Button,
   Box: Box,
   Stack: Stack,
   Tag,
