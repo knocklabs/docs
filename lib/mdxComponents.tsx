@@ -31,6 +31,7 @@ import {
   ConceptCard,
   BuildingBlock,
   Tool,
+  ResponsiveFourColumn,
   ResponsiveThreeColumn,
   ResponsiveTwoColumn,
 } from "../components/ui/OverviewContent/Blocks";
@@ -117,6 +118,7 @@ export const MDX_COMPONENTS = {
   ConceptCard,
   BuildingBlock,
   Tool,
+  ResponsiveFourColumn,
   ResponsiveThreeColumn,
   ResponsiveTwoColumn,
   OverviewSectionContainer: OverviewSection.Container,

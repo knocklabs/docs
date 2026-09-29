@@ -274,7 +274,7 @@ export const BuildingBlock = ({
 };
 
 type ResponsiveGridProps = TgphComponentProps<typeof Stack> & {
-  columns?: 2 | 3;
+  columns?: 2 | 3 | 4;
 };
 
 // Consolidated responsive grid component
@@ -309,6 +309,17 @@ export const ResponsiveThreeColumn = ({
   ...props
 }: ResponsiveThreeColumnProps) => (
   <ResponsiveGrid columns={3} {...props}>
+    {children}
+  </ResponsiveGrid>
+);
+
+type ResponsiveFourColumnProps = TgphComponentProps<typeof Stack>;
+
+export const ResponsiveFourColumn = ({
+  children,
+  ...props
+}: ResponsiveFourColumnProps) => (
+  <ResponsiveGrid columns={4} {...props}>
     {children}
   </ResponsiveGrid>
 );
