@@ -19,6 +19,7 @@ import {
 } from "../components/ui/ApiSections";
 import RateLimit from "../components/ui/RateLimit";
 import { Code, Text } from "@telegraph/typography";
+import { Button } from "@telegraph/button";
 import {
   TableElement,
   ThElement,
@@ -31,6 +32,7 @@ import {
   ConceptCard,
   BuildingBlock,
   Tool,
+  ResponsiveFourColumn,
   ResponsiveThreeColumn,
   ResponsiveTwoColumn,
 } from "../components/ui/OverviewContent/Blocks";
@@ -118,12 +120,14 @@ export const MDX_COMPONENTS = {
   ConceptCard,
   BuildingBlock,
   Tool,
+  ResponsiveFourColumn,
   ResponsiveThreeColumn,
   ResponsiveTwoColumn,
   OverviewSectionContainer: OverviewSection.Container,
   OverviewSectionHeader: OverviewSection.Header,
   OverviewSectionContent: OverviewSection.Content,
   Text,
+  Button,
   Box: Box,
   Stack: Stack,
   Tag,

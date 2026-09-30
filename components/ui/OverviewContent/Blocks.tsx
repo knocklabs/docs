@@ -134,7 +134,7 @@ export const ContentCard = ({
   newTab,
 }: {
   title: string;
-  description: string;
+  description?: string;
   href: string;
   icon?: IconType;
   style?: React.CSSProperties;
@@ -147,6 +147,7 @@ export const ContentCard = ({
         as={Link}
         href={href}
         target={newTab ? "_blank" : undefined}
+        rel={newTab ? "noopener noreferrer" : undefined}
         w="full"
         h="full"
         flexDirection="column"
@@ -161,9 +162,11 @@ export const ContentCard = ({
         <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>
-        <Text as="span" size="1" color="gray">
-          {description}
-        </Text>
+        {description && (
+          <Text as="span" size="1" color="gray">
+            {description}
+          </Text>
+        )}
       </Stack>
     </Box>
   );
@@ -271,7 +274,7 @@ export const BuildingBlock = ({
 };
 
 type ResponsiveGridProps = TgphComponentProps<typeof Stack> & {
-  columns?: 2 | 3;
+  columns?: 2 | 3 | 4;
 };
 
 // Consolidated responsive grid component
@@ -306,6 +309,17 @@ export const ResponsiveThreeColumn = ({
   ...props
 }: ResponsiveThreeColumnProps) => (
   <ResponsiveGrid columns={3} {...props}>
+    {children}
+  </ResponsiveGrid>
+);
+
+type ResponsiveFourColumnProps = TgphComponentProps<typeof Stack>;
+
+export const ResponsiveFourColumn = ({
+  children,
+  ...props
+}: ResponsiveFourColumnProps) => (
+  <ResponsiveGrid columns={4} {...props}>
     {children}
   </ResponsiveGrid>
 );
