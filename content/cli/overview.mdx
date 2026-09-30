@@ -137,18 +137,18 @@ The following flags are supported for every command.
     file is a project-level configuration file that tells the Knock CLI where to
     find your Knock resources.
 
-    For example, if you want to store your Knock resources in the `.knock/` directory, you can create a `knock.json` file with the following content:
+    For example, if you want to store your Knock resources in the `.knock` directory, you can create a `knock.json` file with the following content:
 
 {/* prettier-ignore */}
 ```json title="Example knock.json file"
 {
-  "knockDir": ".knock/"
+  "knockDir": ".knock"
 }
 ```
 
-    Once you have created the `knock.json` file, all subsequent `knock pull` and `knock push` commands will use the `.knock/` directory as the default target directory relative to the location of the `knock.json` file, regardless of the directory you are currently in.
+    Once you have created the `knock.json` file, all subsequent `knock pull` and `knock push` commands will use the `.knock` directory as the default target directory. The CLI finds `knock.json` by walking up from your current directory, but it resolves a relative `knockDir` against the current working directory rather than the location of `knock.json`; always run CLI commands from the directory that contains `knock.json`.
 
-    If you need to specify a different target directory for a single command, you can use the `--knock-dir` flag, or the `--{resource-type}-dir` flag for specific resource types.
+    If you need to specify a different target directory for a single command, you can use the `--knock-dir` flag on `knock pull` and `knock push`, or a resource-specific directory flag such as `--workflows-dir` on that resource's `pull`, `push`, and `validate` commands.
 
   </ContentColumn>
 </Section>
@@ -160,15 +160,17 @@ There is no required directory structure when working with Knock resources local
 
 For forward compatibility, we recommend using this structure to ensure your local files work seamlessly with future CLI updates.
 
-When you use `knock pull`, resources will be grouped by resource type within subdirectories. The following directory structure will be created:
+When you use `knock pull`, resources will be grouped by resource type within subdirectories, producing the following directory structure. The `schemas/` directory is managed separately by [`knock schema pull`](/cli/schema/pull) and [`knock schema push`](/cli/schema/push), and resolves to the same location when a `knock.json` file is present.
 
 {/* prettier-ignore */}
 <PreTextDiagram description="Recommended directory structure for Knock resources">
-{`./knock/
+{`.knock/
+├── audiences/
 ├── guides/
 ├── layouts/
 ├── message-types/
 ├── partials/
+├── schemas/
 ├── translations/
 └── workflows/`}
 </PreTextDiagram>

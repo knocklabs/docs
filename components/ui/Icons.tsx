@@ -120,6 +120,7 @@ const PascalCaseIcons = {
       />
     </svg>
   ),
+  Claude: ClaudeBrandmark,
   Slack: () => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -181,7 +182,6 @@ const PascalCaseIcons = {
   Sparkles,
   Workflow,
   Plug,
-  Claude: ClaudeBrandmark,
   Chatgpt: CodexBrandmark,
   Cursor: CursorBrandmark,
   Grok: GrokBrandmark,

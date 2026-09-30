@@ -25,10 +25,10 @@ Knock provides a set of built-in roles for common team functions.
 Here's an overview of the built-in roles available to Knock account members:
 
 - **Owner.** For your primary admin who manages billing. This role can invite and manage members, manage billing, and do anything available in the admin role. Your account must always have at least one account owner.
-- **Admin.** For admins who need to manage account-level settings. This role can invite and manage members (excluding owner and billing roles), manage account branding, manage environments, and manage advanced developer concepts such as signing keys, enhanced security mode, variables, and webhooks. This role has all permissions available to the member role.
-- **Member.** For users who are editing notification workflows and templates in Knock. This role can manage workflows, layouts, users, objects, and tenants. It can make commits and push changes to subsequent environments, and has full access to message and API logs for debugging.
-- **Production-only Member.** Available when production write access is enabled in your account settings. For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only has access to the production environment.
-- **Support.** For users who shouldn't have access to workflows and templates, but should be able to dig into message and API logs for debugging purposes.
+- **Admin.** For admins who need to manage account-level settings. This role can invite and manage members (excluding owner and billing roles), manage account branding, manage environments and channels, and manage advanced developer concepts such as signing keys, enhanced security mode, variables, and webhooks. This role has all permissions available to the member role.
+- **Member.** For users who are editing notification workflows and templates in Knock. This role can manage workflows, guides, broadcasts, and other content, as well as users, objects, and tenants. It can commit and promote changes to subsequent environments, and has full access to message and API logs for debugging.
+- **Production-only member.** Available when production write access is enabled in your account settings. For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only has access to the production environment.
+- **Support.** For users who should be able to view workflows and content and dig into message and API logs for debugging, but shouldn't be able to make changes.
 - **Billing.** For account members who shouldn't have access to anything in Knock but billing.
 
 For a complete overview of which permissions are available to which built-in roles, see the [lookup table](#roles-and-permissions-lookup-table) below.
@@ -51,6 +51,8 @@ For a complete overview of which permissions are available to which built-in rol
 
 Custom permission groups enable you to define your own roles with specific capabilities. Create and manage them under <a href="https://dashboard.knock.app/~/settings/permissions" target="_blank">**Settings** > **Permissions**</a>.
 
+When you create a permission group, you set a unique **key** (lowercase letters, numbers, underscores, and hyphens). The key cannot be changed after creation. [Directory sync](/manage-your-account/directory-sync#custom-permission-groups) uses this key to map identity provider groups to the permission group.
+
 ### Capabilities
 
 When you create a permission group, you choose which capabilities members in that group receive. Capabilities fall into two scopes:
@@ -72,15 +74,33 @@ For environment-scoped capabilities, you control both what members can do and wh
 2. **Per-environment access.** Use granular mode to set different capability levels in each environment. For example, grant manage access to workflows in development, and view-only access in production.
 3. **No access to an environment.** Deny an environment to hide it from members in the group and block all environment-scoped permissions there, including on its branches. Account-level capabilities still apply. At least one environment must remain accessible.
 
+### Customer data obfuscation
+
+Custom permission groups can enable [customer data obfuscation](/manage-your-account/data-obfuscation) under environment access. When enabled, all message, user, and object data will be obfuscated in the Knock dashboard for members of that group.
+
+You set the rule in the same all or granular mode you use for environment capabilities:
+
+1. **Same access in every environment.** Enable obfuscation once to apply it across every environment.
+2. **Per-environment access.** Use granular mode to enable obfuscation in specific environments.
+
+A group's rule for a parent environment also applies to that environment's branches.
+
+If a member belongs to more than one custom permission group, Knock hides customer data when any assigned group enables obfuscation for that environment.
+
+If customer data obfuscation has been enabled at the environment level, that setting applies to every member and cannot be overridden by a permission group. Built-in roles have no per-role obfuscation setting. Only the environment setting applies to them.
+
 ### Assigning permission groups
 
-You assign custom permission groups when you [invite a member](/manage-your-account/managing-members) or change their role. You can also add members from a permission group's detail page.
+You assign custom permission groups when you [invite a member](/manage-your-account/managing-members) or change their role. You can also add members from a permission group's detail page, or assign groups through [directory sync](/manage-your-account/directory-sync#custom-permission-groups).
 
 - Choose either a built-in role **or** one or more custom permission groups. You cannot combine a built-in role with custom groups on the same member.
 - When you assign custom groups, the member's role becomes **Custom**. Their effective permissions are the union of every assigned group.
 - An environment is accessible to a custom member if any of their assigned groups grants access to it.
+- When [directory sync](/manage-your-account/directory-sync) is enabled, Knock uses your identity provider as the source of truth for synced users. If a synced user belongs to any group that maps to a live custom permission group, that custom assignment replaces their built-in role, including owner and admin.
 
 Archiving a custom permission group removes its grants from any members who had it assigned. If that was their only group, they keep the Custom role and have no permissions until you assign another group or a built-in role. Knock does not fall back to the support role.
+
+For directory-synced users, Knock recomputes the assignment when you archive a mapped group. Those users fall back to their highest-privilege mapped built-in role, or to support if none is mapped.
 
 ## Roles and permissions lookup table
 
@@ -94,51 +114,117 @@ Archiving a custom permission group removes its grants from any members who had 
       rows: [
         { name: "Manage billing", columnsYes: ["Owner", "Billing"] },
         {
-          name: "Create and manage environments",
+          name: "Manage environments",
           columnsYes: ["Owner", "Admin"],
         },
         { name: "View account audit logs", columnsYes: ["Owner", "Admin"] },
+        { name: "View account members", columnsYes: ["Owner", "Admin"] },
+        { name: "Manage account members", columnsYes: ["Owner", "Admin"] },
         {
-          name: "Invite and manage account members",
+          name: "Manage permission groups",
           columnsYes: ["Owner", "Admin"],
         },
         { name: "Manage account branding", columnsYes: ["Owner", "Admin"] },
+        { name: "Manage custom domains", columnsYes: ["Owner", "Admin"] },
+        { name: "Manage SSO and SCIM configuration", columnsYes: ["Owner"] },
         { name: "Delete account", columnsYes: ["Owner"] },
       ],
     },
     {
-      name: "Core",
+      name: "Content",
       rows: [
         {
-          name: "Create and manage workflows/templates",
+          name: "View content resources (workflows, guides, broadcasts, layouts, partials, message types, translations, reusable requests, and assets)",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        {
+          name: "Manage content resources",
           columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
         },
         {
-          name: "Create and manage email layouts",
+          name: "Send test notifications",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        {
+          name: "Manage tags and saved views",
           columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
         },
         {
-          name: "Create and manage assets",
+          name: "Manage preference categories",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        {
+          name: "Manage the hosted preference center",
+          columnsYes: ["Owner", "Admin"],
+        },
+        {
+          name: "Manage environment default preferences",
+          columnsYes: ["Owner", "Admin"],
+        },
+        {
+          name: "Commit and promote changes",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        {
+          name: "Manage branches",
           columnsYes: ["Owner", "Admin", "Member"],
         },
+      ],
+    },
+    {
+      name: "Data",
+      rows: [
         {
-          name: "Commit and push changes",
-          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+          name: "View users/objects/tenants",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
         },
         {
           name: "Manage users/objects/tenants",
           columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
         },
         {
-          name: "View users/objects/tenants",
-          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
-        },
-        {
           name: "Manage per-tenant branding",
           columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
         },
         {
-          name: "View environment logs (API, messages)",
+          name: "Manage audiences",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        {
+          name: "Import recipients from CSV",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        {
+          name: "Edit schema properties",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        {
+          name: "Manage schemas",
+          columnsYes: ["Owner", "Admin"],
+        },
+      ],
+    },
+    {
+      name: "Observability",
+      rows: [
+        {
+          name: "View messages",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        {
+          name: "Retry undelivered messages",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        {
+          name: "View analytics",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        {
+          name: "View API and workflow run logs",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        {
+          name: "View schedules",
           columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
         },
       ],
@@ -147,14 +233,45 @@ Archiving a custom permission group removes its grants from any members who had 
       name: "Developer",
       rows: [
         {
-          name: "View API keys",
+          name: "View API keys and signing keys",
           columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
         },
-        { name: "Create API keys", columnsYes: ["Owner", "Admin"] },
-        { name: "Revoke API keys", columnsYes: ["Owner", "Admin"] },
-        { name: "Manage variables", columnsYes: ["Owner", "Admin"] },
+        { name: "Create and revoke API keys", columnsYes: ["Owner", "Admin"] },
         { name: "Manage signing keys", columnsYes: ["Owner", "Admin"] },
+        { name: "Manage service tokens", columnsYes: ["Owner", "Admin"] },
+        {
+          name: "View variables",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        { name: "Manage variables", columnsYes: ["Owner", "Admin"] },
+        {
+          name: "View webhooks",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
         { name: "Manage webhooks", columnsYes: ["Owner", "Admin"] },
+        {
+          name: "View channels",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        { name: "Manage channels", columnsYes: ["Owner", "Admin"] },
+        {
+          name: "View sources",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        { name: "Manage sources", columnsYes: ["Owner", "Admin"] },
+        {
+          name: "View source action mappings",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member", "Support"],
+        },
+        {
+          name: "Manage source action mappings",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
+        { name: "Manage extensions", columnsYes: ["Owner", "Admin"] },
+        {
+          name: "Use the Knock agent and manage agent skills",
+          columnsYes: ["Owner", "Admin", "Member", "Prod Member"],
+        },
       ],
     },
   ]}
@@ -162,6 +279,6 @@ Archiving a custom permission group removes its grants from any members who had 
 
 <Callout
   type="info"
-  title="Production Member environment access."
-  text="The Production Member role can only access the production environment."
+  title="Production-only member environment access."
+  text="The Production-only member role can only access the production environment."
 />

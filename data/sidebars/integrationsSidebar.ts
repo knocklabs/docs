@@ -127,7 +127,8 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/in-app",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/knock", title: "Knock" },
+      { slug: "/feeds", title: "Feeds" },
+      { slug: "/guides", title: "Guides" },
     ],
   },
   {

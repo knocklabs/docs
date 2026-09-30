@@ -22,7 +22,7 @@ Any Object within Knock can be subscribed to by one or more recipients, and the 
 2. Subscribe one or more recipients to the object by creating a subscription between the recipient and the object
 3. Trigger a workflow for the object
 
-On step #3, Knock will handle the fan out of the workflow trigger **to all recipients that are subscribers**, automatically enqueuing a workflow run for the recipient on your behalf.
+On step #3, Knock will handle the fan-out of the workflow trigger **to the object itself and to all subscribed recipients**, automatically enqueuing a workflow run for each on your behalf.
 
 ## Integrating subscriptions
 
@@ -77,11 +77,11 @@ await knock.objects.deleteSubscriptions("project_alerts", "project-1", {
 });
 ```
 
-### Triggering a workflow for all subscribers of an object
+### Triggering a workflow for object subscribers
 
-By default when you trigger a workflow for an object that has subscriptions attached Knock will fan out to all subscribers and enqueue a new workflow run for that recipient, with the information passed into the workflow trigger.
+By default when you trigger a workflow for an object that has subscriptions attached Knock will enqueue a new workflow run for the object itself **and** fan out to all of its subscribers, enqueuing a workflow run for each of them.
 
-```javascript title="Triggering a workflow for all subscribers of an object"
+```javascript title="Triggering a workflow for an object and its subscribers"
 await knock.workflows.trigger("alert-workflow", {
   recipients: [{ collection: "project_alerts", id: "project-1" }],
   data: {
@@ -125,6 +125,8 @@ const { entries, page_info: pageInfo } = await knock.users.getSubscriptions(
 When triggering a workflow for a recipient from a subscription, the `properties` defined on the subscription are made available for use within the workflow run scope. You can access the properties under the `recipient.subscription` namespace.
 
 As an example, if you have a property `role` under your subscription properties, you can access it as `recipient.subscription.role` in the workflow run scope.
+
+Knock resolves these properties once, when it fans out the workflow trigger and enqueues the recipient workflow run. They stay fixed for the life of that run, even if the underlying subscription changes while the run is in flight. See [subscription properties on paused workflow runs](#faq-subscription-properties-on-paused-runs) for more detail.
 
 <Callout
   type="warning"
@@ -183,59 +185,134 @@ Once you've established a nested hierarchy like the above, it's also possible to
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="What's the maximum number of subscribers I can have against an object?">
+  <Accordion
+    title="What's the maximum number of subscribers I can have against an object?"
+    anchorSlug="faq-max-subscribers-per-object"
+  >
     There's no upper bound in the number of subscribers you can have against a
     recipient, although you can only **manage** 100 recipients on an object at a
     time using our API.
   </Accordion>
-  <Accordion title="Can I have nested relationships for my objects?">
+  <Accordion
+    title="Can I have nested relationships for my objects?"
+    anchorSlug="faq-nested-object-relationships"
+  >
     Yes! An object with subscribers _can also_ be subscribed to a parent object,
     allowing you to create nested hierarchies of objects (like a Team has many
     Projects, and each Project has many Members).
   </Accordion>
-  <Accordion title="Can I manage subscribers to an object in the dashboard?">
+  <Accordion
+    title="Can I manage subscribers to an object in the dashboard?"
+    anchorSlug="faq-manage-subscribers-in-dashboard"
+  >
     Right now, you can only **view** the subscribers of an object in the
     dashboard. You can do so under **Objects** > **Subscriptions**.
   </Accordion>
-  <Accordion title="Can I set custom properties on a Subscription?">
+  <Accordion
+    title="Can I set custom properties on a Subscription?"
+    anchorSlug="faq-subscription-custom-properties"
+  >
     Yes, you can pass a set of `properties`, which is a set of unstructured
     key-value pairs that you set any arbitrary data about.
   </Accordion>
-  <Accordion title="Can I filter the set of Subscriptions to be notified?">
+  <Accordion
+    title="Can I filter the set of Subscriptions to be notified?"
+    anchorSlug="faq-filter-subscriptions-to-notify"
+  >
     Right now the answer is no, but we're interested in hearing about your use
     case here as we're considering adding this functionality in the future.
   </Accordion>
-  <Accordion title="Can I still debug workflow runs for the subscribers of an object?">
+  <Accordion
+    title="Can I still debug workflow runs for the subscribers of an object?"
+    anchorSlug="faq-debug-subscriber-workflow-runs"
+  >
     Yes, you can. Once you trigger a workflow for an object that has subscribers
     attached, you will see a workflow run for each of the subscribers under the
     "Workflow runs" page.
   </Accordion>
-  <Accordion title="Can I notify both the object AND the subscribers of the object?">
-    Yes, by default when you trigger a workflow for an object that has
-    subscriptions attached Knock will generate a workflow run for the object
-    itself AND all of the attached subscribers.
+  <Accordion
+    title="Can I notify both the object AND the subscribers of the object?"
+    anchorSlug="faq-notify-object-and-subscribers"
+  >
+    Yes. When you trigger a workflow for an object that has subscriptions
+    attached Knock will generate a workflow run for the object itself and for
+    all of the attached subscribers. See [object
+    subscribers](/concepts/objects#object-subscribers) for more details.
   </Accordion>
-  <Accordion title="Can I notify a recipient each time they appear within an object subscription tree?">
+  <Accordion
+    title="Can I skip the workflow run generated for the object itself?"
+    anchorSlug="faq-skip-object-workflow-run"
+  >
+    Yes. Add a [step condition](/designing-workflows/step-conditions) to
+    conditionally execute steps based on recipient type, or contact
+    [support](mailto:support@knock.app) to discuss disabling object runs across
+    your account.
+  </Accordion>
+  <Accordion
+    title="Can I notify a recipient each time they appear within an object subscription tree?"
+    anchorSlug="faq-duplicate-notifications-subscription-tree"
+  >
     No, currently Knock [deduplicates all recipients](#deduplication-by-default)
     when fanning out to object subscribers. If this is blocking one of your use
     cases or your adoption of Knock, please contact our [support
     team](mailto:support@knock.app).
   </Accordion>
-  <Accordion title="Is the object that recipients are subscribed to exposed in the workflow run scope?">
+  <Accordion
+    title="Is the object that recipients are subscribed to exposed in the workflow run scope?"
+    anchorSlug="faq-object-in-workflow-run-scope"
+  >
     Yes. You can access the object that the recipient is subscribed to using the
     `recipient.subscription.object` property.
   </Accordion>
-  <Accordion title="Will the actor included in the workflow trigger receive a notification if they are a subscriber?">
+  <Accordion
+    title="Are subscription properties refreshed when a paused workflow run resumes?"
+    anchorSlug="faq-subscription-properties-on-paused-runs"
+  >
+    No. Knock resolves the properties on a subscription at the point of fan-out, when it enqueues the recipient workflow run, and holds those values for the life of the run. If a workflow pauses on a [delay](/designing-workflows/delay-function), [batch](/designing-workflows/batch-function), or [wait for event](/designing-workflows/wait-for-event-function) step, an update you make to the subscription during the pause will not appear under `recipient.subscription` when the run resumes. This is expected behavior.
+
+    The parent object under `recipient.subscription.object` is an exception. Knock re-reads it from your environment each time a step executes, so updates to that object's properties during a pause are reflected.
+
+    If you need the current state of a subscription at send time, use the [`subscriptions` Liquid filter](/template-editor/referencing-data#referencing-subscriptions-via-the-subscriptions-filter), which queries your environment when the template renders. Iterate over the results and match on `recipient.subscription.object` to find the subscription for the object that the run fanned out from.
+
+    ```liquid title="Reading current subscription properties for the object that fanned out the run"
+    {% assign subs = recipient.id | subscriptions %}
+    {% for sub in subs %}
+      {% if sub.object.id == recipient.subscription.object.id and sub.object.collection == recipient.subscription.object.collection %}
+        {% assign current_subscription = sub %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    {% if current_subscription %}
+      Your role on this project is {{ current_subscription.properties.role }}.
+    {% else %}
+      Your role on this project is {{ recipient.subscription.role }}.
+    {% endif %}
+    ```
+
+    Note that the filter returns the 25 oldest subscriptions for the recipient, so a recipient with more than 25 subscriptions may not have a match in the returned set. The example above falls back to `recipient.subscription` for that case.
+
+  </Accordion>
+  <Accordion
+    title="Will the actor included in the workflow trigger receive a notification if they are a subscriber?"
+    anchorSlug="faq-actor-as-subscriber-notification"
+  >
     No, currently the `actor` is **always** excluded from being a recipient in a
     workflow trigger if they are a subscriber to an Object recipient.
   </Accordion>
-  <Accordion title="Can I create a schedule to notify subscribers of an object?">
+  <Accordion
+    title="Can I create a schedule to notify subscribers of an object?"
+    anchorSlug="faq-schedule-for-object-subscribers"
+  >
     No, currently we do not support [creating schedules](/concepts/schedules) to
     notify subscribers of an object. Each individual subscriber will need to be
     added as a recipient when creating the workflow schedule; a schedule for an
     object recipient will only generate a workflow run for that object.
   </Accordion>
-  <Accordion title="Can I cancel a workflow run for a specific recipient if they were notified via an object subscription?">
+  <Accordion
+    title="Can I cancel a workflow run for a specific recipient if they were notified via an object subscription?"
+    anchorSlug="faq-cancel-run-for-subscribed-recipient"
+  >
     Yes, you can. [Workflow
     cancellation](/send-notifications/canceling-workflows) requests can be
     scoped to one or more specific recipients. You can target any recipient who

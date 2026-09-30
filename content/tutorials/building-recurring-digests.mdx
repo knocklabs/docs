@@ -147,12 +147,13 @@ Once we're satisfied with the email notification, we can move on to running the 
 
 Finally, we'll want to create a recurring schedule for our users. To do so we'll use the [Schedules API](/concepts/schedules) which lets us trigger a workflow for one or more recipients on a defined schedule.
 
-Each schedule is defined per recipient, but the `createSchedules` method lets us create a schedule for up to 100 recipients at a time. The schedule defines which workflow to trigger, as well as the rules for when to repeat the schedule.
+Each schedule is defined per recipient, but the `schedules.create` method lets us create a schedule for up to 100 recipients at a time. The schedule defines which workflow to trigger, as well as the rules for when to repeat the schedule.
 
 In our case, we'll create a weekly notification that goes out every Monday at 9am, for `chris` and `sam`.
 
 ```javascript title="Creating schedules for our recipients"
-await knock.workflows.createSchedules("recurring-digest", {
+await client.schedules.create({
+  workflow: "recurring-digest",
   recipients: ["chris", "sam"],
   repeats: [
     {

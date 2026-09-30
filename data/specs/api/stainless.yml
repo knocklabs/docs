@@ -7,6 +7,69 @@ organization:
   security_contact: security@knock.app
   github_org: knocklabs
   upload_spec: true
+diagnostics:
+  ignored:
+    # NOTE: array_format: brackets already serializes every array query param as
+    # `name[]=v`, so the spec's inconsistent `objects[]` / `include` naming
+    # has no effect on the generated wire format.
+    Parameter/MissingBrackets: true
+targets:
+  typescript:
+    package_name: "@knocklabs/node"
+    production_repo: knocklabs/knock-node
+    publish:
+      npm:
+        auth_method: oidc
+      release:
+        branch: main
+        prerelease: false
+    staging_repo: knocklabs/knock-node-staging
+  go:
+    package_name: knock
+    production_repo: knocklabs/knock-go
+    publish:
+      release:
+        branch: main
+        prerelease: false
+    staging_repo: knocklabs/knock-go-staging
+  python:
+    package_name: knockapi
+    production_repo: knocklabs/knock-python
+    publish:
+      pypi: true
+      release:
+        branch: main
+        prerelease: false
+    project_name: knockapi
+    staging_repo: knocklabs/knock-python-staging
+  ruby:
+    gem_name: knockapi
+    production_repo: knocklabs/knock-ruby
+    publish:
+      rubygems: false
+      release:
+        branch: main
+        prerelease: true
+    staging_repo: knocklabs/knock-ruby-staging
+  # Undocumented target that emits a processed OpenAPI spec rather than an SDK.
+  # `files` maps output filename, `transforms` applies the `openapi.transforms`
+  # below, `code-samples` injects the `openapi.code_samples` snippets. Setting
+  # `files` replaces the default outputs.
+  #
+  # `skip: true` keeps this target out of default/auto builds. This target has no
+  # `production_repo` on purpose — we don't want stlc/Stainless to push it
+  # anywhere; the `publish-documented-spec` workflow builds it explicitly and
+  # pushes the spec to knocklabs/docs itself. Without `skip`, the Stainless cloud
+  # auto-build tries to push this repo-less target and reports "push failed".
+  #
+  # `skip` only affects default (`all`) builds — an explicit target still builds:
+  #   stlc build -t openapi   (won't touch the SDK targets' repos/custom code)
+  openapi:
+    skip: true
+    options:
+      files:
+        openapi.documented.json:
+          with: [ transforms, code-samples ]
 resources:
   $shared:
     models:
@@ -47,6 +110,9 @@ resources:
       user: '#/components/schemas/User'
       identify_user_request: '#/components/schemas/IdentifyUserRequest'
       inline_identify_user_request: '#/components/schemas/InlineIdentifyUserRequest'
+      preference_set_commercial_subscribed_setting: "#/components/schemas/PreferenceSetCommercialSubscribedSetting"
+      list_schedules_response: "#/components/schemas/ListSchedulesResponse"
+      list_subscriptions_response: "#/components/schemas/ListSubscriptionsResponse"
     methods:
       get: get /v1/users/{user_id}
       list:
@@ -98,19 +164,6 @@ resources:
             type: http
             endpoint: get /v1/users/{user_id}/feeds/{id}/settings
             positional_params: [ user_id, id ]
-      preference_center:
-        models:
-          preference_center_config_with_metadata: '#/components/schemas/PreferenceCenterConfigWithMetadata'
-          preference_center_signed_url_response: '#/components/schemas/PreferenceCenterSignedUrlResponse'
-        methods:
-          get_config:
-            type: http
-            endpoint: get /v1/users/{user_id}/preference_center/config
-            positional_params: [ user_id ]
-          generate_signed_url:
-            type: http
-            endpoint: post /v1/users/{user_id}/preference_center/signed_url
-            positional_params: [ user_id ]
       guides:
         methods:
           get_channel:
@@ -133,10 +186,7 @@ resources:
             type: http
             endpoint: delete /v1/users/{user_id}/guides/messages/archived
             positional_params: [ user_id ]
-          reset_guide_engagements:
-            type: http
-            endpoint: put /v1/users/{user_id}/guides/engagements/reset
-            positional_params: [ user_id ]
+          reset_guide_engagements: put /v1/users/{user_id}/guides/engagements/reset
         models:
           guide_archived_request: "#/components/schemas/GuideArchivedRequest"
           guide_action_response: "#/components/schemas/GuideActionResponse"
@@ -147,6 +197,12 @@ resources:
           identify: post /v1/users/bulk/identify
           set_preferences: post /v1/users/bulk/preferences
           delete: post /v1/users/bulk/delete
+      preference_center:
+        methods:
+          get_config: get /v1/users/{user_id}/preference_center/config
+          generate_signed_url: post /v1/users/{user_id}/preference_center/signed_url
+        models:
+          preference_center_branding_config: "#/components/schemas/PreferenceCenterBrandingConfig"
   objects:
     models:
       object: '#/components/schemas/Object'
@@ -233,7 +289,11 @@ resources:
     subresources:
       bulk:
         methods:
-          delete: post /v1/tenants/bulk/delete
+          delete:
+            endpoint: post /v1/tenants/bulk/delete
+            skip_test_reason:
+              go: "Steady does not support bracket-style array query params"
+              python: "Steady does not support bracket-style array query params"
           set: post /v1/tenants/bulk/set
   bulk_operations:
     models:
@@ -246,6 +306,10 @@ resources:
       activity: '#/components/schemas/Activity'
       message_delivery_log: '#/components/schemas/MessageDeliveryLog'
       message_event: '#/components/schemas/MessageEvent'
+      list_messages_response: "#/components/schemas/ListMessagesResponse"
+      message_contents: "#/components/schemas/MessageContents"
+      message_in_app_feed_button_set_block: "#/components/schemas/MessageInAppFeedButtonSetBlock"
+      message_in_app_feed_content_block: "#/components/schemas/MessageInAppFeedContentBlock"
     methods:
       get: get /v1/messages/{message_id}
       get_content: get /v1/messages/{message_id}/content
@@ -267,7 +331,11 @@ resources:
     subresources:
       batch:
         methods:
-          get_content: get /v1/messages/batch/content
+          get_content:
+            endpoint: get /v1/messages/batch/content
+            skip_test_reason:
+              go: "Steady does not support bracket-style array query params"
+              python: "Steady does not support bracket-style array query params"
           mark_as_seen: post /v1/messages/batch/seen
           mark_as_unseen: post /v1/messages/batch/unseen
           mark_as_read: post /v1/messages/batch/read
@@ -275,6 +343,8 @@ resources:
           mark_as_interacted: post /v1/messages/batch/interacted
           archive: post /v1/messages/batch/archived
           unarchive: post /v1/messages/batch/unarchived
+        models:
+          batch_messages_status_request: "#/components/schemas/BatchMessagesStatusRequest"
   providers:
     subresources:
       slack:
@@ -342,51 +412,12 @@ resources:
   audiences:
     models:
       audience_member: '#/components/schemas/AudienceMember'
+      audience_member_request: "#/components/schemas/AudienceMemberRequest"
     methods:
       add_members: post /v1/audiences/{key}/members
       list_members: get /v1/audiences/{key}/members
       remove_members: delete /v1/audiences/{key}/members
 
-targets:
-  typescript:
-    package_name: "@knocklabs/node"
-    production_repo: knocklabs/knock-node
-    publish:
-      npm:
-        auth_method: oidc
-    skip: false
-  go:
-    package_name: knock
-    production_repo: knocklabs/knock-go
-    skip: false
-  python:
-    package_name: knockapi
-    production_repo: knocklabs/knock-python
-    publish:
-      pypi: true
-    skip: false
-    project_name: knockapi
-  java:
-    reverse_domain: app.knock.api
-    production_repo: knocklabs/knock-java
-    skip: true
-    publish:
-      maven:
-        sonatype_platform: portal
-  ruby:
-    gem_name: knockapi
-    production_repo: knocklabs/knock-ruby
-    publish:
-      rubygems: false
-  php:
-    skip: true
-    package_name: knock
-    composer_package_name: 'knocklabs/knock'
-  csharp:
-    skip: true
-    package_name: knock
-    publish:
-      nuget: false
 settings:
   license: Apache-2.0
 client_settings:
@@ -522,14 +553,23 @@ readme:
       endpoint: get /v1/users
       params: {}
 unspecified_endpoints:
-  - post /v1/notify/cancel
-  - put /v1/users/{user_id}/preferences/{id}/workflows/{key}
-  - put /v1/users/{user_id}/preferences/{id}/channel_types
+  - delete /v1/messages/{message_id}/unarchived
+  - delete /v1/messages/{message_id}/unread
+  - delete /v1/messages/{message_id}/unseen
   - post /v1/notify
-  - put /v1/objects/{collection}/{object_id}/preferences/{id}/channel_types
-  - put /v1/users/{user_id}/preferences/{id}/channel_types/{type}
-  - put /v1/users/{user_id}/preferences/{id}/categories
+  - post /v1/notify/cancel
   - put /v1/objects/{collection}/{object_id}/preferences/{id}/categories
-  - put /v1/users/{user_id}/preferences/{id}/workflows
-  - put /v1/objects/{collection}/{object_id}/preferences/{id}/workflows/{key}
   - put /v1/objects/{collection}/{object_id}/preferences/{id}/categories/{key}
+  - put /v1/objects/{collection}/{object_id}/preferences/{id}/channel_types
+  - put /v1/objects/{collection}/{object_id}/preferences/{id}/channel_types/{type}
+  - put /v1/objects/{collection}/{object_id}/preferences/{id}/workflows
+  - put /v1/objects/{collection}/{object_id}/preferences/{id}/workflows/{key}
+  - put /v1/users/{user_id}/guides/messages/{message_id}/archived
+  - put /v1/users/{user_id}/guides/messages/{message_id}/interacted
+  - put /v1/users/{user_id}/guides/messages/{message_id}/seen
+  - put /v1/users/{user_id}/preferences/{id}/categories
+  - put /v1/users/{user_id}/preferences/{id}/categories/{key}
+  - put /v1/users/{user_id}/preferences/{id}/channel_types
+  - put /v1/users/{user_id}/preferences/{id}/channel_types/{type}
+  - put /v1/users/{user_id}/preferences/{id}/workflows
+  - put /v1/users/{user_id}/preferences/{id}/workflows/{key}

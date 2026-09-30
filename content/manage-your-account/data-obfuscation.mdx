@@ -5,7 +5,7 @@ tags: ["privacy", "data controls", "security", "privacy controls"]
 section: Manage your account
 ---
 
-Enable customer data obfuscation on a per-environment basis to determine what data your team members can see in the Knock dashboard.
+Enable customer data obfuscation at the environment level, or through custom permission groups on Enterprise plans, to determine what data your team members can see in the Knock dashboard.
 
 ## Overview
 
@@ -13,7 +13,10 @@ When you choose Knock to power your notifications, you're also choosing to trust
 
 With customer data obfuscation controls, the Knock dashboard automatically hides any data that might contain either user PII or customer proprietary data. This means that the only data your team members will see in the Knock dashboard is anonymous data such as UUIDs. Customer data obfuscation is managed via our backend, so users won't be able to get at this data through their browser consoles.
 
-Customer data obfuscation is enabled on a [per-environment](/concepts/environments) basis. This means you can obfuscate your customer data in your production environment, while still retaining access to your internal data in development environments for easy testing and debugging.
+You can enable customer data obfuscation in two ways:
+
+- **Environment-level.** Hide customer data for every team member in a given [environment](/concepts/environments). Use this to obfuscate production data while keeping development data visible for testing and debugging.
+- **Permission group.** On Enterprise plans, hide customer data for members of a [custom permission group](/manage-your-account/roles-and-permissions#custom-permission-groups), either in every environment or in specific environments.
 
 <Image
   src="/images/manage-your-account/data-obfuscation-example.png"
@@ -23,4 +26,41 @@ Customer data obfuscation is enabled on a [per-environment](/concepts/environmen
   className="rounded-md mx-auto border border-gray-200"
 />
 
-To enable customer data obfuscation, go to the **Environments** page under the **Version control** section of your account settings in the Knock dashboard. Select the "..." for the environment you'd like to configure and click "Edit environment."
+## Environment-level obfuscation
+
+Environment-level obfuscation applies to every member in that environment, including members with built-in roles. Built-in roles have no per-role obfuscation setting.
+
+To enable customer data obfuscation for an environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your account settings in the Knock dashboard. Select the "..." for the environment you'd like to configure and click "Edit environment."
+
+## Per-member role obfuscation
+
+<Callout
+  type="enterprise"
+  style={{ alignItems: "center" }}
+  title="Enterprise plan feature."
+  text={
+    <>
+      Permission group data obfuscation is only available on our{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan.
+      </a>
+    </>
+  }
+/>
+
+Custom permission groups can enable customer data obfuscation under environment access. When enabled, all message, user, and object data will be obfuscated in the Knock dashboard for members of that group.
+
+Create and manage permission groups under <a href="https://dashboard.knock.app/~/settings/permissions" target="_blank">**Settings** > **Permissions**</a>. You set the obfuscation rule in the same editor you use for environment capabilities:
+
+1. **Same access in every environment.** Enable obfuscation once to apply it across development, production, and any additional environments.
+2. **Per-environment access.** Use granular mode to enable obfuscation in specific environments. For example, hide customer data in production for a support group, and leave it visible in development.
+
+A group's obfuscation rule for a parent environment also applies to that environment's branches.
+
+If a member belongs to more than one custom permission group, Knock hides customer data when any assigned group enables obfuscation for that environment. Learn more in our [roles and permissions documentation](/manage-your-account/roles-and-permissions#customer-data-obfuscation).
+
+## Precedence
+
+If customer data obfuscation is enabled at the environment level, that setting applies to every member in the environment. A permission group cannot turn environment-level obfuscation off or reveal data the environment already hides.
+
+A permission group can only add obfuscation. When the environment setting is off, the group's rule determines whether members of that group see customer data in that environment.

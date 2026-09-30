@@ -14,7 +14,8 @@ You use tenants in Knock to:
 - Apply [per-tenant branding](/multi-tenancy/per-tenant-branding) in emails.
 - Define [per-tenant preference defaults](/multi-tenancy/per-tenant-preferences#create-a-per-tenant-default-preferenceset) that apply to all users within that tenant and [per-user, per-tenant preferences](/multi-tenancy/per-tenant-preferences#set-a-per-tenant-user-preferenceset).
 - Apply [per-tenant translations](/multi-tenancy/per-tenant-translations).
-- Hold shared channel credentials as [channel data](/managing-recipients/setting-channel-data), so one integration connection can serve recipients and objects in the tenant.
+- Hold shared chat credentials and select [tenant-scoped chat connections](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant), so the same recipient can route to a different destination for each tenant.
+- Include tenant IDs as an opt-in tag on [Datadog](/integrations/extensions/datadog) and [New Relic](/integrations/extensions/new-relic) metrics.
 
 ## How tenants work
 
@@ -97,8 +98,17 @@ Once a workflow run has been triggered with a `tenant`, the Knock workflow engin
 - Apply any branding overrides to templates rendered.
 - Apply any preference defaults to the recipient's preference set.
 - Fetch any recipient-specific tenant preference sets.
+- Select chat connections tagged with the tenant ID, with untagged connections as a fallback.
 
 Tagging messages by tenant makes it possible to query for tenant-specific messages in both the API and the dashboard, and to scope in-app feeds to a specific tenant.
+
+## Tenant-scoped chat connections
+
+A user or object can store several Slack, Microsoft Teams, or Discord connections and route each tenant's workflow runs to a different destination. Add `knock_tenant_id` to each connection and set it to the corresponding Knock tenant ID. Then pass that tenant ID when you trigger the workflow.
+
+For example, a project object shared by Acme and Globex can store one Slack channel for each company. A workflow triggered with `tenant: "acme"` sends only to connections tagged with `knock_tenant_id: "acme"`. If no connection matches, Knock falls back to untagged connections and never sends to a connection tagged for another tenant.
+
+See [scoping chat connections by tenant](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant) for setup examples, complete selection behavior, and how tenant-stored Slack and Microsoft Teams credentials work with scoped connections.
 
 ## Tenant data in templates
 
@@ -134,36 +144,36 @@ You can manage different sets of preferences for each user-tenant pair. A user m
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Where do I find tenants in the dashboard?">
+  <Accordion title="Where do I find tenants in the dashboard?" anchorSlug="faq-find-tenants-in-dashboard">
     You can find tenant information on the **Tenants** page under the **Recipients** section in the main sidebar. From there you can view custom properties, message logs, workflow run history, branding settings, and default preferences for any tenant.
   </Accordion>
-  <Accordion title="What's the limit on the number of tenants I can sync into Knock?">
+  <Accordion title="What's the limit on the number of tenants I can sync into Knock?" anchorSlug="faq-tenant-sync-limit">
     There are no limits associated with tenants.
   </Accordion>
-  <Accordion title="Can I use tenants on a non-enterprise plan?">
+  <Accordion title="Can I use tenants on a non-enterprise plan?" anchorSlug="faq-tenants-on-non-enterprise-plan">
     Yes, you can still use our APIs to work with tenant data, and trigger workflow runs for specific tenants. However, per-tenant preferences and custom branding are features gated for enterprise plans only.
   </Accordion>
-  <Accordion title="How does Knock map my user access permissions onto a tenant?">
+  <Accordion title="How does Knock map my user access permissions onto a tenant?" anchorSlug="faq-mapping-user-access-permissions-to-tenant">
     Knock does not know anything about the mapping between your users and your tenant entities, meaning you do not need to map user permissions.
   </Accordion>
-  <Accordion title="Can I use a tenant as a recipient in a workflow trigger?">
+  <Accordion title="Can I use a tenant as a recipient in a workflow trigger?" anchorSlug="faq-tenant-as-workflow-recipient">
     Absolutely, you can use a tenant as a `recipient` or `actor` in a workflow trigger by referencing it as an object with the structure `{ collection: "$tenants", id: "tenant-id" }`.
   </Accordion>
-  <Accordion title="Can I subscribe recipients to a tenant?">
+  <Accordion title="Can I subscribe recipients to a tenant?" anchorSlug="faq-subscribe-recipients-to-tenant">
     Yes, you can subscribe recipients to a tenant by setting the collection of the object to subscribe to as `$tenants` and using the `id` of the tenant as the object id.
   </Accordion>
-  <Accordion title="Can I create per-tenant templates?">
+  <Accordion title="Can I create per-tenant templates?" anchorSlug="faq-per-tenant-templates">
     Per-tenant template overrides at the workflow step level are not yet supported. As an alternative, [per-tenant translations](/multi-tenancy/per-tenant-translations) enables you to customize template content on a per-tenant basis, even if you're not working with multiple locales. 
     
     If this is blocking your adoption of Knock, [please get in touch](mailto:support@knock.app?subject=Per-tenant%20templates).
   </Accordion>
-  <Accordion title="Can I create per-tenant workflows?">
+  <Accordion title="Can I create per-tenant workflows?" anchorSlug="faq-per-tenant-workflows">
     While it's technically possible to create per-tenant workflows in Knock, we recommend not doing this where possible and opting to use our step conditions, preferences, and per-tenant templates to provide the customizations you need. The reason is creating and managing per-tenant workflows increases the surface area of the number of notifications you need to support, and more commonly what we've found from working with customers is there are more similarities between per-customer workflows than differences, which can usually be encapsulated in our workflow model.
 
     If you find that you have different needs here, we'd love to speak with you. Please [get in touch](mailto:support@knock.app) and we can arrange a consultation with a notification support specialist on the Knock team to walk through your use case.
 
   </Accordion>
-  <Accordion title="Can I nest tenants?">
+  <Accordion title="Can I nest tenants?" anchorSlug="faq-nested-tenants">
     No, today it's only possible to have a single-level of hierarchy for your tenants. If you need to apply deeper hierarchy to your tenant objects, please [get in touch](mailto:support@knock.app) and we can discuss your use case further.
   </Accordion>
 </AccordionGroup>

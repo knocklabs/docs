@@ -9,6 +9,9 @@ const withRemoteRefresh = require("next-remote-refresh")({
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/api/md/*": ["./public/**/*.md"],
+  },
 
   transpilePackages: ["next-mdx-remote", "streamdown"],
 
@@ -48,6 +51,48 @@ const nextConfig = {
       `;
 
     return [
+      // Markdown files served directly should have proper Content-Type
+      // and Vary header for cache-safe content negotiation
+      {
+        source: "/:path*.md",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/markdown; charset=utf-8",
+          },
+          {
+            key: "Vary",
+            value: "Accept, Accept-Encoding",
+          },
+        ],
+      },
+      // llms.txt and llms-full.txt need proper headers
+      {
+        source: "/llms.txt",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/plain; charset=utf-8",
+          },
+          {
+            key: "Vary",
+            value: "Accept, Accept-Encoding",
+          },
+        ],
+      },
+      {
+        source: "/llms-full.txt",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/plain; charset=utf-8",
+          },
+          {
+            key: "Vary",
+            value: "Accept, Accept-Encoding",
+          },
+        ],
+      },
       {
         source: "/",
         headers: [
@@ -76,6 +121,16 @@ const nextConfig = {
       {
         source: "/.well-known/api-catalog",
         destination: "https://knock.app/.well-known/api-catalog",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/trigger-guide-step",
+        destination: "/designing-workflows/in-app-guide-step",
+        permanent: true,
+      },
+      {
+        source: "/manage-your-account/managing-usage",
+        destination: "/manage-your-account/knock-plans",
         permanent: true,
       },
       {
@@ -125,7 +180,7 @@ const nextConfig = {
       },
       {
         source: "/integrations/in-app-feed",
-        destination: "/integrations/in-app/knock",
+        destination: "/integrations/in-app/feeds",
         permanent: true,
       },
       {
@@ -134,8 +189,13 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/integrations/in-app/knock",
+        destination: "/integrations/in-app/feeds",
+        permanent: true,
+      },
+      {
         source: "/integrations/in-app-feed/overview",
-        destination: "/integrations/in-app/knock",
+        destination: "/integrations/in-app/feeds",
         permanent: true,
       },
       {
@@ -769,6 +829,52 @@ const nextConfig = {
         source: "/cli/branch/overview",
         destination: "/cli/branch",
         permanent: true,
+      },
+      {
+        source: "/integrations/sources/http",
+        destination: "/integrations/sources/custom",
+        permanent: true,
+      },
+    ];
+  },
+
+  async rewrites() {
+    return [
+      // OpenAPI specs at conventional paths
+      // API spec (primary Knock API)
+      {
+        source: "/openapi.json",
+        destination: "/api/openapi?spec=api&format=json",
+      },
+      {
+        source: "/openapi.yaml",
+        destination: "/api/openapi?spec=api&format=yaml",
+      },
+      // Management API spec
+      {
+        source: "/mapi/openapi.json",
+        destination: "/api/openapi?spec=mapi&format=json",
+      },
+      {
+        source: "/mapi/openapi.yaml",
+        destination: "/api/openapi?spec=mapi&format=yaml",
+      },
+      // Also support /api-reference/openapi paths for discoverability
+      {
+        source: "/api-reference/openapi.json",
+        destination: "/api/openapi?spec=api&format=json",
+      },
+      {
+        source: "/api-reference/openapi.yaml",
+        destination: "/api/openapi?spec=api&format=yaml",
+      },
+      {
+        source: "/mapi-reference/openapi.json",
+        destination: "/api/openapi?spec=mapi&format=json",
+      },
+      {
+        source: "/mapi-reference/openapi.yaml",
+        destination: "/api/openapi?spec=mapi&format=yaml",
       },
     ];
   },

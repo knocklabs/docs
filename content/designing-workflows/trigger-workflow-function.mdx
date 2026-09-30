@@ -52,13 +52,23 @@ If the selected workflow is later set to inactive or is archived, the trigger wo
 
 The trigger workflow function uses strings or [Liquid](/template-editor/reference-liquid-helpers) variables to define the trigger data for the nested workflow. You can reference any variables and data available in the parent workflow run.
 
-| Field              | Type   | Default Value                     | Description                                            |
-| ------------------ | ------ | --------------------------------- | ------------------------------------------------------ |
-| `recipients`       | string | `{{ recipient.id }}`              | The recipient(s) who will receive the nested workflow. |
-| `actor`            | string | `{{ actor.id }}`                  | The user or system initiating the nested workflow.     |
-| `tenant`           | string | `{{ tenant.id }}`                 | The tenant context for the nested workflow.            |
-| `data`             | string | `{{ data \| json }}`              | Data payload passed to the nested workflow.            |
-| `cancellation_key` | string | `{{ workflow.cancellation_key }}` | Unique identifier used to cancel nested workflow runs. |
+| Field              | Type   | Default Value                        | Description                                            |
+| ------------------ | ------ | ------------------------------------ | ------------------------------------------------------ |
+| `recipients`       | string | `{{ recipient.id }}`                 | The recipient(s) who will receive the nested workflow. |
+| `actor`            | string | `{{ actor.id }}`                     | The user or system initiating the nested workflow.     |
+| `tenant`           | string | `{{ tenant.id }}`                    | The tenant context for the nested workflow.            |
+| `data`             | string | `{{ data \| json }}`                 | Data payload passed to the nested workflow.            |
+| `cancellation_key` | string | None; dashboard prefills inheritance | Unique identifier used to cancel nested workflow runs. |
+
+### Inheriting the parent cancellation key
+
+New trigger workflow steps added in the dashboard prefill the cancellation key with `{{ workflow.cancellation_key }}`. This expression passes the current parent run's cancellation key to the nested workflow. If the parent run has no cancellation key, the nested workflow receives no key.
+
+You can replace the expression with a custom string or another Liquid expression. Clearing the field sends no cancellation key; a blank field does not inherit the parent's key. Existing steps with blank cancellation keys remain unchanged. To enable inheritance for an existing step, set its cancellation key to `{{ workflow.cancellation_key }}` and commit the workflow.
+
+When creating steps through the Management API or CLI, set `settings.cancellation_key` to `{{ workflow.cancellation_key }}` to enable inheritance. Omitting the field from the new step's settings sends no key.
+
+When the trigger workflow step follows a [batch step](/designing-workflows/batch-function), `{{ workflow.cancellation_key }}` is the cancellation key of the run that opened the batch.
 
 ### Handling Errors
 
@@ -74,4 +84,4 @@ When using trigger workflow functions, both parent and nested workflows can be c
 
 If the parent workflow is canceled before the trigger workflow step executes, the nested workflow will not be triggered, so no separate cancellation is needed.
 
-If you need to cancel a nested workflow that has already been triggered, you can do so by making a separate cancellation request using the cancellation key configured in the trigger workflow step. Canceling the parent workflow after the trigger workflow step has executed will not automatically cancel the nested workflow - you'll need to cancel each workflow separately.
+Sharing a cancellation key does not cause cancellation to cascade. To cancel a nested workflow that has already started, make a separate cancellation request using the **nested workflow's key** and its cancellation key. Canceling the parent workflow after the trigger workflow step executes does not cancel the nested workflow.
