@@ -96,6 +96,7 @@ function Wrapper({
       style={
         {
           width: "100%",
+          minHeight: "100vh",
           paddingRight: isOpen ? `${sidebarWidth}px` : "0",
           transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
           "--ask-ai-sidebar-width": isOpen ? `${sidebarWidth}px` : "0px",
