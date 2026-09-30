@@ -19,6 +19,7 @@ import {
 } from "../components/ui/ApiSections";
 import RateLimit from "../components/ui/RateLimit";
 import { Code, Text } from "@telegraph/typography";
+import { Button } from "@telegraph/button";
 import {
   TableElement,
   ThElement,
@@ -125,6 +126,7 @@ export const MDX_COMPONENTS = {
   OverviewSectionHeader: OverviewSection.Header,
   OverviewSectionContent: OverviewSection.Content,
   Text,
+  Button,
   Box: Box,
   Stack: Stack,
   Tag,
