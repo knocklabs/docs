@@ -48,6 +48,7 @@ type AgentsPageProps = {
 };
 
 const CURSOR_PLUGIN_URL = "https://cursor.com/marketplace/knock";
+const GROK_BOT_PLUGIN_URL = "https://x.ai/bot/plugin/60302089";
 
 const AGENT_PLUGINS = [
   {
@@ -67,7 +68,7 @@ const AGENT_PLUGINS = [
   },
   {
     title: "Grok Bot",
-    href: CURSOR_PLUGIN_URL,
+    href: GROK_BOT_PLUGIN_URL,
     icon: GrokBrandmark,
   },
 ] as const;
