@@ -33,7 +33,7 @@ In a multi-tenant SaaS application, users often belong to one or more tenants, a
 
 For example, consider a user named `jane` in a document editing app. Jane's profile is connected to two workspaces: `acme-inc` and `superior-products`. When Jane is active in the `acme-inc` workspace, she should only see notifications relevant to that workspace.
 
-Knock implements this concept through [Tenancy](/concepts/tenants), where workflow triggers can be "tagged" with a tenant identifier. This identifier can be used to apply tenant overrides and scope in-app notifications. Here's how it works:
+Knock implements this concept through [Tenancy](/multi-tenancy/overview), where workflow triggers can be "tagged" with a tenant identifier. This identifier can be used to apply tenant overrides and scope in-app notifications. Here's how it works:
 
 ```js title="Triggering our workflow with a tenant"
 await knock.workflows.trigger("new-comment", {
@@ -120,10 +120,12 @@ useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID, {
 });
 ```
 
-Important limitations to be aware of when filtering by data:
+Keep in mind the following limitations when filtering by data:
 
-1. You can only filter by top-level keys in your data payload (e.g., `data.foo` is supported, but `data.foo.bar` is not)
-2. Only exact value matching is supported (partial matches and comparison operators are not available)
+- Filters use AND logic. A notification must match every key-value pair you provide, so you cannot match one key or another (e.g., `projectId` or `ownerId`) in a single request.
+- Each key accepts a single value. If you pass an array of values (e.g., `{ status: ["open", "pending"] }`), Knock returns an error.
+- You can only filter by top-level keys in your data payload (e.g., `data.foo` is supported, but `data.foo.bar` is not).
+- Only exact value matching is supported, including type. Partial matches and comparison operators are not available.
 
 ## Learn more about feed filtering
 
