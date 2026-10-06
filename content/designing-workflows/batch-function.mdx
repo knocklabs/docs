@@ -84,6 +84,8 @@ Here's a detailed walkthrough of how this example might work in practice:
 
 The batch window determines the length of time that the batch will be open, with the window opening from the **first** time the batch is triggered.
 
+A batch can stay open for at most 90 days. When Knock resolves a batch window more than 90 days from batch open, Knock logs an error and halts the workflow run without opening a batch. For [batches with sliding windows](#using-a-sliding-batch-window), Knock does not allow extending the window beyond 90 days from when the batch was first opened.
+
 ### Set a fixed batch window
 
 You can set a fixed duration batch window using the "Fixed" window option in the batch step. The window accepts a duration which can be specified in seconds, minutes, hours, or days.
@@ -96,13 +98,13 @@ You can also set the length of your batch windows dynamically using a variable. 
 
 When specifying a dynamic batch window you must provide one of the following:
 
-- An <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener noreferrer">ISO-8601 timestamp</a> (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
+- An <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank" rel="noopener">ISO-8601 timestamp</a> (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
 - A relative duration (e.g `{ "unit": "seconds", "value": 30 }`)
 - A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
 
 A dynamic window must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `batchWindow` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
 
-When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the batch will be **skipped**.
+When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the batch will be **skipped**. In contrast, if the dynamic window is more than 90 days out, an error will be logged and the entire workflow run will be **halted**.
 
 <AccordionGroup>
   <Accordion title="Using a fixed timestamp" anchorSlug="using-a-fixed-timestamp">
@@ -204,9 +206,11 @@ When a sliding window is enabled on a batch function, subsequent workflow trigge
 #### Setting a maximum batch window duration
 
 When using a sliding batch window, you must set an extension limit for the batch. This value represents the maximum amount of time that a batch window can remain open if it is extended by subsequent workflow triggers.
-This "Max window limit" option is displayed once you enable a sliding window by selecting "Extend window when new activities are received," and can be set as any duration unit.
+This "Max window limit" option is displayed once you enable a sliding window by selecting "Extend window when new activities are received," and can be set as any duration unit up to 90 days.
 
-Once configured, Knock will compute the maximum extended batch window for subsequent triggers as the time your batch was initially opened plus the maximum window duration. For example:
+Once configured, Knock will compute the extended batch window for subsequent triggers as the time your batch was initially opened plus the maximum window duration. Knock never extends a sliding window more than 90 days past when the batch opened, regardless of the configured limit. After a batch reaches its limit, new triggers still add activities to the batch, but its closing time no longer moves.
+
+For example:
 
 - 🎛️ [Initial batch window: 12 hours]
 - 🎛️ [Max extension limit: 24 hours]
@@ -495,7 +499,10 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
 
   </Accordion>
   <Accordion title="Can I dynamically extend the batch window?" anchorSlug="faq-dynamic-batch-window-extension">
-    Yes, if you use the [sliding batch window](#using-a-sliding-batch-window) option then the batch window can always be extended past its original setting. When combined with a dynamic batch window from a variable, this allows you to control exactly when a specific batch window should close.
+    Yes, if you use the [sliding batch window](#using-a-sliding-batch-window) option then the batch window can be extended past its original setting, up to your [max extension limit](#setting-a-maximum-batch-window-duration) but never more than 90 days from when the batch opened. When combined with a dynamic batch window from a variable, this enables you to control when a specific batch window should close.
+  </Accordion>
+  <Accordion title="How long can a batch stay open?" anchorSlug="faq-max-batch-window-duration">
+    A batch can stay open for a maximum of 90 days. This applies to the initial batch window, whether fixed, dynamic, or relative, and to [sliding window](#using-a-sliding-batch-window) extensions. A batch window that resolves to more than 90 days out stops the workflow run with an error at the batch step. See [setting the batch window](#setting-the-batch-window) for details.
   </Accordion>
   <Accordion title="Can I close a batch window by the number of items in the batch?" anchorSlug="faq-close-batch-by-item-count">
     Yes, you can optionally set the [maximum activity limit](#setting-the-maximum-activity-limit) to conditionally close the batch window based on the number of items contained in the batch.
