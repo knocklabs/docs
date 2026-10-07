@@ -150,25 +150,6 @@ Controls what happens when the wait time expires before a matching event arrives
 
 Like other workflow steps, a wait for event step supports [step conditions](/designing-workflows/step-conditions) that determine whether the step executes at all when the workflow run reaches it. Step conditions are evaluated when the step runs, not when an awaited event arrives.
 
-## Downstream step output
-
-When a wait for event step resumes on a **Continue workflow** path, it writes output under `refs.<step_ref>` that downstream steps can reference:
-
-| Property           | Type    | Description                                                                     |
-| ------------------ | ------- | ------------------------------------------------------------------------------- |
-| `matched`          | boolean | `true` when a matching event claimed the wait; `false` when the wait timed out. |
-| `signal_variables` | object  | The payload from the matched event. An empty object on timeout.                 |
-
-Use `refs.<step_ref>.matched` in a downstream [branch function](/designing-workflows/branch-function) to run different logic depending on whether the event arrived in time. Use `refs.<step_ref>.signal_variables` to access fields from the matched event payload in conditions or templates.
-
-```json title="Example downstream condition"
-// Branch on whether the event matched before timeout
-refs.wait_for_payment.matched == true
-
-// Branch on a field from the matched integration source event payload
-refs.wait_for_payment.signal_variables.data.status == "paid"
-```
-
 ## Common patterns
 
 ### Wait for an external action before sending a follow-up
@@ -189,9 +170,11 @@ Trigger a child workflow with a [trigger workflow function](/designing-workflows
 
 Wait for a recipient to enter or exit a dynamic audience before sending a campaign or changing notification volume. Use audience event waits when membership is driven by properties rather than an explicit API action.
 
-### Branch on event payload
+### Branch on whether the event arrived
 
-After the wait resolves, use a branch step with conditions on `refs.<step_ref>.signal_variables` to send different notifications based on data in the matched event.
+Use `refs.<step_ref>.matched` in a [branch function](/designing-workflows/branch-function) or [step conditions](/designing-workflows/step-conditions) to send different notifications depending on whether the event arrived. It's `true` when a matching event arrived and `false` when the wait timed out.
+
+Reference it with a **Liquid expression** condition, such as `{{ refs.wait_for_payment.matched }}` is equal to `true`. Note that this value is available in conditions only, not in message templates.
 
 ## Wait for event vs. delay
 
