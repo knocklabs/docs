@@ -583,9 +583,9 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
         description="The slug of the environment the commits were promoted into."
       />
       <Attribute
-        name="branch"
+        name="from_branch"
         type="string | null"
-        description="The slug of the branch, when the promote is a branch merge. Null otherwise."
+        description="The slug of the branch the commits were promoted from, when the promote is a branch merge. Null otherwise."
       />
       <Attribute
         name="actor"
@@ -601,26 +601,6 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
         name="commit_count"
         type="number"
         description="The number of commits the promote created in the destination environment."
-      />
-      <Attribute
-        name="resource_count"
-        type="number"
-        description="The number of distinct resources the promote changed."
-      />
-      <Attribute
-        name="resource_type_counts"
-        type="object"
-        description="The number of changed resources for each resource type."
-      />
-      <Attribute
-        name="resources"
-        type="object[]"
-        description="The type and identifier of each changed resource, capped at 25 entries."
-      />
-      <Attribute
-        name="resources_truncated"
-        type="boolean"
-        description="Whether the promote changed more resources than the resources list includes."
       />
       <Attribute
         name="created_at"
@@ -640,17 +620,10 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
     "id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
     "from_environment": "development",
     "to_environment": "production",
-    "branch": null,
+    "from_branch": null,
     "actor": { "name": "John Doe", "email": "john.doe@example.com" },
     "request_source": "dashboard",
     "commit_count": 3,
-    "resource_count": 2,
-    "resource_type_counts": { "workflow": 1, "email_layout": 1 },
-    "resources": [
-      { "type": "workflow", "identifier": "new-comment" },
-      { "type": "email_layout", "identifier": "transactional" }
-    ],
-    "resources_truncated": false,
     "created_at": "2026-10-08T19:00:00Z"
   },
   "event_data": null
@@ -665,7 +638,7 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
   text="Branch events require branches and aren't available to all accounts yet."
 />
 
-Knock sends branch events to webhooks in the branch's parent environment, which is `development` for most accounts. A webhook that belongs to a branch doesn't receive them. When you merge a branch, Knock sends [`commits.promoted`](#commitspromoted) with the `branch` field set, not a separate merge event.
+Knock sends branch events to webhooks in the branch's parent environment, which is `development` for most accounts. A webhook that belongs to a branch doesn't receive them. When you merge a branch, Knock sends [`commits.promoted`](#commitspromoted) with the `from_branch` field set, not a separate merge event.
 
 All branch events share the same `data` shape.
 
