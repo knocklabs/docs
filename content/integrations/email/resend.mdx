@@ -5,7 +5,7 @@ section: Integrations > Email
 layout: integrations
 ---
 
-Knock integrates with <a href="https://resend.com/" target="_blank">Resend</a> to send email notifications to your users. This page describes how to get started with Resend in Knock, including necessary provider configurations and additional data you can pass through to Resend.
+Knock integrates with <a href="https://resend.com/" target="_blank" rel="noopener">Resend</a> to send email notifications to your users. This page describes how to get started with Resend in Knock, including necessary provider configurations and additional data you can pass through to Resend.
 
 ## Features
 
@@ -18,44 +18,16 @@ Knock integrates with <a href="https://resend.com/" target="_blank">Resend</a> t
 
 ## Getting started
 
-You can create a new Resend channel in the dashboard under the **Channels and sources** page in your account settings. From there, you'll need to configure the channel for each environment you have.
+You can create a new Resend channel in the dashboard under the <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> page in your account settings. From there, you'll need to configure the channel for each environment you have.
 
 ## Channel configuration
 
-The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Channels and sources** in your dashboard account settings, select your Resend [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+Configure the following settings per [environment](/version-control/environments). Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your dashboard account settings and select your Resend [channel](/concepts/channels). Under **Environment configurations**, click the environment you'd like to configure to expand its settings, then click "Save changes" when you're done. Expand **Advanced** for additional options, including overrides and conditions.
 
 <AccordionGroup>
   <Accordion title="Settings" anchorSlug="configuration-settings">
     Fields marked with an `*` are required.
 
-    **Knock settings**
-    <Attributes>
-      <Attribute
-        name="Sandbox mode"
-        type="boolean"
-        nameSlug="/integrations/overview#sandbox-mode"
-        description="Whether to enable sandbox mode for your Resend channel."
-      />
-      <Attribute
-        name="Knock open tracking"
-        nameSlug="/send-notifications/tracking#email-open-tracking"
-        type="boolean"
-        description="Whether to enable Knock email-open tracking."
-      />
-      <Attribute
-        name="Knock link tracking"
-        nameSlug="/send-notifications/tracking#link-click-tracking"
-        type="boolean"
-        description="Whether to enable Knock link-click tracking."
-      />
-      <Attribute
-        name="CSS inlining"
-        type="boolean"
-        description="Whether Knock will inline CSS styles in your emails onto their associated HTML elements before sending, to improve email client compatibility. Defaults to true."
-      />
-    </Attributes>
-    <br />
-    **Provider settings for Resend**
     <Attributes>
       <Attribute
         name="API key"
@@ -68,9 +40,38 @@ The following channel settings should be configured per [environment](/concepts/
         description="The default sender email address (can use Liquid tags)."
       />
       <Attribute
-        name="From name"
-        type="string | liquid"
-        description="The default sender name (can use Liquid tags)."
+        name="Incoming webhook"
+        type="boolean"
+        nameSlug="#delivery-status-webhooks"
+        description="Whether to receive message delivery status updates from Resend via webhook."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Advanced" anchorSlug="configuration-advanced">
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your Resend channel."
+      />
+      <Attribute
+        name="Open tracking"
+        nameSlug="/send-notifications/tracking#email-open-tracking"
+        type="boolean"
+        description="Whether to enable Knock email-open tracking."
+      />
+      <Attribute
+        name="Link tracking"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        type="boolean"
+        description="Whether to enable Knock link-click tracking."
+      />
+      <Attribute
+        name="CSS inlining"
+        type="boolean"
+        description="Whether Knock will inline CSS styles in your emails onto their associated HTML elements before sending, to improve email client compatibility. Defaults to true."
       />
     </Attributes>
 
@@ -79,6 +80,11 @@ The following channel settings should be configured per [environment](/concepts/
     When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
 
     <Attributes>
+      <Attribute
+        name="From name"
+        type="string | liquid"
+        description="The default sender name (can use Liquid tags)."
+      />
       <Attribute
         name="To"
         type="string | liquid"
@@ -139,17 +145,18 @@ Before enabling delivery status webhooks, you need:
 
 <Steps titleSize="h3">
   <Step title="Enable delivery status webhooks in Knock">
-    1. Navigate to **Channels and sources** in your Knock dashboard
+    1. Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your Knock dashboard
     2. Select your Resend channel
-    3. Click "Manage configuration" for the environment you want to configure
-    4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
-    5. Copy the generated webhook URL - you'll need this in the next step
+    3. Under **Environment configurations**, click the environment you want to configure to expand its settings
+    4. Turn on **Incoming webhook**
+    5. Copy the **Webhook URL** - you'll need this in the next step
+    6. Click "Save changes"
   </Step>
 
   <Step title="Add webhook endpoint in Resend">
     In the Resend dashboard, configure webhooks to send delivery events to Knock:
 
-    1. Go to the <a href="https://resend.com/webhooks" target="_blank">Webhooks section</a> in your Resend dashboard
+    1. Go to the <a href="https://resend.com/webhooks" target="_blank" rel="noopener">Webhooks section</a> in your Resend dashboard
     2. Click "Add Endpoint"
     3. Paste the webhook URL from Knock
     4. Select the events you want to track:
