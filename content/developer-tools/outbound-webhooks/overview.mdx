@@ -71,14 +71,14 @@ In your app, create an endpoint specifically to receive incoming requests from a
 
 #### Retries
 
-Knock webhooks automatically retry many non-`2xx` responses from your endpoint. Respond with `2xx` (usually `200`) once you've received the webhook request, before operating on the data: that avoids a timeout, which will result in the webhook being retried.
+Knock webhooks will automatically retry when we receive non-`2xx` responses from your endpoint, with the exception of the statuses listed below. Respond with `2xx` (usually `200`) once you've received the webhook request, before operating on the data: this avoids a timeout, which will result in the webhook being retried.
 
 Knock webhooks _never retry_ responses with the following status codes:
 
-- 301, 302, 303
-- 400, 401, 402, 403, 404, 405
+- `301`, `302`, `303`
+- `400`, `401`, `402`, `403`, `404`, `405`
 
-When the endpoint responds with any other non-`2xx` status code, **Knock retries a handful of times** over the span of a few hours (the exact number of times and retry intervals can change depending on various factors). If your endpoint returns speficially a 429 status code and has a well-formed `Retry-After` response header, Knock will do its best to respect the value of that header.
+When the endpoint responds with any other non-`2xx` status code, **Knock retries a handful of times** over the span of a few hours (the exact number of times and retry intervals can change depending on various factors). If your endpoint returns a `429` status code and has a well-formed `Retry-After` response header, Knock will do its best to respect the value of that header.
 
 You can track the webhooks sent in the webhook delivery logs, as detailed in the [managing webhooks](#reading-webhook-delivery-logs) section below.
 
