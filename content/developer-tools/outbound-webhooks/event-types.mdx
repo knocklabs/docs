@@ -573,19 +573,19 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
         description="The promote group ID, shared by every commit the promote created in the destination environment."
       />
       <Attribute
-        name="from_environment"
+        name="source"
         type="string"
         description="The slug of the environment or branch the commits were promoted from."
+      />
+      <Attribute
+        name="source_type"
+        type="environment | branch"
+        description="Whether the source is an environment or a branch. A branch merge has a source type of branch."
       />
       <Attribute
         name="to_environment"
         type="string"
         description="The slug of the environment the commits were promoted into."
-      />
-      <Attribute
-        name="from_branch"
-        type="string | null"
-        description="The slug of the branch the commits were promoted from, when the promote is a branch merge. Null otherwise."
       />
       <Attribute
         name="actor"
@@ -618,9 +618,9 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
   "created_at": "2026-10-08T19:00:00.123456Z",
   "data": {
     "id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
-    "from_environment": "development",
+    "source": "development",
+    "source_type": "environment",
     "to_environment": "production",
-    "from_branch": null,
     "actor": { "name": "John Doe", "email": "john.doe@example.com" },
     "request_source": "dashboard",
     "commit_count": 3,
@@ -638,7 +638,7 @@ The `data` field describes the promote. Use `data.id`, the promote group ID, to 
   text="Branch events require branches and aren't available to all accounts yet."
 />
 
-Knock sends branch events to webhooks in the branch's parent environment, which is `development` for most accounts. A webhook that belongs to a branch doesn't receive them. When you merge a branch, Knock sends [`commits.promoted`](#commitspromoted) with the `from_branch` field set, not a separate merge event.
+Knock sends branch events to webhooks in the branch's parent environment, which is `development` for most accounts. A webhook that belongs to a branch doesn't receive them. When you merge a branch, Knock sends [`commits.promoted`](#commitspromoted) with a `source_type` of `branch`, not a separate merge event.
 
 All branch events share the same `data` shape.
 
