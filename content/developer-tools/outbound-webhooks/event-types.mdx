@@ -557,7 +557,7 @@ Occurs whenever a partial is committed to the environment.
 
 Occurs whenever commits are promoted into an environment, including a branch merge. Knock sends one event for each promote, no matter how many commits it copies, and sends it to webhooks in the destination environment. Knock doesn't send `*.committed` events for the commits a promote copies, so subscribe to `commits.promoted` to react to promotes.
 
-The `data` field describes the promote. Use `promote_group_id` to deduplicate deliveries, and to list the commits the promote created with the `promote_group_id` filter on the [list commits endpoint](/mapi-reference/commits/list).
+The `data` field describes the promote. Use `data.id`, the promote group ID, to deduplicate deliveries, and to list the commits the promote created with the `promote_group_id` filter on the [list commits endpoint](/mapi-reference/commits/list).
 
 <Attributes>
   <Attribute
@@ -568,9 +568,9 @@ The `data` field describes the promote. Use `promote_group_id` to deduplicate de
   >
     <Attributes>
       <Attribute
-        name="promote_group_id"
+        name="id"
         type="string"
-        description="The ID shared by every commit the promote created in the destination environment."
+        description="The promote group ID, shared by every commit the promote created in the destination environment."
       />
       <Attribute
         name="from_environment"
@@ -629,20 +629,6 @@ The `data` field describes the promote. Use `promote_group_id` to deduplicate de
       />
     </Attributes>
   </Attribute>
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the promote."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="promote_group_id"
-        type="string"
-        description="The ID of the promote, matching the promote_group_id in data."
-      />
-    </Attributes>
-  </Attribute>
 </Attributes>
 
 ```json title="Example commits.promoted payload"
@@ -651,7 +637,7 @@ The `data` field describes the promote. Use `promote_group_id` to deduplicate de
   "type": "commits.promoted",
   "created_at": "2026-10-08T19:00:00.123456Z",
   "data": {
-    "promote_group_id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
+    "id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
     "from_environment": "development",
     "to_environment": "production",
     "branch": null,
@@ -667,9 +653,7 @@ The `data` field describes the promote. Use `promote_group_id` to deduplicate de
     "resources_truncated": false,
     "created_at": "2026-10-08T19:00:00Z"
   },
-  "event_data": {
-    "promote_group_id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11"
-  }
+  "event_data": null
 }
 ```
 

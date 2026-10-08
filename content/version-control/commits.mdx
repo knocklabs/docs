@@ -104,12 +104,12 @@ To list the commits a promote created, pass `promote_group_id` to the [list comm
   text="The commit promote event isn't available to all accounts yet."
 />
 
-Use the [`commits.promoted` webhook event](/developer-tools/outbound-webhooks/event-types#commitspromoted) to trigger work in your own systems when a promote lands in an environment, such as running smoke tests or notifying your team. Knock sends one event for each promote, to webhooks in the destination environment, with the `promote_group_id`, the source and destination, and a summary of the changed resources.
+Use the [`commits.promoted` webhook event](/developer-tools/outbound-webhooks/event-types#commitspromoted) to trigger work in your own systems when a promote lands in an environment, such as running smoke tests or notifying your team. Knock sends one event for each promote, to webhooks in the destination environment, with the promote group ID as `data.id`, the source and destination, and a summary of the changed resources.
 
 A few things to know:
 
 - **Promotes don't send `*.committed` events.** Events like `workflow.committed` fire when you commit a change in an environment. The commits a promote copies into the destination don't fire them, so subscribe to `commits.promoted` instead.
-- **Use `promote_group_id` to deduplicate.** Webhook deliveries can be retried, so use the ID to make sure your handler processes each promote once.
+- **Use the promote group ID to deduplicate.** Webhook deliveries can be retried, so use the ID to make sure your handler processes each promote once.
 - **Each environment hop is its own promote.** When a promote moves commits across more than one environment, each hop sends its own event with its own `promote_group_id`.
 
 ## Reverting a commit
