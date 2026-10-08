@@ -213,13 +213,12 @@ const Accordion = ({
                     <Code
                       key={index}
                       as="code"
-                      backgroundColor="gray-2"
-                      borderColor="transparent"
+                      color="blue"
+                      variant="ghost"
+                      px="0_5"
                       data-tgph-code
                       style={{
                         fontSize: "inherit",
-                        padding: "2px 3px",
-                        margin: "0 2px",
                       }}
                     >
                       {part.content}
