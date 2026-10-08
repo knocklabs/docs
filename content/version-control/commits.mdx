@@ -87,6 +87,31 @@ You can promote your commits from a given resource's page. You can also view all
 
 Learn more about promoting commits in our [environments documentation](/version-control/environments).
 
+### Promote group IDs
+
+Every promote gets a `promote_group_id`. Knock stamps the ID on each commit the promote creates in the destination environment, so you can group the commits that moved together. Promote endpoints and commits return the ID:
+
+- The [promote all](/mapi-reference/commits/promote_all) and [promote one](/mapi-reference/commits/promote_one) endpoints return a `promote_group` object with the ID, the source and destination environments, and counts of the commits and resources the promote changed. The object is `null` when a promote all has nothing to promote.
+- The `promote_group_id` field on a commit identifies the promote that created it, and `promoted_from_commit_id` points to the commit it was copied from. Both are `null` on commits that weren't created by a promote.
+
+To list the commits a promote created, pass `promote_group_id` to the [list commits endpoint](/mapi-reference/commits/list). The endpoint also accepts `promoted_from_environment`, `since`, and `until` filters.
+
+### Reacting to promotes
+
+<Callout
+  type="beta"
+  title="Commit events are in beta."
+  text="The commit promote event isn't available to all accounts yet."
+/>
+
+Use the [`commits.promoted` webhook event](/developer-tools/outbound-webhooks/event-types#commitspromoted) to trigger work in your own systems when a promote lands in an environment, such as running smoke tests or notifying your team. Knock sends one event for each promote, to webhooks in the destination environment, with the `promote_group_id`, the source and destination, and a summary of the changed resources.
+
+A few things to know:
+
+- **Promotes don't send `*.committed` events.** Events like `workflow.committed` fire when you commit a change in an environment. The commits a promote copies into the destination don't fire them, so subscribe to `commits.promoted` instead.
+- **Use `promote_group_id` to deduplicate.** Webhook deliveries can be retried, so use the ID to make sure your handler processes each promote once.
+- **Each environment hop is its own promote.** When a promote moves commits across more than one environment, each hop sends its own event with its own `promote_group_id`.
+
 ## Reverting a commit
 
 If you've made a change in a commit that you want to revert, you can use the "Revert commit" feature to "undo" that change. You can find the revert commit action on the **Commits** page in the dashboard, under the "Unpromoted changes" and "Commit log" tabs.
