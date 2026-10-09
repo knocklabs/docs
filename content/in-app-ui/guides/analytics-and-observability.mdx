@@ -1,6 +1,6 @@
 ---
 title: Guide analytics and observability
-description: Assess ongoing guide performance and measaure engagement.
+description: Assess ongoing guide performance and measure engagement.
 tags: ["guides", "analytics", "observability", "metrics", "engagement"]
 section: Building in-app UI > Guides
 ---
@@ -46,7 +46,7 @@ You can view guide analytics directly in the Knock dashboard:
 
 1. Navigate to **Guides** in your environment.
 2. Select the guide you want to review.
-3. View the analytics summary in the guide details panel.
+3. View the analytics summary on the guide's **Overview** tab, or open the [**Activity** tab](#guide-activity) to see its events as they happen.
 
 You can also view analytics across all guides in the **Observability** > **Analytics** section, where you can filter and group by guide key to compare performance across different guides.
 
@@ -58,9 +58,37 @@ You can also view analytics across all guides in the **Observability** > **Analy
   className="rounded-md mx-auto border border-gray-200"
 />
 
+### Guide activity
+
+The **Activity** tab lists the events on the guide's messages as they happen, newest first. For example, it shows each time a recipient sees, reads, interacts with, or archives the guide. Each row shows the event type, the recipient, and when the event happened.
+
+<Image
+  src="/images/in-app-ui/GuideActivity.png"
+  alt="Guide Activity tab listing interacted, read, seen, delivered, sent, and archived events with each event's recipient and timestamp"
+  width={698}
+  height={734}
+  className="mx-auto"
+/>
+
+New events appear at the top of the list as recipients engage with the guide. The list pauses when you select an event or move to another page, so rows stay in place while you read. Use the controls next to **Filter** to pause streaming, refresh the list once, or start streaming again from the newest events.
+
+Select **Filter** to narrow the list by recipient, event type, tenant, or date. The list starts with the last 7 days of events. It can go back 90 days, or to the start of your plan's [retention period](/manage-your-account/data-retention) if that's shorter.
+
+Select an event to view its recipient, message ID, tenant, guide, and environment. Below those, a timeline shows every event on that message. An interacted event in the timeline includes any metadata your application [passed with the interaction](/in-app-ui/guides/handling-engagement#tracking-metadata-associated-with-guide-engagement). Select **View message** to open the full message in the message logs.
+
+<Image
+  src="/images/in-app-ui/GuideActivityEventDetails.png"
+  alt="Event details panel with the recipient, message ID, guide, and environment, above a timeline that ends with an interacted event and its metadata"
+  width={693}
+  height={687}
+  className="mx-auto"
+/>
+
 ### API
 
-You can access guide metrics programmatically using the [Guides API](/api-reference/users/guides). This enables you to work with guide message data and gives you flexibility to build custom dashboards and integrate guide metrics into your existing analytics tools.
+Knock doesn't offer a metrics API for guides. The [guides API](/api-reference/users/guides) returns the guides a user is eligible to see, not engagement data.
+
+To read guide engagement in your own code, list your guide channel's messages with the [messages API](/api-reference/messages/list). Filter by `channel_id` and `engagement_status`. Fetch a single message's events with the [list message events](/api-reference/messages/list_events) endpoint. To send guide events to an analytics tool or data warehouse, see [data export](#data-export).
 
 ## Message logs
 
