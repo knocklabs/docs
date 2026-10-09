@@ -127,15 +127,19 @@ As in the dynamic delay section above, the key specified must be available to be
 
 ## Wait until a time window
 
-A time window delay waits until a weekly schedule is open, then continues the workflow. The schedule uses the same shape as [send windows](/designing-workflows/send-windows): one window for each day, with a type of `send` or `do_not_send`, and optional `from` and `until` times on send days.
+A time window delay waits until a weekly schedule is open, then continues the workflow. The schedule uses the same shape as [send windows](/designing-workflows/send-windows).
 
-Set this on the delay step by choosing **Window** in the workflow editor, or set `delay_until_time_windows` on the delay step settings through the [Management API](/developer-tools/management-api). `delay_until_time_windows` cannot be combined with `delay_for` or `delay_until_field_path`. At least one day must be a send day.
+This is the **Window** option on the delay step. A [window rule](#using-window-rules) is a different mechanism: a dynamic delay value resolved through `delay_until_field_path`.
 
 This pauses the workflow. A [channel send window](/designing-workflows/send-windows) does not. A channel step queues the message and lets the workflow continue. A later channel step can still have its own send windows. If those windows are closed when the delay elapses, the message queues until the channel window opens.
 
-Knock evaluates the schedule in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, then the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`.
+Set this on the delay step by choosing **Window** in the workflow editor, or set `delay_until_time_windows` on the delay step settings through the [Management API](/developer-tools/management-api).
 
-If the workflow run reaches the delay while the schedule is already open, the step continues immediately. Editing the schedule does not move a run that is already paused on this step. Cancel the workflow run to stop it.
+- `delay_until_time_windows` cannot be combined with `delay_for` or `delay_until_field_path`.
+- Include one window for each day. At least one day must be a send day.
+- Knock evaluates the schedule in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, then the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`.
+- If the workflow run reaches the delay while the schedule is already open, the step continues immediately.
+- Editing the schedule does not move a run that is already paused on this step. Cancel the [workflow run](/send-notifications/canceling-workflows) to stop it.
 
 ```json title="Delay until weekday business hours"
 {
