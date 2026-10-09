@@ -33,13 +33,32 @@ To set up OneSignal Push with Knock you will need:
 
 ## Channel configuration
 
-The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Channels and sources** in your dashboard account settings, select your OneSignal [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+Configure the following settings per [environment](/version-control/environments). Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your dashboard account settings and select your OneSignal [channel](/concepts/channels). Under **Environment configurations**, click the environment you'd like to configure to expand its settings, then click "Save changes" when you're done. Expand **Advanced** for additional options, including overrides and conditions.
 
 <AccordionGroup>
   <Accordion title="Settings" anchorSlug="configuration-settings">
     Fields marked with an `*` are required.
-    
-    **Knock settings**
+
+    <Attributes>
+      <Attribute
+        name="App ID"
+        type="string*"
+        description="The unique app ID of your OneSignal project."
+      />
+      <Attribute
+        name="API key"
+        type="string*"
+        description="The private API key from OneSignal."
+      />
+      <Attribute
+        name="Recipient mode"
+        type="enum*"
+        description="The mode used to target recipients. One of External ID (recommended) or Player ID (deprecated). Defaults to External ID."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Advanced" anchorSlug="configuration-advanced">
     <Attributes>
       <Attribute
         name="Sandbox mode"
@@ -48,29 +67,10 @@ The following channel settings should be configured per [environment](/concepts/
         description="Whether to enable sandbox mode for your OneSignal channel."
       />
       <Attribute
-        name="Knock token deregistration"
+        name="Token deregistration"
         type="boolean"
         nameSlug="/integrations/push/token-deregistration"
-        description="Whether to enable Knock token deregistration."
-      />
-    </Attributes>
-
-    **Provider settings for OneSignal**
-    <Attributes>
-      <Attribute
-        name="App ID"
-        type="string*"
-        description="The unique app ID of your OneSignal project."
-      />
-      <Attribute
-        name="API Key"
-        type="string*"
-        description="The private API key from OneSignal."
-      />
-      <Attribute
-        name="Recipient mode"
-        type="enum*"
-        description="The mode used to target recipients. One of External ID or Player ID."
+        description="Whether to enable Knock token deregistration. Not available when Recipient mode is External ID."
       />
     </Attributes>
 
@@ -102,11 +102,11 @@ The following channel settings should be configured per [environment](/concepts/
 
 ### Using `external_id` (recommended)
 
-If you're using an <a href="https://documentation.onesignal.com/docs/users#external-id" target="_blank">External ID</a> to reference your OneSignal users within Knock, you do not need to supply any additional data to initiate a request. We will automatically pass your Knock user ID to OneSignal as the `external_id`.
+If you're using an <a href="https://documentation.onesignal.com/docs/users#external-id" target="_blank" rel="noopener">External ID</a> to reference your OneSignal users within Knock, you do not need to supply any additional data to initiate a request. We will automatically pass your Knock user ID to OneSignal as the `external_id`.
 
 ### Using `player_id`
 
-When using <a href="https://documentation.onesignal.com/v9.0/docs/users#player-id" target="_blank">Player IDs</a> you will need to store the `player_id` for a user within Knock as ChannelData for the OneSignal Push channel. This ensures that Knock has the correct value to pass to send a notification to a recipient when a workflow is triggered.
+When using <a href="https://documentation.onesignal.com/v9.0/docs/users#player-id" target="_blank" rel="noopener">Player IDs</a> you will need to store the `player_id` for a user within Knock as ChannelData for the OneSignal Push channel. This ensures that Knock has the correct value to pass to send a notification to a recipient when a workflow is triggered.
 
 You can retrieve the `player_id` from OneSignal once a user has been registered, either by using the OneSignal mobile SDK, or by using a webhook from OneSignal.
 
@@ -139,7 +139,7 @@ You can configure payload overrides at two levels:
 
 Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
 
-Overrides are merged into the notification payload sent to OneSignal. See the <a href="https://documentation.onesignal.com/reference/push-notification" target="_blank">OneSignal documentation for more details</a>. Knock uses the "Aliases" targeting strategy to send push notifications to specific users via External ID.
+Overrides are merged into the notification payload sent to OneSignal. See the <a href="https://documentation.onesignal.com/reference/push-notification" target="_blank" rel="noopener">OneSignal documentation for more details</a>. Knock uses the "Aliases" targeting strategy to send push notifications to specific users via External ID.
 
 ## Managing tokens
 
