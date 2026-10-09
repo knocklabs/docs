@@ -124,6 +124,18 @@ You can view the changes made to a branch in the Knock dashboard by going to the
 
 When you're ready to merge the changes from a branch into the main branch, you can click the "Merge all changes" button to merge all commits from the branch into the main branch, or you can merge individual commits from the branch into the main branch.
 
+### Reacting to merges
+
+<Callout
+  type="beta"
+  title="Webhook events for branches are in beta."
+  text="These events aren't available to all accounts yet."
+/>
+
+Merging a branch is a promote from the branch into its parent environment. Knock sends a [`commits.promoted` webhook event](/developer-tools/outbound-webhooks/event-types#commitspromoted) with the `source` field set to the branch's slug and `source_type` set to `branch`, and returns the same `promote_group_id` from the merge in the API, so you can trace the commits the merge created.
+
+Knock also sends [`branch.created`, `branch.deleted`, and `branch.rebased` events](/developer-tools/outbound-webhooks/event-types#branch-events) as the branch changes. Branch events go to webhooks in the branch's parent environment.
+
 ## Delete a branch
 
 Once a branch is merged into the main branch, you may wish to delete the branch from your account. Deleting a branch is a permanent operation and cannot be undone. Doing so will delete all of the resources in the branch, including all commits and changes made to your resources on the branch that have not been merged into `main`.

@@ -544,3 +544,128 @@ Occurs whenever a partial is committed to the environment.
     </Attributes>
   </Attribute>
 </Attributes>
+
+## Commit events
+
+<Callout
+  type="beta"
+  title="Commit events are in beta."
+  text="The commit promote event isn't available to all accounts yet."
+/>
+
+### `commits.promoted`
+
+Occurs whenever commits are promoted into an environment, including a branch merge. Knock sends one event for each promote, no matter how many commits it copies, and sends it to webhooks in the destination environment. Knock doesn't send `*.committed` events for the commits a promote copies, so subscribe to `commits.promoted` to react to promotes.
+
+The `data` field describes the promote. Use `data.id`, the promote group ID, to deduplicate deliveries, and to list the commits the promote created with the `promote_group_id` filter on the [list commits endpoint](/mapi-reference/commits/list).
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="PromoteGroup"
+    description="The promote that copied the commits."
+    expandLabel="PromoteGroup attributes"
+  >
+    <Attributes>
+      <Attribute
+        name="id"
+        type="string"
+        description="The promote group ID, shared by every commit the promote created in the destination environment."
+      />
+      <Attribute
+        name="source"
+        type="string"
+        description="The slug of the environment or branch the commits were promoted from."
+      />
+      <Attribute
+        name="source_type"
+        type="environment | branch"
+        description="Whether the source is an environment or a branch. A branch merge has a source type of branch."
+      />
+      <Attribute
+        name="to_environment"
+        type="string"
+        description="The slug of the environment the commits were promoted into."
+      />
+      <Attribute
+        name="actor"
+        type="object | null"
+        description="The name and email of the user who promoted the commits. Null when no user is associated with the promote."
+      />
+      <Attribute
+        name="commit_count"
+        type="number"
+        description="The number of commits the promote created in the destination environment."
+      />
+      <Attribute
+        name="created_at"
+        type="datetime"
+        description="The timestamp of when the promote happened."
+      />
+    </Attributes>
+  </Attribute>
+</Attributes>
+
+```json title="Example commits.promoted payload"
+{
+  "__typename": "Event",
+  "type": "commits.promoted",
+  "created_at": "2026-10-08T19:00:00.123456Z",
+  "data": {
+    "id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
+    "source": "development",
+    "source_type": "environment",
+    "to_environment": "production",
+    "actor": { "name": "John Doe", "email": "john.doe@example.com" },
+    "commit_count": 3,
+    "created_at": "2026-10-08T19:00:00Z"
+  },
+  "event_data": null
+}
+```
+
+## Branch events
+
+<Callout
+  type="beta"
+  title="Branch events are in beta."
+  text="Branch events require branches and aren't available to all accounts yet."
+/>
+
+Knock sends branch events to webhooks in the branch's parent environment, which is `development` for most accounts. A webhook that belongs to a branch doesn't receive them. When you merge a branch, Knock sends [`commits.promoted`](#commitspromoted) with a `source_type` of `branch`, not a separate merge event.
+
+All branch events share the same `data` shape.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="BranchEventData"
+    description="The branch and the user who triggered the event."
+    expandLabel="BranchEventData attributes"
+  >
+    <Attributes>
+      <Attribute
+        name="branch"
+        type="object"
+        description="The branch, with its slug, name, parent_environment, and created_at."
+      />
+      <Attribute
+        name="actor"
+        type="object | null"
+        description="The name and email of the user who triggered the event. Null when no user is associated with it."
+      />
+    </Attributes>
+  </Attribute>
+</Attributes>
+
+### `branch.created`
+
+Occurs whenever a branch is created.
+
+### `branch.deleted`
+
+Occurs whenever a branch is deleted. The `branch` object includes a `deleted_at` timestamp.
+
+### `branch.rebased`
+
+Occurs whenever a branch is rebased onto its parent environment. The `branch` object includes a `rebased_at` timestamp.
