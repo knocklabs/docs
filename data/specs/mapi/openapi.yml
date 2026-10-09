@@ -1364,8 +1364,16 @@ components:
           x-struct: null
           x-validate: null
         settings:
-          description: The settings for the delay step. Both fields can be set to compute a delay where `delay_for` is an offset from the `delay_until_field_path`.
+          description: The settings for the delay step. Set `delay_for` for a fixed delay, `delay_until_field_path` for a dynamic delay, both for a relative delay, or `delay_until_time_windows` to wait until a weekly schedule is open.
           properties:
+            delay_until_time_windows:
+              description: A weekly schedule of when the delay can elapse. Uses the same shape as channel send windows. Must include one window per day. Cannot be combined with `delay_for` or `delay_until_field_path`.
+              items:
+                $ref: '#/components/schemas/SendWindow'
+              nullable: true
+              type: array
+              x-struct: null
+              x-validate: null
             delay_for:
               anyOf:
                 - $ref: '#/components/schemas/Duration'
