@@ -185,6 +185,39 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WrappedReusableRequestResponse:
+      description: Wraps the ReusableRequest response under the `reusable_request` key.
+      example:
+        reusable_request:
+          created_at: "2021-01-01T00:00:00Z"
+          description: Loads a user from the API.
+          environment: development
+          key: fetch-user
+          name: Fetch user
+          settings:
+            body: null
+            headers:
+              - key: X-API-Key
+                value: "1234567890"
+            method: get
+            query_params:
+              - key: key
+                value: value
+            response_path: null
+            signing_key: null
+            url: https://example.com
+          sha: abc123
+          type: http_fetch
+          updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        reusable_request:
+          $ref: '#/components/schemas/ReusableRequest'
+      required:
+        - reusable_request
+      title: WrappedReusableRequestResponse
+      type: object
+      x-struct: null
+      x-validate: null
     PushTemplate:
       description: A push notification template.
       example:
@@ -4423,6 +4456,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup
       x-validate: null
+    ArchiveReusableRequestResponse:
+      description: The response from archiving a reusable request.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveReusableRequestResponse
+      type: object
+      x-struct: null
+      x-validate: null
     TagRequest:
       description: A request to create or update a tag. The tag name is taken from the path. On conflict, omitted description and color fields are set to null.
       example:
@@ -5418,6 +5468,102 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreferenceCategory
       x-validate: null
+    ReusableRequest:
+      description: A reusable HTTP request that workflows can link to.
+      example:
+        created_at: "2021-01-01T00:00:00Z"
+        description: Loads a user from the API.
+        environment: development
+        key: fetch-user
+        name: Fetch user
+        settings:
+          body: null
+          headers:
+            - key: X-API-Key
+              value: "1234567890"
+          method: get
+          query_params:
+            - key: key
+              value: value
+          response_path: null
+          signing_key: null
+          url: https://example.com
+        sha: abc123
+        type: http_fetch
+        updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: Conditions that must be met before the request runs.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the reusable request was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An internal note about the reusable request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment in which the reusable request exists.
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key for the reusable request. Must be 3 to 255 characters and match ^[a-z0-9_-]+$.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the reusable request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          $ref: '#/components/schemas/ReusableRequestSettings'
+        sha:
+          description: The SHA hash of the reusable request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The reusable request type. Only http_fetch is supported.
+          enum:
+            - http_fetch
+          example: http_fetch
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the reusable request was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - type
+        - environment
+        - created_at
+        - updated_at
+        - settings
+      title: ReusableRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ReusableRequest
+      x-validate: null
     CommitAuthor:
       description: The author of the commit.
       example:
@@ -5495,6 +5641,65 @@ components:
       title: RunWorkflowRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RunWorkflowRequest
+      x-validate: null
+    ReusableRequestRequest:
+      description: A reusable request object with attributes to update or create a reusable request.
+      example:
+        description: Loads a user from the API.
+        name: Fetch user
+        settings:
+          body: null
+          headers:
+            - key: X-API-Key
+              value: "1234567890"
+          method: get
+          query_params:
+            - key: key
+              value: value
+          response_path: null
+          signing_key: null
+          url: https://example.com
+        type: http_fetch
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: Conditions that must be met before the request runs.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An internal note about the reusable request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the reusable request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          $ref: '#/components/schemas/ReusableRequestSettings'
+        type:
+          description: The reusable request type. Only http_fetch is supported.
+          enum:
+            - http_fetch
+          example: http_fetch
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - settings
+      title: ReusableRequestRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ReusableRequestRequest
       x-validate: null
     MessageType:
       description: A message type is a schema for a message that maps to a UI component or element within your application.
@@ -7518,8 +7723,8 @@ components:
           x-struct: null
           x-validate: null
         recipient_path:
-          description: JSON path into the source event that yields the recipient user ID. Use userId for Segment events, or a body./headers. path for HTTP events (e.g. body.userId).
-          example: userId
+          description: JSON path into the source event that yields the recipient user ID, for example, body.userId. For legacy sources, use the field name without prefixing body. When omitted, a default will be automatically set.
+          example: body.userId
           nullable: true
           type: string
           x-struct: null
@@ -7531,6 +7736,165 @@ components:
       title: WorkflowWaitForEventIntegrationSourceEvent
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventIntegrationSourceEvent
+      x-validate: null
+    ReusableRequestSettings:
+      description: The HTTP request a reusable request runs.
+      example:
+        body: null
+        headers:
+          - key: X-API-Key
+            value: "1234567890"
+        method: get
+        query_params:
+          - key: key
+            value: value
+        response_path: null
+        signing_key: null
+        url: https://example.com
+      properties:
+        body:
+          description: The body of the request. Only used for POST or PUT requests.
+          example: '{"key": "value"}'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        data_input_schema:
+          additionalProperties: true
+          description: A JSON schema for inputs the request accepts.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        data_input_values_str:
+          description: A JSON string of input values for the request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        headers:
+          description: The headers of the request. Can be a template string or a list of key-value pairs.
+          example:
+            - key: X-API-Key
+              value: "1234567890"
+          oneOf:
+            - description: A template string that should resolve to a JSON object representing the headers.
+              example: '{{ data.request_headers }}'
+              title: RequestTemplateHeadersString
+              type: string
+              x-struct: null
+              x-validate: null
+            - description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
+              example:
+                - key: X-API-Key
+                  value: "1234567890"
+              items:
+                properties:
+                  key:
+                    description: The key of the header.
+                    example: X-API-Key
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  value:
+                    description: The value of the header.
+                    example: "1234567890"
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - key
+                  - value
+                type: object
+                x-struct: null
+                x-validate: null
+              title: RequestTemplateHeadersArray
+              type: array
+              x-struct: null
+              x-validate: null
+          title: RequestTemplateHeaders
+          type: object
+          x-struct: null
+          x-validate: null
+        method:
+          description: The HTTP method of the request.
+          enum:
+            - get
+            - post
+            - put
+            - delete
+            - patch
+          example: post
+          type: string
+          x-struct: null
+          x-validate: null
+        query_params:
+          description: The query params of the request. Can be a template string or a list of key-value pairs.
+          example:
+            - key: key
+              value: value
+          oneOf:
+            - description: A template string that should resolve to a JSON object representing the query params.
+              example: '{{ data.request_query_params }}'
+              title: RequestTemplateQueryParamsString
+              type: string
+              x-struct: null
+              x-validate: null
+            - description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
+              example:
+                - key: key
+                  value: value
+              items:
+                properties:
+                  key:
+                    description: The key of the query param.
+                    example: key
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  value:
+                    description: The value of the query param.
+                    example: value
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - key
+                  - value
+                type: object
+                x-struct: null
+                x-validate: null
+              title: RequestTemplateQueryParamsArray
+              type: array
+              x-struct: null
+              x-validate: null
+          title: RequestTemplateQueryParams
+          type: object
+          x-struct: null
+          x-validate: null
+        response_path:
+          description: A JSON path into the response that is merged into the workflow data.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        signing_key:
+          description: The signing key used to sign the request.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        url:
+          description: The URL of the request.
+          example: https://example.com
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - method
+      title: ReusableRequestSettings
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ReusableRequestSettings
       x-validate: null
     ArchiveGuideResponse:
       description: The response from archiving a guide.
@@ -10517,6 +10881,34 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.GoalRequest
       x-validate: null
+    WrappedReusableRequestRequestRequest:
+      description: Wraps the ReusableRequestRequest request under the reusable_request key.
+      example:
+        reusable_request:
+          description: Loads a user from the API.
+          name: Fetch user
+          settings:
+            body: null
+            headers:
+              - key: X-API-Key
+                value: "1234567890"
+            method: get
+            query_params:
+              - key: key
+                value: value
+            response_path: null
+            signing_key: null
+            url: https://example.com
+          type: http_fetch
+      properties:
+        reusable_request:
+          $ref: '#/components/schemas/ReusableRequestRequest'
+      required:
+        - reusable_request
+      title: WrappedReusableRequestRequestRequest
+      type: object
+      x-struct: null
+      x-validate: null
     RequestTemplateHeadersString:
       description: A template string that should resolve to a JSON object representing the headers.
       example: '{{ data.request_headers }}'
@@ -12492,6 +12884,52 @@ components:
       title: Audience
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Audience
+      x-validate: null
+    PaginatedReusableRequestResponse:
+      description: A paginated list of ReusableRequest. Contains a list of entries and page information.
+      example:
+        entries:
+          - created_at: "2021-01-01T00:00:00Z"
+            description: Loads a user from the API.
+            environment: development
+            key: fetch-user
+            name: Fetch user
+            settings:
+              body: null
+              headers:
+                - key: X-API-Key
+                  value: "1234567890"
+              method: get
+              query_params:
+                - key: key
+                  value: value
+              response_path: null
+              signing_key: null
+              url: https://example.com
+            sha: abc123
+            type: http_fetch
+            updated_at: "2021-01-01T00:00:00Z"
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/ReusableRequest'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedReusableRequestResponse
+      type: object
+      x-struct: null
       x-validate: null
     Member:
       description: A member of the account.
@@ -19230,6 +19668,183 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Source)
           }
+  /v1/reusable_requests/{reusable_request_key}/validate:
+    put:
+      callbacks: {}
+      description: |
+        Validates a reusable request payload without persisting it.
+
+        Validation uses the environment in the request. Accounts that allow writes in
+        every environment can validate in that environment. When writes are limited
+        to development, this endpoint accepts the development environment.
+      operationId: validateReusableRequest
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request to validate.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the ReusableRequestRequest request under the reusable_request key.
+              example:
+                reusable_request:
+                  description: Loads a user from the API.
+                  name: Fetch user
+                  settings:
+                    body: null
+                    headers:
+                      - key: X-API-Key
+                        value: "1234567890"
+                    method: get
+                    query_params:
+                      - key: key
+                        value: value
+                    response_path: null
+                    signing_key: null
+                    url: https://example.com
+                  type: http_fetch
+              properties:
+                reusable_request:
+                  $ref: '#/components/schemas/ReusableRequestRequest'
+              required:
+                - reusable_request
+              title: WrappedReusableRequestRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the ReusableRequest response under the `reusable_request` key.
+                example:
+                  reusable_request:
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: Loads a user from the API.
+                    environment: development
+                    key: fetch-user
+                    name: Fetch user
+                    settings:
+                      body: null
+                      headers:
+                        - key: X-API-Key
+                          value: "1234567890"
+                      method: get
+                      query_params:
+                        - key: key
+                          value: value
+                      response_path: null
+                      signing_key: null
+                      url: https://example.com
+                    sha: abc123
+                    type: http_fetch
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  reusable_request:
+                    $ref: '#/components/schemas/ReusableRequest'
+                required:
+                  - reusable_request
+                title: WrappedReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate a reusable request
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.reusableRequests.validate('fetch-user', {
+            reusable_request: {
+              settings: { method: 'get' },
+              type: 'http_fetch',
+            },
+          });
+
+          console.log(response.reusable_request);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.reusable_requests.validate(
+              reusable_request_key="fetch-user",
+              reusable_request={
+                  "settings": {
+                      "method": "get"
+                  },
+                  "type": "http_fetch",
+              },
+          )
+          print(response.reusable_request)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ReusableRequests.Validate(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestValidateParams{
+          			ReusableRequest: knockmapi.ReusableRequestRequestParam{
+          				Settings: knockmapi.ReusableRequestSettingsParam{
+          					Method: knockmapi.ReusableRequestSettingsMethodGet,
+          				},
+          				Type: knockmapi.ReusableRequestRequestTypeHTTPFetch,
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ReusableRequest)
+          }
   /v1/commits/{id}/promote:
     put:
       callbacks: {}
@@ -21696,6 +22311,167 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
           }
+  /v1/reusable_requests:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of reusable requests for an environment.
+      operationId: listReusableRequests
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
+          in: query
+          name: hide_uncommitted_changes
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of ReusableRequest. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - created_at: "2021-01-01T00:00:00Z"
+                      description: Loads a user from the API.
+                      environment: development
+                      key: fetch-user
+                      name: Fetch user
+                      settings:
+                        body: null
+                        headers:
+                          - key: X-API-Key
+                            value: "1234567890"
+                        method: get
+                        query_params:
+                          - key: key
+                            value: value
+                        response_path: null
+                        signing_key: null
+                        url: https://example.com
+                      sha: abc123
+                      type: http_fetch
+                      updated_at: "2021-01-01T00:00:00Z"
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/ReusableRequest'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List reusable requests
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const reusableRequest of client.reusableRequests.list()) {
+            console.log(reusableRequest.created_at);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.reusable_requests.list()
+          page = page.entries[0]
+          print(page.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.ReusableRequests.List(context.TODO(), knockmapi.ReusableRequestListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/branches:
     get:
       callbacks: {}
@@ -21816,6 +22592,425 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+  /v1/reusable_requests/{reusable_request_key}:
+    delete:
+      callbacks: {}
+      description: Archives a reusable request by key across all environments.
+      operationId: archiveReusableRequest
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request to archive.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving a reusable request.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive a reusable request
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.reusableRequests.archive('fetch-user');
+
+          console.log(response.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.reusable_requests.archive(
+              reusable_request_key="fetch-user",
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ReusableRequests.Archive(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestArchiveParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Result)
+          }
+    get:
+      callbacks: {}
+      description: Retrieves a reusable request by its key.
+      operationId: getReusableRequest
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request to retrieve.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
+          in: query
+          name: hide_uncommitted_changes
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReusableRequest'
+          description: OK
+      summary: Get a reusable request
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const reusableRequest = await client.reusableRequests.retrieve('fetch-user');
+
+          console.log(reusableRequest.created_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          reusable_request = client.reusable_requests.retrieve(
+              reusable_request_key="fetch-user",
+          )
+          print(reusable_request.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	reusableRequest, err := client.ReusableRequests.Get(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", reusableRequest.CreatedAt)
+          }
+    put:
+      callbacks: {}
+      description: |
+        Updates a reusable request of a given key, or creates a new one if it does not yet exist.
+
+        The write targets the environment in the request. Accounts that allow writes in
+        every environment can create and update in that environment. Pass force to
+        write outside the request's origin environment. When writes are limited to
+        development, this endpoint accepts the development environment unless force
+        is set.
+      operationId: upsertReusableRequest
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request to upsert.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: When set to true, forces the upsert to override existing content regardless of environment restrictions. This bypasses the development-only environment check and origin environment checks.
+          in: query
+          name: force
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: Whether to commit the resource at the same time as modifying it.
+          in: query
+          name: commit
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The message to commit the resource with, only used if `commit` is `true`.
+          in: query
+          name: commit_message
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: When used with commit, creates a new version with identical content and commits it if there are no unpublished changes.
+          in: query
+          name: allow_empty
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the ReusableRequestRequest request under the reusable_request key.
+              example:
+                reusable_request:
+                  description: Loads a user from the API.
+                  name: Fetch user
+                  settings:
+                    body: null
+                    headers:
+                      - key: X-API-Key
+                        value: "1234567890"
+                    method: get
+                    query_params:
+                      - key: key
+                        value: value
+                    response_path: null
+                    signing_key: null
+                    url: https://example.com
+                  type: http_fetch
+              properties:
+                reusable_request:
+                  $ref: '#/components/schemas/ReusableRequestRequest'
+              required:
+                - reusable_request
+              title: WrappedReusableRequestRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the ReusableRequest response under the `reusable_request` key.
+                example:
+                  reusable_request:
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: Loads a user from the API.
+                    environment: development
+                    key: fetch-user
+                    name: Fetch user
+                    settings:
+                      body: null
+                      headers:
+                        - key: X-API-Key
+                          value: "1234567890"
+                      method: get
+                      query_params:
+                        - key: key
+                          value: value
+                      response_path: null
+                      signing_key: null
+                      url: https://example.com
+                    sha: abc123
+                    type: http_fetch
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  reusable_request:
+                    $ref: '#/components/schemas/ReusableRequest'
+                required:
+                  - reusable_request
+                title: WrappedReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a reusable request
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.reusableRequests.upsert('fetch-user', {
+            reusable_request: {
+              settings: { method: 'get' },
+              type: 'http_fetch',
+            },
+          });
+
+          console.log(response.reusable_request);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.reusable_requests.upsert(
+              reusable_request_key="fetch-user",
+              reusable_request={
+                  "settings": {
+                      "method": "get"
+                  },
+                  "type": "http_fetch",
+              },
+          )
+          print(response.reusable_request)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ReusableRequests.Upsert(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestUpsertParams{
+          			ReusableRequest: knockmapi.ReusableRequestRequestParam{
+          				Settings: knockmapi.ReusableRequestSettingsParam{
+          					Method: knockmapi.ReusableRequestSettingsMethodGet,
+          				},
+          				Type: knockmapi.ReusableRequestRequestTypeHTTPFetch,
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ReusableRequest)
           }
   /v1/preference_categories:
     get:
@@ -26141,6 +27336,8 @@ tags:
     name: Email layouts
   - description: A message type allows you to specify an in-app schema that defines the fields available for your in-app notifications.
     name: Message types
+  - description: Reusable requests are HTTP steps that workflows can link to and share across an account.
+    name: Reusable requests
   - description: Guides let you define in-app guides that can be displayed to users based on priority and other conditions.
     name: Guides
   - description: Audiences define sets of users that can be targeted for notifications.
