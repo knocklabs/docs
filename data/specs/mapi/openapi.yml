@@ -4383,6 +4383,81 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.GuideActivationRequest
       x-validate: null
+    PromoteGroup:
+      description: A summary of a promote. Every commit copied into the destination environment by the same promote shares the group's ID, which you can use to list them with the `promote_group_id` filter on the list commits endpoint.
+      example:
+        actor:
+          email: john.doe@example.com
+          name: John Doe
+        commit_count: 3
+        created_at: "2021-01-01T00:00:00Z"
+        id: 6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11
+        source: development
+        source_type: environment
+        to_environment: production
+      properties:
+        actor:
+          description: The user who performed the promote.
+          nullable: true
+          properties:
+            email:
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        commit_count:
+          description: The number of commits copied into the destination environment.
+          type: integer
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the promote happened.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for the promote group.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        source:
+          description: The slug of the environment or branch the commits were promoted from.
+          type: string
+          x-struct: null
+          x-validate: null
+        source_type:
+          description: Whether the source is an environment or a branch.
+          enum:
+            - environment
+            - branch
+          type: string
+          x-struct: null
+          x-validate: null
+        to_environment:
+          description: The slug of the environment the commits were promoted to.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - source
+        - source_type
+        - to_environment
+        - commit_count
+        - created_at
+      title: PromoteGroup
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PromoteGroup
+      x-validate: null
     PreviewPartialRequest:
       description: A request to preview a partial, without requiring a partial to be persisted within Knock.
       example:
@@ -6291,6 +6366,8 @@ components:
         created_at: "2021-01-01T00:00:00Z"
         environment: development
         id: 123e4567-e89b-12d3-a456-426614174000
+        promote_group_id: null
+        promoted_from_commit_id: null
         resource:
           identifier: my-email-layout
           type: email_layout
@@ -6341,6 +6418,20 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        promote_group_id:
+          description: The identifier of the promote that created this commit, shared by every commit copied into the environment by the same promote. Null if the commit was not created by a promote.
+          format: uuid
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        promoted_from_commit_id:
+          description: The ID of the commit this commit was promoted from. Null if the commit was not created by a promote.
+          format: uuid
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         resource:
           description: The resource object associated with the commit.
           example:
@@ -6379,6 +6470,8 @@ components:
         - author
         - environment
         - created_at
+        - promote_group_id
+        - promoted_from_commit_id
       title: Commit
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Commit
@@ -12845,14 +12938,29 @@ components:
           created_at: "2021-01-01T00:00:00Z"
           environment: development
           id: 123e4567-e89b-12d3-a456-426614174000
+          promote_group_id: null
+          promoted_from_commit_id: null
           resource:
             identifier: my-email-layout
             type: email_layout
+        promote_group:
+          actor:
+            email: john.doe@example.com
+            name: John Doe
+          commit_count: 3
+          created_at: "2021-01-01T00:00:00Z"
+          id: 6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11
+          source: development
+          source_type: environment
+          to_environment: production
       properties:
         commit:
           $ref: '#/components/schemas/Commit'
+        promote_group:
+          $ref: '#/components/schemas/PromoteGroup'
       required:
         - commit
+        - promote_group
       title: WrappedCommitResponse
       type: object
       x-struct: null
@@ -12999,6 +13107,8 @@ components:
             created_at: "2021-01-01T00:00:00Z"
             environment: development
             id: 123e4567-e89b-12d3-a456-426614174000
+            promote_group_id: null
+            promoted_from_commit_id: null
             resource:
               identifier: my-email-layout
               type: email_layout
@@ -14075,8 +14185,25 @@ components:
     PromoteAllResponse:
       description: The response from promoting all changes.
       example:
+        promote_group:
+          actor:
+            email: john.doe@example.com
+            name: John Doe
+          commit_count: 3
+          created_at: "2021-01-01T00:00:00Z"
+          id: 6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11
+          source: development
+          source_type: environment
+          to_environment: production
         result: success
       properties:
+        promote_group:
+          allOf:
+            - $ref: '#/components/schemas/PromoteGroup'
+          description: A summary of the promote, or null if there were no changes to promote.
+          nullable: true
+          x-struct: null
+          x-validate: null
         result:
           description: The result of the promote operation.
           example: success
@@ -14085,6 +14212,7 @@ components:
           x-validate: null
       required:
         - result
+        - promote_group
       title: PromoteAllResponse
       type: object
       x-struct: null
@@ -16890,8 +17018,25 @@ paths:
               schema:
                 description: The response from promoting all changes.
                 example:
+                  promote_group:
+                    actor:
+                      email: john.doe@example.com
+                      name: John Doe
+                    commit_count: 3
+                    created_at: "2021-01-01T00:00:00Z"
+                    id: 6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11
+                    source: development
+                    source_type: environment
+                    to_environment: production
                   result: success
                 properties:
+                  promote_group:
+                    allOf:
+                      - $ref: '#/components/schemas/PromoteGroup'
+                    description: A summary of the promote, or null if there were no changes to promote.
+                    nullable: true
+                    x-struct: null
+                    x-validate: null
                   result:
                     description: The result of the promote operation.
                     example: success
@@ -16900,6 +17045,7 @@ paths:
                     x-validate: null
                 required:
                   - result
+                  - promote_group
                 title: PromoteAllResponse
                 type: object
                 x-struct: null
@@ -16918,7 +17064,7 @@ paths:
 
           const response = await client.commits.promoteAll({ to_environment: 'to_environment' });
 
-          console.log(response.result);
+          console.log(response.promote_group);
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -16929,7 +17075,7 @@ paths:
           response = client.commits.promote_all(
               to_environment="to_environment",
           )
-          print(response.result)
+          print(response.promote_group)
         go: |
           package main
 
@@ -16951,7 +17097,7 @@ paths:
           	if err != nil {
           		panic(err.Error())
           	}
-          	fmt.Printf("%+v\n", response.Result)
+          	fmt.Printf("%+v\n", response.PromoteGroup)
           }
   /v1/guides:
     get:
@@ -19874,14 +20020,29 @@ paths:
                     created_at: "2021-01-01T00:00:00Z"
                     environment: development
                     id: 123e4567-e89b-12d3-a456-426614174000
+                    promote_group_id: null
+                    promoted_from_commit_id: null
                     resource:
                       identifier: my-email-layout
                       type: email_layout
+                  promote_group:
+                    actor:
+                      email: john.doe@example.com
+                      name: John Doe
+                    commit_count: 3
+                    created_at: "2021-01-01T00:00:00Z"
+                    id: 6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11
+                    source: development
+                    source_type: environment
+                    to_environment: production
                 properties:
                   commit:
                     $ref: '#/components/schemas/Commit'
+                  promote_group:
+                    $ref: '#/components/schemas/PromoteGroup'
                 required:
                   - commit
+                  - promote_group
                 title: WrappedCommitResponse
                 type: object
                 x-struct: null
@@ -21651,6 +21812,41 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: Filter commits to those created by a single promote. Every commit copied into an environment by the same promote shares one `promote_group_id`.
+          in: query
+          name: promote_group_id
+          required: false
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter promoted commits by the slug of the environment or branch they were promoted from.
+          in: query
+          name: promoted_from_environment
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Only return commits created at or after this RFC 3339 timestamp. Useful for catching up after missed webhooks.
+          in: query
+          name: since
+          required: false
+          schema:
+            format: date-time
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Only return commits created at or before this RFC 3339 timestamp.
+          in: query
+          name: until
+          required: false
+          schema:
+            format: date-time
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -21690,6 +21886,8 @@ paths:
                       created_at: "2021-01-01T00:00:00Z"
                       environment: development
                       id: 123e4567-e89b-12d3-a456-426614174000
+                      promote_group_id: null
+                      promoted_from_commit_id: null
                       resource:
                         identifier: my-email-layout
                         type: email_layout
