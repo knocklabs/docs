@@ -21,39 +21,11 @@ tags:
 section: Concepts
 ---
 
-Knock environments enable you to test and review changes before you ship them to production.
-
-Each Knock environment has its own isolated data (such as users, tenants, and objects) and its own version-controlled content (such as workflows, guides, and layouts.)
+Your Knock account starts with a single environment: production. [Enabling environments](#enable-environments) adds a development environment where you can build and test changes before you promote them to production. After that, you can [create additional environments](#create-additional-environments) (for example, a staging environment to mirror your own development lifecycle.) For an introduction to environments and when to use them, see the [version control overview](/version-control/overview).
 
 ## How environments work
 
-Your Knock account starts with two environments: development and production.
-
-You can [create additional environments](/version-control/environments#create-additional-environments) (for example, a Staging environment to mirror your own development lifecycle.)
-
-Environments contain isolated data (such as users, objects, and logs) and version-controlled content (such as workflows, layouts, and partials.)
-
-With Knock environments you:
-
-- Use environment-specific API keys to send data to your environments.
-- Create, update, and version content within any environment.
-- For production-critical use cases, create content in your development environment, then **promote** it to production.
-
-<AccordionGroup>
-  <Accordion
-    title="A typical Knock customer setup"
-    anchorSlug="a-typical-knock-customer-setup"
-  >
-    Here's a typical setup for customers using Knock with two environments. 1.
-    **Development environment.** Usually used by engineering and product teams.
-    Contains your development data, and any transactional workflows or other
-    content you do not want people updating directly in production. 2.
-    **Production environment.** Usually used by growth and marketing teams.
-    Contains your production data, and your lower-risk content that does not
-    need to follow promotion, such as lifecycle workflows and one-time
-    announcements.
-  </Accordion>
-</AccordionGroup>
+Each Knock environment has its own isolated data (such as users, tenants, and objects) and its own version-controlled content (such as workflows, guides, and layouts.)
 
 ### Send data to environments
 
@@ -105,51 +77,60 @@ Here's how content resources work:
 - Content can only be edited in the environment in which it was created.
 - Content is versioned with [commits](/version-control/commits). You can roll back to earlier commits at any time.
 
-These rules enable two ways of working with content and shipping it to your end users in production:
+These rules enable two ways of working with content and shipping it to your end users in production. Every account can create content directly in production. Once you've [enabled environments](#enable-environments), you can also create content in development and promote it.
 
 <AccordionGroup>
+  <Accordion title="Create directly in production" anchorSlug="create-directly-in-production">
+    For content managed by growth, marketing, and product, such as feature announcements and lifecycle workflows, this path is faster and doesn't require the promotion step.
+
+    1. Create and update the content in your production environment
+    2. Publish (commit) the changes to your production environment when ready
+
+    Once you've enabled environments, you can turn off creating content directly in production with the [modify resources in any environment](#modify-resources-in-any-environment) setting.
+
+  </Accordion>
   <Accordion title="Create in development and promote to production" anchorSlug="create-in-development-and-promote-to-production">
-    For content managed by engineering, such as high-volume transactional workflows, this path ensures that content can only be updated in development before being promoted to production.
+    For content managed by engineering, such as high-volume transactional workflows, this path ensures that content can only be updated in development before being promoted to production. It requires [enabling environments](#enable-environments).
 
     1. Create and update the content in your development environment
     2. Commit the changes to your development environment
     3. Promote the changes to your production environment when ready
 
   </Accordion>
-  <Accordion title="Create directly in production" anchorSlug="create-directly-in-production">
-    For content managed by growth, marketing, and product, such as feature announcements and lifecycle workflows, this path is faster and doesn't require the promotion step.
-    1. Create and update the content in your production environment
-    2. Publish (commit) the changes to your production environment when ready
-
-    <Callout
-      type="tip"
-      title="Tip:"
-      text={
-        <>
-          If you want to disable the ability to create content directly in production, you can do so in account settings under the <span className="font-semibold">Permissions</span> page.
-        </>
-      }
-    />
-
-  </Accordion>
 </AccordionGroup>
 
-<Callout
-  type="warning"
-  title="For pre-2026 customers."
-  text={
-    <>
-      If you are a pre-January-2026 customer, your account will default to
-      having production write access disabled. This means that your users will
-      only be able to create content in the development environment, then
-      promote it to production. <br />
-      <br />
-      You can enable production write access in account settings under the{" "}
-      <span className="font-semibold">Permissions</span> page, at which point
-      your users will be able to create content directly in production.
-    </>
-  }
-/>
+## Enable environments
+
+Enabling environments adds a development environment below production, and turns on [promotion](/version-control/commits#promoting-commits), [additional environments](#create-additional-environments), and [branches](/version-control/branches). To decide whether your team needs them, see [this frequently asked question](/version-control/overview#faq-when-to-enable-environments).
+
+<Steps titleSize="h4">
+  {/* prettier-ignore */}
+  <Step title="Go to the Environments page">
+    Navigate to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your dashboard's account settings.
+  </Step>
+  <Step title="Enable environments">
+    Click **Enable environments**, then confirm.
+  </Step>
+</Steps>
+
+Enabling environments requires the `owner` or `admin` role, or a custom role with environment management permissions. You can't turn environments off after you enable them.
+
+### What changes when you enable environments
+
+- **Your Development environment starts fresh.** Knock copies your `default` [email layout](/integrations/email/layouts) into development and nothing else. Your workflows, guides, and other content stay in production. This is expected: development is a new place to build, not a copy of production. You can [clone](#clone-resources-across-environments) individual resources into development from the dashboard, or use the [CLI](/cli/overview) or [Management API](/developer-tools/management-api) to pull production resources and push them to development in bulk.
+- **Existing content stays editable only in production.** Content can only be edited in the environment where it was created, so resources you built in production stay there. To work on one in development and promote it, [clone it into development with the same key](#faq-move-resource-from-production-to-development).
+- **Development becomes your default environment.** The [Knock CLI](/developer-tools/knock-cli) and [Management API](/developer-tools/management-api) target your account's default environment when you don't specify one. Before you enable environments, that's production. After, it's development, so pass `production` explicitly in any scripts that should keep targeting it.
+- **Members gain access to development.** Account seats with the `member` role can work in any environment. To keep a team member limited to production, assign them the Production-only member role. Learn more in [roles and permissions](/manage-your-account/roles-and-permissions).
+- **Environment permission settings appear.** The [Modify resources in any environment](#modify-resources-in-any-environment) and **Promote resources** settings appear on the <a href="https://dashboard.knock.app/~/settings/permissions" target="_blank">**Permissions**</a> page in your account settings.
+
+### Modify resources in any environment
+
+Once you've enabled environments, the **Modify resources in any environment** setting on the **Permissions** page controls whether members can create and edit content directly in environments other than development. This setting is enabled by default.
+
+1. **Enabled.** Members can create and edit content in any environment, including production.
+2. **Disabled.** Every environment other than development is read-only. Members create content in development and promote it to production.
+
+The **Promote resources** setting on the same page controls who can promote changes between environments. When it's disabled, only account seats with the `owner` and `admin` roles can promote.
 
 ## Clone resources across environments
 
@@ -188,12 +169,10 @@ When you clone a workflow, Knock also copies its channel step templates and work
 
 ### Environment targeting
 
-Which environments you can clone into depends on your account's **production write access** setting on the **Permissions** page in your account settings:
+Which environments you can clone into depends on the [modify resources in any environment](#modify-resources-in-any-environment) account setting, following the same rules as creating and editing content:
 
-1. **Production write access enabled.** You can clone into any environment in your project.
-2. **Production write access disabled.** You can only clone into your Development environment.
-
-This follows the same rules as creating and editing content in an environment. If production write access is disabled, environments other than Development are read-only and cannot be selected as a clone destination.
+1. **Enabled.** You can clone into any environment in your account.
+2. **Disabled.** You can only clone into your development environment.
 
 Branch environments cannot be used as clone targets.
 
@@ -207,17 +186,17 @@ Branch environments cannot be used as clone targets.
 
 <Callout
   type="info"
-  title="Note:"
+  title="Isolate changes with branches."
   text={
     <>
-      If you're looking for a way to isolate changes per-developer working
+      If you're looking for a way to isolate changes for each developer working
       within Knock, you may want to consider using{" "}
       <a href="/version-control/branches">branches</a>.
     </>
   }
 />
 
-By default your Knock account comes with two environments: development and production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a staging environment) you can add it on the settings page of the Knock dashboard.
+Once you've [enabled environments](#enable-environments), your account has development and production environments. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a staging environment), you can add it on the settings page of the Knock dashboard.
 
 To create a new environment, go to the <a href="https://dashboard.knock.app/~/settings/environments" target="_blank">**Environments**</a> page under the **Version control** section of your account settings. You'll see a button to "Create environment."
 
@@ -230,7 +209,7 @@ Two constraints apply to the position you choose:
 - **You cannot insert an environment above production.** Production is always the highest environment, so it isn't available in the select.
 - **You cannot insert an environment below development.** Development is always the lowest environment, so the new environment will always sit above it.
 
-By default the select is set to the second-to-last environment, which places the new environment directly below production. In a new account with only development and production, that means a new environment is inserted between the two.
+By default the select is set to the second-to-last environment, which places the new environment directly below production. When your account has only development and production, that means a new environment is inserted between the two.
 
 Environments cannot be re-ordered after they're created, as this would break the promotion model for previously-promoted changes.
 
@@ -323,19 +302,18 @@ There are two tools you can use to control access to your data in the Knock dash
     title="Can I programmatically create, rename, or delete environments?"
     anchorSlug="faq-programmatically-manage-environments"
   >
-    Not at this time. You can only create, rename, and delete environments
-    through the Knock dashboard.
+    Not at this time. You can only enable, create, rename, and delete
+    environments through the Knock dashboard.
   </Accordion>
   <Accordion
     title="Can I delete development or production environments?"
     anchorSlug="faq-delete-default-environments"
   >
-    No. At this time, development and production are required default
-    environments that are automatically created for every Knock account and
-    can't be deleted.
+    No. Production is created for every Knock account, and development is added
+    when you enable environments. Neither can be deleted.
   </Accordion>
   <Accordion
-    title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?"
+    title="Can I move a resource from production to development?"
     anchorSlug="faq-move-resource-from-production-to-development"
   >
     Yes. Use [cloning resources across
