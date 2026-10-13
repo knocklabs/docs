@@ -1,0 +1,141 @@
+---
+title: Agent registration
+description: Let an AI agent register a Knock account on its own, build in it, and hand it to a person to claim.
+section: Developer tools
+tags: ["AI", "agent"]
+---
+
+An AI agent can set up a Knock account without a person present. The agent registers, gets a Management API credential, builds workflows and other resources, and then asks a person to claim the account. Knock follows the <a href="https://workos.com/auth-md" target="_blank" rel="noopener">auth.md</a> specification (v0.6.0) for the user claimed flow with an anonymous start.
+
+Agents can read how to register from the `auth.md` file Knock publishes at <a href="https://control.knock.app/auth.md" target="_blank" rel="noopener">control.knock.app/auth.md</a>. The machine-readable source of truth is the <a href="https://control.knock.app/.well-known/oauth-protected-resource" target="_blank" rel="noopener">protected resource metadata</a>.
+
+## How it works
+
+1. The agent registers and receives an identity assertion and a claim token.
+2. The agent exchanges the assertion for an access token. The token is a Knock [service token](/developer-tools/service-tokens) for the [Management API](/developer-tools/management-api).
+3. The agent works in the account, including [exchanging for API keys](/developer-tools/api-keys) for any environment.
+4. The agent asks a person for their email address, starts a claim, and shows the person a link and a six-digit code.
+5. The person opens the link, signs in to the Knock dashboard with that email, and types the code. They become the owner of the account.
+
+An account that nobody claims is deleted 24 hours after registration.
+
+## Register an agent
+
+Send a `POST` request to `/agent/identity` with the type `anonymous`.
+
+```bash
+curl -X POST https://control.knock.app/agent/identity \
+  -H "content-type: application/json" \
+  -d '{"type": "anonymous"}'
+```
+
+The response includes the values the agent needs.
+
+| Property                                   | Description                                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `registration_id`                          | The identifier of the registration.                                                           |
+| `identity_assertion`                       | A signed token the agent exchanges for an access token. It is valid for one hour.             |
+| `claim_token`                              | A secret the agent keeps to start and follow a claim. Knock returns it only in this response. |
+| `claim_url`                                | The endpoint the agent calls to start a claim.                                                |
+| `claim_token_expires`                      | When the account is deleted if nobody claims it.                                              |
+| `pre_claim_scopes` and `post_claim_scopes` | The scopes the access token carries. Both are `knock.project`.                                |
+
+Knock rate limits registration by IP address and across all callers.
+
+## Get an access token
+
+Exchange the identity assertion at `/oauth2/token` with the JWT bearer grant.
+
+```bash
+curl -X POST https://control.knock.app/oauth2/token \
+  -d grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
+  -d assertion=<identity_assertion>
+```
+
+The response holds an `access_token` that starts with `knock_st_`. Send it as a bearer token to the Management API, or give it to the [Knock CLI](/developer-tools/knock-cli).
+
+The account takes a short time to set up. Until it is ready, the endpoint answers `503` with a `Retry-After` header. Retry after that delay.
+
+You can exchange the same assertion again to get the current token. To revoke the token, send it to `/oauth2/revoke`. Before the account is claimed, the next exchange issues a new token.
+
+## What the token can do
+
+The access token has one scope, `knock.project`, before and after a claim. It lets the agent author and operate in every environment, including production.
+
+| The agent can                                                                                                                                    | The agent cannot                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| Create and edit workflows, email layouts, partials, message types, translations, guides, audiences, goals, broadcasts, and the preference center | Read billing information                         |
+| Edit schemas, variables, and reusable steps                                                                                                      | List or remove members                           |
+| Commit and promote changes, and work with branches                                                                                               | Manage service tokens, permission groups, or SSO |
+| Read and manage channels, channel groups, sources, tags, and preference categories                                                               | Delete the account                               |
+| Exchange for the API keys of any environment                                                                                                     |                                                  |
+
+## Hand the account to a person
+
+1. Ask the person for their email address.
+2. Send a `POST` request to the `claim_url` with the claim token and the email.
+
+   ```bash
+   curl -X POST https://control.knock.app/agent/identity/claim \
+     -H "content-type: application/json" \
+     -d '{"claim_token": "<claim_token>", "email": "person@example.com"}'
+   ```
+
+3. Show the person the `verification_uri` and the `user_code` from the response together. The code is valid for 10 minutes.
+4. Poll `/oauth2/token` with the claim grant until the person finishes. Wait at least five seconds between requests.
+
+   ```bash
+   curl -X POST https://control.knock.app/oauth2/token \
+     -d grant_type=urn:workos:agent-auth:grant-type:claim \
+     -d claim_token=<claim_token>
+   ```
+
+While the person has not finished, the response is `authorization_pending`. When they finish, the response holds a new access token and a new identity assertion.
+
+Claiming the account does the following:
+
+- The person becomes the owner of the account.
+- The agent's access token is replaced with a new one. The old token stops working.
+- The account no longer expires, and Knock sets up billing for it on the Free plan.
+- API keys the agent already fetched keep working until the owner rolls them.
+
+The claim link only works for the email the agent supplied. Five wrong codes end the attempt, and the agent can start a new one. Starting a new attempt replaces the previous code and link. An agent can start three attempts every 10 minutes.
+
+## Manage the agent's access
+
+After a claim, the owner can see and delete the agent's token on the service tokens page in the dashboard. The token is named "Agent (auth.md)". Deleting it ends the agent's access. The agent cannot get a new token for that account, and it can register a new account instead.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Does the agent need an existing Knock account?"
+    anchorSlug="faq-existing-account"
+  >
+    No. Registration creates a new account. A person who already has a Knock
+    account becomes the owner of one more account when they claim it. Knock does
+    not merge accounts.
+  </Accordion>
+  <Accordion
+    title="What happens if nobody claims the account?"
+    anchorSlug="faq-unclaimed-accounts"
+  >
+    Knock deletes the account, and the agent's token stops working, 24 hours
+    after registration. The agent can register again.
+  </Accordion>
+  <Accordion
+    title="Can the agent send notifications?"
+    anchorSlug="faq-sending-notifications"
+  >
+    The agent can build and run workflows with the access token. Sending to real
+    recipients depends on the channels in the account, and the Management API
+    does not create channel providers. Plan limits for the Free plan apply.
+  </Accordion>
+  <Accordion
+    title="Which auth.md flows does Knock support?"
+    anchorSlug="faq-supported-flows"
+  >
+    Knock supports the anonymous start of the user claimed flow. It does not
+    support the `service_auth` type or the agent verified flow.
+  </Accordion>
+</AccordionGroup>
