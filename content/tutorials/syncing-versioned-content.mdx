@@ -149,7 +149,7 @@ For each resource, call its retrieve endpoint in the destination environment wit
 
 Templates aren't a separate resource type. A workflow's response includes its steps, and each channel step carries its template, so syncing a workflow syncs its templates.
 
-For translations, split the identifier on `/`. Pass the first part as the `{locale}` path segment and the second, when present, as the `namespace` query parameter.
+For translations, split the identifier on `/`. Pass the first part as the `{locale}` path segment and the second, when present, as the `namespace` query parameter. The translation endpoint wraps its response under a `translation` key, while the other retrieve endpoints return the resource at the top level.
 
 ```bash title="Fetch the committed version of a workflow"
 curl -G https://control.knock.app/v1/workflows/new-comment \
@@ -162,7 +162,7 @@ curl -G https://control.knock.app/v1/workflows/new-comment \
 
 Write each resource to your store keyed by environment, resource type, and identifier, replacing what you had before. Alongside the content, record the promote group ID and the commit IDs that touched the resource. That gives you a trail from any stored version back to the promote and the commits in Knock's commit log.
 
-Once every resource is stored, mark the promote group ID as processed. If the handler fails partway through, the ID stays unprocessed, and a retried delivery or your next [catch-up sweep](#catching-up-on-missed-changes) picks it up again. Because each write replaces the stored resource with Knock's committed state, running the same promote twice produces the same result.
+Once every resource is stored, mark the promote group ID as processed. If the sync fails partway through, the ID stays unprocessed. Knock doesn't retry a delivery your endpoint already acknowledged, so your next [catch-up sweep](#catching-up-on-missed-changes) is what picks it up again. Because each write replaces the stored resource with Knock's committed state, running the same promote twice produces the same result.
 
 Process one promote at a time for each environment. The retrieve endpoints return the resource's state at the moment you call them, so two promotes handled in parallel can finish out of order and leave an older response in your store.
 
@@ -316,7 +316,7 @@ Start with the webhook's page in the dashboard. Its [delivery logs](/developer-t
 | List commits returns no entries           | Pass `environment` set to `data.to_environment`. The promote's commits live in the destination environment, not the source.                                       |
 | Fewer commits than `commit_count`         | Follow `page_info.after` to fetch every page.                                                                                                                     |
 | The same promote processes more than once | Record each processed `data.id` and skip IDs you've already handled. Respond with `2xx` before doing slow work so Knock doesn't retry the delivery.               |
-| A retrieve request fails for one resource | Log the commit ID and resource, leave the promote unprocessed, and inspect the resource in the dashboard. The next retry or sweep tries again.                    |
+| A retrieve request fails for one resource | Log the commit ID and resource, leave the promote unprocessed, and inspect the resource in the dashboard. Your next sweep tries again.                            |
 
 ## Limitations
 
