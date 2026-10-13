@@ -720,6 +720,11 @@ const nextConfig = {
         destination: "/in-app-ui/message-types/overview",
         permanent: true,
       },
+      {
+        source: "/in-app-ui/guides/message-types",
+        destination: "/in-app-ui/message-types/overview",
+        permanent: true,
+      },
       // {
       //   source: "/cli",
       //   destination: "/cli/overview",

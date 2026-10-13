@@ -217,7 +217,7 @@ export default function Home() {
               nudgePadding={2}
             >
               <ConceptCard
-                title="Agent toolkit"
+                title="Agent Toolkit"
                 description="Give your AI agents the ability to send cross-channel messaging and power rich human-in-the-loop flows."
                 href="/developer-tools/agent-toolkit/overview"
                 image="/images/overviews/home/agent-toolkit.png"

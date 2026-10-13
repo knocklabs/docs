@@ -16,7 +16,7 @@ SlackKit connects multiple concepts in Knock to make it easier for your applicat
 
 ### About tenants
 
-[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a standard SlackKit implementation, you'll store a Slack workspace's `access_token` on a corresponding tenant in Knock.
+[Tenants](/multi-tenancy/overview) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a standard SlackKit implementation, you'll store a Slack workspace's `access_token` on a corresponding tenant in Knock.
 
 If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application. If you don't already use tenants in Knock, SlackKit can create tenants for you on the fly if they don't already exist.
 
@@ -48,13 +48,13 @@ To facilitate the OAuth flow and channel selection process, we'll use Knock's [S
 
 ### Signing a user token
 
-The only access you'll need to manage when using SlackKit are grants for your users to interact with their [Tenant](/concepts/tenants) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
+The only access you'll need to manage when using SlackKit are grants for your users to interact with their [Tenant](/multi-tenancy/overview) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
 
 We've made it easy for you to tell Knock which resources your users should have access to by making it a part of their user token. In this section you'll learn how to generate these grants using the Node SDK and, if you're not using the SDK, how to structure them for other languages.
 
 You'll need to generate a token for your user that includes access to the tenant storing the Slack access token as well as any recipient objects storing Slack channel data described in this reference on [SlackKit resource access grants](/in-app-ui/react/slack-kit#resources-access-grants).
 
-Using the below example, you can quickly generate a token with the <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank">Node SDK</a>.
+Using the below example, you can quickly generate a token with the <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank" rel="noopener">Node SDK</a>.
 
 ```javascript
 import {
@@ -162,9 +162,9 @@ To send a direct message to a user in Slack, you'll need to resolve their email 
 
 Knock's email-based user ID resolution handles the complexity of resolving a user's Slack ID for you. Here's how it works.
 
-When the email-based user ID resolution setting is enabled and a workflow is triggered for a user recipient who does not have stored channel data, Knock will automatically make a request to the <a href="https://api.slack.com/methods/users.lookupByEmail" target="_blank">`users.lookupByEmail` endpoint of the Slack API</a> to resolve the user's Slack ID before sending the message. When this Slack API request succeeds, Knock will automatically add the Slack user ID to the user's channel data so that the API request does not need to be repeated in the future. Note that this API request will only be made when the user has a [valid email attribute](/concepts/users#optional-attributes).
+When the email-based user ID resolution setting is enabled and a workflow is triggered for a user recipient who does not have stored channel data, Knock will automatically make a request to the <a href="https://api.slack.com/methods/users.lookupByEmail" target="_blank" rel="noopener">`users.lookupByEmail` endpoint of the Slack API</a> to resolve the user's Slack ID before sending the message. When this Slack API request succeeds, Knock will automatically add the Slack user ID to the user's channel data so that the API request does not need to be repeated in the future. Note that this API request will only be made when the user has a [valid email attribute](/concepts/users#optional-attributes).
 
-To use this feature, you must request the <a href="https://api.slack.com/scopes/users:read" target="_blank">`users:read`</a> and <a href="https://api.slack.com/scopes/users:read.email" target="_blank">`users:read.email`</a> scopes during the OAuth flow. See [How to connect Slack to Knock](/integrations/chat/slack/overview#connect-your-own-slack-app) for more information about Slack scopes. If you're using SlackKit's `SlackAuthButton` component to manage the OAuth flow, you can use the `additionalScopes` prop to request these scopes.
+To use this feature, you must request the <a href="https://api.slack.com/scopes/users:read" target="_blank" rel="noopener">`users:read`</a> and <a href="https://api.slack.com/scopes/users:read.email" target="_blank" rel="noopener">`users:read.email`</a> scopes during the OAuth flow. See [How to connect Slack to Knock](/integrations/chat/slack/overview#connect-your-own-slack-app) for more information about Slack scopes. If you're using SlackKit's `SlackAuthButton` component to manage the OAuth flow, you can use the `additionalScopes` prop to request these scopes.
 
 ```javascript title="Requesting the users:read and users:read.email scopes with SlackAuthButton"
 // Without container
@@ -204,22 +204,22 @@ Once you're confident that all of your application's tenants have granted author
   <Accordion title="Enabling email-based user ID resolution on a Slack channel" anchorSlug="email-based-user-id-resolution-slack-channel">
     <Steps>
       <Step title="Open your Slack channel configuration">
-        In the dashboard, navigate to the **Channels and sources** page under your account settings and select your Slack integration. Click the “Manage configuration” button for one of your environments to open the channel configuration dialog.
+        In the dashboard, navigate to the <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> page under your account settings and select your Slack integration. Under **Environment configurations**, click one of your environments to expand its settings.
       </Step>
       <Step title="Enable the email-based user ID resolution setting">
-        Locate the toggle labeled “Enable email-based user ID resolution” and
-        toggle it on.
+        Open **Advanced**, then turn on the toggle labeled “Resolve users by
+        email”.
 
         <Image
           src="/images/integrations/chat/slack/enable-email-based-user-id-resolution-in-channel-config.png"
-          width={1480}
-          height={1536}
-          alt="Channel configuration dialog with email-based user ID resolution setting"
-          className="rounded-md mx-auto border border-gray-200"
+          alt="Slack environment settings with Resolve users by email turned on under Advanced"
+          width={694}
+          height={604}
+          className="mx-auto"
         />
       </Step>
       <Step title="Save changes">
-        Click the “Update settings” button to save your changes.
+        Click the “Save changes” button to save your changes.
       </Step>
     </Steps>
 

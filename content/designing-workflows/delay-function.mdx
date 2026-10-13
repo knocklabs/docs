@@ -7,6 +7,8 @@ section: Designing workflows
 
 A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are three types of delays we support in Knock today: "wait for fixed interval", "wait for a dynamic period", and "wait until a relative timestamp."
 
+By default, that continuation uses the [latest published version](#setting-the-workflow-version-mode) of the workflow.
+
 ## Wait for a fixed interval
 
 The "wait for fixed interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
@@ -123,6 +125,37 @@ When configuring a relative delay, you'll specify:
 
 As in the dynamic delay section above, the key specified must be available to be resolved. If the key is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be skipped.
 
+## Setting the workflow version mode
+
+A delay step can continue on the **latest** workflow version or stay **pinned** to the version that started the delay. New delay steps default to latest mode.
+
+Set this on the delay step with the "Continue on latest version" toggle. You can also set `workflow_version_mode` to `latest` or `pinned` when you manage the workflow through the [Management API](/developer-tools/management-api) or [CLI](/developer-tools/knock-cli).
+
+<Callout
+  type="warning"
+  title="Existing delay steps stay pinned."
+  text={
+    <>
+      Delay steps created before October 7, 2026, and configurations that omit{" "}
+      <code>workflow_version_mode</code>, stay in <code>pinned</code> mode. Set
+      the step to latest mode to resume those runs on the latest published
+      version.
+    </>
+  }
+/>
+
+### Latest (default)
+
+In latest mode, when the delay elapses, Knock continues the workflow on the newest published version that still includes this delay step with latest mode enabled. That version is either the one that started the run, or a version published after it. Template and step changes on that version are used for the continuation.
+
+Use latest mode for long delays, such as onboarding or reminders, so template and step edits published during the delay apply when the run resumes.
+
+### Pinned
+
+Pinned mode ties the delay to the workflow version that started the run. When the delay elapses, the run continues on that version, using the templates and steps from that version.
+
+Pinned is an advanced option. Use it when a delayed run should stay on the version that started it.
+
 ## Using workflow cancellation with delays
 
 In cases where you're waiting to see if a user will complete an action before sending a notification, you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to ensure a user doesn't receive an unnecessary reminder.
@@ -160,6 +193,17 @@ If the user completes the action you were going to remind them about, cancel the
 
   </Accordion>
   <Accordion title="What happens to paused workflow runs when I update the underlying workflow?" anchorSlug="faq-paused-runs-workflow-update">
-    Workflow recipient runs will always reference the workflow version that was current when the run was triggered, so your changes will not be reflected in workflow runs that are already in flight. If you need to stop a delayed workflow run because you've updated your workflow, you can use the [workflow cancellation API](/send-notifications/canceling-workflows).
+    It depends on the delay step's [workflow version mode](#setting-the-workflow-version-mode).
+
+    In latest mode (the default for new delay steps), when the delay elapses, Knock continues the workflow on the newest published version that still includes this delay step with latest mode enabled. That version is either the one that started the run, or a version published after it. Template and step changes on that version are used for the continuation.
+
+    In pinned mode, the run stays on the workflow version that was current when the run was triggered. The run uses the templates and steps from that version. To stop a delayed run after you update the workflow, use the [workflow cancellation API](/send-notifications/canceling-workflows).
+
+  </Accordion>
+  <Accordion title="When should I use pinned workflow version mode?" anchorSlug="faq-pinned-workflow-version-mode">
+    Pinned mode is an advanced option. Use it when a delayed run should stay on the workflow version that started it.
+
+    For long delays, keep latest mode enabled so template and step edits apply when the run resumes.
+
   </Accordion>
 </AccordionGroup>
