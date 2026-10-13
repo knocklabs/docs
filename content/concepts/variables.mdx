@@ -27,71 +27,17 @@ You can optionally set environment-specific values for your variables. To do so,
 
 ## Managing variables with the Management API
 
-You can read and write variables with the [Management API](/developer-tools/management-api). Variables are account-wide, and an environment override is a value for a root environment, such as `development` or `production`. Variables are not part of [commits](/version-control/commits), so a write takes effect in the environment right away.
+You can list, get, create, update, and delete variables with the [Management API](/developer-tools/management-api). See the [Management API reference](/mapi-reference/variables) for the endpoints and their schemas.
 
-| Operation | Endpoint                     | Permission         |
-| --------- | ---------------------------- | ------------------ |
-| List      | `GET /v1/variables`          | `variables:read`   |
-| Get       | `GET /v1/variables/{key}`    | `variables:read`   |
-| Upsert    | `PUT /v1/variables/{key}`    | `variables:manage` |
-| Delete    | `DELETE /v1/variables/{key}` | `variables:manage` |
+Variables are account-wide, and an environment override is a value for a root environment, such as `development` or `production`. Variables are not part of [commits](/version-control/commits), so a change takes effect right away.
 
-See the [Management API reference](/mapi-reference/variables) for the full request and response schemas.
+A single upsert request creates the variable when the key doesn't exist and updates it when it does. On an update, Knock leaves any value you omit or set to `null` unchanged, and an empty string clears it. Clearing an override makes the environment use the default value.
 
-### Upserting a variable
-
-`PUT /v1/variables/{key}` creates the variable when the key doesn't exist and updates it when it does. The key comes from the path and follows the same rules as a key you set in the dashboard.
-
-```bash title="An example request to upsert a secret variable"
-curl -X PUT https://control.knock.app/v1/variables/signing_secret \
-  -H "Authorization: Bearer $SERVICE_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "secret",
-    "description": "Source signing secret",
-    "value": "my-secret-value",
-    "environment_values": {
-      "development": "my-dev-secret-value",
-      "production": ""
-    }
-  }'
-```
-
-| Property             | Type   | Description                                                                                                    |
-| -------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
-| `type`               | string | Required. Either `public` or `secret`. The type can't change after you create the variable.                    |
-| `value`              | string | The default value. Required when you create the variable.                                                      |
-| `description`        | string | A description of the variable. An empty string clears it on an update.                                         |
-| `environment_values` | object | A map of environment slugs to override values. Each slug must be the slug of a root environment, not a branch. |
-
-On an update, Knock treats a `null` the same as a property you don't send, and leaves that value unchanged. An empty string unsets the value:
-
-| In the request     | Default value      | Environment override  |
-| ------------------ | ------------------ | --------------------- |
-| Omitted or `null`  | Unchanged          | Unchanged             |
-| An empty string    | Clears the value   | Clears the override   |
-| A non-empty string | Replaces the value | Replaces the override |
-
-This applies to both public and secret variables. When you clear an override, the environment uses the default value. The override still appears in `environment_values` with a `null` value. When you clear a default value, any environment without an override has no value for the variable.
-
-### Deleting a variable
-
-`DELETE /v1/variables/{key}` deletes the variable and all of its environment overrides, and returns a `204` response with no body.
-
-To clear a single override, pass the `environment` query parameter. Knock keeps the variable and its default value and clears only the override for that environment.
-
-```bash title="An example request to clear the production override"
-curl -X DELETE "https://control.knock.app/v1/variables/signing_secret?environment=production" \
-  -H "Authorization: Bearer $SERVICE_TOKEN"
-```
+Deleting a variable removes it and all of its overrides. To remove a single override, specify the environment in the request.
 
 ### Working with secret variables
 
-Secret values are write-only in the Management API. A response never includes the value of a secret variable. The `value` and every entry in `environment_values` come back as a string of asterisks with the same length as the stored value, so the length is visible and the value is not.
-
-- **Rotate a secret.** Send the new value. You can't read the old value back first.
-- **Keep a secret.** Omit the property or send `null`. A string made up only of asterisks is stored as a new secret value, not treated as "unchanged."
-- **Change the type.** Delete the variable and create it again with the type you want, and supply a new value for a secret.
+Secret values are write-only in the Management API. A response never includes the value of a secret variable, and returns a string of asterisks with the same length as the stored value instead. To rotate a secret, send the new value. To keep a secret as it is, omit it or send `null`.
 
 Knock records secret values as `[filtered]` in audit log entries.
 
