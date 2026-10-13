@@ -1,6 +1,6 @@
 ---
 title: Debugging workflows
-description: Learn more about how to work with Knock's workflow debugger and API logs to easily debug your notification workflows.
+description: Learn more about how to work with Knock's workflow debugger, API logs, and workflow activity to debug your notification workflows.
 tags: ["debugger", "logs", "errors"]
 section: Send notifications
 ---
@@ -30,6 +30,8 @@ You can see a video of our workflow debugger in action here:
     }}
   ></iframe>
 </div>
+
+To watch a workflow's message events as they happen, use its [**Activity** tab](#workflow-activity).
 
 ## Accessing the workflow debugger
 
@@ -133,3 +135,29 @@ Open any workflow run and **select the batch step** in the debugger. What you se
 ### Batches that immediately flush the leading item
 
 When a batch step is configured to [immediately flush its leading item](/designing-workflows/batch-function#immediately-flushing-the-first-item-in-a-batch), the run that opens the batch continues past the batch step right away and is not included in the final batch. Additional batched triggers are aggregated on the _second_ run added to the batch, so that is the run where you will find the batched workflow runs list and any messages that the batch generated.
+
+## Workflow activity
+
+A workflow's **Activity** tab lists its [message events](/send-notifications/message-statuses#message-events) as they happen, newest first. The list includes delivery events, such as sent and bounced, and engagement events, such as read and link clicked. Each row shows the event type, the recipient, and when the event happened. Events from [test runs](/send-notifications/testing-workflows) show a **Test** label.
+
+<Image
+  src="/images/notifications/workflow-activity.png"
+  alt="Workflow Activity tab listing sent and delivered events with each event's recipient and timestamp, including events from test runs labeled Test"
+  width={699}
+  height={766}
+  className="mx-auto"
+/>
+
+In your development environment and its branches, new events appear at the top of the list as they happen. In other environments, such as production, the list opens paused, so a busy workflow doesn't replace the rows while you read. The list also pauses when you select an event or go to another page of the list. Use the controls next to **Filter** to pause streaming, refresh the list once, or start streaming again from the newest events.
+
+Select **Filter** to narrow the list by event type or date. The list starts with the last 7 days of events. It can go back as far as your account's [data retention period](/manage-your-account/data-retention), up to 90 days.
+
+Select an event to view its recipient, message ID, tenant, workflow, step, channel, and environment. Below those, a timeline shows every event on that message. Select **View message** to open the message detail view.
+
+<Image
+  src="/images/notifications/workflow-activity-event-details.png"
+  alt="Event details panel with the recipient, message ID, tenant, workflow, step, channel, and environment, above the message's timeline"
+  width={700}
+  height={683}
+  className="mx-auto"
+/>
