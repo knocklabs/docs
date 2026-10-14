@@ -7,7 +7,7 @@ section: Designing workflows
 
 A fetch function executes an HTTP request as a step in a workflow. Any data returned to a fetch function is merged into the original trigger `data` provided on workflow trigger and made available to all subsequent steps in the workflow.
 
-With the fetch function, you can acquire additional data for your channel step templates that may not be immediately available when you first trigger a workflow. A common case is combining a fetch function with a [batch function](/send-notifications/designing-workflows/batch-function) to retrieve trigger data for a group of activities after a batch window has closed. You can also use the fetch function to trigger side effects in your systems as Knock processes your workflow.
+With the fetch function, you can acquire additional data for your channel step templates that may not be immediately available when you first trigger a workflow. A common case is combining a fetch function with a [batch function](/designing-workflows/batch-function) to retrieve trigger data for a group of activities after a batch window has closed. You can also use the fetch function to trigger side effects in your systems as Knock processes your workflow.
 
 ## Building a request
 
@@ -46,7 +46,7 @@ When executing the request for a fetch function, Knock expects the following fro
 
 ### Merging data
 
-When the response sent to Knock for a fetch function request contains JSON data, Knock will merge the decoded result into the `data` you originally passed to [the workflow trigger call](/send-notifications/triggering-workflows). Knock uses a shallow-merge strategy here where:
+When the response sent to Knock for a fetch function request contains JSON data, Knock will merge the decoded result into the `data` you originally passed to [the workflow trigger call](/send-notifications/triggering-workflows/overview). Knock uses a shallow-merge strategy here where:
 
 - Data from the request overwrites the original workflow run data.
 - Top-level attributes are merged, and nested attributes are completely overwritten.
@@ -208,7 +208,7 @@ To test that the payload sent has not been compromised, you can recreate the sig
 
 ### An overview
 
-Knock allows you to create and save request configurations so that your team can reuse them as instances across multiple workflows. Updates to these requests cascade down to their instances, making it possible to centrally manage configurations. Reusable requests are [a versionable resource](/concepts/commits) in Knock.
+Knock allows you to create and save request configurations so that your team can reuse them as instances across multiple workflows. Updates to these requests cascade down to their instances, making it possible to centrally manage configurations. Reusable requests are [a versionable resource](/version-control/commits) in Knock.
 
 ### Creating a reusable request
 
@@ -294,7 +294,7 @@ Reusable requests can declare an **input schema** so team members know what para
 
 #### Input schema
 
-On the reusable request, **input schema** is a <a href="https://json-schema.org/" target="_blank">JSON Schema</a> object that describes the allowed input properties (types, required fields, default values, and so on).
+On the reusable request, **input schema** is a <a href="https://json-schema.org/" target="_blank" rel="noopener">JSON Schema</a> object that describes the allowed input properties (types, required fields, default values, and so on).
 
 To define a schema, navigate to the reusable request editor and click "Define schema" on the left side.
 
@@ -352,7 +352,7 @@ Knock resolves values for the fetch step and merges them into the Liquid scope f
 
 <Callout
   type="warning"
-  title="Note:"
+  title="Commit the request to apply changes."
   text="The reusable request must be committed for any changes to take effect and for inputs to be visible in workflows."
 />
 
@@ -364,6 +364,4 @@ However, if you need to make changes to a single fetch step request, you can cli
 
 ### Versioning
 
-Reusable requests are environment-specific, so you can safely edit a request in one environment without affecting production workflows. To use a request in a different environment, make sure the request is committed and promoted to the environment you want to use it in.
-
-Read more about [versioning in Knock here](/concepts/commits).
+Reusable requests are [versioned](/version-control/commits), so edits you save don't reach the workflows that use the request until you commit them. If you've enabled [environments](/version-control/environments), reusable requests are also environment-specific. To use a request in a different environment, commit it and promote it to that environment.
