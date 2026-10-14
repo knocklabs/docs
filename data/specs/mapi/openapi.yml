@@ -1443,16 +1443,8 @@ components:
           x-struct: null
           x-validate: null
         settings:
-          description: The settings for the delay step. Set `delay_for` for a fixed delay, `delay_until_field_path` for a dynamic delay, both for a relative delay, or `delay_until_time_windows` to wait until a weekly schedule is open.
+          description: The settings for the delay step. Both fields can be set to compute a delay where `delay_for` is an offset from the `delay_until_field_path`.
           properties:
-            delay_until_time_windows:
-              description: A weekly schedule of when the delay can resume. Must include one window per day, and at least one day must be open. Cannot be combined with `delay_for` or `delay_until_field_path`.
-              items:
-                $ref: '#/components/schemas/DelayTimeWindow'
-              nullable: true
-              type: array
-              x-struct: null
-              x-validate: null
             delay_for:
               anyOf:
                 - $ref: '#/components/schemas/Duration'
@@ -12554,57 +12546,6 @@ components:
       title: SendWindow
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SendWindow
-      x-validate: null
-    DelayTimeWindow:
-      description: A time window for a delay step. Describes a single day and when the delay can resume on it.
-      example:
-        day: monday
-        from: 09:00
-        type: open
-        until: 17:00
-      properties:
-        day:
-          description: The day of the week.
-          enum:
-            - monday
-            - tuesday
-            - wednesday
-            - thursday
-            - friday
-            - saturday
-            - sunday
-          type: string
-          x-struct: null
-          x-validate: null
-        from:
-          description: The time the window opens. When blank, the window is open all day.
-          example: 09:00
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        type:
-          description: Whether the delay can resume on this day. A `closed` day does not support `from` and `until`.
-          enum:
-            - open
-            - closed
-          example: open
-          type: string
-          x-struct: null
-          x-validate: null
-        until:
-          description: The time the window closes. When blank, the window is open until the end of the day.
-          example: 17:00
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-      required:
-        - day
-        - type
-      title: DelayTimeWindow
-      type: object
-      x-struct: Elixir.ControlWeb.V1.Specs.DelayTimeWindow
       x-validate: null
     Guide:
       description: A guide defines an in-app guide that can be displayed to users based on priority and other conditions.
