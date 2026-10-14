@@ -127,20 +127,27 @@ As in the dynamic delay section above, the key specified must be available to be
 
 ## Wait until a time window
 
-A time window delay waits until a weekly schedule is open, then continues the workflow. The schedule has one entry for each day, and each day is either `open` or `closed`.
+A time window delay holds the workflow until the recipient is inside a weekly schedule you define, such as business hours, and then continues to the next step. Use it when the rest of the workflow should only run at a reasonable time for the recipient.
 
-This is the **Window** option on the delay step. A [window rule](#using-window-rules) is a different mechanism: a dynamic delay value resolved through `delay_until_field_path`.
+For example, say the schedule is open Monday through Friday from 9am to 6pm. A workflow run that reaches the delay on a Saturday waits until Monday at 9am, then continues. A run that reaches the delay at 2pm on a Tuesday is already inside the schedule, so it continues without waiting.
 
-This pauses the workflow. A [channel send window](/designing-workflows/send-windows) does not. A channel step queues the message and lets the workflow continue. A later channel step can still have its own send windows. If those windows are closed when the delay elapses, the message queues until the channel window opens.
+To set one up, choose **Window** as the delay type on the delay step, then mark each day of the week as open or closed. An open day can stay open all day or open between a start and end time, set in 15 minute increments. At least one day must be open.
 
-Set this on the delay step by choosing **Window** in the workflow editor, or set `delay_until_time_windows` on the delay step settings through the [Management API](/developer-tools/management-api).
+Knock evaluates the schedule in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, then the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`. A recipient in New York and a recipient in London each wait for 9am in their own timezone.
 
-- `delay_until_time_windows` cannot be combined with `delay_for` or `delay_until_field_path`.
-- Include one window for each day. At least one day must be `open`.
-- An `open` day can set `from` and `until` times in 15 minute increments. Leave both out to keep the day open all day. A `closed` day cannot set times.
-- Knock evaluates the schedule in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, then the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`.
-- If the workflow run reaches the delay while the schedule is already open, the step continues immediately.
-- Editing the schedule does not move a run that is already paused on this step. Cancel the [workflow run](/send-notifications/canceling-workflows) to stop it.
+A few things to keep in mind:
+
+- **Editing the schedule doesn't move waiting runs.** A run that is already paused on the step keeps the time it was given. [Cancel the workflow run](/send-notifications/canceling-workflows) if you need to stop it.
+- **Time windows are different from send windows.** A time window delay pauses the whole workflow. A [channel send window](/designing-workflows/send-windows) only holds that channel's message, and the workflow keeps going. If a later channel step has its own send windows and they're closed when the delay ends, that message waits for the channel's window to open.
+- **The Window option is not a window rule.** A [window rule](#using-window-rules) is a dynamic delay value, such as "delay until Monday at 9am", that you pass in your trigger data.
+
+### Setting time windows through the Management API
+
+Set `delay_until_time_windows` on the delay step settings through the [Management API](/developer-tools/management-api). It cannot be combined with `delay_for` or `delay_until_field_path`.
+
+Include one entry for each day of the week, with a `type` of `open` or `closed`. An `open` entry can set `from` and `until` times. Leave both out to keep the day open all day. A `closed` entry cannot set times.
+
+This example matches the schedule above: open Monday through Friday from 9am to 6pm, and closed on weekends.
 
 ```json title="Delay until weekday business hours"
 {
@@ -149,31 +156,31 @@ Set this on the delay step by choosing **Window** in the workflow editor, or set
       "day": "monday",
       "type": "open",
       "from": "09:00:00",
-      "until": "17:00:00"
+      "until": "18:00:00"
     },
     {
       "day": "tuesday",
       "type": "open",
       "from": "09:00:00",
-      "until": "17:00:00"
+      "until": "18:00:00"
     },
     {
       "day": "wednesday",
       "type": "open",
       "from": "09:00:00",
-      "until": "17:00:00"
+      "until": "18:00:00"
     },
     {
       "day": "thursday",
       "type": "open",
       "from": "09:00:00",
-      "until": "17:00:00"
+      "until": "18:00:00"
     },
     {
       "day": "friday",
       "type": "open",
       "from": "09:00:00",
-      "until": "17:00:00"
+      "until": "18:00:00"
     },
     { "day": "saturday", "type": "closed" },
     { "day": "sunday", "type": "closed" }
