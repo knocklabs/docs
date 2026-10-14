@@ -127,7 +127,7 @@ As in the dynamic delay section above, the key specified must be available to be
 
 ## Wait until a time window
 
-A time window delay waits until a weekly schedule is open, then continues the workflow. The schedule uses the same shape as [send windows](/designing-workflows/send-windows).
+A time window delay waits until a weekly schedule is open, then continues the workflow. The schedule has one entry for each day, and each day is either `open` or `closed`.
 
 This is the **Window** option on the delay step. A [window rule](#using-window-rules) is a different mechanism: a dynamic delay value resolved through `delay_until_field_path`.
 
@@ -136,7 +136,8 @@ This pauses the workflow. A [channel send window](/designing-workflows/send-wind
 Set this on the delay step by choosing **Window** in the workflow editor, or set `delay_until_time_windows` on the delay step settings through the [Management API](/developer-tools/management-api).
 
 - `delay_until_time_windows` cannot be combined with `delay_for` or `delay_until_field_path`.
-- Include one window for each day. At least one day must be a send day.
+- Include one window for each day. At least one day must be `open`.
+- An `open` day can set `from` and `until` times in 15 minute increments. Leave both out to keep the day open all day. A `closed` day cannot set times.
 - Knock evaluates the schedule in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, then the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`.
 - If the workflow run reaches the delay while the schedule is already open, the step continues immediately.
 - Editing the schedule does not move a run that is already paused on this step. Cancel the [workflow run](/send-notifications/canceling-workflows) to stop it.
@@ -144,13 +145,38 @@ Set this on the delay step by choosing **Window** in the workflow editor, or set
 ```json title="Delay until weekday business hours"
 {
   "delay_until_time_windows": [
-    { "day": "monday", "type": "send", "from": "09:00:00", "until": "17:00:00" },
-    { "day": "tuesday", "type": "send", "from": "09:00:00", "until": "17:00:00" },
-    { "day": "wednesday", "type": "send", "from": "09:00:00", "until": "17:00:00" },
-    { "day": "thursday", "type": "send", "from": "09:00:00", "until": "17:00:00" },
-    { "day": "friday", "type": "send", "from": "09:00:00", "until": "17:00:00" },
-    { "day": "saturday", "type": "do_not_send" },
-    { "day": "sunday", "type": "do_not_send" }
+    {
+      "day": "monday",
+      "type": "open",
+      "from": "09:00:00",
+      "until": "17:00:00"
+    },
+    {
+      "day": "tuesday",
+      "type": "open",
+      "from": "09:00:00",
+      "until": "17:00:00"
+    },
+    {
+      "day": "wednesday",
+      "type": "open",
+      "from": "09:00:00",
+      "until": "17:00:00"
+    },
+    {
+      "day": "thursday",
+      "type": "open",
+      "from": "09:00:00",
+      "until": "17:00:00"
+    },
+    {
+      "day": "friday",
+      "type": "open",
+      "from": "09:00:00",
+      "until": "17:00:00"
+    },
+    { "day": "saturday", "type": "closed" },
+    { "day": "sunday", "type": "closed" }
   ]
 }
 ```
