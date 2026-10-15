@@ -158,6 +158,76 @@ const NotificationFeed = ({ user }) => {
 };
 ```
 
+## Marking items as seen
+
+When you build a custom feed UI using the headless hooks, you're responsible for marking items as seen. The prebuilt components like `NotificationFeedPopover` handle this automatically by calling `feedClient.markAllAsSeen()` when the feed opens, but the headless hooks don't.
+
+<Callout
+  type="info"
+  title="Seen vs. read status."
+  text={
+    <>
+      Knock tracks <code>seen_at</code> and <code>read_at</code> separately. The{" "}
+      <code>unseen_count</code> usually drives badge counts, while{" "}
+      <code>unread_count</code> indicates items the user hasn't explicitly
+      engaged with. See{" "}
+      <a href="/send-notifications/message-statuses#engagement-status">
+        message statuses
+      </a>{" "}
+      for more details.
+    </>
+  }
+/>
+
+If you don't mark items as seen, `unseen_count` never decreases and any badge based on it never clears.
+
+### Marking all items as seen
+
+A common pattern is to mark all items as seen when the feed opens:
+
+```jsx title="Mark all items as seen when opening the feed"
+const NotificationFeed = () => {
+  const knockClient = useKnockClient();
+  const feedClient = useNotifications(
+    knockClient,
+    process.env.KNOCK_FEED_CHANNEL_ID,
+  );
+
+  const { items, metadata } = useNotificationStore(feedClient);
+
+  const onOpen = () => {
+    if (metadata.unseen_count > 0) {
+      feedClient.markAllAsSeen();
+    }
+  };
+
+  return (
+    <Popover onOpenChange={(open) => open && onOpen()}>
+      <PopoverTrigger>
+        <span>Notifications ({metadata.unseen_count})</span>
+      </PopoverTrigger>
+      <PopoverContent>
+        {items.map((item) => (
+          <div key={item.id}>
+            <div
+              dangerouslySetInnerHTML={{ __html: item.blocks[0].rendered }}
+            />
+          </div>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+};
+```
+
+### Marking individual items as seen
+
+You can also mark items as seen individually, for example as they scroll into view:
+
+```jsx title="Mark a single item as seen"
+feedClient.markAsSeen(item);
+```
+
 ## Wrapping up
 
 There's a lot more we can do with our notifications UI, but we'll leave that as an exercise to the reader. Here are some examples:
