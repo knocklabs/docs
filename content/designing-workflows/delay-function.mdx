@@ -131,14 +131,14 @@ A time window delay holds the workflow until the recipient is inside a weekly sc
 
 For example, say the schedule is open Monday through Friday from 9am to 6pm. A workflow run that reaches the delay on a Saturday waits until Monday at 9am, then continues. A run that reaches the delay at 2pm on a Tuesday is already inside the schedule, so it continues without waiting.
 
-To set one up, choose **Window** as the delay type on the delay step, then mark each day of the week as open or closed. An open day can stay open all day or open between a start and end time, set in 15 minute increments. At least one day must be open.
+To set one up, choose **Window** as the delay type on the delay step, then mark each day of the week as open or closed. A day can stay open all day or between a start and end time, set in 15 minute increments. At least one day must be open.
 
-Knock evaluates the schedule in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, then the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`. A recipient in New York and a recipient in London each wait for 9am in their own timezone.
+Knock evaluates the delay window in the [recipient's timezone](/concepts/recipients#recipient-timezones) when one is set, and falls back to the [account default timezone](/manage-your-account/account-timezone), then `Etc/UTC`. A recipient in New York and a recipient in London each wait for 9am in their own timezone.
 
 A few things to keep in mind:
 
 - **Editing the schedule doesn't move waiting runs.** A run that is already paused on the step keeps the time it was given. [Cancel the workflow run](/send-notifications/canceling-workflows) if you need to stop it.
-- **Time windows are different from send windows.** A time window delay pauses the whole workflow. A [channel send window](/designing-workflows/send-windows) only holds that channel's message, and the workflow keeps going. If a later channel step has its own send windows and they're closed when the delay ends, that message waits for the channel's window to open.
+- **Time window delays are different from send windows.** A time window delay pauses the whole workflow. A [channel step send window](/designing-workflows/send-windows) only holds that channel's _message_ while the workflow run proceeds. If a later channel step has its own send windows and they're closed when a delay ends, that step's message will wait until its send window opens.
 - **The Window option is not a window rule.** A [window rule](#using-window-rules) is a dynamic delay value, such as "delay until Monday at 9am", that you pass in your trigger data.
 
 ## Setting the workflow version mode
