@@ -158,6 +158,8 @@ Further, it's possible to [limit the endpoints](#limiting-access-to-specific-res
   ]}
 />
 
+A public API key can also read and update an object's preferences, but only with a user token that grants access to that object. See [scoping a token to an object](#scoping-a-token-to-an-object).
+
 ## Authentication (without enhanced security)
 
 In a non-production Knock environment, you can use your public key to authenticate
@@ -258,7 +260,7 @@ app.use(async (req, res, next) => {
 });
 ```
 
-You can see more details on the options for the `signUserToken` method <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank">in the SDK docs</a>.
+You can see more details on the options for the `signUserToken` method <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank" rel="noopener">in the SDK docs</a>.
 
 ### 3. Send the JWT to the client
 
@@ -345,7 +347,7 @@ You can ensure that **no other actions** can be taken on any other resources by 
 
 Grants are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener noreferrer">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
 
-A grant for a user should always be structured with the user's ID as the key (`https://api.knock.app/v1/users/<user_id>`). This should always match the `sub` claim in the user token.
+Each grant is keyed by the URL of the resource it applies to. A grant for a user uses the user's ID as the key (`https://api.knock.app/v1/users/<user_id>`), which should match the `sub` claim in the user token. Grants for [tenants](#scoping-a-token-to-a-tenant) and [objects](#scoping-a-token-to-an-object) use their own keys, covered below.
 
 ```json title="Example of a grant for a user"
 {
@@ -434,6 +436,79 @@ To allow the user to read a feed for the unscoped usecase (e.g. tenant = null), 
     },
     "https://api.knock.app/v1/tenants/acme_corp": {
       "user/feed_read": [{}]
+    }
+  }
+}
+```
+
+### Scoping a token to an object
+
+A user token can carry grants for a specific [object](/concepts/objects). This enables a client using your public API key to read and update that object's preferences, properties, and channel data, which otherwise requires your secret API key. For example, you can build a settings page where an organization admin chooses which workflows notify the organization's Slack channel, without proxying the requests through your backend.
+
+Object grants can be applied to:
+
+<Table
+  headers={["Type", "Grants", "Description"]}
+  rows={[
+    [
+      "Read object preferences",
+      "preferences/read",
+      "Allow the token to list and retrieve the object's preference sets.",
+    ],
+    [
+      "Write object preferences",
+      "preferences/write",
+      "Allow the token to set and delete the object's preference sets.",
+    ],
+    ["Read object", "object/read", "Allow the token to retrieve the object."],
+    [
+      "Write object",
+      "object/write",
+      "Allow the token to set the object's properties.",
+    ],
+    [
+      "Read object channel data",
+      "channel_data/read",
+      "Allow the token to read the object's channel data.",
+    ],
+    [
+      "Write object channel data",
+      "channel_data/write",
+      "Allow the token to set and delete the object's channel data. Also grants read access.",
+    ],
+  ]}
+/>
+
+Listing objects in a collection and deleting objects still require your secret API key.
+
+Grants for an object use the object's collection and ID as the key (`https://api.knock.app/v1/objects/<collection>/<object_id>`). One or more object grants can be included in the user token.
+
+<Callout
+  type="warning"
+  title="Object access always requires a grant."
+  text={
+    <>
+      Unlike user resources, a public API key has no access to objects by
+      default, and the <code>explicit_grants</code> option doesn't change that.
+      Knock rejects any public API key request for an object unless it includes
+      a signed user token with a grant for that exact object.
+    </>
+  }
+/>
+
+Knock doesn't check how the user in the `sub` claim relates to the object. Your backend decides which users receive a grant for an object, for example only the admins of the organization the object represents.
+
+**Example policy**
+
+This policy enables the user to read and update the preferences of the `project-123` object in the `projects` collection.
+
+```json title="Example of a user token with grants for a specific object"
+{
+  "sub": "<user_id>",
+  "grants": {
+    "https://api.knock.app/v1/objects/projects/project-123": {
+      "preferences/read": [{}],
+      "preferences/write": [{}]
     }
   }
 }
