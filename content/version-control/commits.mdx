@@ -1,6 +1,6 @@
 ---
 title: Commits
-description: Learn about how Knock's commit and promotion model works.
+description: Learn how commits version your content in Knock, and how to publish, review, revert, and promote them.
 tags:
   [
     "branches",
@@ -10,6 +10,7 @@ tags:
     "commit",
     "promote",
     "promotion",
+    "publish",
     "revert",
     "rollback",
     "staging",
@@ -25,67 +26,42 @@ To version the content changes you make in your [environments](/version-control/
 
 ## How commits work
 
-When you make a change to a content resource (like a workflow or a layout) in the Knock dashboard, you need to commit it to your current environment before those changes will appear in workflows triggered via the API.
+When you make a change to a content resource in the Knock dashboard, you save it as a draft. You need to commit the draft before it goes live in your environment and is used for notifications that are triggered via the API.
 
-Commits can be promoted to higher environments, such as production, and they can also be rolled back to prior commits. Lastly, commits provide a comprehensive version history for all content resources in your account.
+In your production environment, the dashboard labels this action as "Publish." Publishing is committing: each publish creates a commit in your commit log, and you can roll back to a prior version by reverting the commit if needed.
 
-A few additional notes:
+A few additional notes to keep in mind:
 
-- **A commit is not a save.** When you're drafting a workflow or a template, you can save and test your changes. Saved changes apply when you're using the test runner, but they do not apply to workflow runs or guide renders that are invoked via the API. To test changes via the API, you must commit them.
-- **"Publish" in production = commit to production.** If you're working [directly in production](/version-control/environments), the "Publish" button is the same as the "Commit" button. You'll still get a commit history and be able to roll back to prior versions if needed.
-- **Account-level resources are not version controlled.** Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
-- **You can commit changes using our CLI and management API.** We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically, both of which support programmatic commits.
+- **A commit is not a save.** When you're drafting a workflow or a template, you can save and test your changes. Saved changes apply when you're using the test runner, but they do not apply to workflow runs or guide renders that are invoked through the API. To test changes through the API, you must commit them.
+- **Account-level resources are not version controlled.** Channel configurations, branding, and variables do not need to be committed, as they live at the account level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
+- **You can commit changes using our CLI and Management API.** We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically, both of which support programmatic commits.
 
-## Empty commits
+## Commit your changes
 
-An empty commit lets you commit (publish) a versioned resource without changing its content, similar to `git commit --allow-empty`. Empty commits are useful when you need to promote a resource to another environment, but the resource has no unpublished changes in the current environment.
+You can commit a resource from its page in the dashboard, or commit several at once from the <a href="https://dashboard.knock.app/~/commits" target="_blank">**Commits**</a> page. The Commits page lists your uncommitted changes, and "Commit all" commits every change on the list in one step.
 
-Knock tracks promotable changes by comparing each resource's identifier (`ref`) and version (`version_id`). If a resource already points to the published version (`current_version_id == published_version_id`), a standard commit does not create a new promotable change. An empty commit solves this by creating a new version with the same content, then publishing that version, giving Knock a new `version_id` to include in promotion diffs, so you can promote the commit downstream even though the resource content has not changed.
-
-What happens when you create an empty commit depends on the resource's current state:
-
-- **The resource has unpublished changes.** The empty-clone step is skipped, and a normal publish happens instead.
-- **The resource is already published with no changes.** An empty commit creates a new version with identical content.
-
-Commit log entries for empty commits include audit metadata with `empty: true` and an optional message.
-
-You can create empty commits using the [CLI](/cli/commit/all) or the [Management API](/developer-tools/management-api#committing-changes). The bulk commit endpoint (`PUT /v1/commits`) supports the following resource types:
-
-- `workflow`
-- `email_layout`
-- `partial`
-- `translation`
-- `message_type`
-- `guide`
-- `audience`
-
-For translations, the `resource_id` can be a locale (`es`), a locale and namespace (`es/courses`), or a locale, namespace, and tenant (`es/courses~tenant`).
-
-<Callout
-  title="Note:"
-  text={
-    <>
-      The bulk commit endpoint doesn't support <code>reusable_step</code>. To
-      create an empty commit for a reusable step, use a resource upsert with{" "}
-      <code>commit=true</code> and <code>allow_empty=true</code>, or publish via
-      the dashboard.
-    </>
-  }
-/>
+When your account has [environments enabled](/version-control/environments#enable-environments), you commit changes to the environment you're working in. A commit in development doesn't change production until you [promote it](#promoting-commits).
 
 ## Visualizing commit changes
 
-Clicking the "Commit to development" button will show you a view of changes between your current commit and the most recent version of the resource that you're updating. Commit diffs are also available on your full commit log (viewable on the "Commits" page in your dashboard), so you can view the commit history for a resource and know exactly what was changed with each commit.
+When you commit or publish a change, Knock shows you a diff between your changes and the most recently committed version of the resource. Commit diffs are also available in your full commit log on the **Commits** page in your dashboard, so you can view the commit history for a resource and know exactly what changed with each commit.
 
-![Commit diffs in Knocks version control](/images/commit-diff-showcase.gif)
+<Image
+  src="/images/commit-diff-showcase.gif"
+  width={1920}
+  height={1080}
+  alt="Commit diffs in Knock's version control"
+/>
 
 ## Promoting commits
 
-If you're working in a non-production environment such as development, you can promote your changes to the production environment when you're ready to go live.
+Promotion applies to accounts with [environments enabled](/version-control/environments#enable-environments). If your account has a single production environment, there's nothing to promote: publishing a change makes it live.
 
-You can promote your commits from a given resource's page. You can also view all commits in one place in the **Commits** page, where you can promote individual or multiple commits at once.
+If you're working in a lower environment such as development, you can promote your commits to the next environment, up to production, when you're ready to go live.
 
-Learn more about promoting commits in our [environments documentation](/version-control/environments).
+Commits can be promoted directly from a given resource's page. You can also view all unpromoted commits in one place on the <a href="https://dashboard.knock.app/~/commits" target="_blank">**Commits**</a> tab, where you can promote individual changes or all unpromoted changes at once.
+
+Learn more about how promotion moves content between environments in our [environments documentation](/version-control/environments).
 
 ### Promote group IDs
 
@@ -108,15 +84,15 @@ A few things to know:
 
 ## Reverting a commit
 
-If you've made a change in a commit that you want to revert, you can use the "Revert commit" feature to "undo" that change. You can find the revert commit action on the **Commits** page in the dashboard, under the "Unpromoted changes" and "Commit log" tabs.
+If you've made a change in a commit that you want to revert, you can use the "Revert commit" feature to "undo" that change. You can find the revert commit action on the **Commits** page in the dashboard, under the "Commit log" tab. If your account has environments enabled, it's also under the "Unpromoted changes" tab.
 
 <Callout
-  title="Note:"
+  title="Revert promoted resources in development."
   text={
     <>
-      For resources promoted from development, reverts must be made in the
-      development environment and then promoted to production to revert the
-      production commit.
+      If your account has environments enabled, reverts for resources promoted
+      from development must be made in the development environment and then
+      promoted to production to revert the production commit.
     </>
   }
 />
@@ -127,4 +103,44 @@ If you've made a change in a commit that you want to revert, you can use the "Re
 - Wind back the state of the resource to the change that precedes the commit
 - Undo any uncommitted changes on the resource
 
-Because the revert will produce a new commit, you can then promote that commit to other environments to make that change live in those environments.
+Because the revert produces a new commit, it takes effect in the environment where you make it. If your account has environments enabled, promote the revert commit to make the change live in higher environments.
+
+## Empty commits
+
+An empty commit lets you commit (publish) a versioned resource without changing its content, similar to `git commit --allow-empty`. If your account has environments enabled, empty commits are useful when you need to promote a resource to another environment, but the resource has no unpublished changes in the current environment.
+
+Knock tracks promotable changes by comparing each resource's identifier (`ref`) and version (`version_id`). If a resource already points to the published version (`current_version_id == published_version_id`), a standard commit does not create a new promotable change. An empty commit solves this by creating a new version with the same content, then publishing that version, giving Knock a new `version_id` to include in promotion diffs, so you can promote the commit to the next environment even though the resource content has not changed.
+
+What happens when you create an empty commit depends on the resource's current state:
+
+- **The resource has unpublished changes.** The empty-clone step is skipped, and a normal publish happens instead.
+- **The resource is already published with no changes.** An empty commit creates a new version with identical content.
+
+Commit log entries for empty commits include audit metadata with `empty: true` and an optional message.
+
+You can create empty commits using the [CLI](/cli/commit/all) or the [Management API](/developer-tools/management-api#committing-changes). The bulk commit endpoint (`PUT /v1/commits`) supports the following resource types:
+
+- `workflow`
+- `email_layout`
+- `partial`
+- `translation`
+- `message_type`
+- `guide`
+- `audience`
+
+For translations, the `resource_id` can be a locale (`es`), a locale and namespace (`es/courses`), or a locale, namespace, and tenant (`es/courses~tenant`).
+
+<Callout
+  title="The bulk commit endpoint doesn't support reusable fetch steps."
+  text={
+    <>
+      To create an empty commit for a{" "}
+      <a href="/designing-workflows/fetch-function#reusable-fetch-functions">
+        reusable fetch step
+      </a>
+      , use a resource upsert with <code>commit=true</code> and <code>
+        allow_empty=true
+      </code>, or publish via the dashboard.
+    </>
+  }
+/>
