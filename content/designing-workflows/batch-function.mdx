@@ -295,7 +295,7 @@ Set this in the "Advanced settings" section of the batch step with the "Continue
 
 ### Latest (default)
 
-In latest mode, an open batch stays open across [commits](/concepts/commits) and promotions. Subsequent triggers for the same recipient (and [batch key](#selecting-a-batch-key), if you set one) join that batch, even after you promote a new version of the workflow.
+In latest mode, an open batch stays open across [commits](/version-control/commits). Subsequent triggers for the same recipient (and [batch key](#selecting-a-batch-key), if you set one) join that batch, even after you publish a new version of the workflow.
 
 When the window closes, Knock continues the workflow on the latest published version that still includes this batch step with latest mode enabled. Template and step changes you committed while the batch was open are used for that continuation.
 
@@ -376,17 +376,17 @@ For this reason, we recommend referencing the `activities` array to access data 
 
 ## Updating workflows with batch steps
 
-What happens when you [commit](/concepts/commits) and promote a new version of a workflow with an open batch depends on the [workflow version mode](#setting-the-workflow-version-mode) of your batch step.
+What happens when you [publish](/version-control/commits) a new version of a workflow with an open batch depends on the [workflow version mode](#setting-the-workflow-version-mode) of your batch step.
 
 In **latest** mode (the default for new batch steps), the open batch stays open. Subsequent triggers join it, and when the window closes Knock continues the workflow on the latest published version. Template and step changes you committed while the batch was open are used for that continuation.
 
-In **pinned** mode, the batch stays tied to the workflow version that opened it. Promoting an updated version (including a change to update a batch step's workflow version mode from pinned to latest) opens a new batch the next time the workflow is triggered. Existing batches remain open until their duration elapses, even though they will not accumulate additional events from the new version. For long-running batches that always close at a specific interval (like "every Monday at 9:00 a.m."), that can send two notifications in close succession.
+In **pinned** mode, the batch stays tied to the workflow version that opened it. Publishing an updated version (including a change to update a batch step's workflow version mode from pinned to latest) opens a new batch the next time the workflow is triggered. Existing batches remain open until their duration elapses, even though they will not accumulate additional events from the new version. For long-running batches that always close at a specific interval (like "every Monday at 9:00 a.m."), that can send two notifications in close succession.
 
 To prevent a workflow from sending notifications or accumulating additional events while you work on an update, you can set the workflow's [status](/concepts/workflows#workflow-status) to `Inactive`. While a workflow remains in the inactive state, new events will not be batched and any currently-open batch windows that close will not proceed to the next workflow step; their runs will instead be terminated and no additional messages will be generated.
 
-- A workflow's status is an environment-specific setting. Be sure to target your production environment if you decide to use this control.
+- If you've enabled [environments](/version-control/environments), a workflow's status is environment-specific. Be sure to target your production environment if you decide to use this control.
 - Toggling a workflow's status does not automatically cancel any currently-open batch windows. Your workflow should remain in the `Inactive` state until all open batch windows have closed, otherwise your batches will proceed as normal once their window durations have elapsed.
-- While the workflow is `Inactive` in Production, promote your changes. After your open batch windows close and outstanding workflows have terminated, setting the workflow back to `Active` will begin batching incoming events again and these workflow runs will proceed with the newly-published workflow version.
+- While the workflow is `Inactive`, publish (or promote) your changes. After your open batch windows close and outstanding workflows have terminated, setting the workflow back to `Active` will begin batching incoming events again and these workflow runs will proceed with the newly-published workflow version.
 
 ## Using workflow cancellation with batches
 
@@ -427,7 +427,7 @@ Keep this behavior in mind when deciding whether to include delay steps after a 
 
 <AccordionGroup>
   <Accordion title="How do I set per-environment batch windows?" anchorSlug="faq-per-environment-batch-windows">
-    Often when you're testing your Knock workflows, you'll want your batch windows to be shorter in non-production environments to aid with testing. To set per-environment batch windows you can:
+    If you've enabled [environments](/version-control/environments), you'll often want your batch windows to be shorter in non-production environments to aid with testing. To set per-environment batch windows you can:
 
     - Create a new variable on the **Variables** page under the **Account** section of your account settings with a relative duration as JSON (`{ "unit": "seconds", "value": 30 }`) and a name of `batchWindow`. You can set per-environment values to specify a shorter or longer window as needed
     - Set your batch window to "Batch for a dynamic interval"
