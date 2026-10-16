@@ -23,6 +23,7 @@ export const RESOURCE_ORDER = [
   "variables",
   "branches",
   "members",
+  "audit_logs",
   "data_sources",
   "api_keys",
   "billing",
