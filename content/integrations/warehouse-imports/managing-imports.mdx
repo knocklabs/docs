@@ -1,0 +1,71 @@
+---
+title: Managing imports
+description: Run, pause, edit, and monitor warehouse imports, and find out why rows didn't reach Knock.
+section: Integrations > Warehouse imports
+layout: integrations
+---
+
+Every import in an environment is listed under **Platform** > **Imports**. Click an import to open it. Its page has an **Overview** tab with the live definition and mappings, a **Runs** tab with recent syncs, and a **Settings** tab with the schedule.
+
+## Import statuses
+
+| Status          | Meaning                                                                       |
+| --------------- | ----------------------------------------------------------------------------- |
+| Draft           | Saved but never published, so it doesn't sync.                                |
+| Publishing      | Knock is making the published version live.                                   |
+| Delivery failed | The published version didn't go live. Click **Retry delivery** on the import. |
+| Live            | Syncs on its schedule.                                                        |
+| Paused          | Published, but won't sync until you resume it.                                |
+
+## Run an import now
+
+Click **Run now** on a published import to sync it immediately instead of waiting for its next scheduled sync. The import must be live, not paused.
+
+## Pause and resume
+
+Click **Pause** on the import, or turn off **Sync on schedule** on its **Settings** tab. A sync that has already started finishes. Click **Resume** to start syncing on the schedule again.
+
+## Change the schedule
+
+On the import's **Settings** tab, change the **Frequency**. Schedule changes and pausing apply right away and don't create a new version.
+
+## Edit an import
+
+Click **Edit** to open the editor. The key, target, and warehouse are fixed. You can change the name, source, primary key, mappings, and change detection columns.
+
+- **Save** creates a new version but leaves the published version syncing. The import shows **Unpublished changes** until you publish.
+- **Save and publish** makes the new version live.
+
+The **Overview** tab shows which version is current.
+
+## Run history
+
+The **Runs** tab lists the import's 25 most recent syncs with when each started, how long it took, and how many rows were read, applied, and failed.
+
+| Status                | Meaning                                                  |
+| --------------------- | -------------------------------------------------------- |
+| Running               | The sync is still reading the source or applying rows.   |
+| Completed             | Every changed row was applied.                           |
+| Completed with errors | Some rows were applied and some were rejected or failed. |
+| Failed                | The sync stopped. The run details show where and why.    |
+
+Knock only applies rows that changed since the last sync. A sync that finds no changes reads the source but applies nothing.
+
+### Run details
+
+Click a run to see:
+
+- **Rows read**, **Rejected before delivery**, **Applied in Knock**, and **Failed in Knock**.
+- Where a failed run stopped: reading the source, delivering rows to Knock, or applying rows in Knock, with the error.
+- **Rejected rows.** A sample of rows Knock rejected before applying them, grouped by error, with the primary keys each error hit.
+- The batches Knock received from the run, with each batch's status and counts. Large syncs arrive in several batches, which Knock applies one at a time in order.
+
+## Troubleshooting
+
+| Symptom                                        | What to check                                                                                                                                                     |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A table is missing from the table picker       | The database user's grants. A connection test only checks login.                                                                                                  |
+| The preview or a sync fails reading the source | That the query runs as the database user, and that the user can read every table it uses.                                                                         |
+| Every row is rejected                          | A field type mismatch, most often a Redshift `TIMESTAMP` mapped to `created_at`. See [data types](/integrations/warehouse-imports/creating-an-import#data-types). |
+| Some rows are rejected                         | The **Rejected rows** table on the run. Filter or fix those rows in a SQL query.                                                                                  |
+| No runs appear                                 | That the import is published and not paused. Click **Run now** to sync without waiting for the schedule.                                                          |
