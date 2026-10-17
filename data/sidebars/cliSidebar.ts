@@ -133,6 +133,22 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Reusable requests",
+    slug: "/cli/reusable-request",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List reusable requests" },
+      { slug: "/get", title: "Get reusable request" },
+      { slug: "/new", title: "Create a new reusable request" },
+      { slug: "/pull", title: "Pull reusable requests" },
+      { slug: "/push", title: "Push reusable requests" },
+      { slug: "/validate", title: "Validate reusable request" },
+      { slug: "/archive", title: "Archive reusable request" },
+    ],
+  },
+
+  {
     title: "Schemas",
     slug: "/cli/schema",
     pages: [
@@ -201,6 +217,24 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/validate", title: "Validate audience" },
       { slug: "/open", title: "Open audience" },
       { slug: "/archive", title: "Archive audience" },
+    ],
+  },
+
+  {
+    title: "Goals",
+    slug: "/cli/goal",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List goals" },
+      { slug: "/get", title: "Get goal" },
+      { slug: "/new", title: "Create a new goal" },
+      { slug: "/pull", title: "Pull goals" },
+      { slug: "/push", title: "Push goals" },
+      { slug: "/validate", title: "Validate goal" },
+      { slug: "/open", title: "Open goal" },
+      { slug: "/clone", title: "Clone goal" },
+      { slug: "/archive", title: "Archive goal" },
     ],
   },
 
