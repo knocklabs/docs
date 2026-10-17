@@ -1,0 +1,365 @@
+---
+title: Syncing versioned content with promote webhooks
+description: Keep a copy of your Knock versioned content in your own system, using promote webhooks and the Management API.
+tags:
+  ["version control", "commit", "promote", "promotion", "webhooks", "branches"]
+section: Tutorials
+---
+
+Some teams keep a copy of their Knock content outside of Knock: an archive for audit and compliance review, a search index of every message template, or an internal tool that shows what's live in production. This tutorial shows how to keep that copy current by treating each promote as a sync signal.
+
+<Callout
+  type="beta"
+  title="Commit and branch webhook events are in beta."
+  text={
+    <>
+      The <code>commits.promoted</code> and branch webhook events aren't
+      available to all accounts yet.
+    </>
+  }
+/>
+
+The sync works in four parts:
+
+1. You subscribe a webhook in the environment you want to mirror to the `commits.promoted` event.
+2. When a promote lands in that environment, Knock sends one event that identifies the promote.
+3. Your handler uses the [Management API](/developer-tools/management-api) to list the commits the promote created.
+4. For each resource in those commits, your handler fetches its committed state and stores it.
+
+## How promotes and webhooks fit together
+
+Knock versions your content with [commits](/version-control/commits). When you change a versioned resource, such as a workflow or an email layout, and commit it, Knock records a new version in that [environment](/version-control/environments). [Promoting](/version-control/commits#promoting-commits) copies those commits into the next environment in your promotion path, for example from development to production. Each copied commit is a new commit in the destination environment.
+
+A few properties of this model shape how you build the sync:
+
+- **Every promote has an ID.** Knock stamps a [promote group ID](/version-control/commits#promote-group-ids) on each commit a promote creates, so you can find the commits that moved together.
+- **One promote, one event.** Knock sends a single `commits.promoted` event for each promote, no matter how many commits it copies. The event goes to webhooks in the destination environment.
+- **Promotes don't send `*.committed` events.** Events like `workflow.committed` fire when someone commits a change in an environment. The commits a promote copies don't fire them, so `commits.promoted` is the event to subscribe to for promotes.
+- **Branch merges are promotes.** Merging a [branch](/version-control/branches) promotes its commits into the parent environment, and sends `commits.promoted` like any other promote.
+
+Using the promote as the trigger means your copy changes when content goes live in an environment, not on every saved draft. It also means one event carries everything you need to find the changes, so your handler doesn't need to reassemble a release from individual resource events.
+
+## Before you begin
+
+You need:
+
+- **A service token.** Generate one in the Knock dashboard under <a href="https://dashboard.knock.app/~/settings/service-tokens" target="_blank">**Settings > Service tokens**</a>. Your handler uses it to call the Management API. Learn more in the [service tokens docs](/developer-tools/service-tokens).
+- **An HTTPS endpoint.** Knock sends webhook events as `POST` requests to a URL you provide.
+- **A target environment.** Decide which environment your copy mirrors, such as production. To mirror more than one environment, repeat the webhook setup in each.
+
+## Step 1: Subscribe to `commits.promoted`
+
+[Outbound webhooks](/developer-tools/outbound-webhooks/overview) belong to a single environment, and Knock sends `commits.promoted` to webhooks in the destination environment. Create the webhook in the environment you want to mirror.
+
+1. In the Knock dashboard, switch to the environment you want to mirror.
+2. Go to <a href="https://dashboard.knock.app/~/webhooks" target="_blank">**Platform > Webhooks**</a> and click "Create webhook".
+3. Enter your endpoint URL and an optional description.
+4. Select the `commits.promoted` event.
+5. Save the webhook, then copy its signing secret from the webhook's page. You use the secret to verify requests in the next step.
+
+## Step 2: Receive and verify the event
+
+Each request includes an `x-knock-signature` header. [Verify the signature](/developer-tools/outbound-webhooks/overview#verifying-the-signature) with your webhook's signing secret before you trust the payload.
+
+Respond with a `2xx` status as soon as you've verified and recorded the event, then do the sync work in the background. Knock [retries deliveries](/developer-tools/outbound-webhooks/overview#retries) that time out or return most non-`2xx` statuses, so a slow handler can receive the same event more than once.
+
+```json title="Example commits.promoted payload"
+{
+  "__typename": "Event",
+  "type": "commits.promoted",
+  "created_at": "2026-10-08T19:00:00.123456Z",
+  "data": {
+    "id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
+    "source": "development",
+    "source_type": "environment",
+    "to_environment": "production",
+    "actor": { "name": "John Doe", "email": "john.doe@example.com" },
+    "commit_count": 3,
+    "created_at": "2026-10-08T19:00:00Z"
+  },
+  "event_data": null
+}
+```
+
+The `data` field describes the promote:
+
+| Property         | Type                      | Description                                                                                                |
+| ---------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `id`             | string                    | The promote group ID. Use it to deduplicate deliveries and to list the commits the promote created.        |
+| `source`         | string                    | The slug of the environment or branch the commits came from.                                               |
+| `source_type`    | `environment` \| `branch` | Whether the source is an environment or a branch. A branch merge has a source type of `branch`.            |
+| `to_environment` | string                    | The slug of the environment the commits were promoted into.                                                |
+| `actor`          | object \| null            | The name and email of the user who promoted the commits. Null when no user is associated with the promote. |
+| `commit_count`   | number                    | The number of commits the promote created in the destination environment.                                  |
+| `created_at`     | datetime                  | When the promote happened.                                                                                 |
+
+The payload identifies the promote but doesn't include the content that changed. You fetch that content from the Management API in the next two steps. See the full definition on the [event types page](/developer-tools/outbound-webhooks/event-types#commitspromoted).
+
+Before you start work on an event, check whether you've already processed its `data.id`. A retried delivery carries the same promote group ID, so recording each ID you finish gives you a reliable way to skip duplicates.
+
+## Step 3: List the commits in the promote
+
+Call the [list commits endpoint](/mapi-reference/commits/list) with two parameters:
+
+- `environment`, set to `data.to_environment`. The commits a promote creates live in the destination environment.
+- `promote_group_id`, set to `data.id`.
+
+```bash title="List the commits a promote created"
+curl -G https://control.knock.app/v1/commits \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN" \
+  --data-urlencode "environment=production" \
+  --data-urlencode "promote_group_id=6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11"
+```
+
+```json title="Example response"
+{
+  "entries": [
+    {
+      "id": "0b6f6f0e-8a52-4a4e-9a9b-5d1a8f2c7e10",
+      "environment": "production",
+      "resource": { "type": "workflow", "identifier": "new-comment" },
+      "commit_message": "Update new comment email copy",
+      "author": { "name": "John Doe", "email": "john.doe@example.com" },
+      "created_at": "2026-10-08T19:00:00Z",
+      "promote_group_id": "6f1b1c3e-3c1f-4b1d-8f0e-5f6d9d6a2c11",
+      "promoted_from_commit_id": "9a1d6c3b-2f4e-4c8a-b7d5-3e2f1a0c9b88"
+    }
+  ],
+  "page_info": { "after": null, "before": null, "page_size": 25 }
+}
+```
+
+Each commit's `resource` tells you what changed: a `type` and an `identifier`. The endpoint paginates, so follow `page_info.after` until it's `null`. Your result should contain `commit_count` commits.
+
+A promote can include more than one commit for the same resource. Deduplicate by `type` and `identifier` before you fetch, so you retrieve each resource once.
+
+## Step 4: Fetch the promoted resources
+
+For each resource, call its retrieve endpoint in the destination environment with `hide_uncommitted_changes=true`. That parameter returns the committed version of the resource and leaves out any uncommitted edits someone has saved in the environment, so your copy matches what Knock serves to API calls.
+
+| `resource.type` | Retrieve endpoint                                                        | Identifier                                                                      |
+| --------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `workflow`      | [`GET /v1/workflows/{key}`](/mapi-reference/workflows/retrieve)          | The workflow key. Message templates live in the workflow's channel steps.       |
+| `email_layout`  | [`GET /v1/email_layouts/{key}`](/mapi-reference/email_layouts/retrieve)  | The email layout key.                                                           |
+| `partial`       | [`GET /v1/partials/{key}`](/mapi-reference/partials/retrieve)            | The partial key.                                                                |
+| `translation`   | [`GET /v1/translations/{locale}`](/mapi-reference/translations/retrieve) | The locale, or the locale and namespace separated by `/`, such as `en/courses`. |
+| `message_type`  | [`GET /v1/message_types/{key}`](/mapi-reference/message_types/retrieve)  | The message type key.                                                           |
+| `guide`         | [`GET /v1/guides/{key}`](/mapi-reference/guides/retrieve)                | The guide key.                                                                  |
+| `audience`      | [`GET /v1/audiences/{key}`](/mapi-reference/audiences/retrieve)          | The audience key.                                                               |
+
+Templates aren't a separate resource type. A workflow's response includes its steps, and each channel step carries its template, so syncing a workflow syncs its templates.
+
+For translations, split the identifier on `/`. Pass the first part as the `{locale}` path segment and the second, when present, as the `namespace` query parameter. The translation endpoint wraps its response under a `translation` key, while the other retrieve endpoints return the resource at the top level.
+
+```bash title="Fetch the committed version of a workflow"
+curl -G https://control.knock.app/v1/workflows/new-comment \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN" \
+  --data-urlencode "environment=production" \
+  --data-urlencode "hide_uncommitted_changes=true"
+```
+
+## Step 5: Store the synced content
+
+Write each resource to your store keyed by environment, resource type, and identifier, replacing what you had before. Alongside the content, record the promote group ID and the commit IDs that touched the resource. That gives you a trail from any stored version back to the promote and the commits in Knock's commit log.
+
+Once every resource is stored, mark the promote group ID as processed. If the sync fails partway through, the ID stays unprocessed. Knock doesn't retry a delivery your endpoint already acknowledged, so your next [catch-up sweep](#catching-up-on-missed-changes) is what picks it up again. Because each write replaces the stored resource with Knock's committed state, running the same promote twice produces the same result.
+
+Process one promote at a time for each environment. The retrieve endpoints return the resource's state at the moment you call them, so two promotes handled in parallel can finish out of order and leave an older response in your store.
+
+## Putting it together
+
+The following Node.js example combines the steps. It uses Express to receive the webhook and `fetch` to call the Management API. Replace `store` with your own storage layer, and move `syncPromote` onto a job queue in production so each environment processes promotes in order.
+
+```javascript title="Sync promoted content with a webhook handler"
+const express = require("express");
+
+const app = express();
+const MAPI_URL = "https://control.knock.app/v1";
+const headers = { Authorization: `Bearer ${process.env.KNOCK_SERVICE_TOKEN}` };
+
+const COLLECTIONS = {
+  workflow: "workflows",
+  email_layout: "email_layouts",
+  partial: "partials",
+  message_type: "message_types",
+  guide: "guides",
+  audience: "audiences",
+};
+
+async function mapiGet(path, params) {
+  const response = await fetch(
+    `${MAPI_URL}${path}?${new URLSearchParams(params)}`,
+    {
+      headers,
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`GET ${path} failed with ${response.status}`);
+  }
+  return response.json();
+}
+
+async function listPromotedCommits(environment, promoteGroupId) {
+  const commits = [];
+  let after = null;
+
+  do {
+    const params = { environment, promote_group_id: promoteGroupId };
+    if (after) params.after = after;
+
+    const page = await mapiGet("/commits", params);
+    commits.push(...page.entries);
+    after = page.page_info.after;
+  } while (after);
+
+  return commits;
+}
+
+function fetchCommittedResource(environment, { type, identifier }) {
+  const params = { environment, hide_uncommitted_changes: "true" };
+
+  if (type === "translation") {
+    const [locale, namespace] = identifier.split("/");
+    if (namespace) params.namespace = namespace;
+    return mapiGet(`/translations/${encodeURIComponent(locale)}`, params);
+  }
+
+  return mapiGet(
+    `/${COLLECTIONS[type]}/${encodeURIComponent(identifier)}`,
+    params,
+  );
+}
+
+async function syncPromote(promote) {
+  if (await store.isPromoteProcessed(promote.id)) return;
+
+  const environment = promote.to_environment;
+  const commits = await listPromotedCommits(environment, promote.id);
+
+  // A promote can contain several commits for the same resource.
+  const resources = new Map();
+  for (const commit of commits) {
+    const key = `${commit.resource.type}:${commit.resource.identifier}`;
+    const entry = resources.get(key) ?? {
+      resource: commit.resource,
+      commitIds: [],
+    };
+    entry.commitIds.push(commit.id);
+    resources.set(key, entry);
+  }
+
+  for (const { resource, commitIds } of resources.values()) {
+    const content = await fetchCommittedResource(environment, resource);
+    await store.upsertResource({
+      environment,
+      type: resource.type,
+      identifier: resource.identifier,
+      content,
+      promoteGroupId: promote.id,
+      commitIds,
+    });
+  }
+
+  await store.markPromoteProcessed(promote.id, promote.created_at);
+}
+
+app.post(
+  "/webhooks/knock",
+  express.raw({ type: "application/json" }),
+  (request, response) => {
+    // Verify the x-knock-signature header here before trusting the payload.
+    const event = JSON.parse(request.body.toString());
+
+    if (event.type !== "commits.promoted") {
+      return response.sendStatus(204);
+    }
+
+    response.sendStatus(200);
+    syncPromote(event.data).catch((error) => console.error(error));
+  },
+);
+
+app.listen(4242);
+```
+
+## Branch merges and branch events
+
+When someone merges a branch, Knock sends `commits.promoted` to webhooks in the branch's parent environment, which is `development` for most accounts. The event has `source` set to the branch slug and `source_type` set to `branch`. The handler above needs no changes to sync merges: `to_environment` is the parent environment, and the commits the merge created carry its promote group ID.
+
+If you mirror production, merges reach your copy when someone promotes them from development, as a separate promote with its own event. Each hop between environments is its own promote with its own promote group ID.
+
+Knock also sends [branch events](/developer-tools/outbound-webhooks/event-types#branch-events) as branches change: `branch.created`, `branch.deleted`, and `branch.rebased`. They describe the branch and the user who triggered the event, not content changes, so a content sync doesn't need them. They're useful if you also track which branches exist, for example to clean up records for a deleted branch. Like merges, branch events go to webhooks in the parent environment. A webhook that belongs to a branch doesn't receive them.
+
+## Catching up on missed changes
+
+Webhooks give you low-latency updates, but your endpoint can be down longer than Knock's retry window, and some changes don't arrive as promotes. A periodic sweep covers both cases.
+
+Call the list commits endpoint for your mirrored environment with `since` set to the time of your last completed sweep. The `since` filter returns commits created at or after that timestamp, whether a promote created them or someone committed them in the environment. Group the results by `promote_group_id`, sync each group you haven't processed, and sync the resources from commits with no promote group ID the same way. Overlapping sweep windows are safe, because each write replaces the stored resource with its committed state.
+
+```bash title="List commits created since the last sweep"
+curl -G https://control.knock.app/v1/commits \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN" \
+  --data-urlencode "environment=production" \
+  --data-urlencode "since=2026-10-08T18:00:00Z"
+```
+
+The sweep also matters if anyone commits in the environment you mirror instead of promoting into it. Some teams [create content in production](/version-control/environments#create-content-in-environments), and those commits don't send `commits.promoted`. The [event types page](/developer-tools/outbound-webhooks/event-types) lists `*.committed` events for workflows, email layouts, translations, and partials, which you can add to the same webhook to pick up direct commits for those types. For other resource types, rely on the sweep.
+
+## Debugging and troubleshooting
+
+Start with the webhook's page in the dashboard. Its [delivery logs](/developer-tools/outbound-webhooks/overview#reading-webhook-delivery-logs) show each request Knock sent, the status code your endpoint returned, and the full payload. The <a href="https://dashboard.knock.app/~/commits" target="_blank">**Commits**</a> page shows the commit log for each environment, so you can compare what Knock committed with what your store holds.
+
+| Symptom                                   | What to check                                                                                                                                                     |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No `commits.promoted` events arrive       | Confirm the webhook is in the destination environment, is enabled, and has `commits.promoted` selected. The event is in beta, so confirm your account has access. |
+| No events for branch merges               | Merges send the event to webhooks in the branch's parent environment. Create the webhook there, not on the branch.                                                |
+| List commits returns no entries           | Pass `environment` set to `data.to_environment`. The promote's commits live in the destination environment, not the source.                                       |
+| Fewer commits than `commit_count`         | Follow `page_info.after` to fetch every page.                                                                                                                     |
+| The same promote processes more than once | Record each processed `data.id` and skip IDs you've already handled. Respond with `2xx` before doing slow work so Knock doesn't retry the delivery.               |
+| A retrieve request fails for one resource | Log the commit ID and resource, leave the promote unprocessed, and inspect the resource in the dashboard. Your next sweep tries again.                            |
+
+## Limitations
+
+- **The events are in beta.** `commits.promoted` and the branch events aren't available to all accounts yet.
+- **The retrieve endpoints return current state.** There's no endpoint to fetch a resource as of a specific commit. If another commit lands between the promote and your fetch, you store the newer state, and that later change sends its own event or shows up in your next sweep.
+- **The payload doesn't include content.** The event identifies the promote. Fetch the changed resources from the Management API.
+- **The commit log covers seven resource types.** Commits identify resources as `workflow`, `email_layout`, `partial`, `translation`, `message_type`, `guide`, or `audience`. [Account-level resources](/version-control/commits#how-commits-work), such as channel configurations, branding, and variables, aren't versioned, so they don't create commits.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Why not subscribe to workflow.committed and the other committed events?"
+    anchorSlug="faq-committed-events"
+  >
+    Promotes don't send `*.committed` events for the commits they copy, so a
+    sync built on those events misses every promote. Subscribe to
+    `commits.promoted` for promotes, and add the committed events if people also
+    commit in the environment you mirror.
+  </Accordion>
+  <Accordion
+    title="How do I tell a branch merge from an environment promote?"
+    anchorSlug="faq-branch-merge-vs-promote"
+  >
+    Check `data.source_type`. It's `branch` for a branch merge and `environment`
+    for a promote between environments. `data.source` holds the branch or
+    environment slug.
+  </Accordion>
+  <Accordion
+    title="Can I mirror more than one environment?"
+    anchorSlug="faq-mirror-multiple-environments"
+  >
+    Yes. Webhooks belong to a single environment, so create a webhook in each
+    environment you want to mirror. Key your stored content by
+    `data.to_environment` so each environment's copy stays separate.
+  </Accordion>
+  <Accordion
+    title="Can I use the Knock CLI instead of the Management API?"
+    anchorSlug="faq-knock-cli"
+  >
+    The [Knock CLI](/developer-tools/knock-cli) calls the same Management API,
+    and the [`knock pull`](/cli/resources/pull) command downloads resources from
+    an environment. The Management API gives a webhook handler direct access to
+    the `promote_group_id` filter, so this tutorial uses it.
+  </Accordion>
+</AccordionGroup>
