@@ -203,4 +203,14 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/archive", title: "Archive audience" },
     ],
   },
+
+  {
+    title: "Sources",
+    slug: "/cli/source",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/list", title: "List sources" },
+      { slug: "/get", title: "Get source" },
+    ],
+  },
 ];

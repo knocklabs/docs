@@ -39,7 +39,7 @@ If you're migrating your local workflow files into Knock, you can arrange them u
 
 You can see all your existing workflows in a given environment with the workflow list command.
 
-Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
 
 ### Flags
 
@@ -47,7 +47,7 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
   <Attribute
     name="--environment"
     type="string"
-    description="The environment to use. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
@@ -96,7 +96,7 @@ knock workflow list --after=xxx
 
 You can show more details about a given workflow with the `workflow get` command, followed by the target workflow key.
 
-Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
 
 ### Flags
 
@@ -104,7 +104,7 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
   <Attribute
     name="--environment"
     type="string"
-    description="The environment to use. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
@@ -156,7 +156,7 @@ The command will create a new workflow directory in your local file system. By d
   <Attribute
     name="--environment"
     type="string"
-    description="The environment to use. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
@@ -228,7 +228,7 @@ See the [Workflow file structure](/cli/workflow/file-structure) section for deta
   <Attribute
     name="--environment"
     type="string"
-    description="The environment to use. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
@@ -287,7 +287,6 @@ By default this command will resolve to the workflows resource directory via you
 
 Note:
 
-- The `workflow push` command only pushes workflows into the `development` environment by default. Use `--force` to bypass this restriction and overwrite content in any environment.
 - You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
 - You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
 - You can pass `--allow-empty` with `--commit` to create an empty commit when re-upserting an unchanged resource. See [empty commits](/version-control/commits#empty-commits) for more on when and why to use this.
@@ -297,6 +296,11 @@ See the [Workflow file structure](/cli/workflow/file-structure) section for deta
 ### Flags
 
 <Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
   <Attribute
     name="--commit"
     type="boolean"
@@ -376,7 +380,7 @@ Note:
   <Attribute
     name="--environment"
     type="string"
-    description="The slug of the environment in which to run this workflow. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
@@ -404,6 +408,16 @@ Note:
     type="string"
     description="An optional tenant id for this workflow run."
   />
+  <Attribute
+    name="--sandbox-mode"
+    type="boolean"
+    description="Generates messages for the workflow's channel steps without sending them to the downstream provider. Defaults to false."
+  />
+  <Attribute
+    name="--skip-delay"
+    type="boolean"
+    description="Skips the workflow's delay steps. Defaults to false."
+  />
 </Attributes>
 
 </ContentColumn>
@@ -424,11 +438,14 @@ knock workflow run my-workflow \
 
 You can validate a new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
 
-Note: Validating a workflow is only done against the `development` environment.
-
 ### Flags
 
 <Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
   <Attribute
     name="--branch"
     type="string"
@@ -524,7 +541,7 @@ Learn more about [type safety with workflows](/developer-tools/type-safety).
   <Attribute
     name="--environment"
     type="string"
-    description="The environment to fetch workflows from. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
@@ -581,7 +598,7 @@ Open a workflow in the Knock dashboard. This command opens the workflow page in 
   <Attribute
     name="--environment"
     type="string"
-    description="The environment to use. Defaults to development."
+    description="The environment to use. When omitted, the account's default environment is used."
   />
   <Attribute
     name="--branch"
