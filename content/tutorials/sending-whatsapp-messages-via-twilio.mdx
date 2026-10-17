@@ -1,0 +1,146 @@
+---
+title: Sending WhatsApp messages via Twilio
+description: Learn how to send WhatsApp template messages through Knock's Twilio SMS channel.
+tags: ["sms"]
+section: Tutorials
+---
+
+In this tutorial we'll walk through how to send WhatsApp notifications through Knock's [Twilio](/integrations/sms/twilio) channel using Twilio's <a href="https://www.twilio.com/docs/messaging" target="_blank" rel="noopener">Programmable Messaging API</a>. Twilio manages the WhatsApp Business API relationship on your behalf, so you skip creating the Facebook business app that Knock's [WhatsApp chat channel](/integrations/chat/whatsapp) requires. You manage your WhatsApp sender and message templates in Twilio.
+
+Knock's Twilio channel sends SMS by default, but can be adapted for WhatsApp messages with minor adjustments:
+
+- Recipient numbers and sender phone numbers need a `whatsapp:` prefix, such as `whatsapp:+1234567890`.
+- The message body comes from an approved Twilio content template, identified by a `ContentSid` and populated with values from `ContentVariables`.
+
+These changes are applied in your Knock channel settings and your workflow step templates. If you already send SMS through Twilio, your WhatsApp channel can use the same Twilio account and credentials.
+
+## Prerequisites
+
+Before you configure anything in Knock, you'll need a WhatsApp-enabled phone number registered with Twilio. There are two paths depending on your situation:
+
+- **Direct customers.** Register a WhatsApp sender using <a href="https://www.twilio.com/docs/whatsapp/self-sign-up" target="_blank" rel="noopener">WhatsApp Self Sign-up</a>.
+- **Independent software vendors (ISVs).** Register a WhatsApp sender through the <a href="https://www.twilio.com/docs/whatsapp/tech-provider-program" target="_blank" rel="noopener">WhatsApp Tech Provider Program</a>.
+
+You'll also need at least one approved content template. Create and manage templates in the <a href="https://console.twilio.com/us1/develop/sms/content-template-builder" target="_blank" rel="noopener">Twilio Content Template Builder</a>. Copy your approved template's **Content SID**, which starts with `HX`, to use in your Knock workflow steps.
+
+## Configuring WhatsApp
+
+<Steps titleSize="h3">
+  <Step title="Create a Twilio channel">
+    Create a new Twilio [channel](/concepts/channels) under <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your Knock dashboard account settings. Use this channel only for WhatsApp, and send any Twilio SMS through a separate channel.
+
+  </Step>
+  <Step title="Configure Twilio channel">
+    Configure the channel per environment with your Twilio **Account ID** and **Auth token**. Set **From** to the WhatsApp sender you registered with Twilio, either a phone number or a messaging service:
+
+    - **Phone number.** Enter your WhatsApp-enabled Twilio number. You'll add the `whatsapp:` prefix in the next step.
+    - **Messaging Service SID.** Enter the SID of the Twilio messaging service that contains your WhatsApp sender.
+
+    To track [message statuses](/send-notifications/message-statuses) in Knock, enable [delivery status webhooks](/integrations/sms/twilio#delivery-status-webhooks) on the channel. In addition to the delivery events Twilio reports for SMS, WhatsApp sends read receipts, which Knock records as `read`. The [FAQ below](#faq-status-mapping) lists how each Twilio status maps to Knock.
+
+  </Step>
+  <Step title="Set payload overrides">
+    Twilio requires the `whatsapp:` prefix on the recipient's number, and on the sender's number when **From** is a phone number.
+
+    In the environment's settings, expand **Advanced** and enter the appropriate override in [**Payload overrides**](/integrations/sms/settings-and-overrides#provider-json-overrides):
+
+    <AccordionGroup>
+      <Accordion title="Phone number">
+        ```json title="Channel-level overrides for a phone number sender"
+        {
+          "From": "whatsapp:+1234567890",
+          "To": "whatsapp:{{ recipient.phone_number }}"
+        }
+        ```
+
+        Replace `+1234567890` with your WhatsApp-enabled Twilio number.
+
+      </Accordion>
+      <Accordion title="Messaging Service SID">
+        ```json title="Channel-level override for a messaging service sender"
+        {
+          "To": "whatsapp:{{ recipient.phone_number }}"
+        }
+        ```
+
+        Twilio selects the WhatsApp sender from the messaging service, so you don't need a `From` override.
+
+      </Accordion>
+    </AccordionGroup>
+
+    To receive WhatsApp messages, recipients need a `phone_number` property in E.164 format, such as `+1234567890`. The `To` override adds the `whatsapp:` prefix to it at send time.
+
+  </Step>
+  <Step title="Set the content template ID">
+    WhatsApp requires that business-initiated messages use a template approved by Meta. Set the template with a payload override on the workflow step rather than the channel, so templates can vary between workflows.
+
+    Open the workflow step that uses your WhatsApp Twilio channel and click the gear icon to open template settings. Add a payload override that sets the **Content SID** and the template's variables:
+
+    ```json title="Template-level override for a WhatsApp content template"
+    {
+      "ContentSid": "HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "ContentVariables": "{\"first_name\":\"{{ data.first_name }}\",\"date\":\"{{ data.appointment_date }}\",\"time\":\"{{ data.appointment_time }}\"}"
+    }
+    ```
+
+    `ContentVariables` is a JSON string, and its keys are case-sensitive and must match the variable names your Twilio content template defines.
+    - For a template with named variables such as `{{first_name}}`, use those names as keys.
+    - For a template with positional variables such as `{{1}}`, use numeric string keys: `"1"`, `"2"`, and so on.
+
+    Values accept Liquid, so you can populate them from your workflow's trigger data as shown in the example above.
+
+  </Step>
+  <Step title="Add an optional fallback">
+    When the override includes a valid `ContentSid`, Twilio ignores the message body and builds the message from your content template and `ContentVariables`. If `ContentSid` is ever missing, Twilio sends the body as written. If the body is blank, the message fails instead. We recommend treating the body as a true fallback and using one that would read well to the recipient.
+
+  </Step>
+  <Step title="Manage user preferences">
+    Knock treats this channel as an SMS channel, so a recipient's SMS [preferences](/preferences/overview) also apply to their WhatsApp messages. A recipient who opts out of SMS also stops receiving WhatsApp. To let recipients manage WhatsApp separately, set preferences by [channel rather than channel type](/preferences/overview#channels-vs-channel-types).
+  </Step>
+</Steps>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Can I use one Twilio channel for both SMS and WhatsApp?"
+    anchorSlug="faq-shared-sms-whatsapp-channel"
+  >
+    No. The `To` and `From` overrides apply to every message the channel sends,
+    so SMS messages on a WhatsApp-configured channel fail. Create a separate
+    Twilio channel for each.
+  </Accordion>
+  <Accordion
+    title="How do Twilio statuses map to Knock message statuses?"
+    anchorSlug="faq-status-mapping"
+  >
+    Knock maps Twilio status callbacks to these [message statuses](/send-notifications/message-statuses):
+
+    | Twilio callback              | Knock status | Description                                                              |
+    | ---------------------------- | ------------ | ------------------------------------------------------------------------ |
+    | `MessageStatus: delivered`   | `delivered`  | The message was delivered to the recipient's device.                     |
+    | `MessageStatus: failed`      | `bounced`    | The message failed, such as from an invalid number or carrier rejection. |
+    | `MessageStatus: undelivered` | `bounced`    | Twilio accepted the message but couldn't deliver it to the recipient.    |
+    | `EventType: READ`            | `read`       | The recipient read the message.                                          |
+
+  </Accordion>
+  <Accordion
+    title="Why does the Body field still show in the template editor?"
+    anchorSlug="faq-body-field"
+  >
+    When the step's override includes a valid `ContentSid`, Twilio builds the
+    message from your content template and ignores the body. If `ContentSid` is
+    missing, Twilio sends the body instead, or fails the message if the body is
+    blank. Write the body as a fallback message that reads well on its own.
+  </Accordion>
+  <Accordion
+    title="Should I use this or the WhatsApp chat channel?"
+    anchorSlug="faq-twilio-vs-chat-channel"
+  >
+    Use the Twilio channel when your WhatsApp Business account is already
+    managed through Twilio, or when you want to avoid creating a Facebook
+    business app. The [WhatsApp chat channel](/integrations/chat/whatsapp) is
+    available if you don't use Twilio, but requires creating a Facebook business
+    app and connecting to the WhatsApp Business API directly.
+  </Accordion>
+</AccordionGroup>

@@ -64,4 +64,8 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/guides-in-vue`,
     title: "Guides in Vue.js",
   },
+  {
+    slug: `${baseSlug}/sending-whatsapp-messages-via-twilio`,
+    title: "WhatsApp via Twilio",
+  },
 ];
