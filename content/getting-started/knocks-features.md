@@ -9,17 +9,17 @@ Knock is product and customer messaging infrastructure. Engineering, product, an
 
 ## Features at a glance
 
-| What you need | Knock feature | Who typically manages it |
-| --- | --- | --- |
-| Event-driven transactional messages | [Workflows](/concepts/workflows) | Engineering, product |
-| Onboarding, engagement, and retention sequences | [Workflows](/concepts/workflows) triggered by events or [audience](/concepts/audiences) entry | Product, growth |
-| One-time announcements, campaigns, and newsletters | [Broadcasts](/concepts/broadcasts) | Marketing, growth |
-| User segments | [Audiences](/concepts/audiences), static or dynamic | Growth, marketing, data |
-| In-product banners, paywalls, tours, and announcements | [Guides](/concepts/guides) | Product, growth (UI by engineering) |
-| In-app inbox and toasts | [In-app feeds](/integrations/in-app/overview) | Engineering |
-| Outcome measurement | [Goals](/concepts/goals) with attribution | Growth, product |
-| A/B tests | [Experiment function](/designing-workflows/experiment-function) | Growth, product |
-| Engagement reporting | [Analytics](/send-notifications/analytics) and data warehouse sync | Everyone |
+| What you need                                          | Knock feature                                                                                 | Who typically manages it            |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Event-driven transactional messages                    | [Workflows](/concepts/workflows)                                                              | Engineering, product                |
+| Onboarding, engagement, and retention sequences        | [Workflows](/concepts/workflows) triggered by events or [audience](/concepts/audiences) entry | Product, growth                     |
+| One-time announcements, campaigns, and newsletters     | [Broadcasts](/concepts/broadcasts)                                                            | Marketing, growth                   |
+| User segments                                          | [Audiences](/concepts/audiences), static or dynamic                                           | Growth, marketing, data             |
+| In-product banners, paywalls, tours, and announcements | [Guides](/concepts/guides)                                                                    | Product, growth (UI by engineering) |
+| In-app inbox and toasts                                | [In-app feeds](/integrations/in-app/overview)                                                 | Engineering                         |
+| Outcome measurement                                    | [Goals](/concepts/goals) with attribution                                                     | Growth, product                     |
+| A/B tests                                              | [Experiment function](/designing-workflows/experiment-function)                               | Growth, product                     |
+| Engagement reporting                                   | [Analytics](/send-notifications/analytics) and data warehouse sync                            | Everyone                            |
 
 ## Transactional messaging
 
