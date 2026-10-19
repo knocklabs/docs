@@ -7,6 +7,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "An introduction to the basics of Knock.",
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
+      { slug: "/knocks-features", title: "Knock's features" },
       {
         slug: "/quick-start",
         title: "Quick start",
