@@ -18,827 +18,828 @@ tags: ["events", "data", "analytics", "webhook configuration"]
   }
 />
 
-### `message.sent`
+<AccordionGroup>
+  <Accordion title="`message.sent`" anchorSlug="messagesent">
+    Occurs when a message is successfully sent to a channel provider.
 
-Occurs when a message is successfully sent to a channel provider.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.delivered`
-
-Occurs when a message is marked as delivered to the user by the provider. Not all channels support delivery tracking. Reference the docs on the [`delivered` message status](/send-notifications/message-statuses#7-delivered) to see which channels and providers are supported.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.delivery_attempted`
-
-Occurs when a message delivery attempt fails and may be retried.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the attempt, the total attempts, and whether or not it will be retried."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="attempt"
-        type="number"
-        description="The current attempt count."
-      />
-      <Attribute
-        name="max_attempts"
-        type="number"
-        description="The total number of attempts that can be tried."
-      />
-      <Attribute
-        name="retryable"
-        type="boolean"
-        description="Whether or not the current attempt is retryable. This field may be absent if retryability is not
-  determined."
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
       />
     </Attributes>
-  </Attribute>
-</Attributes>
 
-### `message.undelivered`
+  </Accordion>
+  <Accordion title="`message.delivered`" anchorSlug="messagedelivered">
+    Occurs when a message is marked as delivered to the user by the provider. Not all channels support delivery tracking. Reference the docs on the [`delivered` message status](/send-notifications/message-statuses#7-delivered) to see which channels and providers are supported.
 
-Occurs when a message delivery attempt fails permanently. Delivery will not be retried.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="May include additional information about the failure."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="failure_reason"
-        type="string"
-        description="The reason for a message failure. One of `fatal_error` or `retries_exhausted`."
-      />
-      <Attribute
-        name="failure_details"
-        type="string"
-        description="Details about a message failure. This field varies by provider and is nullable."
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
       />
     </Attributes>
-  </Attribute>
-</Attributes>
 
-### `message.bounced`
+  </Accordion>
+  <Accordion title="`message.delivery_attempted`" anchorSlug="messagedelivery_attempted">
+    Occurs when a message delivery attempt fails and may be retried.
 
-Occurs when a message delivery attempt fails due to bounce or a delivery status check results in a bounce because of a bad recipient(s) identifier. Delivery will not be retried.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="May include additional information about the failure."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="failure_reason"
-        type="string"
-        description="The reason for a message failure."
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
       />
       <Attribute
-        name="failure_details"
-        type="string"
-        description="Details about a message bounce."
-      />
-      <Attribute
-        name="token"
-        type="string"
-        description="The erroneous token causing the bounce. Only applicable for push messages."
-      />
+        name="event_data"
+        type="EventData"
+        description="Additional information about the attempt, the total attempts, and whether or not it will be retried."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="attempt"
+            type="number"
+            description="The current attempt count."
+          />
+          <Attribute
+            name="max_attempts"
+            type="number"
+            description="The total number of attempts that can be tried."
+          />
+          <Attribute
+            name="retryable"
+            type="boolean"
+            description="Whether or not the current attempt is retryable. This field may be absent if retryability is not
+      determined."
+          />
+        </Attributes>
+      </Attribute>
     </Attributes>
-  </Attribute>
-</Attributes>
 
-### `message.complaint`
+  </Accordion>
+  <Accordion title="`message.undelivered`" anchorSlug="messageundelivered">
+    Occurs when a message delivery attempt fails permanently. Delivery will not be retried.
 
-Occurs when a recipient reports a delivered email as spam and the email provider relays the complaint to Knock. A complaint is a post-delivery event, so it does not change the message's delivery status. Only available on select email providers with [delivery status webhooks](/send-notifications/delivering-notifications#delivery-status-tracking) configured to send complaint events: [Postmark](/integrations/email/postmark#complaint-events), [Resend](/integrations/email/resend#complaint-events), [AWS SES](/integrations/email/aws-ses#complaint-events), [SendGrid](/integrations/email/sendgrid#complaint-events), and [Mailgun](/integrations/email/mailgun#complaint-events).
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Includes a subset of the provider's complaint payload, such as the complained recipient address and the provider's complaint timestamp. The available fields vary by provider."
-  />
-</Attributes>
-
-### `message.seen`
-
-Occurs when a message is seen by its recipient.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.unseen`
-
-Occurs when a message is unseen by its recipient.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.read`
-
-Occurs when a message is read by its recipient.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.unread`
-
-Occurs when a message is unread by its recipient.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.archived`
-
-Occurs when a message is archived by its recipient.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.unarchived`
-
-Occurs when a message is unarchived by its recipient.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-</Attributes>
-
-### `message.interacted`
-
-Occurs when a message is interacted with by its recipient. For the Knock in-app feed, this indicates that your recipient has explicitly clicked on the notification cell in their feed.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Includes any additional metadata included in the interacted event."
-  />
-</Attributes>
-
-### `message.link_clicked`
-
-Occurs when a link is clicked by the message recipient. This is only available when Knock link tracking is enabled.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Message"
-    description="The associated message."
-    typeSlug="/api-reference/messages/schemas/message"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="May include additional information about the link click event."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="url"
-        type="string"
-        description="The target URL that was clicked."
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="May include additional information about the failure."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="failure_reason"
+            type="string"
+            description="The reason for a message failure. One of `fatal_error` or `retries_exhausted`."
+          />
+          <Attribute
+            name="failure_details"
+            type="string"
+            description="Details about a message failure. This field varies by provider and is nullable."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.bounced`" anchorSlug="messagebounced">
+    Occurs when a message delivery attempt fails due to bounce or a delivery status check results in a bounce because of a bad recipient(s) identifier. Delivery will not be retried.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="May include additional information about the failure."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="failure_reason"
+            type="string"
+            description="The reason for a message failure."
+          />
+          <Attribute
+            name="failure_details"
+            type="string"
+            description="Details about a message bounce."
+          />
+          <Attribute
+            name="token"
+            type="string"
+            description="The erroneous token causing the bounce. Only applicable for push messages."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.complaint`" anchorSlug="messagecomplaint">
+    Occurs when a recipient reports a delivered email as spam and the email provider relays the complaint to Knock. A complaint is a post-delivery event, so it does not change the message's delivery status. Only available on select email providers with [delivery status webhooks](/send-notifications/delivering-notifications#delivery-status-tracking) configured to send complaint events: [Postmark](/integrations/email/postmark#complaint-events), [Resend](/integrations/email/resend#complaint-events), [AWS SES](/integrations/email/aws-ses#complaint-events), [SendGrid](/integrations/email/sendgrid#complaint-events), and [Mailgun](/integrations/email/mailgun#complaint-events).
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Includes a subset of the provider's complaint payload, such as the complained recipient address and the provider's complaint timestamp. The available fields vary by provider."
       />
     </Attributes>
-  </Attribute>
-</Attributes>
 
-## Workflow recipient run events
+  </Accordion>
+  <Accordion title="`message.seen`" anchorSlug="messageseen">
+    Occurs when a message is seen by its recipient.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.unseen`" anchorSlug="messageunseen">
+    Occurs when a message is unseen by its recipient.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.read`" anchorSlug="messageread">
+    Occurs when a message is read by its recipient.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.unread`" anchorSlug="messageunread">
+    Occurs when a message is unread by its recipient.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.archived`" anchorSlug="messagearchived">
+    Occurs when a message is archived by its recipient.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.unarchived`" anchorSlug="messageunarchived">
+    Occurs when a message is unarchived by its recipient.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.interacted`" anchorSlug="messageinteracted">
+    Occurs when a message is interacted with by its recipient. For the Knock in-app feed, this indicates that your recipient has explicitly clicked on the notification cell in their feed.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Includes any additional metadata included in the interacted event."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message.link_clicked`" anchorSlug="messagelink_clicked">
+    Occurs when a link is clicked by the message recipient. This is only available when Knock link tracking is enabled.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Message"
+        description="The associated message."
+        typeSlug="/api-reference/messages/schemas/message"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="May include additional information about the link click event."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="url"
+            type="string"
+            description="The target URL that was clicked."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+## Workflow run events
 
 A [workflow recipient run](/concepts/workflows#workflow-runs-and-recipients) represents the execution of a workflow for a single recipient. Use these events to respond when a recipient's workflow run starts, completes, or encounters an error. You can also inspect runs via the [workflow recipient runs API](/api-reference/workflow_recipient_runs).
 
-### `workflow_recipient_run.started`
+<AccordionGroup>
+  <Accordion title="`workflow_recipient_run.started`" anchorSlug="workflow_recipient_runstarted">
+    Occurs when a workflow recipient run begins execution.
 
-Occurs when a workflow recipient run begins execution.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="WorkflowRecipientRun"
-    description="The associated workflow recipient run."
-    typeSlug="/api-reference/workflow_recipient_runs/schemas/workflow_recipient_run"
-  />
-</Attributes>
-
-### `workflow_recipient_run.completed`
-
-Occurs when a workflow recipient run completes.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="WorkflowRecipientRun"
-    description="The associated workflow recipient run."
-    typeSlug="/api-reference/workflow_recipient_runs/schemas/workflow_recipient_run"
-  />
-</Attributes>
-
-### `workflow_recipient_run.error`
-
-Occurs when an error is encountered during a workflow recipient run.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="WorkflowRecipientRun"
-    description="The associated workflow recipient run."
-    typeSlug="/api-reference/workflow_recipient_runs/schemas/workflow_recipient_run"
-  />
-</Attributes>
-
-## Audience events
-
-Knock sends these events for user-visible [audiences](/concepts/audiences) and skips managed and system audiences.
-
-### `audience.updated`
-
-Occurs whenever an audience is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Audience"
-    description="The associated audience."
-    typeSlug="/mapi-reference/audiences/schemas/audience"
-  />
-</Attributes>
-
-### `audience.committed`
-
-Occurs whenever an audience is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Audience"
-    description="The associated audience."
-    typeSlug="/mapi-reference/audiences/schemas/audience"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
+        name="data"
+        type="WorkflowRecipientRun"
+        description="The associated workflow recipient run."
+        typeSlug="/api-reference/workflow_recipient_runs/schemas/workflow_recipient_run"
       />
     </Attributes>
-  </Attribute>
-</Attributes>
 
-## Email layout events
+  </Accordion>
+  <Accordion title="`workflow_recipient_run.completed`" anchorSlug="workflow_recipient_runcompleted">
+    Occurs when a workflow recipient run completes.
 
-### `email_layout.updated`
-
-Occurs whenever an email layout is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="EmailLayout"
-    description="The associated email layout."
-    typeSlug="/mapi-reference/email_layouts/schemas/email_layout"
-  />
-</Attributes>
-
-### `email_layout.committed`
-
-Occurs whenever an email layout is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="EmailLayout"
-    description="The associated email layout."
-    typeSlug="/mapi-reference/email_layouts/schemas/email_layout"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
+        name="data"
+        type="WorkflowRecipientRun"
+        description="The associated workflow recipient run."
+        typeSlug="/api-reference/workflow_recipient_runs/schemas/workflow_recipient_run"
       />
     </Attributes>
-  </Attribute>
-</Attributes>
 
-## Goal events
+  </Accordion>
+  <Accordion title="`workflow_recipient_run.error`" anchorSlug="workflow_recipient_runerror">
+    Occurs when an error is encountered during a workflow recipient run.
 
-### `goal.updated`
-
-Occurs whenever a [goal](/concepts/goals) is updated in the environment. Goals publish on save, so this event carries the commit ID.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Goal"
-    description="The associated goal."
-    typeSlug="/mapi-reference/goals/schemas/goal"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
     <Attributes>
       <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
+        name="data"
+        type="WorkflowRecipientRun"
+        description="The associated workflow recipient run."
+        typeSlug="/api-reference/workflow_recipient_runs/schemas/workflow_recipient_run"
       />
     </Attributes>
-  </Attribute>
-</Attributes>
 
-## Guide events
-
-### `guide.updated`
-
-Occurs whenever the content, status, or activation schedule of a [guide](/concepts/guides) changes in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Guide"
-    description="The associated guide."
-    typeSlug="/mapi-reference/guides/schemas/guide"
-  />
-</Attributes>
-
-### `guide.committed`
-
-Occurs whenever a guide is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Guide"
-    description="The associated guide."
-    typeSlug="/mapi-reference/guides/schemas/guide"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
-
-## Message type events
-
-### `message_type.updated`
-
-Occurs whenever a [message type](/in-app-ui/message-types) is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="MessageType"
-    description="The associated message type."
-    typeSlug="/mapi-reference/message_types/schemas/message_type"
-  />
-</Attributes>
-
-### `message_type.committed`
-
-Occurs whenever a message type is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="MessageType"
-    description="The associated message type."
-    typeSlug="/mapi-reference/message_types/schemas/message_type"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
-
-## Partial events
-
-### `partial.updated`
-
-Occurs whenever a partial is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Partial"
-    description="The associated partial."
-    typeSlug="/mapi-reference/partials/schemas/partial"
-  />
-</Attributes>
-
-### `partial.committed`
-
-Occurs whenever a partial is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Partial"
-    description="The associated partial."
-    typeSlug="/mapi-reference/partials/schemas/partial"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
-
-## Reusable request events
-
-### `reusable_request.updated`
-
-Occurs whenever a [reusable request](/designing-workflows/fetch-function#creating-a-reusable-request) is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="ReusableRequest"
-    description="The associated reusable request."
-    typeSlug="/mapi-reference/reusable_requests/schemas/reusable_request"
-  />
-</Attributes>
-
-### `reusable_request.committed`
-
-Occurs whenever a reusable request is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="ReusableRequest"
-    description="The associated reusable request."
-    typeSlug="/mapi-reference/reusable_requests/schemas/reusable_request"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
-
-## Source event action events
-
-### `source_event_action.updated`
-
-Occurs whenever a source event action is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="SourceEventAction"
-    description="The associated source event action."
-    typeSlug="/integrations/sources/overview#event-to-action-mapping"
-  />
-</Attributes>
-
-### `source_event_action.committed`
-
-Occurs whenever a source event action is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="SourceEventAction"
-    description="The associated source event action."
-    typeSlug="/integrations/sources/overview#event-to-action-mapping"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
-
-## Translation events
-
-### `translation.updated`
-
-Occurs whenever a translation is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Translation"
-    description="The associated translation."
-    typeSlug="/mapi-reference/translations/schemas/translation"
-  />
-</Attributes>
-
-### `translation.committed`
-
-Occurs whenever a translation is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Translation"
-    description="The associated translation."
-    typeSlug="/mapi-reference/translations/schemas/translation"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
-
-## Workflow events
-
-### `workflow.updated`
-
-Occurs whenever a workflow is updated in the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Workflow"
-    description="The associated workflow."
-    typeSlug="/mapi-reference/workflows/schemas/workflow"
-  />
-</Attributes>
-
-### `workflow.committed`
-
-Occurs whenever a workflow is committed to the environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="Workflow"
-    description="The associated workflow."
-    typeSlug="/mapi-reference/workflows/schemas/workflow"
-  />
-  <Attribute
-    name="event_data"
-    type="EventData"
-    description="Additional information about the commit."
-    expandLabel="EventData attributes"
-  >
-    <Attributes>
-      <Attribute
-        name="commit_id"
-        type="string"
-        description="The ID of the corresponding commit for the event."
-      />
-    </Attributes>
-  </Attribute>
-</Attributes>
+  </Accordion>
+</AccordionGroup>
 
 ## Commit events
 
 [Promoting commits](/version-control/commits#promoting-commits) copies them from one [environment](/version-control/environments) into another, and [merging a branch](/version-control/branches#merging-changes-from-a-branch) promotes its commits into the parent environment. Use these events to respond when changes land in an environment. You can also inspect promotes via the [list commits endpoint](/mapi-reference/commits/list). Publishing a change creates a commit, and Knock sends a `*.committed` event for that commit.
 
-### `commits.promoted`
+<AccordionGroup>
+  <Accordion title="`commits.promoted`" anchorSlug="commitspromoted">
+    Occurs whenever commits are promoted into an environment, including when a branch is merged. Knock sends one event per promote to webhooks in the destination environment. Promoted commits don't send `*.committed` events. Learn more about [reacting to promotes](/version-control/commits#reacting-to-promotes).
 
-Occurs whenever commits are promoted into an environment, including when a branch is merged. Knock sends one event per promote to webhooks in the destination environment. Promoted commits don't send `*.committed` events. Learn more about [reacting to promotes](/version-control/commits#reacting-to-promotes).
+    <Attributes>
+      <Attribute
+        name="data"
+        type="PromoteGroup"
+        description="The associated promote group. Use its `id` to list the commits the promote created."
+        typeSlug="/mapi-reference/commits/schemas/promote_group"
+      />
+    </Attributes>
 
-<Attributes>
-  <Attribute
-    name="data"
-    type="PromoteGroup"
-    description="The associated promote group. Use its `id` to list the commits the promote created."
-    typeSlug="/mapi-reference/commits/schemas/promote_group"
-  />
-</Attributes>
+  </Accordion>
+</AccordionGroup>
 
 ## Branch events
 
 Knock sends branch events to webhooks in the branch's parent environment. Merging a branch sends [`commits.promoted`](#commitspromoted) with a `source_type` of `branch`, not a separate merge event.
 
-### `branch.created`
+<AccordionGroup>
+  <Accordion title="`branch.created`" anchorSlug="branchcreated">
+    Occurs whenever a branch is created.
 
-Occurs whenever a branch is created.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="BranchEventData"
-    description="The associated branch and the user who created it."
-    expandLabel="BranchEvent attributes"
-  >
     <Attributes>
       <Attribute
-        name="branch"
-        type="object"
-        description="The branch's `slug`, `name`, `parent_environment`, and `created_at`."
-      />
-      <Attribute
-        name="actor"
-        type="object | null"
-        description="The name and email of the user who created the branch. Null when no user is associated with the event."
-      />
+        name="data"
+        type="BranchEventData"
+        description="The associated branch and the user who created it."
+        expandLabel="BranchEvent attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="branch"
+            type="object"
+            description="The branch's `slug`, `name`, `parent_environment`, and `created_at`."
+          />
+          <Attribute
+            name="actor"
+            type="object | null"
+            description="The name and email of the user who created the branch. Null when no user is associated with the event."
+          />
+        </Attributes>
+      </Attribute>
     </Attributes>
-  </Attribute>
-</Attributes>
 
-### `branch.deleted`
+  </Accordion>
+  <Accordion title="`branch.deleted`" anchorSlug="branchdeleted">
+    Occurs whenever a branch is deleted.
 
-Occurs whenever a branch is deleted.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="BranchEventData"
-    description="The associated branch and the user who deleted it."
-    expandLabel="BranchEvent attributes"
-  >
     <Attributes>
       <Attribute
-        name="branch"
-        type="object"
-        description="The branch's `slug`, `name`, `parent_environment`, `created_at`, and `deleted_at`."
-      />
-      <Attribute
-        name="actor"
-        type="object | null"
-        description="The name and email of the user who deleted the branch. Null when no user is associated with the event."
-      />
+        name="data"
+        type="BranchEventData"
+        description="The associated branch and the user who deleted it."
+        expandLabel="BranchEvent attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="branch"
+            type="object"
+            description="The branch's `slug`, `name`, `parent_environment`, `created_at`, and `deleted_at`."
+          />
+          <Attribute
+            name="actor"
+            type="object | null"
+            description="The name and email of the user who deleted the branch. Null when no user is associated with the event."
+          />
+        </Attributes>
+      </Attribute>
     </Attributes>
-  </Attribute>
-</Attributes>
 
-### `branch.rebased`
+  </Accordion>
+  <Accordion title="`branch.rebased`" anchorSlug="branchrebased">
+    Occurs whenever a branch is rebased onto its parent environment.
 
-Occurs whenever a branch is rebased onto its parent environment.
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="BranchEventData"
-    description="The associated branch and the user who rebased it."
-    expandLabel="BranchEvent attributes"
-  >
     <Attributes>
       <Attribute
-        name="branch"
-        type="object"
-        description="The branch's `slug`, `name`, `parent_environment`, `created_at`, and `rebased_at`."
-      />
+        name="data"
+        type="BranchEventData"
+        description="The associated branch and the user who rebased it."
+        expandLabel="BranchEvent attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="branch"
+            type="object"
+            description="The branch's `slug`, `name`, `parent_environment`, `created_at`, and `rebased_at`."
+          />
+          <Attribute
+            name="actor"
+            type="object | null"
+            description="The name and email of the user who rebased the branch. Null when no user is associated with the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+## Resource events
+
+Knock sends a `*.updated` event when a resource changes in an environment and a `*.committed` event when that change is committed. Committed events include the commit ID in `event_data`. Goals publish on save, so they send only `goal.updated`, which carries the commit ID.
+
+### Audience events
+
+Knock sends these events for user-visible [audiences](/concepts/audiences) and skips managed and system audiences.
+
+<AccordionGroup>
+  <Accordion title="`audience.updated`" anchorSlug="audienceupdated">
+    Occurs whenever an audience is updated in the environment.
+
+    <Attributes>
       <Attribute
-        name="actor"
-        type="object | null"
-        description="The name and email of the user who rebased the branch. Null when no user is associated with the event."
+        name="data"
+        type="Audience"
+        description="The associated audience."
+        typeSlug="/mapi-reference/audiences/schemas/audience"
       />
     </Attributes>
-  </Attribute>
-</Attributes>
+
+  </Accordion>
+  <Accordion title="`audience.committed`" anchorSlug="audiencecommitted">
+    Occurs whenever an audience is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Audience"
+        description="The associated audience."
+        typeSlug="/mapi-reference/audiences/schemas/audience"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Email layout events
+
+<AccordionGroup>
+  <Accordion title="`email_layout.updated`" anchorSlug="email_layoutupdated">
+    Occurs whenever an email layout is updated in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="EmailLayout"
+        description="The associated email layout."
+        typeSlug="/mapi-reference/email_layouts/schemas/email_layout"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`email_layout.committed`" anchorSlug="email_layoutcommitted">
+    Occurs whenever an email layout is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="EmailLayout"
+        description="The associated email layout."
+        typeSlug="/mapi-reference/email_layouts/schemas/email_layout"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Goal events
+
+<AccordionGroup>
+  <Accordion title="`goal.updated`" anchorSlug="goalupdated">
+    Occurs whenever a [goal](/concepts/goals) is updated in the environment. Goals publish on save, so this event carries the commit ID.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Goal"
+        description="The associated goal."
+        typeSlug="/mapi-reference/goals/schemas/goal"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Guide events
+
+<AccordionGroup>
+  <Accordion title="`guide.updated`" anchorSlug="guideupdated">
+    Occurs whenever the content, status, or activation schedule of a [guide](/concepts/guides) changes in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Guide"
+        description="The associated guide."
+        typeSlug="/mapi-reference/guides/schemas/guide"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`guide.committed`" anchorSlug="guidecommitted">
+    Occurs whenever a guide is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Guide"
+        description="The associated guide."
+        typeSlug="/mapi-reference/guides/schemas/guide"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Message type events
+
+<AccordionGroup>
+  <Accordion title="`message_type.updated`" anchorSlug="message_typeupdated">
+    Occurs whenever a [message type](/in-app-ui/message-types) is updated in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="MessageType"
+        description="The associated message type."
+        typeSlug="/mapi-reference/message_types/schemas/message_type"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`message_type.committed`" anchorSlug="message_typecommitted">
+    Occurs whenever a message type is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="MessageType"
+        description="The associated message type."
+        typeSlug="/mapi-reference/message_types/schemas/message_type"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Partial events
+
+<AccordionGroup>
+  <Accordion title="`partial.updated`" anchorSlug="partialupdated">
+    Occurs whenever a partial is updated in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Partial"
+        description="The associated partial."
+        typeSlug="/mapi-reference/partials/schemas/partial"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`partial.committed`" anchorSlug="partialcommitted">
+    Occurs whenever a partial is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Partial"
+        description="The associated partial."
+        typeSlug="/mapi-reference/partials/schemas/partial"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Reusable request events
+
+<AccordionGroup>
+  <Accordion title="`reusable_request.updated`" anchorSlug="reusable_requestupdated">
+    Occurs whenever a [reusable request](/designing-workflows/fetch-function#creating-a-reusable-request) is updated in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="ReusableRequest"
+        description="The associated reusable request."
+        typeSlug="/mapi-reference/reusable_requests/schemas/reusable_request"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`reusable_request.committed`" anchorSlug="reusable_requestcommitted">
+    Occurs whenever a reusable request is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="ReusableRequest"
+        description="The associated reusable request."
+        typeSlug="/mapi-reference/reusable_requests/schemas/reusable_request"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Translation events
+
+<AccordionGroup>
+  <Accordion title="`translation.updated`" anchorSlug="translationupdated">
+    Occurs whenever a translation is updated in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Translation"
+        description="The associated translation."
+        typeSlug="/mapi-reference/translations/schemas/translation"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`translation.committed`" anchorSlug="translationcommitted">
+    Occurs whenever a translation is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Translation"
+        description="The associated translation."
+        typeSlug="/mapi-reference/translations/schemas/translation"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
+
+### Workflow events
+
+<AccordionGroup>
+  <Accordion title="`workflow.updated`" anchorSlug="workflowupdated">
+    Occurs whenever a workflow is updated in the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Workflow"
+        description="The associated workflow."
+        typeSlug="/mapi-reference/workflows/schemas/workflow"
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="`workflow.committed`" anchorSlug="workflowcommitted">
+    Occurs whenever a workflow is committed to the environment.
+
+    <Attributes>
+      <Attribute
+        name="data"
+        type="Workflow"
+        description="The associated workflow."
+        typeSlug="/mapi-reference/workflows/schemas/workflow"
+      />
+      <Attribute
+        name="event_data"
+        type="EventData"
+        description="Additional information about the commit."
+        expandLabel="EventData attributes"
+      >
+        <Attributes>
+          <Attribute
+            name="commit_id"
+            type="string"
+            description="The ID of the corresponding commit for the event."
+          />
+        </Attributes>
+      </Attribute>
+    </Attributes>
+
+  </Accordion>
+</AccordionGroup>
