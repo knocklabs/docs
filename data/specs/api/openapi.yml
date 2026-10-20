@@ -2353,6 +2353,10 @@ components:
             seen_at: "1993-06-11T21:29:45Z"
             source:
               __typename: NotificationSource
+              branch_path:
+                - branch_id: 123e4567-e89b-12d3-a456-426614174000
+                  step_ref: experiment
+                  step_type: random_cohort
               categories:
                 - security
                 - emergency
@@ -6082,6 +6086,10 @@ components:
         seen_at: "1993-06-11T21:29:45Z"
         source:
           __typename: NotificationSource
+          branch_path:
+            - branch_id: 123e4567-e89b-12d3-a456-426614174000
+              step_ref: experiment
+              step_type: random_cohort
           categories:
             - security
             - emergency
@@ -6321,6 +6329,10 @@ components:
           description: The workflow or guide that triggered the message.
           example:
             __typename: NotificationSource
+            branch_path:
+              - branch_id: 123e4567-e89b-12d3-a456-426614174000
+                step_ref: experiment
+                step_type: random_cohort
             categories:
               - collaboration
             key: comment-created
@@ -6332,6 +6344,37 @@ components:
             __typename:
               example: NotificationSource
               type: string
+              x-struct: null
+              x-validate: null
+            branch_path:
+              description: The branch ancestry of the step that generated the message, outermost first. Each segment is the branching step and the branch taken. Omitted when the step is not nested under a branch.
+              items:
+                properties:
+                  branch_id:
+                    description: The ID of the branch taken.
+                    format: uuid
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  step_ref:
+                    description: The reference of the branching step.
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  step_type:
+                    description: The type of the branching step.
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - step_ref
+                  - step_type
+                  - branch_id
+                type: object
+                x-struct: null
+                x-validate: null
+              nullable: true
+              type: array
               x-struct: null
               x-validate: null
             categories:
@@ -12682,17 +12725,6 @@ paths:
               x-struct: null
               x-validate: null
             type: array
-            x-struct: null
-            x-validate: null
-        - description: Sort by insertion order. Pass `asc` for oldest first, or `desc` for newest first. Defaults to oldest first when omitted.
-          in: query
-          name: order
-          required: false
-          schema:
-            enum:
-              - asc
-              - desc
-            type: string
             x-struct: null
             x-validate: null
         - description: The cursor to fetch entries after.
