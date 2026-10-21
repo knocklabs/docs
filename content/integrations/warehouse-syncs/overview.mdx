@@ -58,19 +58,11 @@ A column you don't map is never changed on existing records. Tenant syncs set th
 
 ## Removed and deleted rows
 
-A row is deleted when it disappears from the source or when your [deleted flag column](/integrations/warehouse-syncs/creating-a-sync#5-change-detection) marks it as deleted. What Knock does with a deleted row depends on the target:
+What happens to deleted rows depends on the sync type. For subscription and audience syncs, Knock mirrors your warehouse: a row deleted from your warehouse, or marked by your [deleted flag column](/integrations/warehouse-syncs/creating-a-sync#5-change-detection), unsubscribes the recipient from the object or removes the member from the audience. If the sync has a last modified column, each run reads only changed rows, so only rows marked by the deleted flag column count. For user, tenant, and object syncs, deleted and flagged rows leave the record in Knock as it is.
 
-| Target                  | When a row is deleted                                                                                    |
-| ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| Users, tenants, objects | Nothing. The record stays in Knock as it is.                                                             |
-| Audience members        | Nothing. Audience syncs add members but don't remove them.                                               |
-| Subscriptions           | Knock unsubscribes the user from the object, so subscriptions in Knock match the rows in your warehouse. |
+Changing a sync's query, table, or primary key starts it fresh, so rows removed across that edit aren't treated as deletes.
 
-{/* PENDING KNO-16017: audience syncs will remove members for deleted rows, the same as subscriptions. Update the audience row when it ships. */}
-
-Knock only sees a row disappear from the source when the sync has no last modified column. With a last modified column, each run reads only the rows that changed, so a row deleted from the table is never read again. To unsubscribe users from a sync that has a last modified column, keep the row and set its deleted flag column to true.
-
-{/* TODO: confirm end to end that a row removed from a source without a last modified column unsubscribes, before publishing. The dashboard's change detection help text still says deleting a row never unsubscribes anyone, and changes with KNO-16017. */}
+{/* TODO: confirm end to end that a row removed from a source without a last modified column unsubscribes, before publishing. */}
 
 ## Environments
 
