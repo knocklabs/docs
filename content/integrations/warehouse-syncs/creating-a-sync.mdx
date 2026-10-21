@@ -1,0 +1,142 @@
+---
+title: Creating a sync
+description: Choose a source, map its columns to Knock fields, and publish a sync that runs on a schedule.
+section: Integrations > Warehouse syncs
+layout: integrations
+---
+
+A sync reads a table or SQL query from a [connected warehouse](/integrations/warehouse-syncs/connecting-a-warehouse) and writes each row into one environment in Knock.
+
+To create one, switch to the environment you want to sync into, go to **Platform** > **Sources**, open the warehouse, and click **Create sync**.
+
+The editor has six steps.
+
+## 1. Details
+
+- **Name** is how the sync appears in Knock.
+- **Key** identifies the sync. It follows the name until you edit it, and can't be changed after the sync is created.
+- **Syncs to** sets the target: **Users**, **Tenants**, **Objects**, **Audience members**, or **Subscriptions**. It can't be changed later.
+  - For objects, enter the **Collection** every row is written to.
+  - For subscriptions, enter the **Collection** of the objects users subscribe to. It starts as `$tenants`, the collection tenants are in.
+  - For audience members, choose the static **Audience** every row adds a member to.
+
+A sync writes to one collection. To sync objects or subscriptions for several collections, create a sync for each and filter its rows with a `WHERE` clause in a SQL query.
+
+## 2. Source
+
+The sync reads from the warehouse you created it from. Choose what to read:
+
+- **Table or view.** Search for and pick a table or view. If a table you just created isn't listed, click **Refresh tables**.
+- **SQL query.** Write a query and click **Preview query**. Use a query to filter rows, join tables, or convert column types before Knock reads them. See [data types](#data-types).
+
+The warehouse can't be changed after the sync is created.
+
+## 3. Preview
+
+Knock shows the first 20 rows of the table or query exactly as your warehouse returns them. The mapping step uses these rows, so the columns to map only appear once there's a preview.
+
+## 4. Map columns
+
+### Primary key
+
+Choose the column that uniquely identifies each row. Knock uses it to find changed rows.
+
+For users, tenants, and objects, its value also becomes the record's ID in Knock, so it must be a non-empty string of at most 256 characters with no `/`.
+
+For audience members and subscriptions, the primary key only identifies the row. If no single column is unique, build one in a SQL query, such as `account_id || ':' || user_id`.
+
+### Columns
+
+Each column in the source has a row in the mapping table, with sample values from the preview. Use **Search columns** to find a column, and check a column to sync it, or check the header to sync every column. Then choose its **Knock field**:
+
+| Target  | Standard fields                                         |
+| ------- | ------------------------------------------------------- |
+| Users   | `name`, `email`, `phone_number`, `avatar`, `created_at` |
+| Tenants | `name`                                                  |
+| Objects | `name`                                                  |
+
+Any other field name becomes a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number. For users, the field list also suggests properties your existing users already have.
+
+A column that holds a JSON object can be mapped whole as one property, or each of its keys can be mapped to its own field.
+
+{/* TODO: KNO-15735 hasn't confirmed mapping keys inside a Redshift SUPER column yet. Snowflake OBJECT columns work. */}
+
+**When null** sets what Knock does with the field when a row's value for the column is null:
+
+- **Clear the field** removes the value Knock has for the field. This is the default.
+- **Keep Knock's value** leaves the value Knock has unchanged.
+
+Columns you don't check are never changed on existing records.
+
+### Audience members
+
+Audience syncs don't use the mapping table. After the primary key, choose:
+
+- **User ID column.** Each row adds the user with this ID to the audience.
+- **Tenant column.** Optional. Adds the member for this tenant only. Leave it empty for audiences without tenants.
+
+### Subscriptions
+
+After the primary key, choose:
+
+- **Object ID column.** The object in the sync's collection that the user subscribes to. Knock creates the object if it doesn't exist yet.
+- **User ID column.** The user who subscribes. Knock creates the user if they don't exist yet.
+
+Any other columns you check in the mapping table become properties on the subscription.
+
+If you keep the objects themselves in a warehouse table too, sync them with a separate objects sync. A subscriptions sync only creates the objects it needs, with no name or properties.
+
+## 5. Change detection
+
+Both columns are optional.
+
+- **Last modified column.** A timestamp column that updates whenever a row changes. Each run reads only the rows that changed since the last run. Without it, each run reads the whole source and Knock compares it with the previous run to find changed and removed rows, which is slower for large tables.
+- **Deleted flag column.** A true or false column that marks rows as deleted. For subscriptions, a row where it's true unsubscribes the user from the object. For every other target, rows where it's true are skipped, so Knock keeps what it already has for them.
+
+See [removed and deleted rows](/integrations/warehouse-syncs/overview#removed-and-deleted-rows) for how each target handles rows that disappear from the source.
+
+## 6. Schedule
+
+Choose how often the sync runs once it's published: every 10 minutes, 15 minutes, hour, 6 hours, 12 hours, or day. You can change the frequency or pause the sync later from its **Settings** tab.
+
+{/* TODO: confirm whether Production has a minimum frequency before publishing. */}
+
+## Save and publish
+
+- **Save draft** saves the sync without making it live.
+- **Save and publish** saves the sync and makes it live. Knock starts running it on its schedule.
+
+Before publishing, Knock checks the preview rows against the fields they map to. A mapping that would make Knock reject rows is marked in red and blocks **Save and publish** until you fix it. **Save draft** still works, so you can keep a draft. The check covers:
+
+- Primary key values that are empty, longer than 256 characters, or contain `/`.
+- A user's `created_at` value without a timezone.
+
+Publishing takes a moment. The sync shows **Publishing** until it's live, and **Delivery failed** with the error and a **Retry delivery** button if it doesn't go live.
+
+## Data types
+
+Knock reads column values as your warehouse returns them. Convert types in a SQL query when a column doesn't match the Knock field it maps to.
+
+### Timestamps
+
+A user's `created_at` must be a date and time with a timezone, such as `2026-09-26T20:19:49Z`.
+
+- **Redshift.** `TIMESTAMP` columns have no timezone, so Knock rejects every row that maps one to `created_at`. Cast the column to `TIMESTAMPTZ` in your query:
+
+  ```sql
+  SELECT
+    user_id,
+    email,
+    created_at::TIMESTAMPTZ AS created_at
+  FROM analytics.dim_users
+  ```
+
+  Redshift reads the value as UTC. If your timestamps aren't stored in UTC, convert them first with `CONVERT_TIMEZONE`. `TIMESTAMPTZ` columns can be mapped directly.
+
+- **Snowflake.** Timestamp columns, including `TIMESTAMP_NTZ`, can be mapped to `created_at` directly.
+
+- **Text columns.** A text value must already include a timezone, such as a `Z` or `+00:00` offset.
+
+### IDs
+
+Record IDs are strings. If your ID column is a number, cast it in your query, such as `CAST(account_id AS VARCHAR)`.
