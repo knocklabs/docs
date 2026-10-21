@@ -1178,6 +1178,79 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.GuideRequest
       x-validate: null
+    Webhook:
+      description: An outbound webhook that receives event notifications.
+      example:
+        active: true
+        created_at: "2021-01-01T00:00:00Z"
+        description: My webhook endpoint
+        event_types:
+          - message.sent
+          - message.delivered
+        id: 01234567-89ab-cdef-0123-456789abcdef
+        updated_at: "2021-01-01T00:00:00Z"
+        url: https://example.com/webhooks
+      properties:
+        active:
+          description: Whether the webhook is currently active.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the webhook was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the webhook.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        event_types:
+          description: The list of event types that this webhook is subscribed to, in dotted format (e.g. `message.sent`).
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for the webhook.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        secret_key:
+          description: The secret key used to sign webhook payloads. Only returned when a webhook is first created.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the webhook was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        url:
+          description: The URL that the webhook will send events to.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - url
+        - event_types
+        - active
+        - created_at
+        - updated_at
+      title: Webhook
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Webhook
+      x-validate: null
     ShowWorkflowResponse:
       description: A workflow object.
       example:
@@ -1338,6 +1411,13 @@ components:
           type: object
           x-struct: null
           x-validate: null
+        trigger_events:
+          description: 'Events that automatically trigger this workflow: audience triggers (a user enters an audience) or source event triggers (an event is received from an integration source). All entries must share the same `type`. Omit or pass an empty list for workflows triggered via the API.'
+          items:
+            $ref: '#/components/schemas/WorkflowTriggerEvents'
+          type: array
+          x-struct: null
+          x-validate: null
         trigger_frequency:
           description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`. Read more in [docs](https://docs.knock.app/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency).'
           enum:
@@ -1492,6 +1572,10 @@ components:
           required:
             - onboarding_url
           type: object
+        trigger_events:
+          - audience_action_type: member_added
+            audience_key: pro-users
+            type: audience
         trigger_frequency: every_trigger
         updated_at: "2023-02-08T22:15:19.846681Z"
         valid: true
@@ -1597,6 +1681,13 @@ components:
           additionalProperties: true
           description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
+          x-struct: null
+          x-validate: null
+        trigger_events:
+          description: 'Events that automatically trigger this workflow: audience triggers (a user enters an audience) or source event triggers (an event is received from an integration source). All entries must share the same `type`. Omit or pass an empty list for workflows triggered via the API.'
+          items:
+            $ref: '#/components/schemas/WorkflowTriggerEvents'
+          type: array
           x-struct: null
           x-validate: null
         trigger_frequency:
@@ -2544,6 +2635,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventWorkflowEvent
       x-validate: null
+    ArchiveWebhookResponse:
+      description: The response from archiving a webhook.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveWebhookResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WorkflowTriggerWorkflowStep:
       description: A workflow trigger function step. Read more in the [docs](https://docs.knock.app/designing-workflows/trigger-workflow-function).
       example:
@@ -3344,6 +3452,41 @@ components:
       title: WorkflowPushStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowPushStep
+      x-validate: null
+    PaginatedWebhookResponse:
+      description: A paginated list of Webhook. Contains a list of entries and page information.
+      example:
+        entries:
+          - active: true
+            created_at: "2021-01-01T00:00:00Z"
+            description: My webhook endpoint
+            event_types:
+              - message.sent
+              - message.delivered
+            id: 01234567-89ab-cdef-0123-456789abcdef
+            updated_at: "2021-01-01T00:00:00Z"
+            url: https://example.com/webhooks
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Webhook'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedWebhookResponse
+      type: object
+      x-struct: null
       x-validate: null
     Tag:
       description: A named tag in a project's resource-tag catalog.
@@ -4864,6 +5007,10 @@ components:
                 action_url: '{{ vars.app_url }}'
                 markdown_body: Hello **{{ recipient.name }}**
               type: channel
+          trigger_events:
+            - audience_action_type: member_added
+              audience_key: pro-users
+              type: audience
       properties:
         workflow:
           $ref: '#/components/schemas/WorkflowRequest'
@@ -5363,6 +5510,10 @@ components:
               action_url: '{{ vars.app_url }}'
               markdown_body: Hello **{{ recipient.name }}**
             type: channel
+        trigger_events:
+          - audience_action_type: member_added
+            audience_key: pro-users
+            type: audience
       properties:
         categories:
           description: A list of [categories](https://docs.knock.app/concepts/workflows#workflow-categories) that the workflow belongs to.
@@ -5433,6 +5584,13 @@ components:
           additionalProperties: true
           description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
+          x-struct: null
+          x-validate: null
+        trigger_events:
+          description: 'Events that automatically trigger this workflow: audience triggers (a user enters an audience) or source event triggers (an event is received from an integration source). All entries must share the same `type`. Omit or pass an empty list for workflows triggered via the API.'
+          items:
+            $ref: '#/components/schemas/WorkflowTriggerEvents'
+          type: array
           x-struct: null
           x-validate: null
         trigger_frequency:
@@ -6058,6 +6216,28 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WrappedWebhookResponse:
+      description: Wraps the Webhook response under the `webhook` key.
+      example:
+        webhook:
+          active: true
+          created_at: "2021-01-01T00:00:00Z"
+          description: My webhook endpoint
+          event_types:
+            - message.sent
+            - message.delivered
+          id: 01234567-89ab-cdef-0123-456789abcdef
+          updated_at: "2021-01-01T00:00:00Z"
+          url: https://example.com/webhooks
+      properties:
+        webhook:
+          $ref: '#/components/schemas/Webhook'
+      required:
+        - webhook
+      title: WrappedWebhookResponse
+      type: object
+      x-struct: null
+      x-validate: null
     RunWorkflowRequest:
       description: A request to run (test) a workflow.
       example:
@@ -6622,6 +6802,40 @@ components:
       title: SourceLogsResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceLogsResponse
+      x-validate: null
+    AudienceTrigger:
+      description: An audience trigger that automatically triggers the workflow when a user enters an audience. Read more in the [docs](https://docs.knock.app/send-notifications/triggering-workflows/audiences).
+      example:
+        audience_action_type: member_added
+        audience_key: pro-users
+        type: audience
+      properties:
+        audience_action_type:
+          description: The action type that triggers the workflow.
+          enum:
+            - member_added
+          type: string
+          x-struct: null
+          x-validate: null
+        audience_key:
+          description: The unique key of the audience that triggers the workflow.
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The trigger event type.
+          enum:
+            - audience
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - audience_key
+        - audience_action_type
+      title: AudienceTrigger
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents.AudienceTrigger
       x-validate: null
     SourceRehearseResponse:
       description: The result of a simulated source event rehearsal.
@@ -8526,6 +8740,10 @@ components:
               required:
                 - onboarding_url
               type: object
+            trigger_events:
+              - audience_action_type: member_added
+                audience_key: pro-users
+                type: audience
             trigger_frequency: every_trigger
             updated_at: "2023-02-08T22:15:19.846681Z"
             valid: true
@@ -9220,6 +9438,24 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.AssetUpload
       x-validate: null
+    WorkflowTriggerEvents:
+      description: A trigger event that can automatically trigger a workflow. Can be an audience trigger or a source event trigger.
+      discriminator:
+        mapping:
+          audience: '#/components/schemas/AudienceTrigger'
+          source_event: '#/components/schemas/SourceEventTrigger'
+        propertyName: type
+      example:
+        audience_action_type: member_added
+        audience_key: pro-users
+        type: audience
+      oneOf:
+        - $ref: '#/components/schemas/AudienceTrigger'
+        - $ref: '#/components/schemas/SourceEventTrigger'
+      title: WorkflowTriggerEvents
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents
+      x-validate: null
     MessageTypeMultiSelectField:
       description: A multi-select field used in a message type.
       example:
@@ -9588,6 +9824,53 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    SourceEventTrigger:
+      description: A source event trigger that triggers the workflow when an event is received from an integration source. Read more in the [docs](https://docs.knock.app/integrations/sources/overview).
+      example:
+        event_name: user.signed_up
+        event_type: track
+        integration_source_id: 123e4567-e89b-12d3-a456-426614174000
+        trigger_parameters:
+          data: '{{ event.data }}'
+          recipients: '[{{ event.userId }}]'
+        type: source_event
+      properties:
+        event_name:
+          description: The name of the event that triggers the workflow.
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event. Currently only 'track' is supported.
+          enum:
+            - track
+          type: string
+          x-struct: null
+          x-validate: null
+        integration_source_id:
+          description: The ID of the integration source that emits the event.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        trigger_parameters:
+          $ref: '#/components/schemas/TriggerParameters'
+        type:
+          description: The trigger event type.
+          enum:
+            - source_event
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - event_name
+        - integration_source_id
+        - event_type
+      title: SourceEventTrigger
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents.SourceEventTrigger
+      x-validate: null
     MemberUser:
       description: Information about a user within the Knock dashboard. Not to be confused with an external user (recipient) of a workflow.
       example:
@@ -9699,6 +9982,10 @@ components:
             required:
               - onboarding_url
             type: object
+          trigger_events:
+            - audience_action_type: member_added
+              audience_key: pro-users
+              type: audience
           trigger_frequency: every_trigger
           updated_at: "2023-02-08T22:15:19.846681Z"
           valid: true
@@ -10541,6 +10828,10 @@ components:
               required:
                 - onboarding_url
               type: object
+            trigger_events:
+              - audience_action_type: member_added
+                audience_key: pro-users
+                type: audience
             trigger_frequency: every_trigger
             updated_at: "2023-02-08T22:15:19.846681Z"
             valid: true
@@ -11649,6 +11940,48 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    TriggerParameters:
+      description: Optional parameters to customize the triggered workflow run.
+      example:
+        actor: '{{ event.actorId }}'
+        data: '{{ event.data }}'
+        recipients: '[{{ event.userId }}]'
+      nullable: true
+      properties:
+        actor:
+          description: A liquid template string that will be evaluated to determine the actor.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        cancellation_key:
+          description: A liquid template string that will be evaluated to determine the cancellation key.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        data:
+          description: A liquid template string that will be evaluated and passed as the data payload.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        recipients:
+          description: A liquid template string that will be evaluated to determine recipients.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        tenant:
+          description: A liquid template string that will be evaluated to determine the tenant.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: TriggerParameters
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents.SourceEventTrigger.TriggerParameters
+      x-validate: null
     RequestTemplateHeadersString:
       description: A template string that should resolve to a JSON object representing the headers.
       example: '{{ data.request_headers }}'
@@ -12021,6 +12354,25 @@ components:
       title: StaticAudienceRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.StaticAudienceRequest
+      x-validate: null
+    WrappedWebhookRequestRequest:
+      description: Wraps the WebhookRequest request under the webhook key.
+      example:
+        webhook:
+          active: true
+          description: My webhook endpoint
+          event_types:
+            - message.sent
+            - message.delivered
+          url: https://example.com/webhooks
+      properties:
+        webhook:
+          $ref: '#/components/schemas/WebhookRequest'
+      required:
+        - webhook
+      title: WrappedWebhookRequestRequest
+      type: object
+      x-struct: null
       x-validate: null
     WorkflowSmsStep:
       description: A SMS step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
@@ -14864,6 +15216,49 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WebhookRequest:
+      description: The request body for creating or updating an outbound webhook.
+      example:
+        active: true
+        description: My webhook endpoint
+        event_types:
+          - message.sent
+          - message.delivered
+        url: https://example.com/webhooks
+      properties:
+        active:
+          description: Whether the webhook should be active.
+          nullable: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the webhook.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        event_types:
+          description: The list of event types that this webhook should be subscribed to, in dotted format (e.g. `message.sent`).
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        url:
+          description: The URL that the webhook will send events to.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - url
+        - event_types
+      title: WebhookRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WebhookRequest
+      x-validate: null
   securitySchemes:
     BearerAuth:
       bearerFormat: JWT
@@ -15444,6 +15839,10 @@ paths:
                         action_url: '{{ vars.app_url }}'
                         markdown_body: Hello **{{ recipient.name }}**
                       type: channel
+                  trigger_events:
+                    - audience_action_type: member_added
+                      audience_key: pro-users
+                      type: audience
               properties:
                 workflow:
                   $ref: '#/components/schemas/WorkflowRequest'
@@ -15515,6 +15914,10 @@ paths:
                       required:
                         - onboarding_url
                       type: object
+                    trigger_events:
+                      - audience_action_type: member_added
+                        audience_key: pro-users
+                        type: audience
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -16240,6 +16643,10 @@ paths:
                         action_url: '{{ vars.app_url }}'
                         markdown_body: Hello **{{ recipient.name }}**
                       type: channel
+                  trigger_events:
+                    - audience_action_type: member_added
+                      audience_key: pro-users
+                      type: audience
               properties:
                 workflow:
                   $ref: '#/components/schemas/WorkflowRequest'
@@ -16311,6 +16718,10 @@ paths:
                       required:
                         - onboarding_url
                       type: object
+                    trigger_events:
+                      - audience_action_type: member_added
+                        audience_key: pro-users
+                        type: audience
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -22464,6 +22875,291 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/webhooks:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of outbound webhooks for a given environment.
+      operationId: listWebhooks
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter webhooks by event type in dotted format (e.g. `message.sent`).
+          in: query
+          name: event_type
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter webhooks by active status.
+          in: query
+          name: active
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Webhook. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - active: true
+                      created_at: "2021-01-01T00:00:00Z"
+                      description: My webhook endpoint
+                      event_types:
+                        - message.sent
+                        - message.delivered
+                      id: 01234567-89ab-cdef-0123-456789abcdef
+                      updated_at: "2021-01-01T00:00:00Z"
+                      url: https://example.com/webhooks
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Webhook'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List webhooks
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const webhook of client.webhooks.list()) {
+            console.log(webhook.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.webhooks.list()
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Webhooks.List(context.TODO(), knockmapi.WebhookListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
+    post:
+      callbacks: {}
+      description: |
+        Creates a new outbound webhook in the given environment. The response includes
+        the `secret_key` which is only revealed at creation time.
+      operationId: createWebhook
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the WebhookRequest request under the webhook key.
+              example:
+                webhook:
+                  active: true
+                  description: My webhook endpoint
+                  event_types:
+                    - message.sent
+                    - message.delivered
+                  url: https://example.com/webhooks
+              properties:
+                webhook:
+                  $ref: '#/components/schemas/WebhookRequest'
+              required:
+                - webhook
+              title: WrappedWebhookRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Webhook response under the `webhook` key.
+                example:
+                  webhook:
+                    active: true
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: My webhook endpoint
+                    event_types:
+                      - message.sent
+                      - message.delivered
+                    id: 01234567-89ab-cdef-0123-456789abcdef
+                    updated_at: "2021-01-01T00:00:00Z"
+                    url: https://example.com/webhooks
+                properties:
+                  webhook:
+                    $ref: '#/components/schemas/Webhook'
+                required:
+                  - webhook
+                title: WrappedWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Create a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.create({
+            webhook: {
+              event_types: ['message.sent', 'message.delivered'],
+              url: 'https://example.com/webhooks',
+            },
+          });
+
+          console.log(webhook.webhook);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.create(
+              webhook={
+                  "event_types": ["message.sent", "message.delivered"],
+                  "url": "https://example.com/webhooks",
+              },
+          )
+          print(webhook.webhook)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.New(context.TODO(), knockmapi.WebhookNewParams{
+          		Webhook: knockmapi.WebhookRequestParam{
+          			EventTypes: []string{"message.sent", "message.delivered"},
+          			URL:        "https://example.com/webhooks",
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.Webhook)
+          }
   /v1/preference_center:
     get:
       callbacks: {}
@@ -25301,6 +25997,124 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.EmailLayout)
           }
+  /v1/reusable_requests/{reusable_request_key}/unarchive:
+    put:
+      callbacks: {}
+      description: |
+        Unarchives a reusable request by key, with every copy archived alongside it in other
+        environments.
+
+        Returns a 404 when the key isn't archived, including when an earlier or concurrent request
+        already restored it. Returns a 422 with the code `key_in_use` when a live reusable request
+        uses the key.
+      operationId: unarchiveReusableRequest
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request to unarchive.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the ReusableRequest response under the `reusable_request` key.
+                example:
+                  reusable_request:
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: Loads a user from the API.
+                    environment: development
+                    key: fetch-user
+                    name: Fetch user
+                    settings:
+                      body: null
+                      headers:
+                        - key: X-API-Key
+                          value: "1234567890"
+                      method: get
+                      query_params:
+                        - key: key
+                          value: value
+                      response_path: null
+                      signing_key: null
+                      url: https://example.com
+                    sha: abc123
+                    type: http_fetch
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  reusable_request:
+                    $ref: '#/components/schemas/ReusableRequest'
+                required:
+                  - reusable_request
+                title: WrappedReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Unarchive a reusable request
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.reusableRequests.updateUnarchive('fetch-user');
+
+          console.log(response.reusable_request);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.reusable_requests.update_unarchive(
+              reusable_request_key="fetch-user",
+          )
+          print(response.reusable_request)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ReusableRequests.UpdateUnarchive(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestUpdateUnarchiveParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ReusableRequest)
+          }
   /v1/members:
     get:
       callbacks: {}
@@ -26207,6 +27021,10 @@ paths:
                         required:
                           - onboarding_url
                         type: object
+                      trigger_events:
+                        - audience_action_type: member_added
+                          audience_key: pro-users
+                          type: audience
                       trigger_frequency: every_trigger
                       updated_at: "2023-02-08T22:15:19.846681Z"
                       valid: true
@@ -27824,6 +28642,347 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.APIKey)
           }
+  /v1/webhooks/{id}:
+    delete:
+      callbacks: {}
+      description: Archives an outbound webhook.
+      operationId: archiveWebhook
+      parameters:
+        - description: The ID of the webhook to archive.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving a webhook.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.delete('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(webhook.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.delete(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(webhook.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.Delete(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.WebhookDeleteParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.Result)
+          }
+    get:
+      callbacks: {}
+      description: Retrieves a single outbound webhook by its ID.
+      operationId: getWebhook
+      parameters:
+        - description: The ID of the webhook to retrieve.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+          description: OK
+      summary: Get a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(webhook.id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.retrieve(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(webhook.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.Get(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.WebhookGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.ID)
+          }
+    put:
+      callbacks: {}
+      description: Updates an existing outbound webhook.
+      operationId: updateWebhook
+      parameters:
+        - description: The ID of the webhook to update.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the WebhookRequest request under the webhook key.
+              example:
+                webhook:
+                  active: true
+                  description: My webhook endpoint
+                  event_types:
+                    - message.sent
+                    - message.delivered
+                  url: https://example.com/webhooks
+              properties:
+                webhook:
+                  $ref: '#/components/schemas/WebhookRequest'
+              required:
+                - webhook
+              title: WrappedWebhookRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Webhook response under the `webhook` key.
+                example:
+                  webhook:
+                    active: true
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: My webhook endpoint
+                    event_types:
+                      - message.sent
+                      - message.delivered
+                    id: 01234567-89ab-cdef-0123-456789abcdef
+                    updated_at: "2021-01-01T00:00:00Z"
+                    url: https://example.com/webhooks
+                properties:
+                  webhook:
+                    $ref: '#/components/schemas/Webhook'
+                required:
+                  - webhook
+                title: WrappedWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Update a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.update('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+            webhook: {
+              event_types: ['message.sent', 'message.delivered'],
+              url: 'https://example.com/webhooks',
+            },
+          });
+
+          console.log(webhook.webhook);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.update(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              webhook={
+                  "event_types": ["message.sent", "message.delivered"],
+                  "url": "https://example.com/webhooks",
+              },
+          )
+          print(webhook.webhook)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.Update(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.WebhookUpdateParams{
+          			Webhook: knockmapi.WebhookRequestParam{
+          				EventTypes: []string{"message.sent", "message.delivered"},
+          				URL:        "https://example.com/webhooks",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.Webhook)
+          }
   /v1/goals/{goal_key}/clone:
     post:
       callbacks: {}
@@ -28087,6 +29246,10 @@ paths:
                       required:
                         - onboarding_url
                       type: object
+                    trigger_events:
+                      - audience_action_type: member_added
+                        audience_key: pro-users
+                        type: audience
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
