@@ -6,7 +6,7 @@ description: Commands for managing all Knock resources at once.
 <Section path="/resources">
 <ContentColumn>
 
-These commands enable you to manage all Knock resources (workflows, partials, email layouts, translations, guides, message-types, and audiences) at once.
+These commands enable you to manage all Knock resources (workflows, partials, email layouts, translations, guides, message-types, audiences, reusable requests, and goals) at once.
 
 </ContentColumn>
 </Section>
@@ -29,7 +29,9 @@ knock init
 <Section title="knock pull [flags]" path="/resources/pull">
 <ContentColumn>
 
-Pulls the contents of all Knock resources (workflows, partials, email layouts, translations, guides, message-types, and audiences) from Knock into your local file system.
+Pulls the contents of all Knock resources (workflows, partials, email layouts, translations, guides, message-types, audiences, reusable requests, and goals) from Knock into your local file system.
+
+If goals are not enabled for the account, `knock pull` skips the goals directory and continues with the other resources.
 
 Resources will be grouped by resource type within subdirectories of the target directory path set either by your `knock.json` file or by the `--knock-dir` flag. See the [Directory structure](/cli/overview/directory-structure) section for details on the directory structure used by `push` and `pull` commands.
 
@@ -76,7 +78,9 @@ knock pull --knock-dir=./.knock
 <Section title="knock push [flags]" path="/resources/push">
 <ContentColumn>
 
-Pushes all local resource files (workflows, partials, email layouts, translations, guides, message-types, and audiences) back to Knock and upserts them.
+Pushes all local resource files (workflows, partials, email layouts, translations, guides, message-types, audiences, reusable requests, and goals) back to Knock and upserts them.
+
+Reusable requests are pushed before workflows that reference them. Goals are pushed before workflows and guides that attach them. A goal publishes on save, so this command writes goals without a commit. If goals are not enabled for the account, `knock push` skips the goals directory and continues with the other resources. The `--commit`, `--allow-empty`, and `--force` flags apply to the resources that support them, and they are not passed through to goals.
 
 Resources will be pushed to the target directory path set either by your `knock.json` file or by the `--knock-dir` flag. See the [Directory structure](/cli/overview/directory-structure) section for details on the directory structure used by `push` and `pull` commands.
 

@@ -1,0 +1,469 @@
+---
+title: Reusable requests
+description: Commands for managing reusable requests in the Knock CLI.
+---
+
+<Section path="/reusable-request">
+<ContentColumn>
+
+Reusable request commands enable you to manage [reusable requests](/designing-workflows/fetch-function#creating-a-reusable-request) in your Knock account from the CLI.
+
+A reusable request is a versioned resource. Pushing one upserts it in the target environment, and you commit and promote that change the same way you do for a workflow. `knock pull` and `knock push` include reusable requests, and they push reusable requests before workflows that reference them.
+
+</ContentColumn>
+</Section>
+
+<Section title="Reusable request file structure" path="/reusable-request/file-structure">
+<ContentColumn>
+
+When reusable requests are pulled from Knock, they are stored in directories named by their reusable request key. Each directory contains a `reusable_request.json` file. The key is the directory name. Pulled files store it under `__readonly.key`.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local reusable request files structure">
+{`reusable-requests/
+└── fetch-user/
+    └── reusable_request.json`}
+</PreTextDiagram>
+
+`reusable_request.json` describes the request:
+
+- **name.** The human-readable name.
+- **description.** Optional context about what the request does.
+- **type.** `http_fetch`. This is the only supported type.
+- **settings.** The HTTP configuration: `method` (`get`, `post`, `put`, `delete`, or `patch`), `url`, and optional `body`, `headers`, `query_params`, `response_path`, and `signing_key`.
+- **settings.data_input_schema.** Optional JSON Schema for [request inputs](/designing-workflows/fetch-function#define-inputs).
+- **settings.data_input_values_str.** Optional preview input values, as a JSON string.
+- **conditions.** Optional conditions that decide whether the request runs.
+
+```json title="Example reusable_request.json"
+{
+  "name": "Fetch user",
+  "description": "Loads a user from the API.",
+  "type": "http_fetch",
+  "settings": {
+    "method": "get",
+    "url": "https://example.com/users"
+  }
+}
+```
+
+A reusable request key must be 3 to 255 characters and use only lowercase letters, numbers, dashes, or underscores.
+
+If you're migrating your local reusable request files into Knock, arrange them using the example file structure above and then push them into Knock with [`knock reusable-request push --all`](/cli/reusable-request/push).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock reusable-request list [flags]" path="/reusable-request/list">
+<ContentColumn>
+
+Display all reusable requests for an environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock reusable-request list
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock reusable-request get <reusable_request_key> [flags]" path="/reusable-request/get">
+<ContentColumn>
+
+Display a single reusable request from an environment.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock reusable-request get fetch-user
+```
+
+```bash title="Get a reusable request in a different environment"
+knock reusable-request get fetch-user --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock reusable-request new [flags]" path="/reusable-request/new">
+<ContentColumn>
+
+Create a new reusable request with a minimal configuration.
+
+The command creates a new reusable request directory in your local file system. By default, this will be in the reusable requests resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+When `--name` or `--key` is omitted, the command prompts for them. `--type` defaults to `http_fetch`, `--method` defaults to `get`, and `--url` defaults to `https://example.com`.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="-n, --name"
+    type="string"
+    description="The name of the reusable request. If not provided, will be prompted."
+  />
+  <Attribute
+    name="-k, --key"
+    type="string"
+    description="The key of the reusable request. If not provided, will be prompted and defaults to a slug of the name."
+  />
+  <Attribute
+    name="-t, --type"
+    type="string"
+    description="The reusable request type. Only http_fetch is supported. Defaults to http_fetch."
+  />
+  <Attribute
+    name="-d, --description"
+    type="string"
+    description="The description of the reusable request."
+  />
+  <Attribute
+    name="--method"
+    type="string"
+    description="The HTTP method of the request. One of: get, post, put, delete, patch. Defaults to get."
+  />
+  <Attribute
+    name="--url"
+    type="string"
+    description="The URL of the request. Defaults to https://example.com."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="-p, --push"
+    type="boolean"
+    description="Push the reusable request to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing reusable request directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a reusable request interactively"
+knock reusable-request new
+```
+
+```bash title="Create a GET request"
+knock reusable-request new \
+  --key=fetch-user \
+  --name="Fetch user" \
+  --method=get \
+  --url=https://example.com/users
+```
+
+```bash title="Create and push a reusable request"
+knock reusable-request new --key=fetch-user --name="Fetch user" --push
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock reusable-request pull <reusable_request_key> [flags]" path="/reusable-request/pull">
+<ContentColumn>
+
+Pull one or more reusable requests from an environment into a local file system. Knock CLI will create a new reusable request directory or update the existing reusable request directory in the local file system.
+
+By default this command will resolve to the reusable requests resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--reusable-requests-dir` flag.
+
+Note: if pulling the target reusable request for the first time (or all reusable requests), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Reusable request file structure](/cli/reusable-request/file-structure) section for details on how reusable request files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all reusable requests from the specified environment into the target directory path set by \`--reusable-requests-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all reusable requests from the specified environment.`}
+/>
+
+  <Attribute
+    name="--reusable-requests-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all reusable requests into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock reusable-request pull fetch-user
+```
+
+```bash title="Pulling a reusable request in a different environment"
+knock reusable-request pull fetch-user --environment=production
+```
+
+```bash title="Pulling all reusable requests into ./reusable-requests directory"
+knock reusable-request pull --all --reusable-requests-dir=./reusable-requests
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock reusable-request push <reusable_request_key> [flags]" path="/reusable-request/push">
+<ContentColumn>
+
+Push one or more reusable requests from a local file system to Knock. Knock will update an existing reusable request by the matching key, or create a new reusable request if it does not exist yet.
+
+By default this command will resolve to the reusable requests resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--reusable-requests-dir` flag.
+
+Note:
+
+- You must be directly above the target reusable request directory when running the `reusable-request push` command, so the CLI can locate the `reusable_request.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes.
+- You can pass `--allow-empty` with `--commit` to create an empty commit when re-upserting an unchanged resource. See [empty commits](/version-control/commits#empty-commits) for more on when and why to use this.
+
+See the [Reusable request file structure](/cli/reusable-request/file-structure) section for details on how reusable request files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit the reusable request(s) at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--allow-empty"
+    type="boolean"
+    description="Only meaningful with `--commit`. When the resource is already published with no unpublished changes, create an empty commit instead of a no-op publish. Defaults to false."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all reusable requests from the target directory path set by `--reusable-requests-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--reusable-requests-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all reusable requests from. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Force pushes the resource or resources to Knock, overwriting whatever is currently stored. If you're using this on a non-development environment, you should also ensure you commit the changes. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock reusable-request push fetch-user
+```
+
+```bash title="Pushing a reusable request and committing with a message"
+knock reusable-request push fetch-user \
+  --commit \
+  -m "Commit message"
+```
+
+```bash title="Pushing all reusable requests from ./reusable-requests directory"
+knock reusable-request push --all --reusable-requests-dir=./reusable-requests
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock reusable-request validate <reusable_request_key> [flags]" path="/reusable-request/validate">
+<ContentColumn>
+
+Validate one or more reusable requests from a local file system. Knock will validate the given reusable request payload in the same way as it would with the `reusable-request push` command, except without persisting those changes.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all reusable requests from the target directory path set by `--reusable-requests-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--reusable-requests-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all reusable requests from. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock reusable-request validate fetch-user
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock reusable-request archive <reusable_request_key> [flags]" path="/reusable-request/archive">
+<ContentColumn>
+
+Archive a reusable request across all environments. If a local copy exists at `<knock dir>/reusable-requests/<key>`, the command removes that directory so a later push does not create the reusable request again.
+
+<Callout
+  type="alert"
+  title="Archiving removes the reusable request in every environment."
+  text="This action cannot be undone. When a knock.json file is present, the command also deletes the local reusable request directory."
+/>
+
+`--environment` is required. Pass `--force` when you also pass `--json`.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    isRequired
+    description="The environment in which the reusable request exists."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Required when using --json. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock reusable-request archive fetch-user --environment=development
+```
+
+</ExampleColumn>
+</Section>

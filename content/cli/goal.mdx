@@ -1,0 +1,417 @@
+---
+title: Goals
+description: Commands for managing goals in the Knock CLI.
+---
+
+<Section path="/goal">
+<ContentColumn>
+
+Goal commands enable you to manage [goals](/concepts/goals) in your Knock account from the CLI.
+
+A goal publishes when you save it. `knock goal push` writes the goal to the target environment, and Knock does not create a commit for the goal. Goals cannot be created, updated, or attached on a [branch](/version-control/branches). To copy a goal into another environment, use [`knock goal clone`](/cli/goal/clone).
+
+`knock pull` and `knock push` include goals. If goals are not enabled for the account, those commands skip the goals directory and continue with the other resources.
+
+</ContentColumn>
+</Section>
+
+<Section title="Goal file structure" path="/goal/file-structure">
+<ContentColumn>
+
+When goals are pulled from Knock, they are stored in directories named by their goal key. Each goal directory contains a `goal.json` file that describes the goal's name, description, and condition. The goal key is the directory name.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local goal files structure">
+{`goals/
+└── trial-conversion/
+    └── goal.json`}
+</PreTextDiagram>
+
+`goal.json` has three fields you can edit:
+
+- **name.** The human-readable name for the goal.
+- **description.** Optional context about what the goal means.
+- **condition.** The event that completes the goal. See [goal conditions](/concepts/goals#goal-conditions).
+
+An integration source condition sets `event.event_type` to `integration_source` and includes `event_key`, `integration_source_key`, and `recipient_path`. An audience condition sets `event.event_type` to `audience`, `event_key` to `enter` or `exit`, and `audience_key` to a dynamic audience. Optional `match_conditions` refine an integration source event.
+
+Pulled files also include `__readonly.key` and a `$schema` property that points at `https://schemas.knock.app/cli/goal.json`.
+
+```json title="Example goal.json"
+{
+  "name": "Trial conversion",
+  "description": "Tracks when a trial user converts to paid",
+  "condition": {
+    "event": {
+      "event_type": "integration_source",
+      "event_key": "order.completed",
+      "integration_source_key": "stripe",
+      "recipient_path": "body.userId"
+    }
+  }
+}
+```
+
+To attach a goal to a workflow or guide, set `goal_attachment` on that resource's JSON file. The attachment is committed with the workflow or guide, not with the goal. See the [workflow](/cli/workflow/file-structure) and [guide](/cli/guide/file-structure) file structures.
+
+If you're migrating your local goal files into Knock, arrange them using the example file structure above and then push them into Knock with [`knock goal push --all`](/cli/goal/push).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock goal list [flags]" path="/goal/list">
+<ContentColumn>
+
+Display all goals for an environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal list
+```
+
+```bash title="Pagination example"
+knock goal list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal get <goal_key> [flags]" path="/goal/get">
+<ContentColumn>
+
+Display a single goal from an environment.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal get trial-conversion
+```
+
+```bash title="Get a goal in a different environment"
+knock goal get trial-conversion --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal new <goal_key>" path="/goal/new">
+<ContentColumn>
+
+Scaffold a new goal in the local file system. The command writes a `goal.json` file whose `name` is the goal key and whose condition is an empty integration source event with `recipient_path` set to `body.userId`.
+
+The goal key must use only lowercase letters, numbers, dashes, or underscores.
+
+By default, the command writes into the goals resource directory set by your `knock.json` file, or the current working directory if not configured. It does not prompt, and it errors if a goal directory with that key already exists. It does not push the goal to Knock.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Scaffold a goal"
+knock goal new trial-conversion
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal pull <goal_key> [flags]" path="/goal/pull">
+<ContentColumn>
+
+Pull one or more goals from an environment into a local file system. Knock CLI will create a new goal directory or update the existing goal directory in the local file system.
+
+By default this command will resolve to the goals resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--goals-dir` flag.
+
+Note: if pulling the target goal for the first time (or all goals), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Goal file structure](/cli/goal/file-structure) section for details on how goal files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all goals from the specified environment into the target directory path set by \`--goals-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all goals from the specified environment.`}
+/>
+
+  <Attribute
+    name="--goals-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all goals into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal pull trial-conversion
+```
+
+```bash title="Pulling a goal in a different environment"
+knock goal pull trial-conversion --environment=production
+```
+
+```bash title="Pulling all goals into ./goals directory"
+knock goal pull --all --goals-dir=./goals
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal push <goal_key> [flags]" path="/goal/push">
+<ContentColumn>
+
+Push one or more goals from a local file system to Knock. Knock will update an existing goal by the matching goal key, or create a new goal if it does not exist yet. The push publishes the goal in the target environment. There is no `--commit` flag.
+
+By default this command will resolve to the goals resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--goals-dir` flag.
+
+Note: you must be directly above the target goal directory when running the `goal push` command, so the CLI can locate the `goal.json` file.
+
+See the [Goal file structure](/cli/goal/file-structure) section for details on how goal files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all goals from the target directory path set by `--goals-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--goals-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all goals from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal push trial-conversion
+```
+
+```bash title="Pushing a goal to a different environment"
+knock goal push trial-conversion --environment=production
+```
+
+```bash title="Pushing all goals from ./goals directory"
+knock goal push --all --goals-dir=./goals
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal validate <goal_key> [flags]" path="/goal/validate">
+<ContentColumn>
+
+Validate one or more goals from a local file system. Knock will validate the given goal payload in the same way as it would with the `goal push` command, except without persisting those changes.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all goals from the target directory path set by `--goals-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--goals-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all goals from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal validate trial-conversion
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal open <goal_key> [flags]" path="/goal/open">
+<ContentColumn>
+
+Open a goal in the Knock dashboard. This command opens the goal page in your default browser.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal open trial-conversion
+```
+
+```bash title="Open a goal in a different environment"
+knock goal open trial-conversion --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal clone <goal_key> <new_goal_key> [flags]" path="/goal/clone">
+<ContentColumn>
+
+Clone a goal to a new goal key. Cloning copies the goal definition into the destination environment. It does not copy which workflows, broadcasts, or guides reference the goal.
+
+The new goal key must use only lowercase letters, numbers, dashes, or underscores. `--name` defaults to the new goal key. `--dest-environment` defaults to `--environment`, which defaults to the account's default environment.
+
+Goals are not promoted between environments. Clone a goal when you need the same definition in another environment, and keep the key the same across environments when a workflow or guide references it. See [cloning a goal](/concepts/goals#cloning-a-goal).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to clone from. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--dest-environment"
+    type="string"
+    description="The destination environment for the clone. Defaults to --environment."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the cloned goal. Defaults to the new goal key."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Clone a goal in the same environment"
+knock goal clone trial-conversion trial-conversion-copy
+```
+
+```bash title="Clone a goal into another environment"
+knock goal clone trial-conversion trial-conversion \
+  --environment=development \
+  --dest-environment=production \
+  --name="Trial conversion"
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock goal archive <goal_key> [flags]" path="/goal/archive">
+<ContentColumn>
+
+Archive a goal across all environments. Archiving stops new completions and attributions. Knock keeps historical goal versions and completions.
+
+Detach the goal from every workflow, guide, and broadcast before you archive it. Knock refuses the archive while the goal is still attached.
+
+<Callout
+  type="alert"
+  title="Archiving removes the goal in every environment."
+  text="This action cannot be undone. The archive applies to every environment that has a goal with that key."
+/>
+
+The `--environment` flag selects the environment to issue the request against. When omitted, the Knock CLI uses the account's default environment. The archive still applies to every environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to issue the request against. When omitted, the account's default environment is used. The archive still applies to every environment."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock goal archive trial-conversion
+```
+
+</ExampleColumn>
+</Section>
