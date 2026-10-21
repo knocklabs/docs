@@ -1,0 +1,463 @@
+---
+title: Variables
+description: Commands for managing variables in the Knock CLI.
+---
+
+<Section path="/variable">
+<ContentColumn>
+
+Variable commands enable you to manage [variables](/concepts/variables) in your Knock account from the CLI.
+
+Variables are account-wide. A variable has a default value and can have an override for each environment. Variable commands do not take a `--branch` flag, and `knock variable pull` and `knock variable push` read and write the whole variable catalog. Pushing a variable saves it right away, and Knock does not create a commit for it.
+
+Variable commands are separate from `knock pull` and `knock push`, which do not include variables.
+
+</ContentColumn>
+</Section>
+
+<Section title="Variable file structure" path="/variable/file-structure">
+<ContentColumn>
+
+When variables are pulled from Knock, they are stored together in a single `variables.json` file. The file is a JSON object where each property name is a variable key. Knock CLI looks for the file in the directory set by your `knock.json` file or the `--knock-dir` flag, and falls back to the current working directory.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local variable file structure">
+{`.knock/
+└── variables.json`}
+</PreTextDiagram>
+
+Each entry describes one variable:
+
+- **type.** `public` or `secret`. The type cannot change after the variable is created.
+- **description.** Optional context about what the variable is for.
+- **value.** The default value. Public variables only.
+- **environment_values.** Optional environment overrides, keyed by environment slug. Public variables only.
+- **value_set.** Whether a secret variable has a default value. Secret variables only.
+- **environment_values_set.** Whether a secret variable has an override in each environment. Secret variables only.
+
+```json title="Example variables.json"
+{
+  "base_url": {
+    "type": "public",
+    "description": "Base URL for links in notifications",
+    "value": "https://example.com",
+    "environment_values": {
+      "development": "https://dev.example.com"
+    }
+  },
+  "api_token": {
+    "type": "secret",
+    "value_set": true,
+    "environment_values_set": {
+      "production": true
+    }
+  }
+}
+```
+
+Knock never returns the value of a secret variable, so the CLI never writes one to your local file system. Pulled secret entries record only whether a value is set. To set the value of a secret variable, use [`knock variable set`](/cli/variable/set) with `--value-stdin` or `--value-file`.
+
+A variable key must start with a letter or underscore and contain only letters, numbers, and underscores. This is the format you use to reference the variable in a template as `vars.<key>`.
+
+When you push, a `null` or omitted `value` is skipped and leaves the existing value unchanged. An empty string clears the value.
+
+</ContentColumn>
+</Section>
+
+<Section title="knock variable list [flags]" path="/variable/list">
+<ContentColumn>
+
+Display all variables in your account. By default, the command shows each variable's default value and its environment overrides. Secret values are never shown. The command reports whether a secret value is `set` or `unset`.
+
+Use an `--environment` flag to show only the value that applies in that environment, which is the override when one is set and the default otherwise.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="Show only the value that applies in this environment: the override when one is set, otherwise the default."
+  />
+  <Attribute
+    name="--type"
+    type="string"
+    description="Filter variables by type. One of: `public`, `secret`."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock variable list
+```
+
+```bash title="List the values that apply in production"
+knock variable list --environment=production
+```
+
+```bash title="List only secret variables"
+knock variable list --type=secret
+```
+
+```bash title="Pagination example"
+knock variable list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock variable get <key> [flags]" path="/variable/get">
+<ContentColumn>
+
+Display a single variable, including its default value and every environment override. Secret values are never shown.
+
+### Flags
+
+<Attributes>
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock variable get base_url
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock variable new [flags]" path="/variable/new">
+<ContentColumn>
+
+Add a new variable entry to your local `variables.json` file.
+
+The command writes to the `variables.json` file in the directory set by your `knock.json` file or the `--knock-dir` flag, and falls back to the current working directory. If the file does not exist, the command asks you to confirm before creating it. The command exits with an error if the key is already in the file.
+
+The command does not accept `--value` for a secret variable. After you push the entry, set the secret value with [`knock variable set`](/cli/variable/set).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    isRequired
+    description="The variable key."
+  />
+  <Attribute
+    name="--type"
+    type="string"
+    isRequired
+    description="The variable type. One of: `public`, `secret`."
+  />
+  <Attribute
+    name="--value"
+    type="string"
+    description="The default value. Public variables only."
+  />
+  <Attribute
+    name="--description"
+    type="string"
+    description="The description of the variable."
+  />
+  <Attribute
+    name="--knock-dir"
+    type="directory"
+    description="The Knock directory used to locate `variables.json`."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the new entry to Knock after writing it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Skips the confirmation prompt when creating the file. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a public variable"
+knock variable new \
+  --key=base_url \
+  --type=public \
+  --value=https://example.com
+```
+
+```bash title="Create a secret variable"
+knock variable new --key=api_token --type=secret
+```
+
+```bash title="Create and push a variable"
+knock variable new \
+  --key=base_url \
+  --type=public \
+  --value=https://example.com \
+  --push
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock variable set <key> [flags]" path="/variable/set">
+<ContentColumn>
+
+Create or update a variable in Knock directly, without editing a local file. Pass `--type` when creating a variable. When the variable already exists, `--type` is optional, and it must match the existing type.
+
+You can only pass one of `--value`, `--value-file`, `--value-stdin`, or `--unset-value`. A value is required to create a variable.
+
+Secret values are never accepted as command-line arguments, because they would end up in your shell history. For a secret variable, pass the value with `--value-stdin` or `--value-file`. The same applies to environment overrides: use `--environment-value-file` rather than `--environment-value`.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--type"
+    type="string"
+    description="The variable type. One of: `public`, `secret`. Required when creating a variable."
+  />
+  <Attribute
+    name="--value"
+    type="string"
+    description="The default value. Public variables only."
+  />
+  <Attribute
+    name="--value-file"
+    type="string"
+    description="Read the default value from a file. The command does not trim the file's bytes."
+  />
+  <Attribute
+    name="--value-stdin"
+    type="boolean"
+    description="Read the default value from stdin until the end of input. The command does not trim the input. Defaults to false."
+  />
+  <Attribute
+    name="--unset-value"
+    type="boolean"
+    description="Clear the default value. Defaults to false."
+  />
+  <Attribute
+    name="--description"
+    type="string"
+    description="The description of the variable."
+  />
+  <Attribute
+    name="--unset-description"
+    type="boolean"
+    description="Clear the description. Defaults to false."
+  />
+  <Attribute
+    name="--environment-value"
+    type="string"
+    description="Set an environment override in the format `<slug>=<value>`. Can be passed more than once. Public variables only."
+  />
+  <Attribute
+    name="--environment-value-file"
+    type="string"
+    description="Set an environment override from a file in the format `<slug>=<path>`. Can be passed more than once."
+  />
+  <Attribute
+    name="--unset-environment"
+    type="string"
+    description="Clear the override for an environment slug. Can be passed more than once."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a public variable"
+knock variable set base_url \
+  --type=public \
+  --value=https://example.com
+```
+
+```bash title="Set a development override"
+knock variable set base_url \
+  --environment-value=development=https://dev.example.com
+```
+
+```bash title="Set a secret value from stdin"
+printf '%s' "$API_TOKEN" | knock variable set api_token \
+  --type=secret \
+  --value-stdin
+```
+
+```bash title="Set a secret value from a file"
+knock variable set api_token \
+  --type=secret \
+  --value-file=./api-token.txt
+```
+
+```bash title="Clear an environment override"
+knock variable set base_url --unset-environment=development
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock variable pull <key> [flags]" path="/variable/pull">
+<ContentColumn>
+
+Pull variables from Knock into your local `variables.json` file. The command always pulls the whole variable catalog, including every environment override, so it does not take an `--environment` flag.
+
+Pass a key to update a single entry. If the variable does not exist in Knock, the command offers to remove that entry from your local file. Without a key, the command replaces the whole file, and any entry that no longer exists in Knock is removed.
+
+By default, this command resolves the `variables.json` file through your `knock.json` file or the `--knock-dir` flag. When neither is set, it uses the current working directory.
+
+Note: Knock CLI asks you to confirm before it writes to the local file system, unless you pass `--force`.
+
+See the [Variable file structure](/cli/variable/file-structure) section for details on how the file is organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--knock-dir"
+    type="directory"
+    description="The Knock directory used to locate `variables.json`."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Pull all variables"
+knock variable pull
+```
+
+```bash title="Pull a single variable"
+knock variable pull base_url
+```
+
+```bash title="Pull all variables into a specific directory"
+knock variable pull --knock-dir=./.knock
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock variable push <key> [flags]" path="/variable/push">
+<ContentColumn>
+
+Push variables from your local `variables.json` file to Knock. Knock updates an existing variable by the matching key, or creates a new variable if it does not exist yet. Pass a key to push a single entry, or omit it to push every entry in the file.
+
+Note:
+
+- Pushing does not delete variables from Knock that are missing from your file.
+- A new variable needs a string `value`. For a secret variable, create it with [`knock variable set`](/cli/variable/set) so that you can supply the value without writing it to the file.
+- You cannot change the type of an existing variable.
+- After a successful push, the command updates your local file to match what Knock stored. For a secret variable, the file records only whether a value is set.
+- Variables are saved right away, so this command does not have a `--commit` flag.
+
+See the [Variable file structure](/cli/variable/file-structure) section for details on how the file is organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--knock-dir"
+    type="directory"
+    description="The Knock directory used to locate `variables.json`."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Push all variables"
+knock variable push
+```
+
+```bash title="Push a single variable"
+knock variable push base_url
+```
+
+```bash title="Push without a confirmation prompt"
+knock variable push --force
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock variable delete <key> [flags]" path="/variable/delete">
+<ContentColumn>
+
+Delete a variable, or clear a single environment override.
+
+Without an `--environment` flag, the command deletes the variable and every environment override.
+
+<Callout
+  type="alert"
+  title="Deleting a variable removes it for the whole account."
+  text="This action cannot be undone. Templates and conditions that reference the variable will no longer resolve it."
+/>
+
+With an `--environment` flag, the command clears only that environment's override and keeps the variable. The default value then applies in that environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="Clear only this environment's override. The variable is not deleted."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Delete a variable"
+knock variable delete base_url
+```
+
+```bash title="Clear a development override"
+knock variable delete base_url --environment=development
+```
+
+```bash title="Delete without a confirmation prompt"
+knock variable delete base_url --force
+```
+
+</ExampleColumn>
+</Section>

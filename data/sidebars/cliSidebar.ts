@@ -239,6 +239,32 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Variables",
+    slug: "/cli/variable",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List variables" },
+      { slug: "/get", title: "Get variable" },
+      { slug: "/new", title: "Create a new variable" },
+      { slug: "/set", title: "Set variable" },
+      { slug: "/pull", title: "Pull variables" },
+      { slug: "/push", title: "Push variables" },
+      { slug: "/delete", title: "Delete variable" },
+    ],
+  },
+
+  {
+    title: "Assets",
+    slug: "/cli/asset",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/upload", title: "Upload asset" },
+      { slug: "/archive", title: "Archive asset" },
+    ],
+  },
+
+  {
     title: "Sources",
     slug: "/cli/source",
     pages: [
