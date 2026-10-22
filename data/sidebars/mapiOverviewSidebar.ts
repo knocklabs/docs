@@ -25,6 +25,7 @@ export const RESOURCE_ORDER = [
   "members",
   "audit_logs",
   "data_sources",
+  "webhooks",
   "api_keys",
   "billing",
   "auth",
