@@ -21,6 +21,10 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Integrating into CI/CD",
   },
   {
+    slug: `${baseSlug}/syncing-versioned-content`,
+    title: "Syncing versioned content",
+  },
+  {
     slug: `${baseSlug}/alerting`,
     title: "Alerting",
   },
