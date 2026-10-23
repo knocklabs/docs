@@ -102,7 +102,7 @@ The workflow debugger will indicate when a step has been skipped and provide the
 
 ### When a workflow step fails
 
-When a workflow step encounters an error during execution (such as a template rendering error or an error response from a [fetch](/designing-workflows/fetch-function) step), Knock will retry the step **up to 3 total times**. If all retry attempts fail, the step is marked as failed and **the workflow run is halted.** No subsequent steps will execute.
+When a workflow step encounters an error during execution (such as a template rendering error or an error response from a [fetch](/designing-workflows/fetch-function) step), Knock will retry the step **up to 3 total times**. If all retry attempts fail, the step is marked as failed and **the workflow run is halted.** No subsequent steps will execute. Once you've fixed the underlying issue, you can [retry the failed run](#retrying-failed-workflow-runs) from the debugger.
 
 Common causes of workflow step failures include:
 
@@ -110,6 +110,19 @@ Common causes of workflow step failures include:
 - **Fetch step errors.** Errors or timeouts from the HTTP request made by the fetch step.
 
 You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
+
+### Retrying failed workflow runs
+
+When a workflow run fails, you can retry it from the workflow debugger. The run picks up from the step that failed, using the same workflow version as the original run. Steps that already completed do not run again. The failed step runs again in full, so if it sent a request that your service already processed (such as a [fetch](/designing-workflows/fetch-function) request that timed out), your service will receive that request again.
+
+To retry a run, open it in the debugger and click **Retry run** in the top right corner. To retry several runs at once, select up to 50 failed runs from a runs list and click **Retry runs**.
+
+A run can be retried if:
+
+- It failed within the last 7 days.
+- It hasn't been retried before. Each run can be retried once.
+
+Retrying works best for failures caused by temporary issues, such as an outage in a service that a fetch step calls. Make sure the issue has been resolved before you retry, since a run that fails again can't be retried a second time. Because a retry uses the original workflow version, it won't fix an error in the workflow itself, such as invalid Liquid in a template.
 
 ## Debugging workflows with a batch step
 
