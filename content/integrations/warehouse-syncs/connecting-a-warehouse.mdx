@@ -1,0 +1,109 @@
+---
+title: Connecting a warehouse
+description: Add an Amazon Redshift or Snowflake source that every environment in your Knock account can sync from.
+section: Integrations > Warehouse syncs
+layout: integrations
+---
+
+A warehouse is a source that connects to one database. You add it once, and syncs in any environment can read from it. Adding and editing warehouses takes an Owner or Admin role, or a custom permission group with the Integrations manage capability.
+
+## Add a warehouse
+
+1. Go to **Platform** > **Sources**.
+2. Under **Connect a new source**, click **Amazon Redshift** or **Snowflake**.
+3. Enter a **Name** and a **Key**. The key identifies the warehouse in the API and can't be changed later. The type can't be changed after the warehouse is added.
+4. Click **Add warehouse**. Knock opens the warehouse's **Details** tab so you can set up its connection.
+
+The warehouse then appears in the **Connected** list on the **Sources** page with its connection status. Its page has two tabs: **Syncs**, with the syncs that read from it in your current environment, and **Details**, with the connection every environment shares.
+
+Then follow the steps for your warehouse type below.
+
+## Amazon Redshift
+
+Knock connects to Redshift by assuming an IAM role in your AWS account and requesting temporary credentials for a database user. You never give Knock a password.
+
+### Prepare Redshift
+
+1. Create a database user for Knock and grant it read access to the schemas and tables you'll sync:
+
+   ```sql
+   CREATE USER knock_sync PASSWORD DISABLE;
+   GRANT USAGE ON SCHEMA analytics TO knock_sync;
+   GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO knock_sync;
+   ```
+
+2. Create an IAM role that Knock can assume, with permission to request temporary credentials for that user (`redshift:GetClusterCredentials` on the user and database).
+   {/* TODO: document the trust policy Knock's role assumption needs. It's web identity federation (accounts.google.com with a numeric sub); get the exact values before publishing. */}
+
+### Enter the connection
+
+On the warehouse's **Details** tab, fill in the connection and click **Save connection**:
+
+| Field              | What to enter                                                                   |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Host               | The cluster endpoint, such as `cluster.abc123.us-east-1.redshift.amazonaws.com` |
+| Port               | The cluster port. Defaults to `5439`.                                           |
+| Database           | The database to read from. A warehouse connects to one database.                |
+| Cluster identifier | The Redshift cluster identifier                                                 |
+| Region             | The cluster's AWS region, such as `us-east-1`                                   |
+| Database user      | The user Knock requests temporary credentials for                               |
+| IAM role ARN       | The role Knock assumes, such as `arn:aws:iam::123456789012:role/knock-sync`     |
+
+### Connect through an SSH tunnel
+
+If your cluster isn't reachable from the internet, Knock can connect through a bastion host.
+
+1. Create a user on the bastion host for Knock, such as `knock-sync`.
+2. Click **Connect through an SSH tunnel** and enter the **Tunnel host**, **Tunnel port**, and that user as the **Tunnel user**.
+3. Leave **Public key** empty and click **Save connection**. Knock generates a key pair and shows the public key. The connection shows **Install public key** until you test it.
+4. Click **Copy public key** and add it to the tunnel user's `~/.ssh/authorized_keys` on the bastion host.
+5. Click **Test connection**.
+
+To use a key that's already authorized on the bastion host instead, paste its public key into **Public key** before saving.
+
+## Snowflake
+
+Knock connects to Snowflake with key-pair authentication.
+
+1. On the warehouse's **Details** tab, fill in the connection:
+
+   | Field        | What to enter                                                    |
+   | ------------ | ---------------------------------------------------------------- |
+   | Account host | Your account's host, ending in `snowflakecomputing.com`          |
+   | Port         | Defaults to `443`                                                |
+   | Database     | The database to read from. A warehouse connects to one database. |
+   | User         | The Snowflake user Knock reads as, such as `KNOCK_SYNC`          |
+
+2. Leave **Public key** empty and click **Save connection**. Knock generates a key pair and shows the public key. The connection shows **Install public key** until you test it.
+3. Click **Copy public key** and assign it to the user in Snowflake, leaving out the `BEGIN` and `END` lines:
+
+   ```sql
+   ALTER USER KNOCK_SYNC SET RSA_PUBLIC_KEY = 'MIIBIjANBgkqh...';
+   ```
+
+4. Make sure the user's default role can read the tables you'll sync and has a default warehouse to run queries on.
+   {/* TODO: confirm Knock uses the user's default role and warehouse, since the connection has no role or warehouse field. */}
+5. Click **Test connection**.
+
+To use a key that's already assigned to the user instead, paste its public key into **Public key** before saving.
+
+## Test the connection
+
+Click **Test connection** on the warehouse's **Details** tab after you save or change a connection. The connection is shared by every environment, so a change applies to all of them. Its status shows on the warehouse page and in the **Connected** list on the **Sources** page:
+
+| Status             | Meaning                                                                         |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Not configured     | No connection has been saved yet.                                               |
+| Install public key | Knock generated a key. Install it, then test the connection.                    |
+| Connecting         | Knock is setting up the connection. Tables and previews appear once it's ready. |
+| Not tested         | The connection is saved but hasn't been tested.                                 |
+| Connected          | The last test succeeded.                                                        |
+| Connection failed  | The last test failed. The error appears on the **Details** tab.                 |
+
+<Callout
+  type="info"
+  title="Note:"
+  text="A connection test checks that Knock can log in. It doesn't check that the user can read a particular table. If a table is missing from the sync editor or its preview fails, check the user's grants."
+/>
+
+Once the warehouse is connected, click **Create sync** on the warehouse page to start a sync in your current environment. See [creating a sync](/integrations/warehouse-syncs/creating-a-sync).

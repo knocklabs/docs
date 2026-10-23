@@ -43,6 +43,16 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     ],
   },
   {
+    title: "Warehouse syncs",
+    slug: "/integrations/warehouse-syncs",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/connecting-a-warehouse", title: "Connecting a warehouse" },
+      { slug: "/creating-a-sync", title: "Creating a sync" },
+      { slug: "/managing-syncs", title: "Managing syncs" },
+    ],
+  },
+  {
     title: "Email",
     slug: "/integrations/email",
     pages: [
