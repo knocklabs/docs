@@ -9,7 +9,7 @@ Once you've built your workflow, you'll want to test it to make sure it works as
 
 ## The workflow test runner
 
-You can use the Knock workflow test runner to test an end-to-end workflow and verify that it works as expected.
+You can use the Knock workflow test runner to test an end-to-end workflow or a single channel step, and verify that it works as expected.
 
 To use the workflow test runner, navigate to the workflow you want to test and click "Run a test." You'll have options to select the workflow's recipient, actor, tenant, and input any data that you'd like to pass to the workflow.
 
@@ -46,6 +46,18 @@ You can also apply both of these settings when triggering a workflow via the API
     </>
   }
 />
+
+### Testing a single step
+
+You can also use the test runner to run a single channel step instead of the full workflow. This is useful when you're iterating on one message that sits behind delays, branches, or conditions.
+
+To test a single step, click "Run a test," select "One step," and choose the step from the dropdown. Then click "Run step test." When you open the test runner from a step's template editor, "One step" is already selected with that step chosen.
+
+Only the selected step runs. Earlier steps do not, so if the step's template references data an earlier step produces, such as a fetch response, add that data to the "Data" field. The step's own [conditions](/designing-workflows/step-conditions), recipient [preferences](/preferences/overview), and [send windows](/designing-workflows/send-windows) still apply, but conditions on a parent branch don't. In the [workflow debugger](/send-notifications/debugging-workflows), the other steps show as "Not started."
+
+You can run any channel step that sends a message on its own. Function steps and in-app guide steps run only as part of the full workflow. Fetch and AI agent functions have their own test runner in the template editor. Learn more about [testing fetch functions](/designing-workflows/fetch-function#testing-fetch-functions) and [testing AI agent functions](/designing-workflows/ai-agent-function#testing-agent-steps).
+
+You can also run a single step through the Management API by passing a `step_id` to the [run workflow endpoint](/mapi-reference/workflows/run).
 
 ## Testing workflows using the Knock CLI
 
