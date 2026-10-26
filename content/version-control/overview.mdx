@@ -1,0 +1,87 @@
+---
+title: Version control overview
+description: Learn how Knock versions your content and when to enable environments for a development-to-production workflow.
+tags:
+  ["version control", "env", "environments", "commit", "promote", "branches"]
+section: Concepts
+---
+
+Knock versions the content (such as [workflows](/concepts/workflows), [guides](/concepts/guides), and [email layouts](/integrations/email/layouts)) that you send to your recipients. You draft your changes, test them, and publish them when they're ready, with a full history of every version.
+
+## How Knock versions content
+
+Every change you make to a [content resource](/version-control/environments#create-content-in-environments) starts as a draft, which you can test with the [dashboard test runner](/send-notifications/testing-workflows#the-workflow-test-runner) without changing what your application sends through the API. When a change is ready, you commit it, which makes it live and records it in your commit log. In production, the dashboard labels this action "Publish". Learn more in [commits](/version-control/commits).
+
+Data that you store in Knock about your [recipients](/managing-recipients/overview) isn't versioned. It lives in the environment you send it to.
+
+## The environment model
+
+If you've worked on a software team, you've likely shipped code through separate environments to keep in-progress work that's still being tested away from your users. Knock's optional [environments](/version-control/environments) work the same way. Each environment has its own content, data, configurations, and API keys, so you can build and test changes in one environment without affecting what your users receive. When a change is ready, you promote it to the next environment, so production receives only the changes you've tested.
+
+### Single environment by default
+
+New Knock accounts start with a single environment. You build content directly in your dashboard, and publishing a change makes it live for your users.
+
+1. Create or edit a resource in the dashboard. Save your changes as a draft.
+2. Test the draft with the workflow or broadcast test runner.
+3. Publish the change when it's ready.
+
+Each publish is a commit, so you can review what changed in each version and [revert](/version-control/commits#reverting-a-commit) to an earlier one if needed.
+
+<Callout
+  type="info"
+  title="Legacy accounts start with environments enabled."
+  text={
+    <>
+      If your account was created before October 2026, it was provisioned with
+      development and production environments, and the commit-and-promote
+      workflow is enabled by default. The{" "}
+      <a href="/version-control/environments#modify-resources-in-any-environment">
+        modify resources in any environment
+      </a>{" "}
+      permission enables resource creation in any environment, including
+      production. You can find it on the{" "}
+      <a
+        href="https://dashboard.knock.app/~/settings/permissions"
+        target="_blank"
+      >
+        Permissions
+      </a>{" "}
+      page in your account settings.
+    </>
+  }
+/>
+
+### Enabling environments
+
+Enabling environments adds a development environment below production and gives you a development-to-production workflow:
+
+- **Development environment.** A separate place to build and test content, with its own API keys and data.
+- **Promotion.** Commit changes in development, then [promote](/version-control/commits#promoting-commits) them to production when they're ready.
+- **Additional environments.** [Add environments](/version-control/environments#create-additional-environments), such as staging, between development and production.
+- **Branches.** Isolate changes on a [branch](/version-control/branches) and merge them into development when they're ready.
+
+You can [enable environments](/version-control/environments#enable-environments) at any time. Once enabled, you can't switch back to a single environment.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="When should I enable environments?"
+    anchorSlug="faq-when-to-enable-environments"
+  >
+    **Consider enabling environments if:**
+
+    - Engineers manage transactional notification workflows that ship alongside your application code.
+    - You want to test against separate data and API keys instead of your production users.
+    - You manage Knock resources from code and promote them through your own CI/CD pipeline. See [integrating Knock into your CI/CD pipeline](/tutorials/integrating-into-cicd).
+    - You want branches to isolate changes per developer or per feature.
+
+    **You may not need environments if:**
+
+    - Your team builds and publishes notifications like lifecycle messages, product announcements, and in-app banners directly in the Knock dashboard.
+    - Drafts and the test runner cover the review your changes need before they go live.
+    - You're just getting started with Knock and want to send your first notification.
+
+  </Accordion>
+</AccordionGroup>
