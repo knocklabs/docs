@@ -1,0 +1,123 @@
+---
+title: Resource search
+description: Find workflows, templates, guides, and other resources in an environment by their name, key, or content.
+tags: ["dashboard", "workflows", "templates", "environments", "branches"]
+section: Manage your account
+---
+
+Resource search looks across every resource type in the environment you're working in and matches your query against each resource's name, key, and content. Use it to find the template that contains a line of copy, the workflows that reference a step, or a partial whose key you don't remember, without opening each list page.
+
+## Run a search
+
+Open the search page in one of these ways:
+
+- Click the search icon at the top of the main sidebar, next to your account menu.
+- Open the command menu with **Cmd + K** and choose **Search resources**.
+- Go to <a href="https://dashboard.knock.app/~/search" target="_blank">dashboard.knock.app/~/search</a>.
+
+Type your query and press **Enter**. Search runs when you submit, not as you type, so the field shows an **Enter** hint while your query hasn't run yet. When the search field isn't focused, press **/** to return to it.
+
+The query and the selected filter are saved in the page URL, so you can bookmark a search or share it with a teammate who has access to the same environment.
+
+### Filter by resource type
+
+Results default to **All**. Use the filters under the search field to narrow results to one resource type. You only see filters for resource types your role can read.
+
+### Navigate the results
+
+Each result shows its type, its title with the matching words highlighted, and the key it belongs to. Liquid variables in a title appear as the variable name, so a subject line such as `Welcome, {{ recipient.name }}` reads as `Welcome, recipient.name`.
+
+Click a result to open it, or use the arrow keys to move from the search field through the results and press **Enter**. Results load 50 at a time. Use **Previous** and **Next** at the bottom of the page to move between pages.
+
+## What resource search covers
+
+Resource search covers the versioned content in an environment. Every type matches on its key and name. The table lists the other content Knock indexes for each type and where a result opens.
+
+| Resource type                                                                     | Also matches                                                              | Opens                                         |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------- |
+| [Workflows](/concepts/workflows)                                                  | Description, categories, tags, and step names and refs                    | The workflow                                  |
+| Templates                                                                         | Template content, subject line, channel type, and the step's name and ref | The channel step in the workflow or broadcast |
+| [Broadcasts](/concepts/broadcasts)                                                | Description, categories, and tags                                         | The broadcast                                 |
+| [Guides](/concepts/guides)                                                        | Description, tags, message type, and step names, refs, and field content  | The guide editor                              |
+| [Email layouts](/integrations/email/layouts)                                      | Layout content                                                            | The email layout                              |
+| [Partials](/template-editor/partials/overview)                                    | Description, tags, partial type, and content                              | The partial                                   |
+| [Translations](/template-editor/translations)                                     | Namespace, tenant, and translation keys and strings                       | The translation for that locale and namespace |
+| [Audiences](/concepts/audiences)                                                  | Description, audience type, and segment conditions                        | The audience                                  |
+| [Message types](/in-app-ui/message-types/overview)                                | Description, preview, and variant content                                 | The message type                              |
+| [Reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions) | Description, request URL, and request body                                | The reusable request                          |
+| [Goals](/concepts/goals)                                                          | Description, event, and match conditions                                  | The goal                                      |
+
+Template results come from the channel steps of your workflows and broadcasts. The result label names the channel, such as "Email template" or "SMS template," and the key shown is the workflow or broadcast that contains the step.
+
+Resource search does not include:
+
+- Archived resources.
+- System workflows, audiences, and translations that Knock manages for you.
+- Recipient data, such as users, objects, and tenants. Use the list pages for those.
+- Messages and logs.
+
+### Search reflects your latest changes
+
+Knock indexes the current version of each resource, including changes you've saved but not yet [committed](/version-control/commits). A search can return a match that isn't live in the environment yet. Knock updates the index in the background after you save, so a change can take a few moments to appear in results.
+
+## How matching works
+
+Resource search matches whole words, with English stemming, so `alert` also finds `alerts`. The last word in your query also matches as the start of a word once it has two or more characters, so `onboa` finds `onboarding`. A one-character last word only matches that character as a whole word.
+
+Hyphens and other punctuation split words, so the key `alert-digest` matches both `alert` and `digest`.
+
+Matches on a resource's key rank above matches on its name, and matches on its name rank above matches in its content. Knock can also rerank results by meaning, but a result always contains at least one word from your query.
+
+## Environments and branches
+
+Each [environment](/version-control/environments) and each [branch](/version-control/branches) has its own search index, and a search only returns resources from the environment or branch you have selected in the dashboard. To find a resource in another environment, switch to that environment and run the search again.
+
+When you create or rebase a branch, Knock indexes that branch's resources. When you merge a branch, Knock updates the merged resources in the destination environment. Deleting a branch or environment deletes its index.
+
+## Permissions
+
+Resource search follows your [role and permissions](/manage-your-account/roles-and-permissions) in the current environment. Knock removes resource types you can't read from the results and from the filters, so two members can see different results for the same query.
+
+- Workflow templates need read access to workflows, and broadcast templates need read access to broadcasts.
+- Every other resource type needs read access to that type.
+- Members without read access to any searchable resource type can't open the search page.
+
+## Search from the Knock agent
+
+The [Knock agent](/ai/agent) uses resource search to find resources by name or content before it reads or changes them. It searches the same environment, follows the same permissions, and returns the same resource types as the search page.
+
+## Limits
+
+- Each page shows up to 50 results, and results don't include a total count.
+- Knock indexes up to the first 12,000 characters of each resource's content. Text after that point doesn't match.
+- Resource search is not available through the [Management API](/mapi-reference) or the [Knock CLI](/developer-tools/knock-cli).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Why doesn't a resource I just edited show up in results?"
+    anchorSlug="faq-recent-edits-missing"
+  >
+    Knock updates the search index in the background after you save. Wait a few
+    moments and run the search again. If the resource still doesn't appear,
+    check that it isn't archived and that you're searching the environment or
+    branch where you made the change.
+  </Accordion>
+  <Accordion
+    title="Why does a teammate see results that I don't?"
+    anchorSlug="faq-results-differ-between-members"
+  >
+    Results only include resource types each member can read in the current
+    environment. Compare your [roles and
+    permissions](/manage-your-account/roles-and-permissions), including any
+    custom permission groups.
+  </Accordion>
+  <Accordion
+    title="Can I search across every environment at once?"
+    anchorSlug="faq-search-across-environments"
+  >
+    No. Each search covers the environment or branch selected in the dashboard.
+    Switch environments to search another one.
+  </Accordion>
+</AccordionGroup>
