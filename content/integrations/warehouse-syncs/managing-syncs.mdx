@@ -1,0 +1,85 @@
+---
+title: Managing syncs
+description: Run, pause, edit, revert, and monitor warehouse syncs, and find out why rows didn't reach Knock.
+section: Integrations > Warehouse syncs
+layout: integrations
+---
+
+To find a sync, go to **Platform** > **Sources** in the environment it syncs into and open its warehouse. The warehouse's **Syncs** tab lists its syncs in that environment. Click a sync to open it.
+
+A sync's page has four tabs:
+
+- **Overview** shows the sync's last run, last successful run, and next expected run, then its current definition: details, source, mappings, and change detection.
+- **Runs** lists recent runs.
+- **Settings** has the schedule.
+- **Changes** lists each published version.
+
+## Sync statuses
+
+| Status          | Meaning                                                                     |
+| --------------- | --------------------------------------------------------------------------- |
+| Draft           | Saved but never published, so it doesn't run.                               |
+| Publishing      | Knock is making the published version live.                                 |
+| Delivery failed | The published version didn't go live. Click **Retry delivery** on the sync. |
+| Live            | Runs on its schedule.                                                       |
+| Paused          | Published, but won't run until you resume it.                               |
+
+## Run a sync now
+
+Click **Run now** on a published sync to run it immediately instead of waiting for its next scheduled run. The sync must be live, not paused.
+
+## Pause and resume
+
+Click **Pause** on the sync, or turn off **Run on schedule** on its **Settings** tab. A run that has already started finishes. Click **Resume** to start running on the schedule again.
+
+## Change the schedule
+
+On the sync's **Settings** tab, change the **Frequency**. Schedule changes and pausing apply right away and don't create a new version.
+
+## Edit a sync
+
+Edit a sync on its **Overview** tab. Click the edit button on the section you want to change: **Details**, **Source**, **Mappings**, or **Change detection**. Editing the source also opens the mappings and change detection, since a new source can change the columns they use. The key, target, and warehouse are fixed.
+
+Click **Save** to save a new version. Saving doesn't change what's live: the sync shows **Unpublished changes** until you click **Publish**.
+
+Publishing a change to the source table or query, the primary key, or a change detection column starts the sync over. Its next run reads every row in the source again, and rows removed from the source before that run aren't treated as deleted. Publishing a change to the name or mappings keeps the sync's place.
+
+## Version history
+
+The **Changes** tab lists every published version of the sync, newest first, with who published it and when. Click the revert button on a version to publish it again as a new version. You can revert in any environment, including Production.
+
+## Run history
+
+The **Runs** tab lists the sync's 25 most recent runs with when each started, how long it took, and how many rows were read, applied, and failed. Click **Refresh runs** to update the list.
+
+| Status                | Meaning                                                  |
+| --------------------- | -------------------------------------------------------- |
+| Running               | The run is still reading the source or applying rows.    |
+| Completed             | Every changed row was applied.                           |
+| Completed with errors | Some rows were applied and some were rejected or failed. |
+| Failed                | The run stopped. The run details show where and why.     |
+
+Knock only applies rows that changed since the last run. A run that finds no changes reads the source but applies nothing.
+
+### Run details
+
+Click a run to see:
+
+- **Rows read**, **Rejected before delivery**, **Applied in Knock**, and **Failed in Knock**.
+- Where a failed run stopped: reading the source, delivering rows to Knock, or applying rows in Knock, with the error.
+- **Rejected rows.** A sample of rows Knock rejected before delivery, grouped by error, with the primary keys each error hit.
+- **Failed in Knock.** A sample of rows Knock received but couldn't save, grouped by reason, with their primary keys.
+- The batches Knock received from the run, with each batch's status and counts. Large runs arrive in several batches, which Knock applies one at a time in order.
+
+{/* PENDING: failure emails. When a run fails, account owners and admins get at most one email per sync every 24 hours. The workflow that sends them isn't live yet, so leave this out until it is. */}
+
+## Troubleshooting
+
+| Symptom                                                         | What to check                                                                                                                                                                                                |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A table is missing from the table picker                        | Click **Refresh tables**. If it's still missing, check the database user's grants. A connection test only checks login.                                                                                      |
+| The preview or a run fails reading the source                   | That the query runs as the database user, and that the user can read every table it uses.                                                                                                                    |
+| Every row is rejected                                           | A field type mismatch, most often a Redshift `TIMESTAMP` mapped to `created_at`. See [data types](/integrations/warehouse-syncs/creating-a-sync#data-types).                                                 |
+| Some rows are rejected or fail in Knock                         | The **Rejected rows** and **Failed in Knock** samples on the run. Filter or fix those rows in a SQL query.                                                                                                   |
+| Users stay subscribed or in an audience after their row is gone | Whether the sync has a last modified column. If it does, set the row's deleted flag instead of deleting it. See [removed and deleted rows](/integrations/warehouse-syncs/overview#removed-and-deleted-rows). |
+| No runs appear                                                  | That the sync is published and not paused. Click **Run now** to run without waiting for the schedule.                                                                                                        |
