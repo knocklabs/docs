@@ -155,6 +155,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/aws-sns", title: "Amazon SNS" },
       { slug: "/mailersend", title: "MailerSend" },
       { slug: "/messagebird", title: "MessageBird" },
+      { slug: "/modica", title: "Modica" },
       { slug: "/plivo", title: "Plivo" },
       { slug: "/sinch", title: "Sinch" },
       { slug: "/sinch-message-media", title: "Sinch MessageMedia" },
