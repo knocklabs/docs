@@ -36,7 +36,7 @@ The response includes the values the agent needs.
 
 Send the token as a bearer token to the Management API, or give it to the [Knock CLI](/developer-tools/knock-cli).
 
-Knock rate limits account creation by IP address and across all callers. The response is `429` with a `Retry-After` header when a limit applies.
+Knock rate limits account creation by IP address and across all callers. The response is `429` with a `Retry-After` header when a limit applies. Knock also refuses the request with `403` if it carries an `Origin` header, which browsers add, so send it from your own process.
 
 ## Check the status
 
@@ -47,12 +47,12 @@ curl https://control.knock.app/v1/headless_accounts/status \
   -H "authorization: Bearer <token>"
 ```
 
-| `status`       | Meaning                                                                      |
-| -------------- | ---------------------------------------------------------------------------- |
-| `provisioning` | The account is still being set up. Check again in a few seconds.             |
-| `unclaimed`    | The account is ready and waiting for a person to claim it.                   |
-| `claimed`      | A person claimed the account. `expires_at` is `null`.                        |
-| `expired`      | The claim window closed. Knock is about to delete the account and the token. |
+| `status`       | Meaning                                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------------------- |
+| `provisioning` | The account is still being set up. Check again in a few seconds.                                     |
+| `unclaimed`    | The account is ready and waiting for a person to claim it.                                           |
+| `claimed`      | A person claimed the account. `expires_at` is `null`.                                                |
+| `expired`      | The claim window closed or setup never finished. Knock is about to delete the account and the token. |
 
 The endpoint accepts one request per second. Poll every five seconds.
 
