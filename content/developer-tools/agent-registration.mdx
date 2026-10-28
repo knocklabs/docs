@@ -1,66 +1,64 @@
 ---
 title: Agent registration
-description: Let an AI agent register a Knock account on its own, build in it, and hand it to a person to claim.
+description: Let an AI agent create a Knock account on its own, build in it, and hand it to a person to claim.
 section: Developer tools
 tags: ["AI", "agent"]
 ---
 
-An AI agent can set up a Knock account without a person present. The agent registers, gets a Management API credential, builds workflows and other resources, and then asks a person to claim the account. Knock follows the <a href="https://workos.com/auth-md" target="_blank" rel="noopener">auth.md</a> specification (v0.6.0) for the user claimed flow with an anonymous start.
+An AI agent can set up a Knock account without a person present. The agent creates a headless account, gets a Management API service token, builds workflows and other resources, and then asks a person to claim the account. The flow is the anonymous, user claimed flow that other developer platforms publish in an `auth.md` file, without the OAuth endpoints. The agent's token is the same before and after the claim.
 
-Agents can read how to register from the `auth.md` file Knock publishes at <a href="https://knock.app/auth.md" target="_blank" rel="noopener">knock.app/auth.md</a>. The machine-readable source of truth is the <a href="https://control.knock.app/.well-known/oauth-protected-resource" target="_blank" rel="noopener">protected resource metadata</a>.
+Agents can read how to create an account from the `auth.md` file Knock publishes at <a href="https://knock.app/auth.md" target="_blank" rel="noopener">knock.app/auth.md</a>.
 
 ## How it works
 
-1. The agent registers and receives an identity assertion and a claim token.
-2. The agent exchanges the assertion for an access token. The token is a Knock [service token](/developer-tools/service-tokens) for the [Management API](/developer-tools/management-api).
-3. The agent works in the account, including [exchanging for API keys](/developer-tools/api-keys) for any environment.
-4. The agent asks a person for their email address, starts a claim, and shows the person a link and a six-digit code.
-5. The person opens the link, signs in to the Knock dashboard with that email, and types the code. They become the owner of the account.
+1. The agent creates a headless account and receives a service token. The token is a Knock [service token](/developer-tools/service-tokens) for the [Management API](/developer-tools/management-api).
+2. The agent polls the status endpoint until the account is ready, then works in it, including [exchanging for API keys](/developer-tools/api-keys) for any environment.
+3. The agent asks a person for their email address, starts a claim, and shows the person a link and a six-digit code.
+4. The person opens the link, signs in to the Knock dashboard with that email, and types the code. They become the owner of the account.
 
-An account that nobody claims is deleted 24 hours after registration.
+An account that nobody claims is deleted 24 hours after it is created.
 
-## Register an agent
+## Create a headless account
 
-Send a `POST` request to `/agent/identity` with the type `anonymous`.
+Send a `POST` request to `/v1/headless_accounts`. The request needs no authentication.
 
 ```bash
-curl -X POST https://control.knock.app/agent/identity \
-  -H "content-type: application/json" \
-  -d '{"type": "anonymous"}'
+curl -X POST https://control.knock.app/v1/headless_accounts
 ```
 
 The response includes the values the agent needs.
 
-| Property                                   | Description                                                                                   |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| `registration_id`                          | The identifier of the registration.                                                           |
-| `identity_assertion`                       | A signed token the agent exchanges for an access token. It is valid for one hour.             |
-| `claim_token`                              | A secret the agent keeps to start and follow a claim. Knock returns it only in this response. |
-| `claim_url`                                | The endpoint the agent calls to start a claim.                                                |
-| `claim_token_expires`                      | When the account is deleted if nobody claims it.                                              |
-| `pre_claim_scopes` and `post_claim_scopes` | The scopes the access token carries. Both are `knock.project`.                                |
+| Property     | Description                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `token`      | A service token that starts with `knock_st_`. Knock returns it only in this response, so the agent keeps it. |
+| `status`     | Always `provisioning` in this response. The account takes a short time to set up.                            |
+| `expires_at` | When Knock deletes the account if nobody claims it.                                                          |
 
-Knock rate limits registration by IP address and across all callers.
+Send the token as a bearer token to the Management API, or give it to the [Knock CLI](/developer-tools/knock-cli).
 
-## Get an access token
+Knock rate limits account creation by IP address and across all callers. The response is `429` with a `Retry-After` header when a limit applies.
 
-Exchange the identity assertion at `/oauth2/token` with the JWT bearer grant.
+## Check the status
+
+Send a `GET` request to `/v1/headless_accounts/status` with the token.
 
 ```bash
-curl -X POST https://control.knock.app/oauth2/token \
-  -d grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
-  -d assertion=<identity_assertion>
+curl https://control.knock.app/v1/headless_accounts/status \
+  -H "authorization: Bearer <token>"
 ```
 
-The response holds an `access_token` that starts with `knock_st_`. Send it as a bearer token to the Management API, or give it to the [Knock CLI](/developer-tools/knock-cli).
+| `status`       | Meaning                                                                      |
+| -------------- | ---------------------------------------------------------------------------- |
+| `provisioning` | The account is still being set up. Check again in a few seconds.             |
+| `unclaimed`    | The account is ready and waiting for a person to claim it.                   |
+| `claimed`      | A person claimed the account. `expires_at` is `null`.                        |
+| `expired`      | The claim window closed. Knock is about to delete the account and the token. |
 
-The account takes a short time to set up. Until it is ready, the endpoint answers `503` with a `Retry-After` header. Retry after that delay.
-
-You can exchange the same assertion again to get the current token. To revoke the token, send it to `/oauth2/revoke`. Before the account is claimed, the next exchange issues a new token.
+The endpoint accepts one request per second. Poll every five seconds.
 
 ## What the token can do
 
-The access token has one scope, `knock.project`, before and after a claim. It lets the agent author and operate in every environment, including production.
+The token lets the agent author and operate in every environment, including production.
 
 | The agent can                                                                                                                                    | The agent cannot                                 |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
@@ -73,38 +71,41 @@ The access token has one scope, `knock.project`, before and after a claim. It le
 ## Hand the account to a person
 
 1. Ask the person for their email address.
-2. Send a `POST` request to the `claim_url` with the claim token and the email.
+2. Send a `POST` request to `/v1/headless_accounts/claim` with the token and the email.
 
    ```bash
-   curl -X POST https://control.knock.app/agent/identity/claim \
+   curl -X POST https://control.knock.app/v1/headless_accounts/claim \
+     -H "authorization: Bearer <token>" \
      -H "content-type: application/json" \
-     -d '{"claim_token": "<claim_token>", "email": "person@example.com"}'
+     -d '{"email": "person@example.com"}'
    ```
 
-3. Show the person the `verification_uri` and the `user_code` from the response together. The code is valid for 10 minutes.
-4. Poll `/oauth2/token` with the claim grant until the person finishes. Wait at least five seconds between requests.
-
-   ```bash
-   curl -X POST https://control.knock.app/oauth2/token \
-     -d grant_type=urn:workos:agent-auth:grant-type:claim \
-     -d claim_token=<claim_token>
-   ```
-
-While the person has not finished, the response is `authorization_pending`. When they finish, the response holds a new access token and a new identity assertion.
+3. Show the person the `claim_url` and the `user_code` from the response. The code is valid for 10 minutes. Show the code separately from the link, so that a person who only sees the link cannot finish the claim.
+4. Poll the status endpoint until `status` is `claimed`.
 
 Claiming the account does the following:
 
 - The person becomes the owner of the account.
 - The person can name the account. Until then it has a generated name of three words, such as `quiet-river-falcon`.
-- The agent's access token is replaced with a new one. The old token stops working.
+- The agent's token keeps working. It appears on the service tokens page in the dashboard, where the owner can delete it.
 - The account no longer expires, and Knock sets up billing for it on the Free plan.
 - API keys the agent already fetched keep working until the owner rolls them.
 
-The claim link only works for the email the agent supplied. Five wrong codes end the attempt, and the agent can start a new one. Starting a new attempt replaces the previous code and link. An agent can start three attempts every 10 minutes.
+The claim link only works for the email the agent supplied, and the person has to type the code. Five wrong codes end the attempt, and the agent can start a new one. Starting a new attempt replaces the previous code and link. An agent can start three attempts every 10 minutes.
+
+### Claim errors
+
+| Status | Code                         | Meaning                                                                 |
+| ------ | ---------------------------- | ----------------------------------------------------------------------- |
+| `409`  | `headless_account_not_ready` | The account is still being set up. Check the status and try again.      |
+| `409`  | `headless_account_claimed`   | A person already claimed the account.                                   |
+| `410`  | `headless_account_expired`   | The claim window closed. Create a new account.                          |
+| `422`  | `invalid_params`             | The email is missing or not a valid email address.                      |
+| `429`  | `rate_limited`               | The agent started too many claims. Retry after the `Retry-After` delay. |
 
 ## Manage the agent's access
 
-After a claim, the owner can see and delete the agent's token on the service tokens page in the dashboard. The token is named "Agent (auth.md)". Deleting it ends the agent's access. The agent cannot get a new token for that account, and it can register a new account instead.
+After a claim, the owner can see and delete the agent's token on the service tokens page in the dashboard. The token is named "Headless account". Deleting it ends the agent's access. The agent cannot get a new token for that account, and it can create a new account instead.
 
 ## Frequently asked questions
 
@@ -113,7 +114,7 @@ After a claim, the owner can see and delete the agent's token on the service tok
     title="Does the agent need an existing Knock account?"
     anchorSlug="faq-existing-account"
   >
-    No. Registration creates a new account. A person who already has a Knock
+    No. The agent creates a new account. A person who already has a Knock
     account becomes the owner of one more account when they claim it. Knock does
     not merge accounts.
   </Accordion>
@@ -122,21 +123,22 @@ After a claim, the owner can see and delete the agent's token on the service tok
     anchorSlug="faq-unclaimed-accounts"
   >
     Knock deletes the account, and the agent's token stops working, 24 hours
-    after registration. The agent can register again.
+    after the agent creates it. The agent can create a new account.
   </Accordion>
   <Accordion
     title="Can the agent send notifications?"
     anchorSlug="faq-sending-notifications"
   >
-    The agent can build and run workflows with the access token. Sending to real
+    The agent can build and run workflows with the token. Sending to real
     recipients depends on the channels in the account, and the Management API
     does not create channel providers. Plan limits for the Free plan apply.
   </Accordion>
   <Accordion
-    title="Which auth.md flows does Knock support?"
-    anchorSlug="faq-supported-flows"
+    title="Does Knock implement the auth.md specification?"
+    anchorSlug="faq-auth-md"
   >
-    Knock supports the anonymous start of the user claimed flow. It does not
-    support the `service_auth` type or the agent verified flow.
+    No. Knock follows the shape of the anonymous, user claimed flow, but it does
+    not publish OAuth metadata, a token endpoint, or identity assertions. Agents
+    follow the instructions in the `auth.md` file.
   </Accordion>
 </AccordionGroup>
