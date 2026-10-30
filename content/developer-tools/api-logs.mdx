@@ -1,22 +1,10 @@
 ---
-title: API Logs
+title: API logs
 description: Learn more about viewing and debugging API request logs in Knock.
 section: Developer tools
 ---
 
-Knock automatically captures and stores all of the API requests you make to the Knock API, and makes these requests accessible under the **Observability** > **Logs** section of the Knock dashboard.
-
-<Callout
-  emoji="👀"
-  title="Note:"
-  style={{ alignItems: "center" }}
-  text={
-    <>
-      Knock does not store response bodies for the <code>/feeds</code> endpoint
-      in our logs.
-    </>
-  }
-/>
+Knock automatically captures and stores all of the API requests you make to the Knock API, and makes these requests accessible under the **Observability** > **Logs** section of the Knock dashboard. Knock does not store response bodies for the `/feeds` endpoint in its logs.
 
 <Callout
   type="warning"
@@ -34,9 +22,9 @@ Knock automatically captures and stores all of the API requests you make to the 
 
 You can filter API logs in your Knock account using the following filters:
 
-- **Request ID**: filter for a particular log returned by the `X-Request-ID` header.
-- **Status**: filter for failed and succeeded requests.
-- **Endpoint type**: filter for requests to particular sets of endpoints.
+- **Request ID.** Filter for a particular log returned by the `X-Request-ID` header.
+- **Status.** Filter for failed and succeeded requests.
+- **Endpoint type.** Filter for requests to particular sets of endpoints.
 
 ## Log truncation
 
@@ -59,6 +47,21 @@ Knock truncates logs with long binaries, lists, maps, and strings to prevent the
   "biz": "[TRUNCATED]"
 }
 ```
+
+## Filtered values
+
+Before Knock stores an API log, it replaces the values of sensitive keys in the query parameters, request body, and response body with `[filtered]`. Knock filters some common sensitive keys, such as `password`, `api_key`, and `email`, by default. You can add your own key names as [filtered log keys](/manage-your-account/data-obfuscation#filtered-log-keys).
+
+```json title="Example of a filtered log"
+{
+  "data": {
+    "order_id": "ord_123",
+    "otp_code": "[filtered]"
+  }
+}
+```
+
+Knock filters values when it writes the log, so it can't recover them later. Logs written before you add a filtered log key keep the original value.
 
 ## Frequently asked questions
 
