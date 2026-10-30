@@ -1,0 +1,97 @@
+---
+title: How to send SMS messages with Modica
+description: Configure a Modica channel to send SMS notifications from Knock.
+section: Integrations > SMS
+layout: integrations
+---
+
+Knock integrates with <a href="https://www.modicagroup.com/" target="_blank" rel="noopener">Modica</a> to send SMS notifications to your recipients.
+
+## Features
+
+- Delivery tracking
+- Knock link tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new Modica channel in the dashboard under the <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> page in your account settings. From there, you'll need to configure the channel for each environment you have.
+
+Modica REST v2 uses HTTP Basic auth. The gateway application name is the username and the application password is the password. You can find both in the Modica platform under <a href="https://omni.modicagroup.com/gateway/api_config/restv2" target="_blank" rel="noopener">REST API v2 configuration</a>.
+
+## Channel configuration
+
+Configure the following settings per [environment](/version-control/environments). Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your dashboard account settings and select your Modica [channel](/concepts/channels). Under **Environment configurations**, click the environment you'd like to configure to expand its settings, then click "Save changes" when you're done. Expand **Advanced** for additional options, including overrides and conditions.
+
+<AccordionGroup>
+  <Accordion title="Settings" anchorSlug="configuration-settings">
+    Fields marked with an `*` are required.
+
+    <Attributes>
+      <Attribute
+        name="Application name"
+        type="string*"
+        description="The gateway application name from Modica. Knock sends this as the HTTP Basic username."
+      />
+      <Attribute
+        name="Password"
+        type="string*"
+        description="The application password from Modica."
+      />
+      <Attribute
+        name="Source"
+        type="string"
+        description="The short code or virtual number messages originate from. Leave this blank to use the source provisioned on the gateway application."
+      />
+      <Attribute
+        name="Mask"
+        type="string"
+        description="An alphanumeric source mask. It can be sent with a source. Modica ignores a mask that is not configured on the account."
+      />
+      <Attribute
+        name="Class"
+        type="string"
+        description="The application class used for routing and billing. Modica defaults this to mt_message. It must be 30 characters or fewer."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Advanced" anchorSlug="configuration-advanced">
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your Modica channel."
+      />
+      <Attribute
+        name="Link tracking"
+        type="boolean"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Overrides" anchorSlug="configuration-overrides">
+    When configured, the optional payload overrides set here will apply to all SMS notifications sent from this channel in the configured environment. Learn more about SMS channel overrides [here](/integrations/sms/settings-and-overrides#provider-json-overrides).
+
+    <Attributes>
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/sms/settings-and-overrides#provider-json-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Conditions" anchorSlug="configuration-conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Recipient data requirements
+
+In order to send an SMS notification you'll need a valid `phone_number` property set on your recipient. Modica expects the number in international format, for example `+64211234567`.
