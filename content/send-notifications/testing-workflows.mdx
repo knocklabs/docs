@@ -15,14 +15,27 @@ To use the workflow test runner, navigate to the workflow you want to test and c
 
 Two things to know about workflow test configuration:
 
-- The data field is populated using the workflow's schema as defined in your templates. You can click "Reset" at any time to reset the data field to the latest and greatest schema for your workflow.
 - The recipient and actor fields can contain either a [user](/concepts/users) or an [object](/concepts/objects). Use the toggle above the field to switch between these options.
+- The data field starts with the data your workflow's templates reference, and refreshes when those references change. Click the reset button to clear it. See [editing test data](#editing-test-data) below.
 
-After clicking "Run test," you will see a confirmation and a link to see the log to review the output and what was sent. You can learn more about Knock logs and the debugger [here](/send-notifications/debugging-workflows).
+After clicking "Run test," you'll see a confirmation with a link to review what your test ran and sent. Learn more about [debugging workflows](/send-notifications/debugging-workflows).
 
 Note that [trigger frequency](/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency) is not enforced during test runs. Settings like "once per recipient" are bypassed — each time you run a test, the workflow will execute for the selected recipient regardless of your frequency setting. To validate trigger frequency as it behaves in production, use the [trigger API](/send-notifications/triggering-workflows/api).
 
-You can also use the workflow test runner to run a test payload for a [source event trigger](/integrations/sources/overview#triggering-actions-from-source-events). If your workflow is triggered by an event, you will automatically see a JSON payload of the last received event that you can use to run a test. You can edit this payload or click "Fetch the latest event" to get the most recent from your source.
+You can also use the workflow test runner to run a test payload for a [source event trigger](/integrations/sources/overview#triggering-actions-from-source-events). If your workflow is triggered by an event, you will automatically see a JSON payload of the last received event that you can use to run a test. You can edit this payload or click "Fetch latest event" to get the most recent from your source. After the test, "View event run" opens the source event log.
+
+### Editing test data
+
+The data field has two views, which you can switch between with the "Visual" and "JSON" toggle:
+
+- **Visual.** Each top-level key in your data is its own field. If your workflow has a [trigger data schema](/designing-workflows/validating-trigger-data), the fields it defines are listed first under "Expected fields," with required fields marked with an asterisk. Any other keys appear under "Additional data." Nested objects and arrays open as collapsible sections. Click "Add field" to add a key.
+- **JSON.** The raw JSON payload, for pasting or editing data in bulk.
+
+If your workflow doesn't have a trigger data schema yet, click "Validate incoming data" to create one without leaving the test runner. The schema editor uses your current test data as the starting point when you click "Generate schema." Once a schema exists, click the edit icon next to "Expected fields" to change it. Like other workflow changes, schema changes need to be committed before they apply to API triggers.
+
+### Re-running a workflow run
+
+To reproduce a workflow run, open it in the [workflow debugger](/send-notifications/debugging-workflows#accessing-the-workflow-debugger) and click "Open in test runner" in the "Workflow trigger" section. The workflow opens in a new tab with the test runner prefilled with the run's recipient, actor, tenant, and data, which you can edit before running the test.
 
 ### Test run settings
 
