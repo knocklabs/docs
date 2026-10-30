@@ -1,21 +1,21 @@
 ---
-title: Customer data obfuscation
-description: Learn more about how to protect your customer's production data in the Knock dashboard.
+title: Data obfuscation
+description: How to hide customer data from your team in the Knock dashboard, and filter sensitive keys from the logs Knock stores.
 tags: ["privacy", "data controls", "security", "privacy controls"]
 section: Manage your account
 ---
 
-Enable customer data obfuscation at the environment level, or through custom permission groups on Enterprise plans, to determine what data your team members can see in the Knock dashboard.
+Customer data obfuscation and [filtered log keys](#filtered-log-keys) protect sensitive data at different points. Customer data obfuscation applies when your team views data in the dashboard, and leaves the underlying data in place. Filtered log keys apply when Knock writes a log, so the original value is never stored.
 
 ## Overview
 
-When you choose Knock to power your notifications, you're also choosing to trust us with your customer data and the data you pass in your notifications. This is why [security](/security) is a foundational priority for us at Knock, and it's also why we built our customer data obfuscation controls.
+When you choose Knock to power your notifications, you're also choosing to trust us with your customer data and the data you pass in your notifications. This is why [security](/developer-tools/security) is a foundational priority for us at Knock, and it's also why we built our customer data obfuscation controls.
 
 With customer data obfuscation controls, the Knock dashboard automatically hides any data that might contain either user PII or customer proprietary data. This means that the only data your team members will see in the Knock dashboard is anonymous data such as UUIDs. Customer data obfuscation is managed via our backend, so users won't be able to get at this data through their browser consoles.
 
 You can enable customer data obfuscation in two ways:
 
-- **Environment-level.** Hide customer data for every team member in a given [environment](/concepts/environments). Use this to obfuscate production data while keeping development data visible for testing and debugging.
+- **Environment-level.** Hide customer data for every team member in a given [environment](/version-control/environments). Use this to obfuscate production data while keeping development data visible for testing and debugging.
 - **Permission group.** On Enterprise plans, hide customer data for members of a [custom permission group](/manage-your-account/roles-and-permissions#custom-permission-groups), either in every environment or in specific environments.
 
 <Image
@@ -23,7 +23,7 @@ You can enable customer data obfuscation in two ways:
   alt="A preview of customer data obfuscation enabled"
   width={600}
   height={642}
-  className="rounded-md mx-auto border border-gray-200"
+  className="mx-auto"
 />
 
 ## Environment-level obfuscation
@@ -65,3 +65,67 @@ If a member belongs to more than one custom permission group, Knock hides custom
 If customer data obfuscation is enabled at the environment level, that setting applies to every member in the environment. A permission group cannot turn environment-level obfuscation off or reveal data the environment already hides.
 
 A permission group can only add obfuscation. When the environment setting is off, the group's rule determines whether members of that group see customer data in that environment.
+
+## Filtered log keys
+
+Filtered log keys are key names whose values Knock removes from its logs. When Knock writes a log, it replaces the value of any matching key with `[filtered]`, so the original value is never stored. Use them for data you pass to Knock that shouldn't persist in logs, such as one-time passcodes, password reset tokens, or credentials your workflows send to your own services.
+
+Knock filters some common sensitive keys, such as `password` and `api_key`, by default. Filtered log keys extend that list with the key names specific to your data. They apply to every environment in your account and are available on all plans.
+
+### Managing filtered log keys
+
+To add a filtered log key, go to the <a href="https://dashboard.knock.app/~/settings/security" target="_blank">**Security**</a> page under the **Admin** section of your account settings in the Knock dashboard. Under **Filtered log keys**, enter the key name and click "Add key." To stop filtering a key, click the remove icon on its tag.
+
+Account owners and admins can manage filtered log keys. Learn more in our [roles and permissions documentation](/manage-your-account/roles-and-permissions#roles-and-permissions-lookup-table).
+
+Each key name must meet these rules:
+
+- It starts with a letter and contains only letters, numbers, underscores, and hyphens.
+- It's 128 characters or fewer.
+- It isn't already in the list. Knock ignores case when it checks, so `OTP_Code` counts as a duplicate of `otp_code`.
+
+An account can have up to 50 filtered log keys.
+
+### How Knock matches keys
+
+- **The whole key, in any case.** `otp_code` matches `otp_code` and `OTP_CODE`. It doesn't match `otp_code_expires_at` or `user_otp_code`.
+- **At any depth.** Knock checks keys inside nested objects and inside objects in arrays. When a key matches, Knock replaces its entire value, including an object or an array, with `[filtered]`.
+- **Key names, not values.** Knock doesn't search values for a filtered term. A string that happens to contain `otp_code` stays as it is.
+
+```json title="Trigger data with otp_code as a filtered log key"
+// Data sent in the workflow trigger request
+{
+  "data": {
+    "order_id": "ord_123",
+    "verification": {
+      "otp_code": "482913",
+      "expires_in_minutes": 10
+    }
+  }
+}
+
+// Data as stored in the API log and workflow run log
+{
+  "data": {
+    "order_id": "ord_123",
+    "verification": {
+      "otp_code": "[filtered]",
+      "expires_in_minutes": 10
+    }
+  }
+}
+```
+
+### Logs that Knock filters
+
+- **API logs.** Knock filters the query parameters, request body, and response body of each [API log](/developer-tools/api-logs).
+- **Workflow run logs.** Knock filters the trigger data in [workflow run logs](/send-notifications/debugging-workflows#accessing-the-workflow-debugger), and the logged request and response for each [fetch function](/designing-workflows/fetch-function#debugging-fetch-functions) step.
+- **Message delivery logs.** Knock filters the headers and JSON bodies of the requests it sends to your channel providers, and of the responses it receives.
+
+Knock filters the logged copy of the data only. Your workflows, templates, and fetch function steps still receive the full values.
+
+### Limitations
+
+- **Logs written before you add a key.** Knock filters logs when it writes them, so logs written before you add a key keep the original value until they age out under your [data retention policy](/manage-your-account/data-retention). Removing a key doesn't restore values Knock has already filtered.
+- **Rendered message content.** Knock matches keys, not the text your templates produce. If a template renders a filtered key's value into an email body or SMS text, that value appears in the message content and in the delivery log of the request that sent it.
+- **Data outside of logs.** Filtered log keys don't change the data Knock stores on the records your requests create or update, such as users, objects, and [messages](/concepts/messages), or the data Knock exports through [data warehouse sync](/integrations/extensions/data-sync). Use [customer data obfuscation](#overview) to hide that data from your team in the dashboard.
