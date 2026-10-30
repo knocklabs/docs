@@ -27,6 +27,20 @@ Variables are available to be accessed under the `vars` namespace within your te
 
 You can optionally set environment-specific values for your variables. To do so, go to the **Variables** page under the **Account** section of your account settings, click the three dots for a specific variable to select "Edit variable," and set the value for the environment you wish to override.
 
+## Managing variables with the Management API
+
+You can list, get, create, update, and delete variables with the [Management API](/developer-tools/management-api). See the [Management API reference](/mapi-reference/variables) for the endpoints and their schemas.
+
+Variables are account-wide, and an environment override is a value for a root environment, such as `development` or `production`. Variables are not part of [commits](/version-control/commits), so a change takes effect right away.
+
+Deleting a variable removes it and all of its overrides. To remove a single override, specify the environment in the request.
+
+### Working with secret variables
+
+Secret values are write-only in the Management API. A response never includes the value of a secret variable, and returns a string of asterisks with the same length as the stored value instead. To rotate a secret, send the new value. To keep a secret as it is, omit it or send `null`.
+
+Knock records secret values as `[filtered]` in audit log entries.
+
 ## Variable types and JSON parsing
 
 Knock stores every variable value as text, but at send time we try to parse that text as JSON first. If the value is valid JSON, your variable takes on the resulting type. If it isn't, we fall back to using the value as a string.
