@@ -1,10 +1,10 @@
 import { dereference } from "@scalar/openapi-parser";
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import deepmerge from "deepmerge";
 import { readFile } from "fs/promises";
+import { parse } from "yaml";
+import { deepMerge } from "./deepMerge";
 import { getAtPointer } from "./jsonPointer";
 import { safeStringify } from "./safeStringify";
-import { parse } from "yaml";
 import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
 import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
 
@@ -285,7 +285,7 @@ async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
       "utf8",
     );
     const stainlessSpec = parse(spec);
-    const result = deepmerge(stainlessSpec, customizations) as StainlessConfig;
+    const result = deepMerge(stainlessSpec, customizations) as StainlessConfig;
     normalizeStainlessModels(result.resources);
     stainlessSpecCache[specName] = result;
     return result;

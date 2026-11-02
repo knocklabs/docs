@@ -289,6 +289,7 @@ components:
             - guide
             - message_type
             - partial
+            - reusable_request
             - translation
             - workflow
           example: workflow
@@ -452,6 +453,275 @@ components:
       title: PreviewEmailLayoutRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewEmailLayoutRequest
+      x-validate: null
+    AssetUploadRequest:
+      description: A request for a time-limited URL the client uses to upload an asset file.
+      example:
+        content_length: 20480
+        filename: logo.png
+        mime_type: image/png
+      properties:
+        content_length:
+          description: The file size in bytes. Maximum is 5 MB. The upload URL is signed for this length.
+          maximum: 5000000
+          minimum: 1
+          type: integer
+          x-struct: null
+          x-validate: null
+        filename:
+          description: The display name to echo back. The upload request does not store it. Send it again when creating the asset.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        mime_type:
+          description: The MIME type of the file. One of image/jpeg, image/png, or image/gif.
+          example: image/png
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - mime_type
+        - content_length
+      title: AssetUploadRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.AssetUploadRequest
+      x-validate: null
+    AuditLog:
+      description: An account audit log entry. Commit rows are returned by the commits endpoint. The entry does not include the stored change diff.
+      example:
+        action: workflow.updated
+        actor:
+          email: ada@example.com
+          id: 5c0e1a2b-3d4e-5f6a-7b8c-9d0e1f2a3b4c
+          name: Ada Lovelace
+        agent_session_id: null
+        environment: development
+        id: 8f1c0b2e-6a4d-4f1a-9c3e-1b2d3e4f5a6b
+        inserted_at: "2026-10-15T18:04:00Z"
+        ip_address: 203.0.113.10
+        location:
+          city: New York
+          country_code: US
+          region_code: NY
+        project_id: 11111111-2222-3333-4444-555555555555
+        request_id: req_01HZX
+        request_source: dashboard
+        resource:
+          id: 99999999-aaaa-bbbb-cccc-dddddddddddd
+          identifier: welcome
+          type: workflow
+      properties:
+        action:
+          description: The action that was performed, such as `workflow.updated` or `seat.removed`.
+          example: workflow.updated
+          type: string
+          x-struct: null
+          x-validate: null
+        actor:
+          description: The Knock user who performed the action.
+          example:
+            email: ada@example.com
+            id: 5c0e1a2b-3d4e-5f6a-7b8c-9d0e1f2a3b4c
+            name: Ada Lovelace
+          nullable: true
+          properties:
+            email:
+              description: The email address of the user.
+              type: string
+              x-struct: null
+              x-validate: null
+            id:
+              description: The unique identifier for the user.
+              format: uuid
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              description: The name of the user.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - id
+            - email
+          title: AuditLogActor
+          type: object
+          x-struct: null
+          x-validate: null
+        agent_session_id:
+          description: The agent session that performed the action, when the source is an agent.
+          format: uuid
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment or branch where the action happened. Null for account-level actions.
+          example: development
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for the audit log entry.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        inserted_at:
+          description: The timestamp of when the action happened.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        ip_address:
+          description: The IP address of the request that performed the action.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        location:
+          description: The location derived from the request IP address.
+          example:
+            city: New York
+            country_code: US
+            region_code: NY
+          nullable: true
+          properties:
+            city:
+              description: The city.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            country_code:
+              description: The country code.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            region_code:
+              description: The region code.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          title: AuditLogLocation
+          type: object
+          x-struct: null
+          x-validate: null
+        project_id:
+          description: The project the action belongs to. Null for account-level actions.
+          format: uuid
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        request_id:
+          description: The id of the request that performed the action.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        request_source:
+          description: Where the action originated.
+          enum:
+            - dashboard
+            - mapi
+            - agent
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        resource:
+          description: The resource the action changed. `type` and `identifier` follow the commit resource for promotable resources, including `reusable_request`. `identifier` is null when the resource has no public handle or the row no longer exists.
+          example:
+            id: 99999999-aaaa-bbbb-cccc-dddddddddddd
+            identifier: welcome
+            type: workflow
+          properties:
+            id:
+              description: The stored id of the resource. External user and object ids are not UUIDs.
+              type: string
+              x-struct: null
+              x-validate: null
+            identifier:
+              description: The public handle for the resource, such as a key, slug, email, or `locale/namespace` for a translation.
+              example: welcome
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: The type of the resource.
+              enum:
+                - account
+                - account_user
+                - api_key
+                - asset
+                - audience
+                - broadcast
+                - channel
+                - channel_group
+                - email_layout
+                - environment
+                - environment_defaults
+                - event_action_mapping
+                - external_audience
+                - goal
+                - guide
+                - guide_group
+                - invite
+                - member
+                - message_type
+                - object
+                - partial
+                - permission_group
+                - preference_category
+                - preference_center
+                - preference_center_domain
+                - reusable_request
+                - service_token
+                - signing_key
+                - source
+                - subscription
+                - tag
+                - translation
+                - user
+                - variable
+                - view
+                - webhook
+                - workflow
+                - unknown
+              example: workflow
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - id
+            - type
+          title: AuditLogResource
+          type: object
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - action
+        - actor
+        - environment
+        - project_id
+        - resource
+        - request_id
+        - request_source
+        - agent_session_id
+        - ip_address
+        - location
+        - inserted_at
+      title: AuditLog
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.AuditLog
       x-validate: null
     RecipientReference:
       description: A recipient reference, used when referencing a recipient by either their ID (for a user), or by a reference for an object.
@@ -908,6 +1178,79 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.GuideRequest
       x-validate: null
+    Webhook:
+      description: An outbound webhook that receives event notifications.
+      example:
+        active: true
+        created_at: "2021-01-01T00:00:00Z"
+        description: My webhook endpoint
+        event_types:
+          - message.sent
+          - message.delivered
+        id: 01234567-89ab-cdef-0123-456789abcdef
+        updated_at: "2021-01-01T00:00:00Z"
+        url: https://example.com/webhooks
+      properties:
+        active:
+          description: Whether the webhook is currently active.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the webhook was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the webhook.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        event_types:
+          description: The list of event types that this webhook is subscribed to, in dotted format (e.g. `message.sent`).
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for the webhook.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        secret_key:
+          description: The secret key used to sign webhook payloads. Only returned when a webhook is first created.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the webhook was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        url:
+          description: The URL that the webhook will send events to.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - url
+        - event_types
+        - active
+        - created_at
+        - updated_at
+      title: Webhook
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Webhook
+      x-validate: null
     ShowWorkflowResponse:
       description: A workflow object.
       example:
@@ -1068,6 +1411,13 @@ components:
           type: object
           x-struct: null
           x-validate: null
+        trigger_events:
+          description: 'Events that automatically trigger this workflow: audience triggers (a user enters an audience) or source event triggers (an event is received from an integration source). All entries must share the same `type`. Omit or pass an empty list for workflows triggered via the API.'
+          items:
+            $ref: '#/components/schemas/WorkflowTriggerEvents'
+          type: array
+          x-struct: null
+          x-validate: null
         trigger_frequency:
           description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`. Read more in [docs](https://docs.knock.app/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency).'
           enum:
@@ -1222,6 +1572,10 @@ components:
           required:
             - onboarding_url
           type: object
+        trigger_events:
+          - audience_action_type: member_added
+            audience_key: pro-users
+            type: audience
         trigger_frequency: every_trigger
         updated_at: "2023-02-08T22:15:19.846681Z"
         valid: true
@@ -1327,6 +1681,13 @@ components:
           additionalProperties: true
           description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
+          x-struct: null
+          x-validate: null
+        trigger_events:
+          description: 'Events that automatically trigger this workflow: audience triggers (a user enters an audience) or source event triggers (an event is received from an integration source). All entries must share the same `type`. Omit or pass an empty list for workflows triggered via the API.'
+          items:
+            $ref: '#/components/schemas/WorkflowTriggerEvents'
+          type: array
           x-struct: null
           x-validate: null
         trigger_frequency:
@@ -1443,7 +1804,7 @@ components:
           x-struct: null
           x-validate: null
         settings:
-          description: The settings for the delay step. Both fields can be set to compute a delay where `delay_for` is an offset from the `delay_until_field_path`.
+          description: The settings for the delay step. Set `delay_for` for a fixed delay, `delay_until_field_path` for a dynamic delay, both for a relative delay, or `delay_until_time_windows` to wait until a weekly schedule is open.
           properties:
             delay_for:
               anyOf:
@@ -1451,14 +1812,22 @@ components:
                 - nullable: true
                   x-struct: null
                   x-validate: null
-              description: A duration object that describes how long to wait before proceeding to the next step.
+              description: A duration object that describes how long to wait before proceeding to the next step. Must be 365 days or less.
               type: object
               x-struct: null
               x-validate: null
             delay_until_field_path:
-              description: When set will use the path to resolve the delay into a timestamp from the property referenced
+              description: When set will use the path to resolve the delay into a timestamp from the property referenced. The resolved timestamp must be 365 days or less from when the step runs.
               example: recipient.delay_until
               type: string
+              x-struct: null
+              x-validate: null
+            delay_until_time_windows:
+              description: A weekly schedule of when the delay can resume. Must include one window per day, and at least one day must be open. Cannot be combined with `delay_for` or `delay_until_field_path`.
+              items:
+                $ref: '#/components/schemas/DelayTimeWindow'
+              nullable: true
+              type: array
               x-struct: null
               x-validate: null
             workflow_version_mode:
@@ -2266,6 +2635,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventWorkflowEvent
       x-validate: null
+    ArchiveWebhookResponse:
+      description: The response from archiving a webhook.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveWebhookResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WorkflowTriggerWorkflowStep:
       description: A workflow trigger function step. Read more in the [docs](https://docs.knock.app/designing-workflows/trigger-workflow-function).
       example:
@@ -2824,7 +3210,7 @@ components:
               x-struct: null
               x-validate: null
             batch_until_field_path:
-              description: The data path to resolve the batch window. The resolved value must be an ISO-8601 timestamp.
+              description: The data path to resolve the batch window. The resolved value must be an ISO-8601 timestamp 90 days or less from when the batch opens.
               example: recipient.batch_until
               nullable: true
               type: string
@@ -3067,6 +3453,41 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowPushStep
       x-validate: null
+    PaginatedWebhookResponse:
+      description: A paginated list of Webhook. Contains a list of entries and page information.
+      example:
+        entries:
+          - active: true
+            created_at: "2021-01-01T00:00:00Z"
+            description: My webhook endpoint
+            event_types:
+              - message.sent
+              - message.delivered
+            id: 01234567-89ab-cdef-0123-456789abcdef
+            updated_at: "2021-01-01T00:00:00Z"
+            url: https://example.com/webhooks
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Webhook'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedWebhookResponse
+      type: object
+      x-struct: null
+      x-validate: null
     Tag:
       description: A named tag in a project's resource-tag catalog.
       example:
@@ -3307,6 +3728,38 @@ components:
       title: RequestTemplate
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RequestTemplate
+      x-validate: null
+    AuditLogActor:
+      description: The Knock user who performed the action.
+      example:
+        email: ada@example.com
+        id: 5c0e1a2b-3d4e-5f6a-7b8c-9d0e1f2a3b4c
+        name: Ada Lovelace
+      nullable: true
+      properties:
+        email:
+          description: The email address of the user.
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for the user.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the user.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - email
+      title: AuditLogActor
+      type: object
+      x-struct: null
       x-validate: null
     Branch:
       description: A branch object.
@@ -4554,6 +5007,10 @@ components:
                 action_url: '{{ vars.app_url }}'
                 markdown_body: Hello **{{ recipient.name }}**
               type: channel
+          trigger_events:
+            - audience_action_type: member_added
+              audience_key: pro-users
+              type: audience
       properties:
         workflow:
           $ref: '#/components/schemas/WorkflowRequest'
@@ -5024,6 +5481,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailBlocks.ButtonSetBlock.Button
       x-validate: null
+    ArchiveAssetResponse:
+      description: The response from archiving an asset.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveAssetResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WorkflowRequest:
       description: A workflow request for upserting a workflow.
       example:
@@ -5036,6 +5510,10 @@ components:
               action_url: '{{ vars.app_url }}'
               markdown_body: Hello **{{ recipient.name }}**
             type: channel
+        trigger_events:
+          - audience_action_type: member_added
+            audience_key: pro-users
+            type: audience
       properties:
         categories:
           description: A list of [categories](https://docs.knock.app/concepts/workflows#workflow-categories) that the workflow belongs to.
@@ -5106,6 +5584,13 @@ components:
           additionalProperties: true
           description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
+          x-struct: null
+          x-validate: null
+        trigger_events:
+          description: 'Events that automatically trigger this workflow: audience triggers (a user enters an audience) or source event triggers (an event is received from an integration source). All entries must share the same `type`. Omit or pass an empty list for workflows triggered via the API.'
+          items:
+            $ref: '#/components/schemas/WorkflowTriggerEvents'
+          type: array
           x-struct: null
           x-validate: null
         trigger_frequency:
@@ -5321,6 +5806,29 @@ components:
       title: CloneGoalRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.CloneGoalRequest
+      x-validate: null
+    AssetCreateRequest:
+      description: Records a library asset for a key returned by an upload request.
+      example:
+        filename: logo.png
+        key: acc_123/proj_123/018f02cd-9230-71d2-8f70-b40e5e2a4f6d.png
+      properties:
+        filename:
+          description: The display name for this asset.
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The storage key from the upload request. The file must already be uploaded.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - filename
+      title: AssetCreateRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.AssetCreateRequest
       x-validate: null
     RequestTemplateQueryParamsArray:
       description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
@@ -5708,6 +6216,28 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WrappedWebhookResponse:
+      description: Wraps the Webhook response under the `webhook` key.
+      example:
+        webhook:
+          active: true
+          created_at: "2021-01-01T00:00:00Z"
+          description: My webhook endpoint
+          event_types:
+            - message.sent
+            - message.delivered
+          id: 01234567-89ab-cdef-0123-456789abcdef
+          updated_at: "2021-01-01T00:00:00Z"
+          url: https://example.com/webhooks
+      properties:
+        webhook:
+          $ref: '#/components/schemas/Webhook'
+      required:
+        - webhook
+      title: WrappedWebhookResponse
+      type: object
+      x-struct: null
+      x-validate: null
     RunWorkflowRequest:
       description: A request to run (test) a workflow.
       example:
@@ -5750,6 +6280,13 @@ components:
             x-struct: null
             x-validate: null
           type: array
+          x-struct: null
+          x-validate: null
+        step_id:
+          description: When set, runs only this message-sending channel step. Guide steps, legacy in-app steps, and unknown ids are rejected.
+          format: uuid
+          nullable: true
+          type: string
           x-struct: null
           x-validate: null
         tenant:
@@ -6273,6 +6810,40 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceLogsResponse
       x-validate: null
+    AudienceTrigger:
+      description: An audience trigger that automatically triggers the workflow when a user enters an audience. Read more in the [docs](https://docs.knock.app/send-notifications/triggering-workflows/audiences).
+      example:
+        audience_action_type: member_added
+        audience_key: pro-users
+        type: audience
+      properties:
+        audience_action_type:
+          description: The action type that triggers the workflow.
+          enum:
+            - member_added
+          type: string
+          x-struct: null
+          x-validate: null
+        audience_key:
+          description: The unique key of the audience that triggers the workflow.
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The trigger event type.
+          enum:
+            - audience
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - audience_key
+        - audience_action_type
+      title: AudienceTrigger
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents.AudienceTrigger
+      x-validate: null
     SourceRehearseResponse:
       description: The result of a simulated source event rehearsal.
       example:
@@ -6360,6 +6931,57 @@ components:
       title: GuideBooleanActivationParams
       type: object
       x-struct: null
+      x-validate: null
+    DelayTimeWindow:
+      description: A time window for a delay step. Describes a single day and when the delay can resume on it.
+      example:
+        day: monday
+        from: 09:00
+        type: open
+        until: 17:00
+      properties:
+        day:
+          description: The day of the week.
+          enum:
+            - monday
+            - tuesday
+            - wednesday
+            - thursday
+            - friday
+            - saturday
+            - sunday
+          type: string
+          x-struct: null
+          x-validate: null
+        from:
+          description: The time the window opens. When blank, the window is open all day.
+          example: 09:00
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: Whether the delay can resume on this day. A `closed` day does not support `from` and `until`.
+          enum:
+            - open
+            - closed
+          example: open
+          type: string
+          x-struct: null
+          x-validate: null
+        until:
+          description: The time the window closes. When blank, the window is open until the end of the day.
+          example: 17:00
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - day
+        - type
+      title: DelayTimeWindow
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.DelayTimeWindow
       x-validate: null
     WrappedChannelGroupResponse:
       description: Wraps the ChannelGroup response under the `channel_group` key.
@@ -6497,6 +7119,7 @@ components:
                 - guide
                 - message_type
                 - partial
+                - reusable_request
                 - translation
                 - workflow
               example: workflow
@@ -8124,6 +8747,10 @@ components:
               required:
                 - onboarding_url
               type: object
+            trigger_events:
+              - audience_action_type: member_added
+                audience_key: pro-users
+                type: audience
             trigger_frequency: every_trigger
             updated_at: "2023-02-08T22:15:19.846681Z"
             valid: true
@@ -8214,7 +8841,7 @@ components:
           description: Settings that control how the broadcast run executes.
           properties:
             sandbox_mode:
-              description: Whether to generate messages without sending them to downstream providers.
+              description: Whether to generate messages without sending them to downstream providers. When omitted, each channel's sandbox mode setting in the environment applies. When false, messages are sent even through channels in sandbox mode.
               type: boolean
               x-struct: null
               x-validate: null
@@ -8224,6 +8851,13 @@ components:
               x-struct: null
               x-validate: null
           type: object
+          x-struct: null
+          x-validate: null
+        step_id:
+          description: When set, runs only this message-sending channel step. Guide steps, legacy in-app steps, and unknown ids are rejected.
+          format: uuid
+          nullable: true
+          type: string
           x-struct: null
           x-validate: null
         tenant:
@@ -8767,6 +9401,75 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewEmailLayoutResponse
       x-validate: null
+    AssetUpload:
+      description: A time-limited permission to upload an asset file directly to storage.
+      example:
+        content_length: 20480
+        expires_in: 300
+        filename: logo.png
+        key: acc_123/proj_123/018f02cd-9230-71d2-8f70-b40e5e2a4f6d.png
+        mime_type: image/png
+        upload_url: https://account-assets.example/acc_123/proj_123/file.png?X-Amz-Signature=sig
+      properties:
+        content_length:
+          description: The byte length the PUT must send as Content-Length.
+          type: integer
+          x-struct: null
+          x-validate: null
+        expires_in:
+          description: Seconds until the upload URL expires.
+          type: integer
+          x-struct: null
+          x-validate: null
+        filename:
+          description: The filename from the request, when one was sent.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The storage key to send when creating the asset.
+          type: string
+          x-struct: null
+          x-validate: null
+        mime_type:
+          description: The MIME type the PUT must send as Content-Type.
+          type: string
+          x-struct: null
+          x-validate: null
+        upload_url:
+          description: The URL to PUT the file bytes to. The signature covers Content-Type and Content-Length, and the PUT must send both.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - upload_url
+        - expires_in
+        - mime_type
+        - content_length
+      title: AssetUpload
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.AssetUpload
+      x-validate: null
+    WorkflowTriggerEvents:
+      description: A trigger event that can automatically trigger a workflow. Can be an audience trigger or a source event trigger.
+      discriminator:
+        mapping:
+          audience: '#/components/schemas/AudienceTrigger'
+          source_event: '#/components/schemas/SourceEventTrigger'
+        propertyName: type
+      example:
+        audience_action_type: member_added
+        audience_key: pro-users
+        type: audience
+      oneOf:
+        - $ref: '#/components/schemas/AudienceTrigger'
+        - $ref: '#/components/schemas/SourceEventTrigger'
+      title: WorkflowTriggerEvents
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents
+      x-validate: null
     MessageTypeMultiSelectField:
       description: A multi-select field used in a message type.
       example:
@@ -9105,6 +9808,83 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.GoalAttachment
       x-validate: null
+    AuditLogLocation:
+      description: The location derived from the request IP address.
+      example:
+        city: New York
+        country_code: US
+        region_code: NY
+      nullable: true
+      properties:
+        city:
+          description: The city.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        country_code:
+          description: The country code.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        region_code:
+          description: The region code.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: AuditLogLocation
+      type: object
+      x-struct: null
+      x-validate: null
+    SourceEventTrigger:
+      description: A source event trigger that triggers the workflow when an event is received from an integration source. Read more in the [docs](https://docs.knock.app/integrations/sources/overview).
+      example:
+        event_name: user.signed_up
+        event_type: track
+        integration_source_id: 123e4567-e89b-12d3-a456-426614174000
+        trigger_parameters:
+          data: '{{ event.data }}'
+          recipients: '[{{ event.userId }}]'
+        type: source_event
+      properties:
+        event_name:
+          description: The name of the event that triggers the workflow.
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event. Currently only 'track' is supported.
+          enum:
+            - track
+          type: string
+          x-struct: null
+          x-validate: null
+        integration_source_id:
+          description: The ID of the integration source that emits the event.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        trigger_parameters:
+          $ref: '#/components/schemas/TriggerParameters'
+        type:
+          description: The trigger event type.
+          enum:
+            - source_event
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - event_name
+        - integration_source_id
+        - event_type
+      title: SourceEventTrigger
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents.SourceEventTrigger
+      x-validate: null
     MemberUser:
       description: Information about a user within the Knock dashboard. Not to be confused with an external user (recipient) of a workflow.
       example:
@@ -9216,6 +9996,10 @@ components:
             required:
               - onboarding_url
             type: object
+          trigger_events:
+            - audience_action_type: member_added
+              audience_key: pro-users
+              type: audience
           trigger_frequency: every_trigger
           updated_at: "2023-02-08T22:15:19.846681Z"
           valid: true
@@ -10058,6 +10842,10 @@ components:
               required:
                 - onboarding_url
               type: object
+            trigger_events:
+              - audience_action_type: member_added
+                audience_key: pro-users
+                type: audience
             trigger_frequency: every_trigger
             updated_at: "2023-02-08T22:15:19.846681Z"
             valid: true
@@ -10217,6 +11005,53 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    PaginatedAuditLogResponse:
+      description: A paginated list of AuditLog. Contains a list of entries and page information.
+      example:
+        entries:
+          - action: workflow.updated
+            actor:
+              email: ada@example.com
+              id: 5c0e1a2b-3d4e-5f6a-7b8c-9d0e1f2a3b4c
+              name: Ada Lovelace
+            agent_session_id: null
+            environment: development
+            id: 8f1c0b2e-6a4d-4f1a-9c3e-1b2d3e4f5a6b
+            inserted_at: "2026-10-15T18:04:00Z"
+            ip_address: 203.0.113.10
+            location:
+              city: New York
+              country_code: US
+              region_code: NY
+            project_id: 11111111-2222-3333-4444-555555555555
+            request_id: req_01HZX
+            request_source: dashboard
+            resource:
+              id: 99999999-aaaa-bbbb-cccc-dddddddddddd
+              identifier: welcome
+              type: workflow
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/AuditLog'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedAuditLogResponse
+      type: object
+      x-struct: null
+      x-validate: null
     SourcesResponse:
       description: Sources connected to the project.
       example:
@@ -10275,6 +11110,77 @@ components:
       title: SourcesResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourcesResponse
+      x-validate: null
+    AuditLogResource:
+      description: The resource the action changed. `type` and `identifier` follow the commit resource for promotable resources, including `reusable_request`. `identifier` is null when the resource has no public handle or the row no longer exists.
+      example:
+        id: 99999999-aaaa-bbbb-cccc-dddddddddddd
+        identifier: welcome
+        type: workflow
+      properties:
+        id:
+          description: The stored id of the resource. External user and object ids are not UUIDs.
+          type: string
+          x-struct: null
+          x-validate: null
+        identifier:
+          description: The public handle for the resource, such as a key, slug, email, or `locale/namespace` for a translation.
+          example: welcome
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the resource.
+          enum:
+            - account
+            - account_user
+            - api_key
+            - asset
+            - audience
+            - broadcast
+            - channel
+            - channel_group
+            - email_layout
+            - environment
+            - environment_defaults
+            - event_action_mapping
+            - external_audience
+            - goal
+            - guide
+            - guide_group
+            - invite
+            - member
+            - message_type
+            - object
+            - partial
+            - permission_group
+            - preference_category
+            - preference_center
+            - preference_center_domain
+            - reusable_request
+            - service_token
+            - signing_key
+            - source
+            - subscription
+            - tag
+            - translation
+            - user
+            - variable
+            - view
+            - webhook
+            - workflow
+            - unknown
+          example: workflow
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - type
+      title: AuditLogResource
+      type: object
+      x-struct: null
       x-validate: null
     WorkflowBranchStep:
       description: A branch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/branch-function).
@@ -11048,6 +11954,48 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    TriggerParameters:
+      description: Optional parameters to customize the triggered workflow run.
+      example:
+        actor: '{{ event.actorId }}'
+        data: '{{ event.data }}'
+        recipients: '[{{ event.userId }}]'
+      nullable: true
+      properties:
+        actor:
+          description: A liquid template string that will be evaluated to determine the actor.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        cancellation_key:
+          description: A liquid template string that will be evaluated to determine the cancellation key.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        data:
+          description: A liquid template string that will be evaluated and passed as the data payload.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        recipients:
+          description: A liquid template string that will be evaluated to determine recipients.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        tenant:
+          description: A liquid template string that will be evaluated to determine the tenant.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: TriggerParameters
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerEvents.SourceEventTrigger.TriggerParameters
+      x-validate: null
     RequestTemplateHeadersString:
       description: A template string that should resolve to a JSON object representing the headers.
       example: '{{ data.request_headers }}'
@@ -11420,6 +12368,25 @@ components:
       title: StaticAudienceRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.StaticAudienceRequest
+      x-validate: null
+    WrappedWebhookRequestRequest:
+      description: Wraps the WebhookRequest request under the webhook key.
+      example:
+        webhook:
+          active: true
+          description: My webhook endpoint
+          event_types:
+            - message.sent
+            - message.delivered
+          url: https://example.com/webhooks
+      properties:
+        webhook:
+          $ref: '#/components/schemas/WebhookRequest'
+      required:
+        - webhook
+      title: WrappedWebhookRequestRequest
+      type: object
+      x-struct: null
       x-validate: null
     WorkflowSmsStep:
       description: A SMS step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
@@ -14263,6 +15230,49 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WebhookRequest:
+      description: The request body for creating or updating an outbound webhook.
+      example:
+        active: true
+        description: My webhook endpoint
+        event_types:
+          - message.sent
+          - message.delivered
+        url: https://example.com/webhooks
+      properties:
+        active:
+          description: Whether the webhook should be active.
+          nullable: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the webhook.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        event_types:
+          description: The list of event types that this webhook should be subscribed to, in dotted format (e.g. `message.sent`).
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        url:
+          description: The URL that the webhook will send events to.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - url
+        - event_types
+      title: WebhookRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WebhookRequest
+      x-validate: null
   securitySchemes:
     BearerAuth:
       bearerFormat: JWT
@@ -14287,7 +15297,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. When provided, only the variable's override for this environment is cleared. When omitted, the whole variable is deleted and the account's default environment is used for authorization.
+        - description: The environment slug. When provided, only the variable's override for this environment is cleared. When omitted, the whole variable is deleted, which requires `variables:manage` in the account's default environment and in every environment with an override.
           in: query
           name: environment
           required: false
@@ -14843,6 +15853,10 @@ paths:
                         action_url: '{{ vars.app_url }}'
                         markdown_body: Hello **{{ recipient.name }}**
                       type: channel
+                  trigger_events:
+                    - audience_action_type: member_added
+                      audience_key: pro-users
+                      type: audience
               properties:
                 workflow:
                   $ref: '#/components/schemas/WorkflowRequest'
@@ -14914,6 +15928,10 @@ paths:
                       required:
                         - onboarding_url
                       type: object
+                    trigger_events:
+                      - audience_action_type: member_added
+                        audience_key: pro-users
+                        type: audience
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -15639,6 +16657,10 @@ paths:
                         action_url: '{{ vars.app_url }}'
                         markdown_body: Hello **{{ recipient.name }}**
                       type: channel
+                  trigger_events:
+                    - audience_action_type: member_added
+                      audience_key: pro-users
+                      type: audience
               properties:
                 workflow:
                   $ref: '#/components/schemas/WorkflowRequest'
@@ -15710,6 +16732,10 @@ paths:
                       required:
                         - onboarding_url
                       type: object
+                    trigger_events:
+                      - audience_action_type: member_added
+                        audience_key: pro-users
+                        type: audience
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
@@ -16466,6 +17492,89 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/assets/{asset_id}:
+    delete:
+      callbacks: {}
+      description: Archives a library or template image asset by id. The stored file remains at its URL. Other asset types, unknown ids, and already archived assets are not found. Assets are account-wide and do not require an environment parameter.
+      operationId: archiveAsset
+      parameters:
+        - description: The id of the asset to archive.
+          in: path
+          name: asset_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving an asset.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveAssetResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive an asset
+      tags:
+        - Assets
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const asset = await client.assets.delete('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(asset.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          asset = client.assets.delete(
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(asset.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	asset, err := client.Assets.Delete(context.TODO(), "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", asset.Result)
+          }
   /v1/assets:
     get:
       callbacks: {}
@@ -16579,6 +17688,78 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+    post:
+      callbacks: {}
+      description: Records a library asset after the file has been uploaded to the key from an upload request. The asset is always a library asset. Assets are account-wide and do not require an environment parameter.
+      operationId: createAsset
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetCreateRequest'
+        description: Params
+        required: false
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+          description: Created
+      summary: Create an asset
+      tags:
+        - Assets
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const asset = await client.assets.create({
+            filename: 'logo.png',
+            key: 'acc_123/proj_123/018f02cd-9230-71d2-8f70-b40e5e2a4f6d.png',
+          });
+
+          console.log(asset.id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          asset = client.assets.create(
+              filename="logo.png",
+              key="acc_123/proj_123/018f02cd-9230-71d2-8f70-b40e5e2a4f6d.png",
+          )
+          print(asset.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	asset, err := client.Assets.New(context.TODO(), knockmapi.AssetNewParams{
+          		Filename: "logo.png",
+          		Key:      "acc_123/proj_123/018f02cd-9230-71d2-8f70-b40e5e2a4f6d.png",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", asset.ID)
           }
   /v1/broadcasts/{broadcast_key}:
     get:
@@ -17187,6 +18368,7 @@ paths:
                   - guide
                   - message_type
                   - partial
+                  - reusable_request
                   - translation
                   - workflow
                 type: string
@@ -17199,6 +18381,7 @@ paths:
                     - guide
                     - message_type
                     - partial
+                    - reusable_request
                     - translation
                     - workflow
                   type: string
@@ -21706,6 +22889,291 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/webhooks:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of outbound webhooks for a given environment.
+      operationId: listWebhooks
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter webhooks by event type in dotted format (e.g. `message.sent`).
+          in: query
+          name: event_type
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter webhooks by active status.
+          in: query
+          name: active
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Webhook. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - active: true
+                      created_at: "2021-01-01T00:00:00Z"
+                      description: My webhook endpoint
+                      event_types:
+                        - message.sent
+                        - message.delivered
+                      id: 01234567-89ab-cdef-0123-456789abcdef
+                      updated_at: "2021-01-01T00:00:00Z"
+                      url: https://example.com/webhooks
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Webhook'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List webhooks
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const webhook of client.webhooks.list()) {
+            console.log(webhook.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.webhooks.list()
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Webhooks.List(context.TODO(), knockmapi.WebhookListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
+    post:
+      callbacks: {}
+      description: |
+        Creates a new outbound webhook in the given environment. The response includes
+        the `secret_key` which is only revealed at creation time.
+      operationId: createWebhook
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the WebhookRequest request under the webhook key.
+              example:
+                webhook:
+                  active: true
+                  description: My webhook endpoint
+                  event_types:
+                    - message.sent
+                    - message.delivered
+                  url: https://example.com/webhooks
+              properties:
+                webhook:
+                  $ref: '#/components/schemas/WebhookRequest'
+              required:
+                - webhook
+              title: WrappedWebhookRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Webhook response under the `webhook` key.
+                example:
+                  webhook:
+                    active: true
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: My webhook endpoint
+                    event_types:
+                      - message.sent
+                      - message.delivered
+                    id: 01234567-89ab-cdef-0123-456789abcdef
+                    updated_at: "2021-01-01T00:00:00Z"
+                    url: https://example.com/webhooks
+                properties:
+                  webhook:
+                    $ref: '#/components/schemas/Webhook'
+                required:
+                  - webhook
+                title: WrappedWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Create a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.create({
+            webhook: {
+              event_types: ['message.sent', 'message.delivered'],
+              url: 'https://example.com/webhooks',
+            },
+          });
+
+          console.log(webhook.webhook);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.create(
+              webhook={
+                  "event_types": ["message.sent", "message.delivered"],
+                  "url": "https://example.com/webhooks",
+              },
+          )
+          print(webhook.webhook)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.New(context.TODO(), knockmapi.WebhookNewParams{
+          		Webhook: knockmapi.WebhookRequestParam{
+          			EventTypes: []string{"message.sent", "message.delivered"},
+          			URL:        "https://example.com/webhooks",
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.Webhook)
+          }
   /v1/preference_center:
     get:
       callbacks: {}
@@ -22000,6 +23468,7 @@ paths:
                   - guide
                   - message_type
                   - partial
+                  - reusable_request
                   - translation
                   - workflow
                 type: string
@@ -22012,6 +23481,7 @@ paths:
                     - guide
                     - message_type
                     - partial
+                    - reusable_request
                     - translation
                     - workflow
                   type: string
@@ -22231,6 +23701,7 @@ paths:
                   - guide
                   - message_type
                   - partial
+                  - reusable_request
                   - translation
                   - workflow
                 type: string
@@ -22243,6 +23714,7 @@ paths:
                     - guide
                     - message_type
                     - partial
+                    - reusable_request
                     - translation
                     - workflow
                   type: string
@@ -23487,6 +24959,297 @@ paths:
           	}
           	fmt.Printf("%+v\n", preferenceCategories.Entries)
           }
+  /v1/audit_logs:
+    get:
+      callbacks: {}
+      description: |
+        Returns a paginated list of audit log entries for the current account, across every environment and branch, including account-level entries that have no environment. Entries are ordered from most recent first.
+
+        The list includes user-visible changes and environment merges. Commits are returned by the commits endpoint. Entries outside the account's data retention window are omitted.
+      operationId: listAuditLogs
+      parameters:
+        - description: |
+            The environment slug. When omitted, the list is account-wide and does not use the account's default environment. When set, limits entries to that environment or branch and omits account-level entries.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter by action. Accepts one action or an array of actions, matched exactly.
+          in: query
+          name: action
+          required: false
+          schema:
+            oneOf:
+              - type: string
+                x-struct: null
+                x-validate: null
+              - items:
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+            x-struct: null
+            x-validate: null
+        - description: Filter by the id of the user who performed the action. Accepts one id or an array of ids.
+          in: query
+          name: actor_id
+          required: false
+          schema:
+            oneOf:
+              - format: uuid
+                type: string
+                x-struct: null
+                x-validate: null
+              - items:
+                  format: uuid
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+            x-struct: null
+            x-validate: null
+        - description: Filter by resource type. Accepts one type or an array of types. `channel` includes channel environment settings, and `source` includes source environment settings.
+          in: query
+          name: resource_type
+          required: false
+          schema:
+            oneOf:
+              - enum:
+                  - account
+                  - account_user
+                  - api_key
+                  - asset
+                  - audience
+                  - broadcast
+                  - channel
+                  - channel_group
+                  - email_layout
+                  - environment
+                  - environment_defaults
+                  - event_action_mapping
+                  - external_audience
+                  - goal
+                  - guide
+                  - guide_group
+                  - invite
+                  - member
+                  - message_type
+                  - object
+                  - partial
+                  - permission_group
+                  - preference_category
+                  - preference_center
+                  - preference_center_domain
+                  - reusable_request
+                  - service_token
+                  - signing_key
+                  - source
+                  - subscription
+                  - tag
+                  - translation
+                  - user
+                  - variable
+                  - view
+                  - webhook
+                  - workflow
+                type: string
+                x-struct: null
+                x-validate: null
+              - items:
+                  enum:
+                    - account
+                    - account_user
+                    - api_key
+                    - asset
+                    - audience
+                    - broadcast
+                    - channel
+                    - channel_group
+                    - email_layout
+                    - environment
+                    - environment_defaults
+                    - event_action_mapping
+                    - external_audience
+                    - goal
+                    - guide
+                    - guide_group
+                    - invite
+                    - member
+                    - message_type
+                    - object
+                    - partial
+                    - permission_group
+                    - preference_category
+                    - preference_center
+                    - preference_center_domain
+                    - reusable_request
+                    - service_token
+                    - signing_key
+                    - source
+                    - subscription
+                    - tag
+                    - translation
+                    - user
+                    - variable
+                    - view
+                    - webhook
+                    - workflow
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+            x-struct: null
+            x-validate: null
+        - description: Only return entries inserted at or after this RFC 3339 timestamp.
+          in: query
+          name: since
+          required: false
+          schema:
+            format: date-time
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Only return entries inserted at or before this RFC 3339 timestamp.
+          in: query
+          name: until
+          required: false
+          schema:
+            format: date-time
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of AuditLog. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - action: workflow.updated
+                      actor:
+                        email: ada@example.com
+                        id: 5c0e1a2b-3d4e-5f6a-7b8c-9d0e1f2a3b4c
+                        name: Ada Lovelace
+                      agent_session_id: null
+                      environment: development
+                      id: 8f1c0b2e-6a4d-4f1a-9c3e-1b2d3e4f5a6b
+                      inserted_at: "2026-10-15T18:04:00Z"
+                      ip_address: 203.0.113.10
+                      location:
+                        city: New York
+                        country_code: US
+                        region_code: NY
+                      project_id: 11111111-2222-3333-4444-555555555555
+                      request_id: req_01HZX
+                      request_source: dashboard
+                      resource:
+                        id: 99999999-aaaa-bbbb-cccc-dddddddddddd
+                        identifier: welcome
+                        type: workflow
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedAuditLogResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List audit logs
+      tags:
+        - Audit logs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const auditLogListResponse of client.auditLogs.list()) {
+            console.log(auditLogListResponse.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.audit_logs.list()
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.AuditLogs.List(context.TODO(), knockmapi.AuditLogListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -24009,6 +25772,76 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Result)
           }
+  /v1/assets/uploads:
+    post:
+      callbacks: {}
+      description: Returns a time-limited URL for uploading an asset file. PUT the file bytes to upload_url with Content-Type and Content-Length from this response, then create the asset with the returned key. This request does not store an asset. Assets are account-wide and do not require an environment parameter.
+      operationId: requestAssetUpload
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetUploadRequest'
+        description: Params
+        required: false
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetUpload'
+          description: Created
+      summary: Request an asset upload
+      tags:
+        - Assets
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.assets.uploads({ content_length: 20480, mime_type: 'image/png' });
+
+          console.log(response.content_length);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.assets.uploads(
+              content_length=20480,
+              mime_type="image/png",
+          )
+          print(response.content_length)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Assets.Uploads(context.TODO(), knockmapi.AssetUploadsParams{
+          		ContentLength: 20480,
+          		MimeType:      "image/png",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ContentLength)
+          }
   /v1/email_layouts/{email_layout_key}/validate:
     put:
       callbacks: {}
@@ -24177,6 +26010,124 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.EmailLayout)
+          }
+  /v1/reusable_requests/{reusable_request_key}/unarchive:
+    put:
+      callbacks: {}
+      description: |
+        Unarchives a reusable request by key, with every copy archived alongside it in other
+        environments.
+
+        Returns a 404 when the key isn't archived, including when an earlier or concurrent request
+        already restored it. Returns a 422 with the code `key_in_use` when a live reusable request
+        uses the key.
+      operationId: unarchiveReusableRequest
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request to unarchive.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the ReusableRequest response under the `reusable_request` key.
+                example:
+                  reusable_request:
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: Loads a user from the API.
+                    environment: development
+                    key: fetch-user
+                    name: Fetch user
+                    settings:
+                      body: null
+                      headers:
+                        - key: X-API-Key
+                          value: "1234567890"
+                      method: get
+                      query_params:
+                        - key: key
+                          value: value
+                      response_path: null
+                      signing_key: null
+                      url: https://example.com
+                    sha: abc123
+                    type: http_fetch
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  reusable_request:
+                    $ref: '#/components/schemas/ReusableRequest'
+                required:
+                  - reusable_request
+                title: WrappedReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Unarchive a reusable request
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.reusableRequests.updateUnarchive('fetch-user');
+
+          console.log(response.reusable_request);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.reusable_requests.update_unarchive(
+              reusable_request_key="fetch-user",
+          )
+          print(response.reusable_request)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ReusableRequests.UpdateUnarchive(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestUpdateUnarchiveParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ReusableRequest)
           }
   /v1/members:
     get:
@@ -25084,6 +27035,10 @@ paths:
                         required:
                           - onboarding_url
                         type: object
+                      trigger_events:
+                        - audience_action_type: member_added
+                          audience_key: pro-users
+                          type: audience
                       trigger_frequency: every_trigger
                       updated_at: "2023-02-08T22:15:19.846681Z"
                       valid: true
@@ -26701,6 +28656,347 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.APIKey)
           }
+  /v1/webhooks/{id}:
+    delete:
+      callbacks: {}
+      description: Archives an outbound webhook.
+      operationId: archiveWebhook
+      parameters:
+        - description: The ID of the webhook to archive.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving a webhook.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.delete('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(webhook.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.delete(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(webhook.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.Delete(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.WebhookDeleteParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.Result)
+          }
+    get:
+      callbacks: {}
+      description: Retrieves a single outbound webhook by its ID.
+      operationId: getWebhook
+      parameters:
+        - description: The ID of the webhook to retrieve.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+          description: OK
+      summary: Get a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(webhook.id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.retrieve(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(webhook.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.Get(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.WebhookGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.ID)
+          }
+    put:
+      callbacks: {}
+      description: Updates an existing outbound webhook.
+      operationId: updateWebhook
+      parameters:
+        - description: The ID of the webhook to update.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the WebhookRequest request under the webhook key.
+              example:
+                webhook:
+                  active: true
+                  description: My webhook endpoint
+                  event_types:
+                    - message.sent
+                    - message.delivered
+                  url: https://example.com/webhooks
+              properties:
+                webhook:
+                  $ref: '#/components/schemas/WebhookRequest'
+              required:
+                - webhook
+              title: WrappedWebhookRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Webhook response under the `webhook` key.
+                example:
+                  webhook:
+                    active: true
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: My webhook endpoint
+                    event_types:
+                      - message.sent
+                      - message.delivered
+                    id: 01234567-89ab-cdef-0123-456789abcdef
+                    updated_at: "2021-01-01T00:00:00Z"
+                    url: https://example.com/webhooks
+                properties:
+                  webhook:
+                    $ref: '#/components/schemas/Webhook'
+                required:
+                  - webhook
+                title: WrappedWebhookResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Update a webhook
+      tags:
+        - Webhooks
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const webhook = await client.webhooks.update('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+            webhook: {
+              event_types: ['message.sent', 'message.delivered'],
+              url: 'https://example.com/webhooks',
+            },
+          });
+
+          console.log(webhook.webhook);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          webhook = client.webhooks.update(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              webhook={
+                  "event_types": ["message.sent", "message.delivered"],
+                  "url": "https://example.com/webhooks",
+              },
+          )
+          print(webhook.webhook)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	webhook, err := client.Webhooks.Update(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.WebhookUpdateParams{
+          			Webhook: knockmapi.WebhookRequestParam{
+          				EventTypes: []string{"message.sent", "message.delivered"},
+          				URL:        "https://example.com/webhooks",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", webhook.Webhook)
+          }
   /v1/goals/{goal_key}/clone:
     post:
       callbacks: {}
@@ -26964,6 +29260,10 @@ paths:
                       required:
                         - onboarding_url
                       type: object
+                    trigger_events:
+                      - audience_action_type: member_added
+                        audience_key: pro-users
+                        type: audience
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true

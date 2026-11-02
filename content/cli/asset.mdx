@@ -1,0 +1,99 @@
+---
+title: Assets
+description: Commands for managing assets in the Knock CLI.
+---
+
+<Section path="/asset">
+<ContentColumn>
+
+Asset commands enable you to upload and archive [assets](/manage-your-account/managing-assets) in your Knock account from the CLI. Knock hosts the image you upload and returns a URL that you can use in your notification templates.
+
+Assets are account-wide. Asset commands do not take an environment or branch.
+
+</ContentColumn>
+</Section>
+
+<Section title="knock asset upload <file> [flags]" path="/asset/upload">
+<ContentColumn>
+
+Upload a file to your account as an asset. The command prints the asset's id, hosted URL, MIME type, and creation time.
+
+Pass a file path, or pass `-` to read the file from stdin. When you read from stdin, the `--filename` flag is required.
+
+Knock supports JPEG, PNG, and GIF images, and each file must be between 1 byte and 5,000,000 bytes. The command detects the MIME type from the file extension and the file's contents. If the two disagree, or the type cannot be detected, pass the `--mime-type` flag to choose one.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--filename"
+    type="string"
+    description="The display name for the asset. Defaults to the file's name. Required when reading from stdin."
+  />
+  <Attribute
+    name="--mime-type"
+    type="string"
+    description="Overrides the detected MIME type. One of: `image/jpeg`, `image/png`, `image/gif`."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock asset upload ./logo.png
+```
+
+```bash title="Upload with a display name"
+knock asset upload ./logo.png --filename="Company logo"
+```
+
+```bash title="Upload from stdin"
+cat ./logo.png | knock asset upload - --filename=logo.png
+```
+
+```bash title="Override the MIME type"
+knock asset upload ./logo --mime-type=image/png
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock asset archive <asset_id> [flags]" path="/asset/archive">
+<ContentColumn>
+
+Archive an asset. The asset id must be a UUID, which the `knock asset upload` command prints when it finishes.
+
+<Callout
+  type="warning"
+  title="Archiving an asset may affect your templates."
+  text="Archiving applies to the whole account. If a template references the asset's URL, the image may no longer display. Update any templates that use the asset before you archive it."
+/>
+
+Pass `--force` when you also pass `--json`.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Required when using --json. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock asset archive 0197a2b4-5c6d-7e8f-9a0b-1c2d3e4f5a6b
+```
+
+```bash title="Archive without a confirmation prompt"
+knock asset archive 0197a2b4-5c6d-7e8f-9a0b-1c2d3e4f5a6b --force
+```
+
+</ExampleColumn>
+</Section>

@@ -35,11 +35,39 @@ const Container = ({ children }) => {
   );
 };
 
-const Name = ({ children }) => (
-  <Code as="span" size="1" weight="semi-bold" variant="ghost">
-    {children}
-  </Code>
-);
+const Name = ({
+  children,
+  href,
+}: {
+  children: React.ReactNode;
+  href?: string;
+}) => {
+  if (href) {
+    // Plain navigation, unlike `Type`: content pages share a base path
+    // without sharing a page, so intercepting with `highlightResource`
+    // would swallow cross-page links like `/integrations/overview#sandbox-mode`
+    return (
+      <Text as={Link} href={href}>
+        <Code
+          as="span"
+          size="1"
+          weight="semi-bold"
+          variant="ghost"
+          color="accent"
+          style={{ textDecoration: "underline" }}
+        >
+          {children}
+        </Code>
+      </Text>
+    );
+  }
+
+  return (
+    <Code as="span" size="1" weight="semi-bold" variant="ghost">
+      {children}
+    </Code>
+  );
+};
 
 const Types = ({ children }) => (
   <Stack

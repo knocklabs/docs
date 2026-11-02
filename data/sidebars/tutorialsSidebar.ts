@@ -53,7 +53,7 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Send web push with FCM",
   },
   {
-    slug: `${baseSlug}/migrate-email-with-mcp-server`,
+    slug: `${baseSlug}/migrate-email-with-ai-agent`,
     title: "Email template migration",
   },
   {
@@ -63,5 +63,9 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   {
     slug: `${baseSlug}/guides-in-vue`,
     title: "Guides in Vue.js",
+  },
+  {
+    slug: `${baseSlug}/sending-whatsapp-messages-via-twilio`,
+    title: "WhatsApp via Twilio",
   },
 ];

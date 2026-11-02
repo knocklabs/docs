@@ -23,6 +23,7 @@ const Attribute = ({
   type,
   description,
   typeSlug,
+  nameSlug,
   isRequired,
   expandLabel,
   children,
@@ -33,7 +34,8 @@ const Attribute = ({
   return (
     <PropertyRow.Container>
       <PropertyRow.Header>
-        <PropertyRow.Name>{name}</PropertyRow.Name>
+        {/* Pass an optional `nameSlug` to link the `name` to related docs */}
+        <PropertyRow.Name href={nameSlug}>{name}</PropertyRow.Name>
         {/* Pass an optional `typeSlug` to link the `type` to its definition in the docs */}
         {type && <PropertyRow.Type href={typeSlug}>{type}</PropertyRow.Type>}
         {isRequired && <PropertyRow.Required />}

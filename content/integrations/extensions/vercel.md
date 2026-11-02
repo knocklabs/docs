@@ -6,7 +6,9 @@ tags: ["vercel", "extensions"]
 section: Integrations > Extensions
 ---
 
-You can use the Knock + Vercel integration to easily synchronize your Knock API keys to one or more Vercel projects. You'll find the Knock Vercel integration in the [Vercel marketplace](https://vercel.com/integrations/knock) for you to install.
+You can use the Knock + Vercel integration to easily synchronize your Knock API keys to one or more Vercel projects. You'll find the Knock Vercel integration in the <a href="https://vercel.com/integrations/knock" target="_blank" rel="noopener">Vercel marketplace</a> for you to install.
+
+<Callout type="warning" title="Enable environments before you install." text={<>We recommend <a href="/version-control/environments#enable-environments">enabling environments</a> before you install this integration, so that your Vercel development target maps to your Knock development environment.</>} />
 
 ## What this integration does
 
@@ -15,7 +17,7 @@ The integration will set the following environment variables against your select
 - `KNOCK_API_KEY`: Set to your Knock secret key (starts with `sk_`)
 - `KNOCK_PUBLIC_API_KEY`: Set to your Knock public key (starts with `pk_`)
 
-Your environment variables will be set with the following Vercel project target mappings. You can read more about environment variables within Vercel [in the documentation](https://vercel.com/docs/concepts/projects/environment-variables#environments).
+Your Vercel environment variables will be set with the following project target mappings. You can read more about environment variables within Vercel <a href="https://vercel.com/docs/concepts/projects/environment-variables#environments" target="_blank" rel="noopener">in their documentation</a>.
 
 | Knock environment | Vercel project target       |
 | ----------------- | --------------------------- |
@@ -38,7 +40,7 @@ Currently we offer support for:
 
 ## Installing the integration
 
-1. Click "Add integration" on the [Vercel integrations page](https://vercel.com/integrations/knock)
+1. Click "Add integration" on the <a href="https://vercel.com/integrations/knock" target="_blank" rel="noopener">Vercel integrations page</a>
 2. Select the Vercel account you want to connect with
 3. Sign into an existing Knock account, or create a new Knock account
 4. Select the Vercel projects that you wish to connect to your Knock account

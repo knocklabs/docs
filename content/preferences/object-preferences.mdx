@@ -18,3 +18,29 @@ You can set a `PreferenceSet` on an object, just as you would for a user.
   title="Get preferences for an object"
   snippet="objects.getPreferences"
 />
+
+## Managing object preferences from the client
+
+Reading and writing an object's preferences requires your secret API key by default. To let users manage an object's preferences from your client application, sign a user token on your backend that grants `preferences/read` and `preferences/write` for that object. This enables you to build a settings UI for object recipients without proxying requests through your backend, for example a page where an organization admin chooses which workflows notify the organization's Slack channel. See [scoping a token to an object](/in-app-ui/security-and-authentication#scoping-a-token-to-an-object) for the grant format.
+
+The Knock client SDKs don't include methods for object preferences, so call the [set preferences endpoint](/api-reference/objects/set_preferences) directly with your public API key, and pass the user token in the `X-Knock-User-Token` header.
+
+```js title="Set preferences for an object from the client"
+await fetch(
+  "https://api.knock.app/v1/objects/projects/project-123/preferences/default",
+  {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${process.env.KNOCK_PUBLIC_API_KEY}`,
+      "X-Knock-User-Token": currentUser.knockToken,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      workflows: {
+        "deploy-failed": true,
+        "new-comment": false,
+      },
+    }),
+  },
+);
+```

@@ -1,0 +1,103 @@
+---
+title: Knock's features
+description: Explore Knock's features for transactional, lifecycle, and in-product messaging, and how teams use them together.
+tags: ["getting started", "lifecycle", "marketing"]
+section: Getting started
+---
+
+Knock is product and customer messaging infrastructure. Engineering, product, and growth teams use one platform to send transactional messages, run lifecycle and marketing campaigns, and deliver in-product messaging. Developers integrate Knock through the [API](/api-reference), [SDKs](/developer-tools/sdks), and [CLI](/developer-tools/knock-cli). Non-technical teammates manage content, targeting, sends, and measurement in the Knock dashboard.
+
+For an introduction to the concepts behind these features, start with [What is Knock?](/getting-started/what-is-knock)
+
+## Features at a glance
+
+| What you need                                           | Knock feature                                                                                            | Common owners                       |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Event-driven transactional messages                     | [Workflows](/concepts/workflows)                                                                         | Engineering, product                |
+| Onboarding, engagement, and retention sequences         | [Workflows](/concepts/workflows) triggered by events or [audience](/concepts/audiences) entry            | Product, growth                     |
+| One-time announcements, campaigns, and newsletters      | [Broadcasts](/concepts/broadcasts)                                                                       | Marketing, growth                   |
+| User segments                                           | [Audiences](/concepts/audiences), static or dynamic                                                      | Growth, marketing, data             |
+| In-product banners, modals, paywalls, and announcements | [Guides](/concepts/guides)                                                                               | Product, growth (UI by engineering) |
+| In-app inbox and toasts                                 | [In-app feeds](/in-app-ui/feeds/overview)                                                                | Engineering                         |
+| Outcome measurement                                     | [Goals](/concepts/goals) with attribution                                                                | Growth, product                     |
+| A/B tests                                               | [Experiment function](/designing-workflows/experiment-function)                                          | Growth, product                     |
+| Engagement reporting                                    | [Analytics](/send-notifications/analytics) and [data warehouse sync](/integrations/extensions/data-sync) | Everyone                            |
+
+## Transactional messaging
+
+At the heart of Knock is the [workflow](/concepts/workflows) engine. Workflows model cross-channel messaging logic while respecting each user's preferences:
+
+- **Cross-channel orchestration.** Send to email, SMS, push, chat (Slack, Microsoft Teams, Discord, WhatsApp), and in-app from one workflow. Use [step conditions](/designing-workflows/step-conditions) to sequence delivery, for example to send an email only if the recipient hasn't seen the in-app message.
+- **Function steps.** [Batch](/designing-workflows/batch-function) activity into digests, [delay](/designing-workflows/delay-function), [throttle](/designing-workflows/throttle-function), [branch](/designing-workflows/branch-function) on data, [wait for an event](/designing-workflows/wait-for-event-function), [fetch](/designing-workflows/fetch-function) external data, or run an [agent function](/designing-workflows/ai-agent-function).
+- **Flexible triggers.** Trigger workflows from the API and SDKs, from a [source](/integrations/sources/overview) such as Segment, on a [schedule](/concepts/schedules), or when a user [enters an audience](/send-notifications/triggering-workflows/audiences).
+- **Bring your own providers.** Send through the providers you already use, such as SendGrid, Postmark, Amazon SES, Twilio, APNs, and Firebase Cloud Messaging.
+- **Preferences.** Give users a [hosted](/preferences/hosted-preference-center) or [custom](/preferences/custom-preference-center) preference center. Knock enforces their [preferences](/concepts/preferences) on every workflow run and broadcast.
+- **Multi-tenancy.** Apply per-tenant branding, translations, and preferences for B2B products with [tenants](/multi-tenancy/overview).
+
+## Lifecycle and marketing messaging
+
+Workflows and broadcasts handle lifecycle and marketing messaging alongside transactional messaging, so every message shares the same templates, preferences, and recipient data.
+
+- **Lifecycle workflows.** Build onboarding sequences, engagement campaigns, and retention flows. Start them when a user enters an audience, and use [wait for event](/designing-workflows/wait-for-event-function) and [branch](/designing-workflows/branch-function) steps to react to what users do.
+- **[Broadcasts](/concepts/broadcasts).** Send one-time messages, such as product announcements, marketing campaigns, and newsletters, from the dashboard to an [audience](/concepts/audiences), to all users, or to users from a [CSV upload](/concepts/broadcasts#targeting-users-for-a-broadcast). A broadcast can include [several steps](/concepts/broadcasts#creating-and-managing-broadcast-content), for example an in-app message, a [delay](/designing-workflows/delay-function), and an email follow-up for users who didn't engage. [Schedule a send](/concepts/broadcasts#scheduling-broadcasts) for later, [personalize by tenant](/concepts/audiences#audiences-and-tenants), and run [experiments](/designing-workflows/experiment-function) inside the broadcast.
+- **[Audiences](/concepts/audiences).** Sync [static audiences](/concepts/audiences#static-audiences) from a reverse ETL tool such as [Hightouch](/integrations/sources/hightouch) or [Census](/integrations/sources/census), or populate them from a CSV upload, the [API](/api-reference/audiences), or the dashboard. Define [dynamic audiences](/concepts/audiences#dynamic-audiences) with [query rules](/concepts/conditions) on user properties, and Knock updates their membership in real time. [Workflows](/send-notifications/triggering-workflows/audiences), broadcasts, and [guides](/in-app-ui/guides/create-guides#targeting) share the same audiences.
+- **Personalize templates.** Edit messages in the drag-and-drop [template editor](/template-editor/overview) with Liquid, [partials](/template-editor/partials/overview), branding, and [translations](/template-editor/translations), and ship copy changes without a code change.
+- **Compliance.** [Commercial unsubscribe](/preferences/commercial-unsubscribe) adds a one-click unsubscribe header and link to marketing email to support CAN-SPAM compliance.
+
+## In-product messaging
+
+- **[Guides](/concepts/guides).** Power in-app [banners](/in-app-ui/react/banner), [modals](/in-app-ui/react/modal), paywalls, announcements, and onboarding flows with [your own components](/in-app-ui/guides/render-guides) and design system. Engineering builds the UI once, and content teams manage copy, [targeting](/in-app-ui/guides/create-guides#targeting), and [activation rules](/in-app-ui/guides/create-guides#activation) in the dashboard. Guides react to [runtime data](/in-app-ui/guides/create-guides#personalization-with-runtime-data), so a guide appears only when it's relevant to what the user is doing.
+- **In-app feeds and toasts.** Drop in pre-built [feed](/in-app-ui/feeds/overview) and [toast](/in-app-ui/react/toasts) components with real-time delivery, accurate badge counts, and mark-as-read, or build your own UI with the SDKs and API.
+
+## Measurement and optimization
+
+- **[Analytics](/send-notifications/analytics).** The **Analytics** page shows message volume, delivery, and engagement across workflows, guides, and channels. Each workflow and broadcast has its own **Analytics** tab with [per-step metrics](/send-notifications/analytics#workflow-analytics), and each guide reports [audience, seen, interacted, and archived counts](/in-app-ui/guides/analytics-and-observability).
+- **[Goals with attribution](/concepts/goals).** Define a business outcome, such as "Customer activated", that completes on an [integration source](/integrations/sources/overview) event (from [Segment](/integrations/sources/segment), [Stripe](/integrations/sources/stripe), or [PostHog](/integrations/sources/posthog), for example) or when a user enters or leaves a [dynamic audience](/concepts/audiences#dynamic-audiences). [Attach the goal](/concepts/goals#attaching-a-goal-to-messaging) to a workflow, broadcast, or guide, and Knock credits each completion to the most recent message within an [attribution window](/concepts/goals#attribution-window) you set (1 to 30 days, 7 by default).
+- **[Experiments](/designing-workflows/experiment-function).** Add an experiment step to a workflow or broadcast to split recipients into percentage-based cohorts for [A/B](/designing-workflows/experiment-function#ab-testing) and [holdout testing](/designing-workflows/experiment-function#holdout-testing). Within a step, the same [cohort key](/designing-workflows/experiment-function#selecting-a-cohort-key) always lands in the same cohort, so recipients get consistent messaging across runs.
+- **Data streaming.** Send message and engagement data to your [data warehouse](/integrations/extensions/data-sync), CDP and analytics tools ([Segment](/integrations/extensions/segment), [Heap](/integrations/extensions/heap)), observability tools ([Datadog](/integrations/extensions/datadog), [New Relic](/integrations/extensions/new-relic)), and [outbound webhooks](/developer-tools/outbound-webhooks/overview). See [extensions](/integrations/extensions/overview) for the full list.
+
+## Team operations and governance
+
+Knock is designed with the needs of teams of all sizes in mind. Logically separated [environments](/version-control/environments), [branches](/version-control/branches), [version control](/version-control/commits), and a full [audit log](/manage-your-account/audit-logs) help you introduce new messaging and manage existing messaging safely. [Roles and permissions](/manage-your-account/roles-and-permissions) control who can edit and send, and Enterprise plans add [SAML SSO](/manage-your-account/saml-sso) and [directory sync (SCIM)](/manage-your-account/directory-sync).
+
+Knock logs every message, including who received it, why, and how they engaged (opens, clicks, reads), for your account's [data retention period](/manage-your-account/data-retention).
+
+## Knock AI
+
+Knock works with the AI tools your team already uses. The [Knock agent](/ai/agent) builds and inspects messaging from the dashboard, and the [Knock MCP server](/ai/mcp-server), [CLI](/ai/cli), and plugins for Claude, ChatGPT, Cursor, and Grok Bot connect Knock to your IDE and AI clients. See the [Knock AI overview](/ai/overview) to choose between them.
+
+## Security and privacy
+
+Knock is built to keep your user and message data safe. Learn more about [our security practices](/developer-tools/security).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Is Knock only for transactional notifications?"
+    anchorSlug="faq-transactional-only"
+  >
+    No. Knock covers transactional messaging, lifecycle and marketing campaigns
+    through [workflows](/concepts/workflows) and
+    [broadcasts](/concepts/broadcasts), and in-product messaging through
+    [guides](/concepts/guides), all on one platform.
+  </Accordion>
+  <Accordion
+    title="Can marketing and growth teams use Knock without engineering?"
+    anchorSlug="faq-use-without-engineering"
+  >
+    Yes, once Knock is set up. Marketing and growth teams can build audiences,
+    edit templates, send and schedule broadcasts, manage guide content and
+    targeting, and track goals in the dashboard. The initial integration needs
+    engineering.
+  </Accordion>
+  <Accordion
+    title="How do I measure whether a campaign worked?"
+    anchorSlug="faq-measure-campaign-results"
+  >
+    Use [analytics](/send-notifications/analytics) for delivery and engagement,
+    attach a [goal](/concepts/goals) to measure the business outcome the message
+    drove, and add an [experiment
+    step](/designing-workflows/experiment-function) to compare variants.
+  </Accordion>
+</AccordionGroup>

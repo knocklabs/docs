@@ -26,8 +26,8 @@ Here's an overview of the built-in roles available to Knock account members:
 
 - **Owner.** For your primary admin who manages billing. This role can invite and manage members, manage billing, and do anything available in the admin role. Your account must always have at least one account owner.
 - **Admin.** For admins who need to manage account-level settings. This role can invite and manage members (excluding owner and billing roles), manage account branding, manage environments and channels, and manage advanced developer concepts such as signing keys, enhanced security mode, variables, and webhooks. This role has all permissions available to the member role.
-- **Member.** For users who are editing notification workflows and templates in Knock. This role can manage workflows, guides, broadcasts, and other content, as well as users, objects, and tenants. It can commit and promote changes to subsequent environments, and has full access to message and API logs for debugging.
-- **Production-only member.** Available when production write access is enabled in your account settings. For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only has access to the production environment.
+- **Member.** For users who are editing notification workflows and templates in Knock. This role can manage workflows, guides, broadcasts, and other content, as well as users, objects, and tenants. It can commit changes and has full access to message and API logs for debugging. If you've enabled [environments](/version-control/environments), it can also promote changes to subsequent environments.
+- **Production-only member.** For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only has access to the production environment. Until you enable [environments](/version-control/environments), these roles have the same level of access.
 - **Support.** For users who should be able to view workflows and content and dig into message and API logs for debugging, but shouldn't be able to make changes.
 - **Billing.** For account members who shouldn't have access to anything in Knock but billing.
 
@@ -92,14 +92,14 @@ If customer data obfuscation has been enabled at the environment level, that set
 
 ### Assigning permission groups
 
-You assign custom permission groups when you [invite a member](/manage-your-account/managing-members) or change their role. You can also add members from a permission group's detail page, or assign groups through [directory sync](/manage-your-account/directory-sync#custom-permission-groups).
+You assign custom permission groups when you [invite a member](/manage-your-account/managing-members) or change their role. You can also add members from a permission group's detail page, assign groups through [directory sync](/manage-your-account/directory-sync#custom-permission-groups), or set a permission group as the [auto-join default role](/manage-your-account/managing-members#setting-a-default-role).
 
 - Choose either a built-in role **or** one or more custom permission groups. You cannot combine a built-in role with custom groups on the same member.
 - When you assign custom groups, the member's role becomes **Custom**. Their effective permissions are the union of every assigned group.
 - An environment is accessible to a custom member if any of their assigned groups grants access to it.
 - When [directory sync](/manage-your-account/directory-sync) is enabled, Knock uses your identity provider as the source of truth for synced users. If a synced user belongs to any group that maps to a live custom permission group, that custom assignment replaces their built-in role, including owner and admin.
 
-Archiving a custom permission group removes its grants from any members who had it assigned. If that was their only group, they keep the Custom role and have no permissions until you assign another group or a built-in role. Knock does not fall back to the support role.
+Archiving a custom permission group removes its grants from any members who had it assigned. If that was their only group, they keep the Custom role and have no permissions until you assign another group or a built-in role. Knock does not fall back to the support role. You can't archive a group that's set as the auto-join default role. Change the auto-join default first.
 
 For directory-synced users, Knock recomputes the assignment when you archive a mapped group. Those users fall back to their highest-privilege mapped built-in role, or to support if none is mapped.
 
@@ -280,6 +280,14 @@ For directory-synced users, Knock recomputes the assignment when you archive a m
 
 <Callout
   type="info"
-  title="Production-only member environment access."
-  text="The Production-only member role can only access the production environment."
+  title="Production-only members can't access other environments."
+  text={
+    <>
+      Once you've enabled{" "}
+      <a href="/version-control/environments">environments</a>, the
+      Production-only member role can only access the production environment.
+      Assign it to team members who should stay limited to production as you add
+      environments.
+    </>
+  }
 />

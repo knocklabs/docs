@@ -5,6 +5,20 @@ tags: ["version control", "branches", "environments", "commits"]
 section: Version control
 ---
 
+<Callout
+  type="info"
+  title="Branches require environments."
+  text={
+    <>
+      Branches are created from your development environment, so you need to{" "}
+      <a href="/version-control/environments#enable-environments">
+        enable environments
+      </a>{" "}
+      before you can use them.
+    </>
+  }
+/>
+
 ## What are branches in Knock?
 
 Branches in Knock are a way to isolate changes to your Knock resources, like workflows, layouts, and guides. They're like sandboxes for your changes, allowing you to make changes to your versionable resources without affecting the `main` branch (your `development` environment), or other branches in your account.
@@ -124,6 +138,12 @@ You can view the changes made to a branch in the Knock dashboard by going to the
 
 When you're ready to merge the changes from a branch into the main branch, you can click the "Merge all changes" button to merge all commits from the branch into the main branch, or you can merge individual commits from the branch into the main branch.
 
+### Reacting to merges
+
+Merging a branch is a promote from the branch into its parent environment. Knock sends a [`commits.promoted`](/developer-tools/outbound-webhooks/event-types#commitspromoted) webhook event with the `source` field set to the branch's slug and `source_type` set to `branch`, and returns the same `promote_group_id` from the merge in the API, so you can trace the commits the merge created.
+
+Knock also sends [`branch.created`](/developer-tools/outbound-webhooks/event-types#branchcreated), [`branch.deleted`](/developer-tools/outbound-webhooks/event-types#branchdeleted), and [`branch.rebased`](/developer-tools/outbound-webhooks/event-types#branchrebased) events as the branch changes. Branch events go to webhooks in the branch's parent environment, which is `development` for most accounts.
+
 ## Delete a branch
 
 Once a branch is merged into the main branch, you may wish to delete the branch from your account. Deleting a branch is a permanent operation and cannot be undone. Doing so will delete all of the resources in the branch, including all commits and changes made to your resources on the branch that have not been merged into `main`.
@@ -214,7 +234,7 @@ There are a few limitations to branches in Knock:
 - [Goals](/concepts/goals) cannot be created, updated, or attached on a branch.
 - Branches are not supported for [broadcasts](/concepts/broadcasts).
 - Branches are not supported for [sources](/integrations/sources/overview).
-- Branches are not supported for [webhooks](/integrations/webhooks/overview).
+- Branches are not supported for [webhooks](/integrations/webhook/overview).
 
 ## Frequently asked questions
 

@@ -4,7 +4,11 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import yaml from "yaml";
-import { SidebarContent, type SidebarSection } from "../data/types";
+import {
+  SidebarContent,
+  type SidebarPage,
+  type SidebarSection,
+} from "../data/types";
 
 import { TUTORIALS_SIDEBAR } from "../data/sidebars/tutorialsSidebar";
 import { DEVELOPER_TOOLS_SIDEBAR_CONTENT } from "../data/sidebars/developerToolsSidebar";
@@ -60,6 +64,13 @@ async function getApiSidebar() {
   );
   return apiSidebarContent;
 }
+
+// Published pages that stay out of the sidebar. The markdown export and
+// llms.txt index are built from sidebar entries, so these pages are listed
+// here to keep "Copy for LLM" working without a navigation item.
+const UNLISTED_LLM_PAGES: Record<string, SidebarPage[]> = {
+  "/getting-started": [{ slug: "/knocks-features", title: "Knock's features" }],
+};
 
 // This function will rename the Sidebar sections
 function processSdkSidebar(sidebar: SidebarSection[], name: string) {
@@ -281,6 +292,18 @@ async function processNestedSection(
     0,
     hrefOverride,
   );
+
+  const unlistedPages = UNLISTED_LLM_PAGES[section.slug];
+  if (unlistedPages) {
+    await processPages(
+      unlistedPages,
+      section.slug,
+      indexContent,
+      fullContent,
+      0,
+      hrefOverride,
+    );
+  }
 
   // Add spacing between sections
   indexContent.push("");

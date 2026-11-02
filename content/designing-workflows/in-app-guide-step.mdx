@@ -63,23 +63,24 @@ To receive the rendered guide in your application, eligible audience members mus
 ## Promoting the guide with the workflow
 
 The in-app guide step references a [guide](/in-app-ui/guides/create-guides) by
-key. That guide must already exist in the destination
-[environment](/version-control/environments). If you
-[promote](/version-control/commits#promoting-commits) the workflow or
-broadcast first, the `guide_key` cannot resolve and the step is invalid there.
+key, and that guide must be committed in the same environment as the workflow
+or broadcast. Publish the guide first so the dependency exists before Knock
+evaluates the step:
 
-Promote the guide first so the dependency exists before Knock evaluates the
-workflow:
+1. Create and configure the guide, then [publish](/version-control/commits) it.
+2. Add the in-app guide step to your workflow and publish the workflow, or add
+   the step to your broadcast.
+3. Update the guide's [audience targeting](/in-app-ui/guides/create-guides#targeting)
+   if needed. To only target recipients through the step, leave the guide's
+   audience empty, then publish the guide again.
 
-1. Create and configure the guide in your development environment, then
-   [commit](/version-control/commits) and promote it.
-2. Create or update the workflow or broadcast with the in-app guide step,
-   commit it, and promote it to the same environment.
-3. After the workflow or broadcast is promoted, update the guide's
-   [audience targeting](/in-app-ui/guides/create-guides#targeting) if needed.
-   To only target recipients through the step, leave the guide's audience
-   empty, then commit and promote the guide again.
-4. Repeat this order for each environment on the way to production.
+If you've enabled [environments](/version-control/environments), follow the same
+order when you [promote](/version-control/commits#promoting-commits) to each
+environment on the way to production: commit and promote the guide, then the
+workflow, then any guide targeting changes. If you promote the workflow first,
+the `guide_key` can't resolve and the step is invalid in the destination
+environment. [Broadcasts](/concepts/broadcasts) aren't promoted, so create them
+in an environment where the guide already exists.
 
 ## Guide targeting and the managed audience
 

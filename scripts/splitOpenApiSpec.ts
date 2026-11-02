@@ -7,12 +7,12 @@
 
 import { dereference } from "@scalar/openapi-parser";
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import deepmerge from "deepmerge";
 import { readFile, writeFile, mkdir } from "fs/promises";
+import { parse } from "yaml";
+import { deepMerge } from "../lib/deepMerge";
 import { getAtPointer } from "../lib/jsonPointer";
 import { normalizeStainlessModels } from "../lib/openApiSpec";
 import { safeStringify } from "../lib/safeStringify";
-import { parse } from "yaml";
 
 // ============================================================================
 // Types
@@ -99,7 +99,7 @@ async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
   const customizations = await readSpecCustomizations(specName);
   const spec = await readFile(`./data/specs/${specName}/stainless.yml`, "utf8");
   const stainlessSpec = parse(spec);
-  const merged = deepmerge(stainlessSpec, customizations) as StainlessConfig;
+  const merged = deepMerge(stainlessSpec, customizations) as StainlessConfig;
   normalizeStainlessModels(merged.resources);
   return merged;
 }
