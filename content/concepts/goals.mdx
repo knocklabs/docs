@@ -105,13 +105,13 @@ Goals are not promotable between environments. To use the same goal definition e
 
 ### Attaching a goal to messaging
 
-To attach a goal to a messaging resource, open a workflow, broadcast, or guide in the dashboard. On the **Overview** tab, select your goal, set an attribution window, then commit or publish the resource.
+To attach a goal to a messaging resource, open a workflow, broadcast, or guide in the dashboard. On the **Overview** tab, select your goal and set an attribution window. You can also attach resources from the goal's page.
 
-The attached goal lives on the messaging resource's version. Attaching, detaching, or changing the attribution window creates a new version of that workflow, broadcast, or guide, and follows that resource's commit model.
+Goal attachments aren't versioned. An attachment goes live when you save it, without a commit. Attachments belong to an environment and aren't promoted, so attach the goal in each environment where you want to measure it.
 
-If your attached resource follows the commit-and-promote model, be sure to clone the goal into the destination environment(s) with the **same key** before you promote the messaging resource. The goal's key must be consistent across environments to attribute completions to the correct goal.
+A workflow or guide can take a goal once it has been committed in the environment. A broadcast can take a goal until it's sent. Changing an attachment requires permission to manage goals in that environment, but not permission to edit the resource itself.
 
-While there is no limit to the number of resources that can be attached to a single goal, each messaging resource can have at most one attached goal.
+While there is no limit to the number of resources that can be attached to a single goal, each messaging resource can have at most one attached goal. Attaching a different goal replaces the one already attached. Archiving a workflow, broadcast, or guide removes its attachment.
 
 ### Archiving a goal
 
@@ -128,13 +128,21 @@ Open a goal on the <a href="https://dashboard.knock.app/~/goals" target="_blank"
 
 ## Goals and the Knock agent
 
-The [Knock agent](/ai/agent) can propose, create, update, and reuse goals when building or improving messaging. It can also attach a goal to a workflow, broadcast, or guide. The agent cannot archive or clone a goal. Goal context helps the agent reason about what your messaging is trying to accomplish so that it can help you make improvements.
+The [Knock agent](/ai/agent) can propose, create, update, and reuse goals when building or improving messaging. It can also attach a goal to a workflow, broadcast, or guide, and those changes go live without a commit, as they do in the dashboard. The agent cannot archive or clone a goal. Goal context helps the agent reason about what your messaging is trying to accomplish so that it can help you make improvements.
 
 ## Managing goals programmatically
 
-You can create, update, clone, and archive goals with the [Management API](/mapi-reference/goals) or the [Knock CLI](/cli/goal). Attach a goal by setting `goal_attachment` on the workflow, broadcast, or guide.
+You can create, update, clone, and archive goals with the [Management API](/mapi-reference/goals) or the [Knock CLI](/cli/goal).
 
-Goal upserts publish on save. Unlike workflows and guides, the goals upsert endpoint does not accept a commit parameter, and `knock goal push` publishes the goal in the target environment. Attached goals are stored on the associated workflow, broadcast, or guide as a `goal_attachment`.
+Goal upserts publish on save. Unlike workflows and guides, the goals upsert endpoint does not accept a commit parameter, and `knock goal push` publishes the goal in the target environment.
+
+To attach and detach goals, use the Management API's goal attachment endpoints. Like the dashboard, they take effect without a commit:
+
+- `GET /v1/goals/{goal_key}/attachments` lists the resources a goal is attached to in an environment.
+- `PUT /v1/goals/{goal_key}/attachments/{resource_type}/{resource_key}` attaches the goal to a `workflow`, `guide`, or `broadcast`, or updates its attribution window. Use a broadcast's own key as its `resource_key`.
+- `DELETE /v1/goals/{goal_key}/attachments/{resource_type}/{resource_key}` detaches the goal. It returns a 404 if that goal isn't attached to the resource.
+
+The `goal_attachment` field on workflows, broadcasts, and guides is deprecated. Knock rejects a save that sets it and leaves it out of responses.
 
 ## Limitations
 
