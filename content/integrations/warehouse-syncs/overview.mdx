@@ -1,8 +1,8 @@
 ---
 title: Warehouse syncs
-description: Sync users, tenants, objects, audience members, and subscriptions into Knock from your Redshift or Snowflake warehouse on a schedule.
+description: Sync users, tenants, objects, audience members, and subscriptions into Knock from Redshift, Snowflake, PostgreSQL, or BigQuery on a schedule.
 metaTitle: Warehouse syncs overview
-metaDescription: Connect Amazon Redshift or Snowflake to Knock as a source and keep users, tenants, objects, audience members, and subscriptions in sync from a table or SQL query.
+metaDescription: Connect Amazon Redshift, Snowflake, PostgreSQL, or Google BigQuery to Knock as a source and keep users, tenants, objects, audience members, and subscriptions in sync from a table or SQL query.
 section: Integrations > Warehouse syncs
 layout: integrations
 ---
@@ -28,19 +28,24 @@ Warehouse syncs bring data from your warehouse into Knock. To send Knock's notif
 
 Setting up a sync takes two steps:
 
-1. **Connect a warehouse.** A warehouse is a [source](/integrations/sources/overview) that connects to one database in Amazon Redshift or Snowflake. You add it once from **Platform** > **Sources**, and every environment in your account can sync from it. See [connecting a warehouse](/integrations/warehouse-syncs/connecting-a-warehouse).
+1. **Connect a warehouse.** A warehouse is a [source](/integrations/sources/overview) that connects to one database in Amazon Redshift, Snowflake, PostgreSQL, or Google BigQuery. You add it once from **Platform** > **Sources**, and every environment in your account can sync from it. See [connecting a warehouse](/integrations/warehouse-syncs/connecting-a-warehouse).
 2. **Create a sync.** A sync belongs to one environment. It names the table or SQL query to read, the column that identifies each row, how columns map to Knock fields, and how often to run. See [creating a sync](/integrations/warehouse-syncs/creating-a-sync).
 
-Once a sync is published, Knock reads the source on its schedule, finds the rows that changed since the last run, and applies them in Knock. Each run is listed on the sync's **Runs** tab with how many rows were read, applied, and rejected. See [managing syncs](/integrations/warehouse-syncs/managing-syncs).
+Once a sync is published, it runs once right away and then on its schedule. Each run reads the source, finds the rows that changed since the last run, and applies them in Knock. Each run is listed on the sync's **Runs** tab with how many rows were read, applied, and failed. See [managing syncs](/integrations/warehouse-syncs/managing-syncs).
 
 ## Supported warehouses
 
-| Warehouse       | Authentication                                                       |
-| --------------- | -------------------------------------------------------------------- |
-| Amazon Redshift | An IAM role Knock assumes, optionally through an SSH tunnel          |
-| Snowflake       | Key-pair authentication with a key Knock generates or one you supply |
+| Warehouse       | Authentication                                                         |
+| --------------- | ---------------------------------------------------------------------- |
+| Amazon Redshift | An IAM role Knock assumes, optionally through an SSH tunnel            |
+| Snowflake       | Key-pair authentication with a key Knock generates or one you supply   |
+| PostgreSQL      | A database user and password, optionally through an SSH tunnel         |
+| Google BigQuery | A service account in your Google Cloud project that Knock impersonates |
+| Databricks      | Coming soon                                                            |
 
-Knock never stores a database password for either warehouse.
+Redshift, Snowflake, and BigQuery connections don't use a database password. For PostgreSQL, Knock never shows the password again after you save it.
+
+{/* PENDING: BigQuery ships with control#12701 and control#12857. Remove its row if they don't merge before this publishes. Databricks waits on our vendor, expected the week of Nov 9; confirm "Coming soon" vs beta with Meryl. */}
 
 ## What you can sync
 
@@ -72,10 +77,10 @@ Syncs aren't part of the commit and promote flow. You create and edit a sync dir
 
 ## Permissions
 
-| Action                                              | Built-in roles                | Custom permission group capability |
-| --------------------------------------------------- | ----------------------------- | ---------------------------------- |
-| Add, edit, and test warehouse connections           | Owner, Admin                  | Integrations: manage               |
-| View warehouses and syncs                           | Owner, Admin, Member, Support | Recipient data: view               |
-| Create, edit, publish, run, pause, and revert syncs | Owner, Admin, Member          | Recipient data: manage             |
+| Action                                              | Built-in roles       | Custom permission group capability |
+| --------------------------------------------------- | -------------------- | ---------------------------------- |
+| Add, edit, and test warehouse connections           | Owner, Admin         | Integrations: manage               |
+| View warehouses and syncs                           | Owner, Admin, Member | Recipient data: view               |
+| Create, edit, publish, run, pause, and revert syncs | Owner, Admin, Member | Recipient data: manage             |
 
-Recipient data is an environment capability, so a custom permission group can manage syncs in Development but only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions).
+Warehouses live on the **Sources** page, so a custom permission group also needs Integrations: view to open them. Recipient data is an environment capability, so a custom permission group can manage syncs in Development but only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions).
