@@ -211,6 +211,29 @@ function buildSidebarPages(
   return pages;
 }
 
+function generateCurlRequestExample({
+  baseUrl,
+  methodType,
+  endpoint,
+  body,
+}: {
+  baseUrl: string;
+  methodType: string;
+  endpoint: string;
+  body?: unknown;
+}) {
+  const maybeBodyString = body ? `-d '${JSON.stringify(body)}'` : "";
+
+  return [
+    `curl -X ${methodType.toUpperCase()} ${baseUrl}${endpoint} \\`,
+    `-H "Content-Type: application/json" \\`,
+    `-H "Authorization: Bearer sk_test_12345" \\`,
+    maybeBodyString,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 function augmentSnippetsWithCurlRequest(
   snippets: Record<string, string>,
   {
@@ -225,15 +248,13 @@ function augmentSnippetsWithCurlRequest(
     body?: Record<string, unknown>;
   },
 ) {
-  const maybeBodyString = body ? `-d '${JSON.stringify(body)}'` : "";
-
   return {
-    curl: `
-    curl -X ${methodType.toUpperCase()} ${baseUrl}${endpoint} \\
-    -H "Content-Type: application/json" \\
-    -H "Authorization: Bearer sk_test_12345" \\
-    ${maybeBodyString}
-    `,
+    curl: generateCurlRequestExample({
+      baseUrl,
+      methodType,
+      endpoint,
+      body,
+    }),
     ...snippets,
   };
 }
@@ -243,6 +264,7 @@ export {
   buildSchemaReferences,
   buildSidebarPages,
   formatResponseStatusCodes,
+  generateCurlRequestExample,
   getSidebarContent,
   resolveEndpointFromMethod,
   resolveResponseSchemas,
