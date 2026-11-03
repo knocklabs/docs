@@ -38,10 +38,18 @@ export function useChatStream(): UseChatStreamReturn {
     setError,
     clearMessages: contextClearMessages,
     currentChatId,
+    chatSessions,
     createNewSession,
     generateSessionTitle,
     registerBeforeSessionChange,
   } = useAskAi();
+
+  // Helper to get current session title
+  const getCurrentSessionTitle = (): string | undefined => {
+    if (!currentChatId) return undefined;
+    const session = chatSessions.find((s) => s.id === currentChatId);
+    return session?.title;
+  };
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -185,11 +193,15 @@ export function useChatStream(): UseChatStreamReturn {
       // A session is "new" if it was just created OR if it has no messages yet
       const isNewSession = wasNewSession || isFirstMessage;
 
+      // For new sessions, title is always "New chat"; for existing sessions, get current title
+      const sessionName = wasNewSession ? "New chat" : getCurrentSessionTitle();
+
       posthog.track("ask-ai-message-sent-client", {
         message_length: content.trim().length,
         is_first_message: isFirstMessage,
         is_new_session: isNewSession,
         conversation_length: messages.length,
+        session_name: sessionName,
       });
 
       // Add user message immediately
@@ -368,6 +380,7 @@ export function useChatStream(): UseChatStreamReturn {
     posthog.track("ask-ai-stream-stopped-client", {
       content_length: contentBufferRef.current.length,
       displayed_length: displayedLengthRef.current,
+      session_name: getCurrentSessionTitle(),
     });
 
     // Mark that user manually stopped the stream

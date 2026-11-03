@@ -235,40 +235,55 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     return sessionId;
   }, []);
 
+  // Helper to get current session title
+  const getCurrentSessionTitle = useCallback((): string | undefined => {
+    if (!currentChatId) return undefined;
+    const session = chatSessions.find((s) => s.id === currentChatId);
+    return session?.title;
+  }, [chatSessions, currentChatId]);
+
   const openSidebar = useCallback(() => {
     posthog.track("ask-ai-sidebar-opened-client", {
       source: "button",
+      session_name: getCurrentSessionTitle(),
     });
     setIsOpen(true);
-  }, []);
+  }, [getCurrentSessionTitle]);
 
   const closeSidebar = useCallback(() => {
-    posthog.track("ask-ai-sidebar-closed-client");
+    posthog.track("ask-ai-sidebar-closed-client", {
+      session_name: getCurrentSessionTitle(),
+    });
     setIsOpen(false);
-  }, []);
+  }, [getCurrentSessionTitle]);
 
   const toggleSidebar = useCallback(() => {
+    const sessionName = getCurrentSessionTitle();
     setIsOpen((prev) => {
       if (!prev) {
         posthog.track("ask-ai-sidebar-opened-client", {
           source: "button",
+          session_name: sessionName,
         });
       } else {
-        posthog.track("ask-ai-sidebar-closed-client");
+        posthog.track("ask-ai-sidebar-closed-client", {
+          session_name: sessionName,
+        });
       }
       return !prev;
     });
-  }, []);
+  }, [getCurrentSessionTitle]);
 
   const openSidebarWithPrompt = useCallback(
     (prompt: string) => {
+      // Create new session before setting prompt to ensure each query starts fresh
+      createNewSession();
       posthog.track("ask-ai-sidebar-opened-client", {
         source: "search",
         has_prompt: true,
         prompt_length: prompt.length,
+        session_name: "New chat", // New session is created, so title is always "New chat"
       });
-      // Create new session before setting prompt to ensure each query starts fresh
-      createNewSession();
       setInitialPrompt(prompt);
       setIsOpen(true);
     },
@@ -284,6 +299,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
       if (session) {
         posthog.track("ask-ai-session-switched-client", {
           message_count: session.messages.length,
+          session_name: session.title,
         });
 
         // Abort any ongoing stream before switching sessions
