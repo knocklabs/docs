@@ -1,6 +1,6 @@
 ---
 title: How to send SMS messages with Modica
-description: Configure a Modica channel to send SMS notifications from Knock.
+description: Configure Modica credentials, sender settings, and delivery status webhooks in Knock.
 section: Integrations > SMS
 layout: integrations
 ---
@@ -10,6 +10,7 @@ Knock integrates with <a href="https://www.modicagroup.com/" target="_blank" rel
 ## Features
 
 - Delivery tracking
+- Bounce support
 - Knock link tracking
 - Per environment configuration
 - Sandbox mode
@@ -18,7 +19,7 @@ Knock integrates with <a href="https://www.modicagroup.com/" target="_blank" rel
 
 You can create a new Modica channel in the dashboard under the <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> page in your account settings. From there, you'll need to configure the channel for each environment you have.
 
-Modica REST v2 uses HTTP Basic auth. The gateway application name is the username and the application password is the password. You can find both in the Modica platform under <a href="https://omni.modicagroup.com/gateway/api_config/restv2" target="_blank" rel="noopener">REST API v2 configuration</a>.
+Knock sends messages through Modica's REST API v2, which authenticates each request with your gateway application name and password. You can find both on the <a href="https://omni.modicagroup.com/gateway/api_config/restv2" target="_blank" rel="noopener">REST API v2 configuration</a> page in Modica.
 
 ## Channel configuration
 
@@ -53,6 +54,12 @@ Configure the following settings per [environment](/version-control/environments
         name="Class"
         type="string"
         description="The application class used for routing and billing. Modica defaults this to mt_message. It must be 30 characters or fewer."
+      />
+      <Attribute
+        name="Incoming webhook"
+        type="boolean"
+        nameSlug="#delivery-status-webhooks"
+        description="Whether to receive message delivery status updates from Modica via webhook."
       />
     </Attributes>
 
@@ -95,3 +102,50 @@ Configure the following settings per [environment](/version-control/environments
 ## Recipient data requirements
 
 In order to send an SMS notification you'll need a valid `phone_number` property set on your recipient. Modica expects the number in international format, for example `+64211234567`.
+
+## Delivery status webhooks
+
+When enabled, Modica sends delivery receipts directly to Knock, so message statuses update as soon as the carrier reports them. Without a webhook, Knock [polls Modica](/send-notifications/delivering-notifications#polling) for delivery status, and a receipt that arrives after polling ends won't update the message.
+
+Modica only sends delivery receipts to a callback URL you've configured, so you'll need to set this up in both Knock and Modica.
+
+<Steps titleSize="h3">
+  <Step title="Enable delivery status webhooks in Knock">
+    1. Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your Knock dashboard
+    2. Select your Modica channel
+    3. Under **Environment configurations**, click the environment you want to configure to expand its settings
+    4. Turn on **Incoming webhook**
+    5. Copy the **Webhook URL** - you'll need this in the next step
+    6. Click "Save changes"
+  </Step>
+  <Step title="Add the DLR callback URL in Modica">
+    1. Open the <a href="https://omni.modicagroup.com/gateway/api_config/restv2" target="_blank" rel="noopener">REST API v2 configuration</a> page in Modica
+    2. Set the DLR callback URL to the webhook URL from Knock
+    3. Save your changes
+
+    Each environment has its own webhook URL, so repeat these steps for each environment you want to track, using the Modica application that environment sends from.
+
+  </Step>
+</Steps>
+
+### Supported delivery statuses
+
+When delivery status webhooks are enabled for Modica, Knock updates message statuses based on these delivery receipts:
+
+| Modica status | Knock status | Description                                                                   |
+| ------------- | ------------ | ----------------------------------------------------------------------------- |
+| received      | `delivered`  | The recipient received the message                                            |
+| rejected      | `bounced`    | The carrier rejected the message                                              |
+| expired       | `bounced`    | The carrier couldn't deliver the message in time, such as when a phone is off |
+| failed        | `bounced`    | Delivery failed due to a carrier connectivity issue                           |
+| dead          | `bounced`    | A Modica administrator stopped the message                                    |
+
+Other Modica statuses, such as `sent`, don't change the message status in Knock. Learn more about the `bounced` status in the [message statuses](/send-notifications/message-statuses#2-bounced) docs.
+
+### Troubleshooting
+
+If delivery status updates aren't appearing in Knock:
+
+1. **Check the DLR callback URL.** Verify that the URL on the REST API v2 configuration page in Modica matches the webhook URL for the environment you're sending from.
+2. **Verify the phone number format.** Ensure recipients have phone numbers in international format, such as `+64211234567`.
+3. **Check your gateway's API version.** A `Cannot_Route` error usually means your Modica gateway isn't set up for REST API v2. Modica's support team can confirm which version your gateway uses.
