@@ -9,22 +9,24 @@ section: Manage your account
 
 Assets are files that you upload to Knock for use in your notification templates. You can upload images to be hosted by Knock and reference them via URL in your templates. This is useful for including logos, icons, and other visual elements in your notifications.
 
-Account owners, admins, and members can manage assets from the **Assets** page in the Knock dashboard's settings.
+Account owners, admins, and members can manage assets from the <a href="https://dashboard.knock.app/~/assets" target="_blank">**Assets** page</a> under **Content** in the Knock dashboard sidebar. You can also manage assets with the [Management API](#managing-assets-with-the-management-api) or the [Knock CLI](/cli/asset).
+
+Assets are account-wide. An asset you upload is available in every environment.
 
 ## Uploading assets
 
 To upload a new asset:
 
-1. Navigate to **Content** > **Assets** in your dashboard sidebar.
+1. Navigate to <a href="https://dashboard.knock.app/~/assets" target="_blank">**Content** > **Assets**</a> in your dashboard sidebar.
 2. Click the "Upload image" button.
-3. Select an image file from your computer.
+3. Select one or more image files from your computer. You can upload up to 20 files at a time.
 
 ### File requirements
 
 Keep the following requirements in mind when uploading assets:
 
-- **File size.** Each image must be 2 MB or less.
-- **File type.** Currently, only image files are supported (e.g., PNG, JPEG, GIF, SVG).
+- **File size.** Each image must be 5 MB or less.
+- **File type.** Only image files are supported. The dashboard accepts JPEG, PNG, GIF, and SVG files. The Management API and the CLI accept JPEG, PNG, and GIF files.
 
 You can upload as many images as you need to your Knock account.
 
@@ -34,7 +36,7 @@ You can also upload an asset from the command line with [`knock asset upload`](/
 
 Once you've uploaded an asset, you can copy its URL and use it in your notification templates. To copy the URL:
 
-1. Navigate to **Content** > **Assets** in the Knock dashboard.
+1. Navigate to <a href="https://dashboard.knock.app/~/assets" target="_blank">**Content** > **Assets**</a> in the Knock dashboard.
 2. Find the asset you want to use.
 3. Click the copy button to copy the asset URL to your clipboard.
 
@@ -44,7 +46,7 @@ You can then paste this URL into your notification templates wherever you need t
 
 To delete an asset:
 
-1. Navigate to **Content** > **Assets** in the Knock dashboard.
+1. Navigate to <a href="https://dashboard.knock.app/~/assets" target="_blank">**Content** > **Assets**</a> in the Knock dashboard.
 2. Find the asset you want to delete.
 3. Click the delete button to remove the asset.
 
@@ -60,6 +62,57 @@ To delete an asset:
   }
 />
 
+## Managing assets with the Management API
+
+The [Management API](/developer-tools/management-api) enables you to upload, list, and archive image assets programmatically. The API accepts JPEG, PNG, and GIF files up to 5 MB.
+
+### Uploading an asset
+
+Knock doesn't accept file bytes on the Management API itself. Instead, you upload the file directly to storage with a signed URL, then tell Knock to create the asset. Uploading an asset takes three requests:
+
+<Steps>
+  <Step title="Request an upload">
+    Call the [request an asset upload](/mapi-reference/assets/uploads) endpoint with the file's `mime_type` and its size in bytes as `content_length`. Knock returns an `upload_url`, a storage `key`, and an `expires_in` value. The upload URL expires after 300 seconds.
+
+```bash title="Request an upload"
+curl -X POST "https://control.knock.app/v1/assets/uploads" \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"mime_type": "image/png", "content_length": 20480, "filename": "logo.png"}'
+```
+
+  </Step>
+  <Step title="Upload the file">
+    Send a `PUT` request with the file bytes to the `upload_url`. The URL's signature covers the `Content-Type` and `Content-Length` headers, so they must match the `mime_type` and `content_length` values from the response.
+
+```bash title="Upload the file bytes"
+curl -X PUT "$UPLOAD_URL" \
+  -H "Content-Type: image/png" \
+  --data-binary @logo.png
+```
+
+  </Step>
+  <Step title="Create the asset">
+    Call the [create an asset](/mapi-reference/assets/create) endpoint with the `key` from the first request and a `filename`. Knock returns the asset, including its hosted `url`, which you can reference in your templates.
+
+```bash title="Create the asset"
+curl -X POST "https://control.knock.app/v1/assets" \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"key": "acc_123/proj_123/018f02cd-9230-71d2-8f70-b40e5e2a4f6d.png", "filename": "logo.png"}'
+```
+
+  </Step>
+</Steps>
+
+### Listing assets
+
+Use the [list assets](/mapi-reference/assets/list) endpoint to retrieve a paginated list of the active assets in your account. Each entry includes the asset's `id`, `filename`, `mime_type`, and hosted `url`.
+
+### Archiving an asset
+
+Use the [archive an asset](/mapi-reference/assets/delete) endpoint to archive an asset by its `id`. As with deleting an asset in the dashboard, you should update any templates that reference the asset before you archive it.
+
 ## Frequently asked questions
 
 <AccordionGroup>
@@ -67,9 +120,8 @@ To delete an asset:
     title="What file types are supported?"
     anchorSlug="faq-supported-file-types"
   >
-    Currently, only image files are supported. This includes common formats like
-    PNG, JPEG, GIF, and SVG. In the future, we may support additional asset
-    types.
+    Only image files are supported. The dashboard accepts JPEG, PNG, GIF, and
+    SVG files. The Management API and the CLI accept JPEG, PNG, and GIF files.
   </Accordion>
   <Accordion
     title="Is there a limit to how many assets I can upload?"
@@ -82,7 +134,7 @@ To delete an asset:
     title="What is the maximum file size?"
     anchorSlug="faq-maximum-file-size"
   >
-    Each image file must be 2 MB or less.
+    Each image file must be 5 MB or less.
   </Accordion>
   <Accordion
     title="Who can upload and manage assets?"
