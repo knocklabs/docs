@@ -129,9 +129,13 @@ const StaticSearch = () => {
   );
 };
 
-// Check if a path is an API reference path
-const isApiReferencePath = (path: string) =>
-  path.startsWith("api-reference") || path.startsWith("mapi-reference");
+// Every search result opens with a full page load. A result can point at a
+// URL that now redirects, and client-side navigation to a redirected URL
+// crashes the page. API reference pages also need a full load to initialize
+// the ApiReferenceProvider context.
+const navigateToResult = (path: string) => {
+  window.location.href = `/${path}`;
+};
 
 const handleSearchNavigation = (
   e: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLFormElement>,
@@ -157,22 +161,13 @@ const handleSearchNavigation = (
     query_length: query?.length || 0,
   });
 
-  // If the item is in the same reference, highlight the item, don't navigate
+  // If the item is in the same reference, highlight the item, don't navigate.
+  // Otherwise the anchor's default full page load runs (see navigateToResult).
   if (isSamePageReferenceResult) {
     e.preventDefault();
     highlightResource(`/${itemUrl}`, { moveToItem: true });
-    onSearch();
-  } else if (isApiReferencePath(itemUrl)) {
-    // For API reference items when not on the same reference page,
-    // allow default anchor behavior (full page reload) to ensure
-    // the ApiReferenceProvider context is properly initialized
-    onSearch();
-  } else {
-    // Handle regular navigation with client-side routing
-    e.preventDefault();
-    router.push(`/${itemUrl}`);
-    onSearch();
   }
+  onSearch();
 };
 
 const DocsSearchResult = ({
@@ -186,7 +181,6 @@ const DocsSearchResult = ({
 }) => {
   const router = useRouter();
   const href = `/${item.path}`;
-  const isApiRef = isApiReferencePath(item.path);
 
   const content = (
     <Box w="full" h="full" px="2" py="2">
@@ -211,30 +205,16 @@ const DocsSearchResult = ({
     </Box>
   );
 
-  // Use regular anchor for API reference to ensure full page reload
-  // and proper context initialization
-  if (isApiRef) {
-    return (
-      <a
-        href={href}
-        onClick={(e) =>
-          handleSearchNavigation(e, router, item.path, onClick, "doc", query)
-        }
-      >
-        {content}
-      </a>
-    );
-  }
-
+  // A plain anchor, not Link, so the result opens with a full page load
   return (
-    <Link
+    <a
       href={href}
       onClick={(e) =>
         handleSearchNavigation(e, router, item.path, onClick, "doc", query)
       }
     >
       {content}
-    </Link>
+    </a>
   );
 };
 
@@ -249,7 +229,6 @@ const EndpointSearchResult = ({
 }) => {
   const router = useRouter();
   const href = `/${item.path}`;
-  const isApiRef = isApiReferencePath(item.path);
   const colors = {
     get: "blue",
     post: "green",
@@ -295,37 +274,16 @@ const EndpointSearchResult = ({
     </Stack>
   );
 
-  // Use regular anchor for API reference to ensure full page reload
-  // and proper context initialization
-  if (isApiRef) {
-    return (
-      <a
-        href={href}
-        onClick={(e) =>
-          handleSearchNavigation(
-            e,
-            router,
-            item.path,
-            onClick,
-            "endpoint",
-            query,
-          )
-        }
-      >
-        {content}
-      </a>
-    );
-  }
-
+  // A plain anchor, not Link, so the result opens with a full page load
   return (
-    <Link
+    <a
       href={href}
       onClick={(e) =>
         handleSearchNavigation(e, router, item.path, onClick, "endpoint", query)
       }
     >
       {content}
-    </Link>
+    </a>
   );
 };
 
@@ -341,7 +299,6 @@ const Autocomplete = () => {
   const clearQueryRef = useRef<(() => void) | null>(null);
 
   const inputRef = useRef(null);
-  const router = useRouter();
 
   // Detect mobile on mount and resize
   useEffect(() => {
@@ -559,26 +516,14 @@ const Autocomplete = () => {
               selection_method: "keyboard",
             });
 
-            // For API reference items, use window.location for full page reload
-            // to ensure the ApiReferenceProvider context is properly initialized
-            if (isApiReferencePath(itemUrl)) {
-              window.location.href = `/${itemUrl}`;
-            } else {
-              router.push(`/${itemUrl}`);
-            }
+            navigateToResult(itemUrl);
             if (state.query) {
               clearQueryRef.current?.();
             }
           },
         },
       }),
-    [
-      router,
-      searchClient,
-      openSidebarWithPrompt,
-      openInkeepModal,
-      setIsSearchOpen,
-    ],
+    [searchClient, openSidebarWithPrompt, openInkeepModal, setIsSearchOpen],
   );
 
   // Store the close and clear query functions in refs so they can be accessed from navigator
@@ -687,12 +632,7 @@ const Autocomplete = () => {
           selection_method: "keyboard_enter",
         });
 
-        // For API reference items, use window.location for full page reload
-        if (isApiReferencePath(firstItem.path)) {
-          window.location.href = `/${firstItem.path}`;
-        } else {
-          router.push(`/${firstItem.path}`);
-        }
+        navigateToResult(firstItem.path);
       }
     }
   };

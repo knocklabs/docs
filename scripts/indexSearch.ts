@@ -6,7 +6,9 @@ import {
 import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
 import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
 import algoliasearch from "algoliasearch";
+import type { SearchIndex } from "algoliasearch";
 import { resolveEndpointFromMethod } from "@/components/ui/ApiReference/helpers";
+import { getDocsSearchItems } from "@/lib/content.server";
 import { getAtPointer } from "@/lib/jsonPointer";
 import { loadEnvConfig } from "@next/env";
 import type { DocsSearchItem, EndpointSearchItem } from "@/types";
@@ -25,7 +27,12 @@ const algoliaPagesIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME ?? "";
 const algoliaEndpointIndexName =
   process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME ?? "";
 
-// Keep count of the number of resources and endpoints we index
+// Only production deploys write to the indices. A preview or local build would
+// otherwise publish its branch's pages to production search, and pruning
+// would delete the pages its branch doesn't have.
+const isProductionDeploy = process.env.VERCEL_ENV === "production";
+
+// Keep count of the number of pages and endpoints we index
 let indexCount = 0;
 let endpointCount = 0;
 
@@ -40,10 +47,8 @@ async function validateSearchObject(
 }
 
 /**
- * Right now we sit around 227 resources
- * 1000 is the maximum for a bulk operation
- * So we're pretty good for now and can either expand that limit or
- * save objects in chunks. These batches work for now!
+ * These hold every record for the indices, so syncIndex can prune whatever
+ * isn't in them. saveObjects splits them into batches of 1000 for us.
  */
 let pagesToSave: DocsSearchItem[] = [];
 async function queuePage(object: DocsSearchItem) {
@@ -111,8 +116,11 @@ async function indexResource({
   };
   await queuePage(resourceObject);
 
+  // These loops await each record so every one is queued before syncIndex
+  // runs. A record missing from the queue gets deleted from the index.
+
   // Methods like get, post, put, delete
-  Object.keys(methods).forEach(async (methodName) => {
+  for (const methodName of Object.keys(methods)) {
     const method = methods[methodName];
     const [methodType, endpoint] = resolveEndpointFromMethod(method);
     const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
@@ -140,10 +148,10 @@ async function indexResource({
       index: "endpoints",
     };
     await queueEndpoint(endpointSearchItem);
-  });
+  }
 
   // Handle the schemas
-  Object.keys(models).forEach(async (modelName) => {
+  for (const modelName of Object.keys(models)) {
     const modelRef = models[modelName];
     const modelUrl = `${basePath}/schemas/${modelName}`;
     const schema = getAtPointer(openApiSpec, modelRef.replace("#", ""));
@@ -158,12 +166,12 @@ async function indexResource({
       index: "pages",
     };
     await queuePage(modelObject);
-  });
+  }
 
   // Subresources like BulkOperations
-  Object.keys(resource.subresources ?? {}).forEach(async (subresourceName) => {
-    if (!resource.subresources) return;
-    const subresource = resource.subresources[subresourceName];
+  for (const [subresourceName, subresource] of Object.entries(
+    resource.subresources ?? {},
+  )) {
     // Recursively index the subresource
     await indexResource({
       apiName,
@@ -173,7 +181,7 @@ async function indexResource({
       pathPrefix: basePath,
       section: sectionName,
     });
-  });
+  }
 }
 
 async function indexApi(name: "api" | "mapi") {
@@ -248,6 +256,42 @@ async function indexStaticContent(name: "api" | "mapi") {
   return staticContent;
 }
 
+/**
+ * Saves the records, then deletes every record in the index that this build
+ * didn't produce, such as pages that were moved or removed. Saving alone
+ * leaves those behind, and search keeps linking to pages that don't exist.
+ */
+async function syncIndex(
+  index: SearchIndex,
+  objects: Array<DocsSearchItem | EndpointSearchItem>,
+) {
+  // An empty list would prune every record in the index
+  if (objects.length === 0) {
+    throw new Error(`No records to save to ${index.indexName}.`);
+  }
+
+  await index.saveObjects(objects);
+
+  const currentIds = new Set(objects.map((object) => object.objectID));
+  const staleIds: string[] = [];
+  await index.browseObjects({
+    attributesToRetrieve: ["objectID"],
+    batch: (hits) => {
+      for (const hit of hits) {
+        if (!currentIds.has(hit.objectID)) staleIds.push(hit.objectID);
+      }
+    },
+  });
+
+  if (staleIds.length > 0) {
+    console.log(
+      `\nRemoving ${staleIds.length} stale records from ${index.indexName}:`,
+      staleIds,
+    );
+    await index.deleteObjects(staleIds);
+  }
+}
+
 let skipIndexing = false;
 // Main entry point
 (async () => {
@@ -268,33 +312,44 @@ let skipIndexing = false;
 
       if (missing.length > 0) {
         console.warn(
-          "Missing Algolia environment variables. Continuing with script but skipping API indexing.\n\nMissing: " +
+          "Missing Algolia environment variables. Continuing with script but skipping indexing.\n\nMissing: " +
             missing.join(", "),
         );
       }
 
       skipIndexing = true;
+    } else if (!isProductionDeploy) {
+      console.warn(
+        `Not a production deploy (VERCEL_ENV=${process.env.VERCEL_ENV}). Continuing with script but skipping indexing.\n\n` +
+          "To index from your machine, run: VERCEL_ENV=production yarn index-search",
+      );
+
+      skipIndexing = true;
     }
 
     // Start assembling our batches
+    for (const page of getDocsSearchItems()) {
+      await queuePage(page);
+    }
     await indexApi("api");
     await indexApi("mapi");
 
-    // Only save objects if we have all the necessary environment variables
+    // Only save objects from production deploys with all the necessary environment variables
     if (!skipIndexing) {
       const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
-      const pageIndex = client.initIndex(algoliaPagesIndexName);
-      const endpointIndex = client.initIndex(algoliaEndpointIndexName);
-      await pageIndex.saveObjects(pagesToSave);
-      await endpointIndex.saveObjects(endpointsToSave);
-      console.log("\n\n✅ Successfully indexed API and mAPI references!");
-    } else {
-      console.log(
-        "\n\n⚠️  Success, but skipped index because of missing environment variables.",
+      await syncIndex(client.initIndex(algoliaPagesIndexName), pagesToSave);
+      await syncIndex(
+        client.initIndex(algoliaEndpointIndexName),
+        endpointsToSave,
       );
+      console.log(
+        "\n\n✅ Successfully indexed docs, API, and mAPI references!",
+      );
+    } else {
+      console.log("\n\n⚠️  Success, but skipped index. See the warning above.");
     }
 
-    console.log("\nIndexed", indexCount, "resources.");
+    console.log("\nIndexed", indexCount, "pages.");
     console.log("\nIndexed", endpointCount, "endpoints.\n\n");
     process.exit(0);
   } catch (error) {
