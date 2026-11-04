@@ -29,7 +29,9 @@ const algoliasearch = require("algoliasearch");
     await apiIndex.clearObjects();
 
     console.log("✅ Algolia index cleared!");
-    console.log("Restart the server to rebuild the index.");
+    console.log(
+      "The next production deploy rebuilds the index. To rebuild it now, run: VERCEL_ENV=production yarn index-search",
+    );
     process.exit(0);
   } catch (error) {
     console.error("Error clearing Algolia index.");
