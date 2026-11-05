@@ -10400,7 +10400,7 @@ components:
         api_key: sk_1234567890
       properties:
         api_key:
-          description: The secret API key exchanged from the service token.
+          description: The API key exchanged from the service token, of the requested `type`.
           type: string
           x-struct: null
           x-validate: null
@@ -29246,7 +29246,7 @@ paths:
   /v1/api_keys/exchange:
     post:
       callbacks: {}
-      description: Given an authenticated service token, exchanges it for a secret API key that can be used to make requests to the public API.
+      description: Given an authenticated service token, exchanges it for an API key that can be used to make requests to the public API. Returns the environment's secret key by default. Pass `type=public` to get its public key instead, for client-side integrations.
       operationId: exchangeForApiKey
       parameters:
         - description: The environment slug. When omitted, the account's default environment is used.
@@ -29255,6 +29255,18 @@ paths:
           required: false
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: 'The type of API key to return: `secret` or `public`.'
+          in: query
+          name: type
+          required: false
+          schema:
+            default: secret
+            enum:
+              - secret
+              - public
             type: string
             x-struct: null
             x-validate: null
@@ -29268,7 +29280,7 @@ paths:
                   api_key: sk_1234567890
                 properties:
                   api_key:
-                    description: The secret API key exchanged from the service token.
+                    description: The API key exchanged from the service token, of the requested `type`.
                     type: string
                     x-struct: null
                     x-validate: null
