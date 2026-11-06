@@ -15,6 +15,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/syncs", title: "Syncs" },
       { slug: "/streams", title: "Event streams" },
       { slug: "/clerk", title: "Clerk" },
       { slug: "/posthog", title: "PostHog" },
@@ -32,6 +33,10 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
       { slug: "/custom", title: "Custom source" },
+      { slug: "/redshift", title: "Amazon Redshift" },
+      { slug: "/bigquery", title: "Google BigQuery" },
+      { slug: "/postgresql", title: "PostgreSQL" },
+      { slug: "/snowflake", title: "Snowflake" },
       {
         title: "Legacy",
         slug: "/legacy",
@@ -41,16 +46,6 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
           { slug: "/http", title: "HTTP", isLegacy: true },
         ],
       },
-    ],
-  },
-  {
-    title: "Warehouse syncs",
-    slug: "/integrations/warehouse-syncs",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/connecting-a-warehouse", title: "Connecting a warehouse" },
-      { slug: "/creating-a-sync", title: "Creating a sync" },
-      { slug: "/managing-syncs", title: "Managing syncs" },
     ],
   },
   {
