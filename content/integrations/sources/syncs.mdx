@@ -7,27 +7,14 @@ section: Integrations > Sources
 layout: integrations
 ---
 
-<Callout
-  type="beta"
-  text={
-    <>
-      Warehouse syncs are currently in beta. If you'd like early access, please{" "}
-      <a href="mailto:support@knock.app?subject=Warehouse syncs">
-        get in touch
-      </a>
-      .
-    </>
-  }
-/>
-
 A sync reads a table or SQL query in your data warehouse on a schedule and writes the rows into Knock. Use syncs to keep your users, tenants, and other recipient data in Knock up to date from your warehouse.
 
-To send Knock's notification data to your warehouse instead, see [warehouse export](/integrations/extensions/data-sync).
+To send Knock's notification data to your warehouse instead, see [warehouse export](/integrations/extensions/warehouse-export).
 
 ## How syncs work
 
-1. **Connect a warehouse.** Add your warehouse once from **Platform** > **Sources**. Every environment in your account can sync from it. See the page for your warehouse below.
-2. **Create a sync.** A sync reads a table or SQL query and writes each row to Knock in one environment. You choose how columns map to Knock fields and how often it runs. See [create a sync](#create-a-sync).
+1. **Connect a warehouse.** Add your warehouse once from **Platform** > **Sources**. Every environment in your account can sync from it.
+2. **Create a sync.** A sync reads a table or SQL query, then writes each changed row to the corresponding resource in Knock. You choose how columns map to Knock fields and how often it runs. See [create a sync](#create-a-sync).
 
 When you publish a sync, it runs once right away and then on its schedule. Each run applies only the rows that changed since the last run.
 
@@ -39,7 +26,6 @@ When you publish a sync, it runs once right away and then on its schedule. Each 
 | [Snowflake](/integrations/sources/snowflake)      | Key-pair authentication                        |
 | [PostgreSQL](/integrations/sources/postgresql)    | A database user and password                   |
 | [Google BigQuery](/integrations/sources/bigquery) | A service account in your Google Cloud project |
-| Databricks                                        | Coming soon                                    |
 
 If you'd like us to support a warehouse that isn't listed, let us know at [support@knock.app](mailto:support@knock.app?subject=Warehouse%20syncs).
 
@@ -51,17 +37,27 @@ Each warehouse you add reads from one database. To sync from more than one datab
 
 ## What you can sync
 
-Each sync writes to one of these:
+Each sync writes to one of these resources in Knock:
 
-| Target           | What each row does                                                           |
-| ---------------- | ---------------------------------------------------------------------------- |
-| Users            | Creates or updates a [user](/concepts/users).                                |
-| Tenants          | Creates or updates a [tenant](/concepts/tenants).                            |
-| Objects          | Creates or updates an [object](/concepts/objects) in one collection.         |
-| Audience members | Adds a user to a static [audience](/concepts/audiences).                     |
-| Subscriptions    | [Subscribes](/concepts/subscriptions) a user to an object in one collection. |
+| Target           | What each row does                              |
+| ---------------- | ----------------------------------------------- |
+| Users            | Creates or updates a user.                      |
+| Tenants          | Creates or updates a tenant.                    |
+| Objects          | Creates or updates an object in one collection. |
+| Audience members | Updates members of a static audience.           |
+| Subscriptions    | Manages a user's subscription to an object.     |
 
-Knock only changes the fields you map. Tenant syncs set a tenant's name and custom properties, not its settings such as branding.
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      Knock only changes the fields you map. If fields that already exist on the
+      user are not mapped in the sync, they won't be affected. Tenant syncs set
+      a tenant's name and custom properties, not its settings such as branding.
+    </>
+  }
+/>
 
 ## Create a sync
 
@@ -71,10 +67,10 @@ To create a sync, switch to the environment you want to sync into, go to **Platf
 
 - **Name** is how the sync appears in Knock.
 - **Key** identifies the sync. It can't be changed after the sync is created.
-- **Syncs to** is what each row writes to: **Users**, **Tenants**, **Objects**, **Audience members**, or **Subscriptions**. It can't be changed later.
-  - For objects, enter the **Collection** to write to.
-  - For subscriptions, enter the **Collection** of the objects users subscribe to. It defaults to `$tenants`.
-  - For audience members, choose a static **Audience**.
+- **Syncs to** is what each row writes to: **users**, **tenants**, **objects**, **audience members**, or **subscriptions**. It can't be changed later.
+  - For objects, enter the **collection** to write to.
+  - For subscriptions, enter the **collection** of the objects users subscribe to. It defaults to `$tenants`.
+  - For audience members, choose an **audience** (only static audiences are supported for syncs).
 
 A sync writes to one collection. To sync several collections, create a sync for each and filter its rows with a `WHERE` clause in a SQL query.
 
@@ -85,21 +81,21 @@ Choose what the sync reads:
 - **Table or view** reads one table or view. If a table you just created isn't listed, click **Refresh tables**.
 - **SQL query** reads the result of a query. Write the query and click **Preview query**. Use a query to filter rows, join tables, rename columns, or convert types. See [data types](#data-types).
 
-If the [Knock agent](/ai/agent) is available in your account, click **Ask agent** to have it write the query, or **Ask agent to fix** when a preview fails.
+If an admin has turned on **Knock agents** in your account's [AI settings](/ai/agent#configuration), click **Ask agent** to have it write the query, or **Ask agent to fix** when a preview fails.
 
 ### 3. Preview
 
-Knock shows the first 20 rows as your warehouse returns them. You map columns from this preview in the next step.
+Knock shows the first 20 rows as your warehouse returns them; confirm the data you expect is available with this sample. You map columns from this preview in the next step.
 
 ### 4. Map columns
 
 #### Primary key
 
-Choose the column that uniquely identifies each row. Knock uses it to find rows that changed.
+Choose the column that uniquely identifies each row (usually the ID). Knock uses the primary key to find rows that changed.
 
 For users, tenants, and objects, the primary key is also the record's ID in Knock. It must be a non-empty string of at most 256 characters with no `/`.
 
-For subscriptions and audience members, the primary key only identifies the row. For audience members, it's usually the user ID column. If no single column is unique, build one in a SQL query, such as `account_id || ':' || user_id`.
+For subscriptions and audience members, if no single column is unique, build one in a SQL query such as `account_id || ':' || user_id`.
 
 #### Columns
 
@@ -111,45 +107,52 @@ Check each column you want to sync, or check **Sync all columns**. Then choose i
 | Tenants | `name`                                                  |
 | Objects | `name`                                                  |
 
-Any other field name becomes a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number.
+Any other field name not in the standard fields becomes a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number.
 
 A column that holds a JSON object can be mapped as one property, or each of its keys can be mapped to its own field.
 
-{/* TODO: KNO-15735 hasn't confirmed mapping keys inside a Redshift SUPER column yet. Snowflake OBJECT columns work. */}
-
-**When null** sets what happens when a row's value is null:
-
-- **Clear the field** removes the value in Knock. This is the default.
-- **Keep Knock's value** leaves the value in Knock as it is.
-
 Columns you don't check are never changed in Knock.
 
-#### Audience members
+<Callout
+  type="info"
+  title="When null:"
+  text={
+    <>
+      <strong>When null</strong> sets what happens when a row's value is null.{" "}
+      <strong>Clear the field</strong> removes the value in Knock, and is the
+      default. <strong>Keep Knock's value</strong> leaves the value in Knock as
+      it is.
+    </>
+  }
+/>
 
-Audience syncs don't use the mapping table. Choose:
+#### Audience members and subscriptions
+
+Audience member and subscription syncs work differently from the others:
+
+- They don't use the mapping table. Instead, you choose the columns that identify each membership or subscription. Subscription syncs use the table only for subscription properties.
+- They don't update the users, tenants, or objects they point to. To sync those records' names or properties, create a users or objects sync from the same query.
+
+For audience members, choose:
 
 - **User ID column.** The user each row adds to the audience.
 - **Tenant column.** Optional. Adds the user for this tenant only.
 
-To update these users' names, emails, or properties, create a users sync from the same query.
-
 While a published sync manages an audience, its members can't be changed any other way, including from the dashboard or the API. This applies even while the sync is paused.
 
-#### Subscriptions
-
-Choose:
+For subscriptions, choose:
 
 - **Object ID column.** The object in the sync's collection that the user subscribes to.
 - **User ID column.** The user who subscribes.
 
-Knock creates the user or object if it doesn't exist yet, with no name or properties. Any other columns you check become properties on the subscription. To sync the objects' names and properties, create an objects sync.
+Knock creates the user or object if it doesn't exist yet, with no name or properties. Any other columns you check become properties on the subscription.
 
 ### 5. Change detection
 
 Both columns are optional. With neither, each run reads the whole source and compares it with the last run to find what changed. That works for most tables.
 
-- **Last modified column.** A timestamp column that updates whenever a row changes. Each run reads only rows changed since the last run, which speeds up large tables. Knock can't see rows deleted from the source, so use a deleted flag column to remove them.
-- **Deleted flag column.** A true or false column that marks rows to remove. Flagged rows unsubscribe the user from the object, remove the member from the audience, or delete the user, tenant, or object from Knock. Deleting a user, tenant, or object can't be undone. For those syncs, a deleted flag column needs a last modified column.
+- **Last modified column.** Use this when you want each run to only read rows that changed since the last run. It should be a timestamp column that updates whenever a row changes.
+- **Deleted flag column.** A true or false column that marks rows to remove. Flagged rows unsubscribe the user from the object, remove the member from the audience, or delete the user, tenant, or object from Knock. Deleting a user, tenant, or object can't be undone. **Note:** for users, tenants, and objects, a deleted flag column requires a last modified column.
 
 See [deleted rows](#deleted-rows).
 
@@ -166,12 +169,7 @@ Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 
 - **Save draft** saves the sync without running it.
 - **Save and publish** saves the sync and makes it live. A new sync runs once right away, then on its schedule.
 
-Before publishing, Knock checks the preview rows. **Save and publish** is blocked, and the problem is marked in red, when:
-
-- A primary key value is empty, longer than 256 characters, or contains `/`.
-- A user's `created_at` value has no timezone. See [timestamps](#timestamps).
-
-**Save draft** still works.
+Before publishing, Knock checks the preview rows. **Save and publish** is blocked when it detects an issue with the incoming data, but **Save draft** still works.
 
 The sync shows **Publishing** until it's live. If it doesn't go live, it shows **Delivery failed** with the error and a **Retry delivery** button.
 
@@ -196,6 +194,8 @@ A sync's page has four tabs:
 | Live            | Runs on its schedule.                                                       |
 | Needs attention | The last run failed. The sync keeps running on its schedule.                |
 | Paused          | Published, but doesn't run until you resume it.                             |
+
+A published sync can also have a draft. When you save edits to a published sync without publishing them, it keeps its status, shows **Unpublished changes**, and keeps running the published version until you publish.
 
 ### Run a sync now
 
@@ -234,6 +234,12 @@ The copy includes the sync's unpublished changes. It starts as a draft, with no 
 On the sync's **Settings** tab, click **Archive sync**. Knock stops running the sync, and its key can be used again. Records it already wrote stay in Knock. This can't be undone.
 
 ## Run history
+
+<Callout
+  type="info"
+  title="Note:"
+  text="If you edit a sync's table or query, primary key, or change detection columns, you won't see runs from before that edit was published. Edits to the mappings keep the run history."
+/>
 
 The sync's **Runs** tab lists its 25 most recent runs, with when each started, its status, and how many rows were read and failed. The warehouse's **Runs** tab lists the 25 most recent runs across all its syncs, and you can filter it by sync or status.
 
