@@ -1025,6 +1025,22 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    GoalAttachmentRequest:
+      description: Settings for the goal attachment.
+      example:
+        attribution_window_days: 7
+      properties:
+        attribution_window_days:
+          description: The number of days after a message is sent in which a goal completion is attributed to it. Must be between 1 and 30. When omitted, re-saving the attached goal keeps its window; otherwise 7.
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct: null
+          x-validate: null
+      title: GoalAttachmentRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GoalAttachmentRequest
+      x-validate: null
     WrappedSourceResponse:
       description: Wraps the Source response under the `source` key.
       example:
@@ -1121,8 +1137,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         guide_audience_conditions:
           anyOf:
             - $ref: '#/components/schemas/ConditionGroup'
@@ -1354,8 +1368,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         key:
           description: The unique key string for the workflow object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -1626,8 +1638,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         key:
           description: The unique key string for the workflow object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -1724,6 +1734,49 @@ components:
       title: Workflow
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Workflow
+      x-validate: null
+    GoalResourceAttachment:
+      description: A goal attached to a workflow, guide, or broadcast in one environment. An attachment goes live without a commit.
+      example:
+        attribution_window_days: 7
+        goal_key: trial-conversion
+        resource_key: trial-onboarding
+        resource_type: workflow
+      properties:
+        attribution_window_days:
+          description: The number of days after a message is sent in which a goal completion is attributed to it.
+          maximum: 30
+          minimum: 1
+          type: integer
+          x-struct: null
+          x-validate: null
+        goal_key:
+          description: The key of the attached goal.
+          type: string
+          x-struct: null
+          x-validate: null
+        resource_key:
+          description: The key of the workflow, guide, or broadcast.
+          type: string
+          x-struct: null
+          x-validate: null
+        resource_type:
+          description: The type of resource the goal is attached to.
+          enum:
+            - workflow
+            - guide
+            - broadcast
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - goal_key
+        - resource_type
+        - resource_key
+        - attribution_window_days
+      title: GoalResourceAttachment
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GoalResourceAttachment
       x-validate: null
     PaginatedVariableResponse:
       description: A paginated list of Variable. Contains a list of entries and page information.
@@ -1858,6 +1911,23 @@ components:
       title: WorkflowDelayStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowDelayStep
+      x-validate: null
+    DetachGoalResponse:
+      description: The response from detaching a goal.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the detach operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: DetachGoalResponse
+      type: object
+      x-struct: null
       x-validate: null
     WrappedTranslationResponse:
       description: Wraps the Translation response under the `translation` key.
@@ -2158,6 +2228,59 @@ components:
       title: RequestTemplateQueryParams
       type: object
       x-struct: null
+      x-validate: null
+    EnvironmentDefaultsPreferenceSet:
+      description: A preference set applied to every recipient in the environment unless the recipient overrides it. The `__persistence_strategy__` and `__strategy__` keys are not supported, because defaults are always replaced in full.
+      example:
+        categories:
+          marketing: false
+          transactional:
+            channel_types:
+              email: true
+              push: true
+        channel_types:
+          email: true
+          sms: false
+        workflows:
+          new-comment:
+            channel_types:
+              push: false
+      nullable: true
+      properties:
+        categories:
+          description: A map of category key to a boolean or an object containing `channel_types`, `channels`, and `conditions`.
+          type: object
+          x-struct: null
+          x-validate: null
+        channel_types:
+          description: A map of channel type to a boolean or an object containing `conditions`. Valid channel types are `email`, `sms`, `push`, `chat`, `in_app_feed`, and `http`.
+          type: object
+          x-struct: null
+          x-validate: null
+        channels:
+          description: A map of channel ID to a boolean or an object containing `conditions`.
+          type: object
+          x-struct: null
+          x-validate: null
+        commercial_subscribed:
+          description: Whether the recipient is subscribed to commercial messages, as a boolean or a settings object.
+          oneOf:
+            - type: boolean
+              x-struct: null
+              x-validate: null
+            - type: object
+              x-struct: null
+              x-validate: null
+          x-struct: null
+          x-validate: null
+        workflows:
+          description: A map of workflow key to a boolean or an object containing `channel_types`, `channels`, and `conditions`.
+          type: object
+          x-struct: null
+          x-validate: null
+      title: EnvironmentDefaultsPreferenceSet
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.EnvironmentDefaultsPreferenceSet
       x-validate: null
     InAppFeedTemplate:
       description: An in-app feed template.
@@ -5539,8 +5662,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         name:
           description: A name for the workflow. Must be at maximum 255 characters in length.
           type: string
@@ -5646,8 +5767,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         name:
           description: A name for the broadcast. Must be at maximum 255 characters in length.
           type: string
@@ -6299,6 +6418,28 @@ components:
       title: RunWorkflowRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RunWorkflowRequest
+      x-validate: null
+    ListGoalAttachmentsResponse:
+      description: The goal's attachments in the environment.
+      example:
+        attachments:
+          - attribution_window_days: 7
+            goal_key: trial-conversion
+            resource_key: trial-onboarding
+            resource_type: workflow
+      properties:
+        attachments:
+          description: The goal's attachments in the environment.
+          items:
+            $ref: '#/components/schemas/GoalResourceAttachment'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - attachments
+      title: ListGoalAttachmentsResponse
+      type: object
+      x-struct: null
       x-validate: null
     ReusableRequestRequest:
       description: A reusable request object with attributes to update or create a reusable request.
@@ -7215,6 +7356,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.BooleanField
       x-validate: null
+    WrappedGoalResourceAttachmentResponse:
+      description: Wraps the GoalResourceAttachment response under the `attachment` key.
+      example:
+        attachment:
+          attribution_window_days: 7
+          goal_key: trial-conversion
+          resource_key: trial-onboarding
+          resource_type: workflow
+      properties:
+        attachment:
+          $ref: '#/components/schemas/GoalResourceAttachment'
+      required:
+        - attachment
+      title: WrappedGoalResourceAttachmentResponse
+      type: object
+      x-struct: null
+      x-validate: null
     BillingCreditBlock:
       description: An unexpired Orb credit block, including scheduled and depleted allotments.
       example:
@@ -7930,8 +8088,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         key:
           description: The unique key string for the broadcast object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
           type: string
@@ -8171,6 +8327,50 @@ components:
       title: ObjectRecipientReference
       type: object
       x-struct: null
+      x-validate: null
+    EnvironmentDefaults:
+      description: The default settings for an environment.
+      example:
+        created_at: "2026-10-31T19:59:03Z"
+        preference_set:
+          categories:
+            marketing: false
+            transactional:
+              channel_types:
+                email: true
+                push: true
+          channel_types:
+            email: true
+            sms: false
+          workflows:
+            new-comment:
+              channel_types:
+                push: false
+        updated_at: "2026-11-03T12:00:00Z"
+      properties:
+        created_at:
+          description: The timestamp of when the defaults were first set. Null when no defaults have been set.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        preference_set:
+          $ref: '#/components/schemas/EnvironmentDefaultsPreferenceSet'
+        updated_at:
+          description: The timestamp of when the defaults were last updated. Null when no defaults have been set.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - preference_set
+        - created_at
+        - updated_at
+      title: EnvironmentDefaults
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.EnvironmentDefaults
       x-validate: null
     EmailChannelSettings:
       description: Email channel settings. Only used as configuration as part of a workflow channel step.
@@ -9631,6 +9831,28 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ItemSchemaProperty
       x-validate: null
+    UpsertEnvironmentDefaultsRequest:
+      description: A request to replace the default settings for an environment. Send `preference_set` as `null` to clear the defaults.
+      example:
+        preference_set:
+          categories:
+            marketing: false
+          channel_types:
+            email: true
+            sms: false
+          workflows:
+            new-comment:
+              channel_types:
+                push: false
+      properties:
+        preference_set:
+          $ref: '#/components/schemas/EnvironmentDefaultsPreferenceSet'
+      required:
+        - preference_set
+      title: UpsertEnvironmentDefaultsRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.UpsertEnvironmentDefaultsRequest
+      x-validate: null
     WorkflowWaitForEventMessageEvent:
       description: A message event to wait for from a message source.
       example:
@@ -9781,32 +10003,6 @@ components:
       title: BrandingOverrides
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.BrandingOverrides
-      x-validate: null
-    GoalAttachment:
-      description: Attaches a goal to a workflow, guide, or broadcast for attribution tracking.
-      example:
-        attribution_window_days: 7
-        goal_key: trial-conversion
-      nullable: true
-      properties:
-        attribution_window_days:
-          description: The number of days to attribute conversions after the notification is sent. Must be between 1 and 30. Defaults to 7.
-          example: 7
-          maximum: 30
-          minimum: 1
-          type: integer
-          x-struct: null
-          x-validate: null
-        goal_key:
-          description: The key of the goal to attach.
-          type: string
-          x-struct: null
-          x-validate: null
-      required:
-        - goal_key
-      title: GoalAttachment
-      type: object
-      x-struct: Elixir.ControlWeb.V1.Specs.GoalAttachment
       x-validate: null
     AuditLogLocation:
       description: The location derived from the request IP address.
@@ -10165,7 +10361,7 @@ components:
         api_key: sk_1234567890
       properties:
         api_key:
-          description: The secret API key exchanged from the service token.
+          description: The API key exchanged from the service token, of the requested `type`.
           type: string
           x-struct: null
           x-validate: null
@@ -13600,8 +13796,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        goal_attachment:
-          $ref: '#/components/schemas/GoalAttachment'
         guide_audience_conditions:
           anyOf:
             - $ref: '#/components/schemas/ConditionGroup'
@@ -15010,6 +15204,20 @@ components:
         - entries
         - page_info
       title: PaginatedPartialResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    WrappedGoalAttachmentRequestRequest:
+      description: Wraps the GoalAttachmentRequest request under the attachment key.
+      example:
+        attachment:
+          attribution_window_days: 7
+      properties:
+        attachment:
+          $ref: '#/components/schemas/GoalAttachmentRequest'
+      required:
+        - attachment
+      title: WrappedGoalAttachmentRequestRequest
       type: object
       x-struct: null
       x-validate: null
@@ -17003,7 +17211,7 @@ paths:
   /v1/goals/{goal_key}:
     delete:
       callbacks: {}
-      description: Archives a given goal across all environments. Refuses if any workflow, guide, or broadcast is attached to the goal.
+      description: Archives a given goal in this environment. Refuses if a workflow, guide, or broadcast in this environment is attached to the goal.
       operationId: archiveGoal
       parameters:
         - description: The key of the goal to archive.
@@ -24362,6 +24570,157 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/environments/{environment_slug}/defaults:
+    get:
+      callbacks: {}
+      description: Returns the default settings for an environment. When no defaults have been set, `preference_set` and both timestamps are `null`.
+      operationId: getEnvironmentDefaults
+      parameters:
+        - description: The slug of the environment to read or update the defaults for.
+          in: path
+          name: environment_slug
+          required: true
+          schema:
+            example: production
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentDefaults'
+          description: OK
+      summary: Get environment defaults
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const environmentDefaults = await client.environments.defaults.list('production');
+
+          console.log(environmentDefaults.created_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          environment_defaults = client.environments.defaults.list(
+              "production",
+          )
+          print(environment_defaults.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	environmentDefaults, err := client.Environments.Defaults.List(context.TODO(), "production")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", environmentDefaults.CreatedAt)
+          }
+    put:
+      callbacks: {}
+      description: Creates or replaces the default settings for an environment. The change applies to the environment immediately, including production. It is not committed or promoted, and concurrent writes are last-write-wins. The `preference_set` replaces any existing set in full, and `null` clears it.
+      operationId: upsertEnvironmentDefaults
+      parameters:
+        - description: The slug of the environment to read or update the defaults for.
+          in: path
+          name: environment_slug
+          required: true
+          schema:
+            example: production
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertEnvironmentDefaultsRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentDefaults'
+          description: OK
+      summary: Upsert environment defaults
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const environmentDefaults = await client.environments.defaults.update('production', {
+            preference_set: {},
+          });
+
+          console.log(environmentDefaults.created_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          environment_defaults = client.environments.defaults.update(
+              environment_slug="production",
+              preference_set={},
+          )
+          print(environment_defaults.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	environmentDefaults, err := client.Environments.Defaults.Update(
+          		context.TODO(),
+          		"production",
+          		knockmapi.EnvironmentDefaultUpdateParams{
+          			PreferenceSet: knockmapi.EnvironmentDefaultsPreferenceSetParam{},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", environmentDefaults.CreatedAt)
+          }
   /v1/branches:
     get:
       callbacks: {}
@@ -25564,6 +25923,273 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.EmailLayout)
+          }
+  /v1/goals/{goal_key}/attachments/{resource_type}/{resource_key}:
+    delete:
+      callbacks: {}
+      description: 'Detaches the goal from a workflow, guide, or broadcast in the given environment. The change goes live without a commit: the resource is published in the background, so the response doesn''t wait on it. Returns 404 when the goal isn''t attached to the resource.'
+      operationId: detachGoal
+      parameters:
+        - description: The key of the goal.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: 'The type of resource: `workflow`, `guide`, or `broadcast`.'
+          in: path
+          name: resource_type
+          required: true
+          schema:
+            enum:
+              - workflow
+              - guide
+              - broadcast
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the workflow, guide, or broadcast.
+          in: path
+          name: resource_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from detaching a goal.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the detach operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: DetachGoalResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Detach a goal
+      tags:
+        - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const attachment = await client.goals.attachments.delete('resource_key', {
+            goal_key: 'goal_key',
+            resource_type: 'workflow',
+          });
+
+          console.log(attachment.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          attachment = client.goals.attachments.delete(
+              resource_key="resource_key",
+              goal_key="goal_key",
+              resource_type="workflow",
+          )
+          print(attachment.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	attachment, err := client.Goals.Attachments.Delete(
+          		context.TODO(),
+          		"resource_key",
+          		knockmapi.GoalAttachmentDeleteParams{
+          			GoalKey:      "goal_key",
+          			ResourceType: knockmapi.GoalAttachmentDeleteParamsResourceTypeWorkflow,
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", attachment.Result)
+          }
+    put:
+      callbacks: {}
+      description: 'Attaches the goal to a workflow, guide, or broadcast in the given environment, or updates its attribution window. The attachment goes live without a commit: the resource is published in the background, so the response doesn''t wait on it. Workflows and guides must have been committed in the environment, and broadcasts must not have been sent. A resource holds one goal, so this replaces any other goal attached to it.'
+      operationId: attachGoal
+      parameters:
+        - description: The key of the goal.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: 'The type of resource: `workflow`, `guide`, or `broadcast`.'
+          in: path
+          name: resource_type
+          required: true
+          schema:
+            enum:
+              - workflow
+              - guide
+              - broadcast
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the workflow, guide, or broadcast.
+          in: path
+          name: resource_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the GoalAttachmentRequest request under the attachment key.
+              example:
+                attachment:
+                  attribution_window_days: 7
+              properties:
+                attachment:
+                  $ref: '#/components/schemas/GoalAttachmentRequest'
+              required:
+                - attachment
+              title: WrappedGoalAttachmentRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the GoalResourceAttachment response under the `attachment` key.
+                example:
+                  attachment:
+                    attribution_window_days: 7
+                    goal_key: trial-conversion
+                    resource_key: trial-onboarding
+                    resource_type: workflow
+                properties:
+                  attachment:
+                    $ref: '#/components/schemas/GoalResourceAttachment'
+                required:
+                  - attachment
+                title: WrappedGoalResourceAttachmentResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Attach a goal
+      tags:
+        - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const attachment = await client.goals.attachments.update('resource_key', {
+            goal_key: 'goal_key',
+            resource_type: 'workflow',
+            attachment: {},
+          });
+
+          console.log(attachment.attachment);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          attachment = client.goals.attachments.update(
+              resource_key="resource_key",
+              goal_key="goal_key",
+              resource_type="workflow",
+              attachment={},
+          )
+          print(attachment.attachment)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	attachment, err := client.Goals.Attachments.Update(
+          		context.TODO(),
+          		"resource_key",
+          		knockmapi.GoalAttachmentUpdateParams{
+          			GoalKey:      "goal_key",
+          			ResourceType: knockmapi.GoalAttachmentUpdateParamsResourceTypeWorkflow,
+          			Attachment:   knockmapi.GoalAttachmentUpdateParamsAttachment{},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", attachment.Attachment)
           }
   /v1/broadcasts/{broadcast_key}/run:
     put:
@@ -28579,7 +29205,7 @@ paths:
   /v1/api_keys/exchange:
     post:
       callbacks: {}
-      description: Given an authenticated service token, exchanges it for a secret API key that can be used to make requests to the public API.
+      description: Given an authenticated service token, exchanges it for an API key that can be used to make requests to the public API. Returns the environment's secret key by default. Pass `type=public` to get its public key instead, for client-side integrations.
       operationId: exchangeForApiKey
       parameters:
         - description: The environment slug. When omitted, the account's default environment is used.
@@ -28588,6 +29214,18 @@ paths:
           required: false
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: 'The type of API key to return: `secret` or `public`.'
+          in: query
+          name: type
+          required: false
+          schema:
+            default: secret
+            enum:
+              - secret
+              - public
             type: string
             x-struct: null
             x-validate: null
@@ -28601,7 +29239,7 @@ paths:
                   api_key: sk_1234567890
                 properties:
                   api_key:
-                    description: The secret API key exchanged from the service token.
+                    description: The API key exchanged from the service token, of the requested `type`.
                     type: string
                     x-struct: null
                     x-validate: null
@@ -30037,6 +30675,106 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+  /v1/goals/{goal_key}/attachments:
+    get:
+      callbacks: {}
+      description: Returns the workflows, guides, and broadcasts the goal is attached to in the given environment.
+      operationId: listGoalAttachments
+      parameters:
+        - description: The key of the goal.
+          in: path
+          name: goal_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The goal's attachments in the environment.
+                example:
+                  attachments:
+                    - attribution_window_days: 7
+                      goal_key: trial-conversion
+                      resource_key: trial-onboarding
+                      resource_type: workflow
+                properties:
+                  attachments:
+                    description: The goal's attachments in the environment.
+                    items:
+                      $ref: '#/components/schemas/GoalResourceAttachment'
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - attachments
+                title: ListGoalAttachmentsResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List a goal's attachments
+      tags:
+        - Goals
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const attachments = await client.goals.attachments.list('goal_key');
+
+          console.log(attachments.attachments);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          attachments = client.goals.attachments.list(
+              goal_key="goal_key",
+          )
+          print(attachments.attachments)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	attachments, err := client.Goals.Attachments.List(
+          		context.TODO(),
+          		"goal_key",
+          		knockmapi.GoalAttachmentListParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", attachments.Attachments)
           }
 security:
   - BearerAuth: []

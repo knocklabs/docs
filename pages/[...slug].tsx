@@ -14,7 +14,6 @@ import {
   CONTENT_DIR,
   DOCS_FILE_EXTENSIONS,
   makeIdFromPath,
-  generateAlgoliaIndex,
 } from "../lib/content.server";
 import eventPayload from "../data/code/sources/eventPayload";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
@@ -95,9 +94,6 @@ export async function getStaticProps({ params: { slug } }) {
 
   // Extend frontmatter
   mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep));
-
-  // Index page in algolia
-  await generateAlgoliaIndex(mdxSource.frontmatter);
 
   return { props: { source: mdxSource, sourcePath, typedocs } };
 }
