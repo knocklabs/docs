@@ -176,7 +176,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/slack", title: "Slack" },
-      { slug: "/data-sync", title: "Data warehouse sync" },
+      { slug: "/data-sync", title: "Warehouse export" },
       { slug: "/segment", title: "Segment" },
       { slug: "/datadog", title: "Datadog" },
       { slug: "/new-relic", title: "New Relic" },
