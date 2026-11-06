@@ -1,0 +1,40 @@
+---
+title: How to sync data from Google BigQuery into Knock
+description: Connect Google BigQuery to Knock and sync users, tenants, objects, audience members, and subscriptions from a table or SQL query.
+metaTitle: Google BigQuery source integration
+metaDescription: Connect Google BigQuery to Knock as a warehouse source and keep users, tenants, objects, audience members, and subscriptions in sync on a schedule.
+section: Integrations > Sources
+layout: integrations
+---
+
+Knock connects to BigQuery by impersonating a service account in your Google Cloud project, so there's no key or password to share. The warehouse's **Details** tab lists these steps with the values to copy. Every environment in your account can sync from the warehouse once it's connected.
+
+## Add the warehouse
+
+To add or edit a warehouse, you need the Owner or Admin role, or a custom permission group that's allowed to manage integrations.
+
+1. Go to **Platform** > **Sources**.
+2. Under **Connect a new source**, click **Google BigQuery**.
+3. Enter a **Name** and a **Key**. The key can't be changed later.
+4. Click **Add warehouse**. Knock opens the warehouse's **Details** tab.
+
+## Connect Google BigQuery
+
+{/* TODO: BigQuery hasn't had an end-to-end run yet. Recheck these steps after the first real run. */}
+
+1. In the Google Cloud project with your data, create a service account whose ID starts with the prefix shown on the **Details** tab, and give it the BigQuery User role. The prefix is unique to your Knock account.
+2. Give the service account the BigQuery Data Viewer role on each dataset you'll sync.
+3. On the service account's **Principals with access** tab, give Knock's service account, shown on the **Details** tab, the Service Account Token Creator and Service Account User roles.
+4. Fill in the connection and click **Save connection**:
+
+   | Field                 | What to enter                                                     |
+   | --------------------- | ----------------------------------------------------------------- |
+   | Project ID            | The Google Cloud project with your data, such as `acme-analytics` |
+   | Data location         | Where your datasets are, such as `us` or `us-central1`            |
+   | Service account email | The service account you created for Knock                         |
+
+5. Click **Test connection**.
+
+Knock only sees datasets in the data location you enter.
+
+Once the connection works, create a sync. See [create a sync](/integrations/sources/syncs#create-a-sync).
