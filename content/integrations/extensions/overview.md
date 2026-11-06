@@ -8,7 +8,7 @@ layout: integrations
 Knock integrates with popular third-party platforms, enabling new functionality across your team's tools.
 
 - [Slack](/integrations/extensions/slack)
-- [Data warehouse sync](/integrations/extensions/data-sync)
+- [Warehouse export](/integrations/extensions/warehouse-export)
 - [Segment](/integrations/extensions/segment)
 - [Datadog](/integrations/extensions/datadog)
 - [New Relic](/integrations/extensions/new-relic)
