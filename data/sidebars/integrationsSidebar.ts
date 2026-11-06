@@ -15,6 +15,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/streams", title: "Event streams" },
       { slug: "/clerk", title: "Clerk" },
       { slug: "/posthog", title: "PostHog" },
       { slug: "/stripe", title: "Stripe" },
