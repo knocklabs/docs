@@ -25,6 +25,15 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Agent",
+    slug: "/cli/agent",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/run", title: "Run a prompt" },
+    ],
+  },
+
+  {
     title: "Managing resources",
     slug: "/cli/resources",
     pages: [
