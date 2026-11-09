@@ -1,6 +1,6 @@
 ---
 title: Syncs
-description: Keep users, tenants, objects, audience members, and subscriptions in Knock up to date from a table or SQL query in your data warehouse.
+description: Sync models from your data warehouse into Knock users, tenants, objects, audiences, and subscriptions.
 metaTitle: Warehouse syncs
 metaDescription: Sync users, tenants, objects, audience members, and subscriptions into Knock on a schedule from a table or SQL query in a data warehouse such as Snowflake or Amazon Redshift.
 section: Integrations > Sources
@@ -9,11 +9,11 @@ layout: integrations
 
 A sync reads a table or SQL query in your data warehouse on a schedule and writes the rows into Knock. Use syncs to keep your users, tenants, and other recipient data in Knock up to date from your warehouse.
 
-To send Knock's notification data to your warehouse instead, see [warehouse export](/integrations/extensions/warehouse-export).
+To send Knock's message data to your warehouse instead, see [warehouse export](/integrations/extensions/warehouse-export).
 
 ## How syncs work
 
-1. **Connect a warehouse.** Add your warehouse once from **Platform** > **Sources**. Every environment in your account can sync from it.
+1. **Connect a warehouse.** Go to **Platform** > **Sources** and add your warehouse. You add a warehouse once for your whole account, and syncs in any environment, such as Development or Production, can read from it.
 2. **Create a sync.** A sync reads a table or SQL query, then writes each changed row to the corresponding resource in Knock. You choose how columns map to Knock fields and how often it runs. See [create a sync](#create-a-sync).
 
 When you publish a sync, it runs once right away and then on its schedule. Each run applies only the rows that changed since the last run.
@@ -22,14 +22,21 @@ When you publish a sync, it runs once right away and then on its schedule. Each 
 
 | Warehouse                                         | How Knock connects                             |
 | ------------------------------------------------- | ---------------------------------------------- |
-| [Amazon Redshift](/integrations/sources/redshift) | An IAM role Knock assumes                      |
+| [Amazon Redshift](/integrations/sources/redshift) | An IAM role you give Knock access to           |
 | [Snowflake](/integrations/sources/snowflake)      | Key-pair authentication                        |
 | [PostgreSQL](/integrations/sources/postgresql)    | A database user and password                   |
 | [Google BigQuery](/integrations/sources/bigquery) | A service account in your Google Cloud project |
+| Databricks                                        | Coming soon                                    |
 
 If you'd like us to support a warehouse that isn't listed, let us know at [support@knock.app](mailto:support@knock.app?subject=Warehouse%20syncs).
 
-Each warehouse you add reads from one database. To sync from more than one database, add a warehouse for each. A warehouse's page in the dashboard has three tabs:
+<Callout
+  type="info"
+  title="Note:"
+  text="Each warehouse you add reads from one database. To sync from more than one database, add a warehouse for each."
+/>
+
+A warehouse's page in the dashboard has three tabs:
 
 - **Syncs** lists the warehouse's syncs in your current environment.
 - **Runs** lists recent runs of those syncs.
@@ -63,7 +70,8 @@ Each sync writes to one of these resources in Knock:
 
 To create a sync, switch to the environment you want to sync into, go to **Platform** > **Sources**, open the warehouse, and click **Create sync**. The editor has six steps.
 
-### 1. Details
+<Steps titleSize="h4">
+  <Step title="Details">
 
 - **Name** is how the sync appears in Knock.
 - **Key** identifies the sync. It can't be changed after the sync is created.
@@ -74,7 +82,8 @@ To create a sync, switch to the environment you want to sync into, go to **Platf
 
 A sync writes to one collection. To sync several collections, create a sync for each and filter its rows with a `WHERE` clause in a SQL query.
 
-### 2. Source
+  </Step>
+  <Step title="Source">
 
 Choose what the sync reads:
 
@@ -83,13 +92,15 @@ Choose what the sync reads:
 
 If an admin has turned on **Knock agents** in your account's [AI settings](/ai/agent#configuration), click **Ask agent** to have it write the query, or **Ask agent to fix** when a preview fails.
 
-### 3. Preview
+  </Step>
+  <Step title="Preview">
 
 Knock shows the first 20 rows as your warehouse returns them; confirm the data you expect is available with this sample. You map columns from this preview in the next step.
 
-### 4. Map columns
+  </Step>
+  <Step title="Map columns">
 
-#### Primary key
+**Primary key**
 
 Choose the column that uniquely identifies each row (usually the ID). Knock uses the primary key to find rows that changed.
 
@@ -97,7 +108,7 @@ For users, tenants, and objects, the primary key is also the record's ID in Knoc
 
 For subscriptions and audience members, if no single column is unique, build one in a SQL query such as `account_id || ':' || user_id`.
 
-#### Columns
+**Columns**
 
 Check each column you want to sync, or check **Sync all columns**. Then choose its **Knock field**:
 
@@ -126,7 +137,7 @@ Columns you don't check are never changed in Knock.
   }
 />
 
-#### Audience members and subscriptions
+**Audience members and subscriptions**
 
 Audience member and subscription syncs work differently from the others:
 
@@ -147,7 +158,8 @@ For subscriptions, choose:
 
 Knock creates the user or object if it doesn't exist yet, with no name or properties. Any other columns you check become properties on the subscription.
 
-### 5. Change detection
+  </Step>
+  <Step title="Change detection">
 
 Both columns are optional. With neither, each run reads the whole source and compares it with the last run to find what changed. That works for most tables.
 
@@ -156,15 +168,17 @@ Both columns are optional. With neither, each run reads the whole source and com
 
 See [deleted rows](#deleted-rows).
 
-{/* PENDING: deleting flagged users, tenants, and objects ships in control#12882 and switchboard#8335. Until both merge, flagged rows on these syncs are skipped. Check both are merged before publishing. */}
-
-### 6. Schedule
+  </Step>
+  <Step title="Schedule">
 
 Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 hours, or day. You can change this or pause the sync later from its **Settings** tab.
 
 {/* TODO: confirm whether Production has a minimum frequency before publishing. */}
 
-### Save and publish
+  </Step>
+</Steps>
+
+#### Save and publish
 
 - **Save draft** saves the sync without running it.
 - **Save and publish** saves the sync and makes it live. A new sync runs once right away, then on its schedule.
@@ -184,7 +198,7 @@ A sync's page has four tabs:
 - **Settings** has the schedule and the option to archive the sync.
 - **Changes** lists each published version.
 
-### Sync statuses
+#### Sync statuses
 
 | Status          | Meaning                                                                     |
 | --------------- | --------------------------------------------------------------------------- |
@@ -197,19 +211,19 @@ A sync's page has four tabs:
 
 A published sync can also have a draft. When you save edits to a published sync without publishing them, it keeps its status, shows **Unpublished changes**, and keeps running the published version until you publish.
 
-### Run a sync now
+#### Run a sync now
 
 Click **Run now** on a published sync to run it right away. If a run is already in progress, Knock doesn't start another.
 
-### Pause and resume
+#### Pause and resume
 
 Click **Pause** on the sync, or turn off **Run on schedule** on its **Settings** tab. A run that has already started finishes. Click **Resume** to start running on the schedule again.
 
-### Change the schedule
+#### Change the schedule
 
 On the sync's **Settings** tab, change the **Frequency**. Schedule changes apply right away and don't create a new version.
 
-### Edit a sync
+#### Edit a sync
 
 On the sync's **Overview** tab, click the edit button on the section you want to change: **Details**, **Source**, **Mappings**, or **Change detection**. The key, target, and warehouse can't be changed.
 
@@ -217,11 +231,11 @@ Click **Save** to save a new version. The sync shows **Unpublished changes** unt
 
 When you publish a change to the table or query, the primary key, or a change detection column, the next run reads every row in the source again. Rows removed from the source before that run aren't treated as deleted.
 
-### Version history
+#### Version history
 
 The **Changes** tab lists every published version of the sync, newest first, with who published it and when. Click the revert button on a version to publish it again as a new version. You can revert in any environment, including Production.
 
-### Clone a sync
+#### Clone a sync
 
 Click **Clone** on a sync to copy its source, mappings, and schedule into a new sync. The copy can go in the same environment or another one.
 
@@ -229,7 +243,7 @@ Enter a name and key for the copy, and choose the warehouse it reads from. For o
 
 The copy includes the sync's unpublished changes. It starts as a draft, with no runs.
 
-### Archive a sync
+#### Archive a sync
 
 On the sync's **Settings** tab, click **Archive sync**. Knock stops running the sync, and its key can be used again. Records it already wrote stay in Knock. This can't be undone.
 
@@ -252,7 +266,7 @@ The sync's **Runs** tab lists its 25 most recent runs, with when each started, i
 
 Each run only applies rows that changed since the last run. A run that finds no changes applies nothing.
 
-### Run details
+#### Run details
 
 Click a run to see its details:
 
@@ -273,7 +287,7 @@ The sync shows **Needs attention**, and its **Overview** tab says why the last r
 
 What happens when a row is deleted depends on what the sync writes to.
 
-**Subscriptions and audience members.** When a row is deleted from your warehouse or no longer matches your query, Knock unsubscribes the user from the object or removes them from the audience. You can also use a [deleted flag column](#5-change-detection) to mark rows to remove. If the sync has a last modified column, Knock only sees rows that changed, so use a deleted flag column instead of deleting rows.
+**Subscriptions and audience members.** When a row is deleted from your warehouse or no longer matches your query, Knock unsubscribes the user from the object or removes them from the audience. You can also use a [deleted flag column](#change-detection) to mark rows to remove. If the sync has a last modified column, Knock only sees rows that changed, so use a deleted flag column instead of deleting rows.
 
 **Users, tenants, and objects.** Deleting a row doesn't delete the record in Knock. To delete records, add a deleted flag column and a last modified column to the sync. Knock deletes the records for rows where the flag is true. This can't be undone.
 
@@ -283,7 +297,9 @@ A warehouse is shared by every environment in your account. A sync belongs to on
 
 Syncs aren't part of the commit and promote flow. You create and edit a sync in the environment it syncs into, including Production. Each published version is listed on the sync's **Changes** tab, where you can revert to an earlier one. Syncs aren't available in branch environments.
 
-## Permissions
+## Manage a warehouse
+
+### Permissions
 
 | Action                                  | Built-in roles       | Custom permission groups  |
 | --------------------------------------- | -------------------- | ------------------------- |
@@ -293,7 +309,7 @@ Syncs aren't part of the commit and promote flow. You create and edit a sync in 
 
 To open the **Sources** page, a custom permission group must also be allowed to view integrations. Recipient data permissions are set per environment, so a group can manage syncs in Development and only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions).
 
-## Connection status
+### Connection status
 
 The connection's status shows on the warehouse's page and in the **Connected** list on the **Sources** page:
 
@@ -316,7 +332,7 @@ A connection change applies to every environment. Test the connection after you 
   text="A connection test only checks that Knock can log in. If a table is missing when you create a sync, or its preview fails, check the database user's grants."
 />
 
-## Connect through an SSH tunnel
+### Connect through an SSH tunnel
 
 Redshift and PostgreSQL connections can go through a bastion host when the database isn't reachable from the internet.
 
@@ -328,7 +344,7 @@ Redshift and PostgreSQL connections can go through a bastion host when the datab
 
 To use a key that's already authorized on the bastion host, paste its public key into **Public key** before saving.
 
-## Archive a warehouse
+### Archive a warehouse
 
 To remove a warehouse, first archive its syncs in every environment. Then click **Archive warehouse** on its **Details** tab. Knock removes the warehouse from every environment and deletes its saved connection, including any password or key. This can't be undone. To sync from the database again, add it as a new warehouse.
 
@@ -373,3 +389,38 @@ Record IDs are strings. If your ID column is a number, cast it in your query, su
 | Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                     |
 | A record is still in Knock after its row is gone | See [deleted rows](#deleted-rows). If the sync has a last modified column, set the row's deleted flag instead of deleting the row. |
 | No runs appear                                   | That the sync is published and not paused. Click **Run now** to run it without waiting.                                            |
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Can I sync from more than one database?"
+    anchorSlug="faq-more-than-one-database"
+  >
+    Yes. Each warehouse you add reads from one database, so add a warehouse for
+    each database you want to sync from.
+  </Accordion>
+  <Accordion
+    title="What happens when I delete a row in my warehouse?"
+    anchorSlug="faq-delete-a-row"
+  >
+    It depends on what the sync writes to. Subscription and audience member
+    syncs unsubscribe the user or remove them from the audience. User, tenant,
+    and object syncs keep the record in Knock unless the row is marked with a
+    deleted flag column. See <a href="#deleted-rows">deleted rows</a>.
+  </Accordion>
+  <Accordion title="How often can a sync run?" anchorSlug="faq-how-often">
+    As often as every 10 minutes. To run a published sync between scheduled
+    runs, click **Run now**.
+  </Accordion>
+  <Accordion
+    title="Why does editing the query re-read every row?"
+    anchorSlug="faq-edit-query-rereads-rows"
+  >
+    Knock finds changed rows by comparing each run with the last one. When you
+    publish a change to the table or query, the primary key, or a change
+    detection column, there's no earlier run of the new version to compare with,
+    so the next run reads every row in the source again. Edits to the mappings
+    don't do this.
+  </Accordion>
+</AccordionGroup>
