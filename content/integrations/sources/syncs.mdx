@@ -13,8 +13,8 @@ To send Knock's message data to your warehouse instead, see [warehouse export](/
 
 ## How syncs work
 
-1. **Connect a warehouse.** Go to **Platform** > **Sources** and add your warehouse. You add a warehouse once for your whole account, and syncs in any environment, such as Development or Production, can read from it.
-2. **Create a sync.** A sync reads a table or SQL query, then writes each changed row to the corresponding resource in Knock. You choose how columns map to Knock fields and how often it runs. See [create a sync](#create-a-sync).
+1. **Connect a warehouse.** Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a> and add your warehouse. You add a warehouse once for your whole account.
+2. **Create a sync.** A sync reads a table or SQL query, then writes each changed row to the corresponding resource in Knock. You create a sync in each Knock [environment](/version-control/environments) you want to sync into, and choose how columns map to Knock fields and how often it runs. See [create a sync](#create-a-sync).
 
 When you publish a sync, it runs once right away and then on its schedule. Each run applies only the rows that changed since the last run.
 
@@ -68,9 +68,9 @@ Each sync writes to one of these resources in Knock:
 
 ## Create a sync
 
-To create a sync, switch to the environment you want to sync into, go to **Platform** > **Sources**, open the warehouse, and click **Create sync**. The editor has six steps.
+To create a sync, switch to the environment you want to sync into, go to **Platform** > **Sources**, open the warehouse, and click **Create sync**. Then complete the following steps.
 
-<Steps titleSize="h4">
+<Steps>
   <Step title="Details">
 
 - **Name** is how the sync appears in Knock.
@@ -78,7 +78,7 @@ To create a sync, switch to the environment you want to sync into, go to **Platf
 - **Syncs to** is what each row writes to: **users**, **tenants**, **objects**, **audience members**, or **subscriptions**. It can't be changed later.
   - For objects, enter the **collection** to write to.
   - For subscriptions, enter the **collection** of the objects users subscribe to. It defaults to `$tenants`.
-  - For audience members, choose an **audience** (only static audiences are supported for syncs).
+  - For audience members, choose an **audience**. Only [static audiences](/concepts/audiences#static-audiences) are supported for syncs.
 
 A sync writes to one collection. To sync several collections, create a sync for each and filter its rows with a `WHERE` clause in a SQL query.
 
@@ -95,7 +95,7 @@ If an admin has turned on **Knock agents** in your account's [AI settings](/ai/a
   </Step>
   <Step title="Preview">
 
-Knock shows the first 20 rows as your warehouse returns them; confirm the data you expect is available with this sample. You map columns from this preview in the next step.
+Knock shows the first 20 rows as your warehouse returns them; confirm the data you expect is available with this sample. You'll map columns from this preview in the next step.
 
   </Step>
   <Step title="Map columns">
@@ -112,10 +112,10 @@ For subscriptions and audience members, if no single column is unique, build one
 
 Check each column you want to sync, or check **Sync all columns**. Then choose its **Knock field**:
 
-| Target  | Standard fields                                         |
-| ------- | ------------------------------------------------------- |
-| Users   | `name`, `email`, `phone_number`, `avatar`, `created_at` |
-| Tenants | `name`                                                  |
+| Target  | Standard fields                                                               |
+| ------- | ----------------------------------------------------------------------------- |
+| Users   | `name`, `email`, `phone_number`, `avatar`, `created_at`, `timezone`, `locale` |
+| Tenants | `name`                                                                        |
 
 Any other field name becomes a custom property. Objects have no standard fields, so every field you map on an object is a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number.
 
@@ -125,7 +125,7 @@ Columns you don't check are never changed in Knock.
 
 <Callout
   type="info"
-  title="When null:"
+  title={`Configuring the "When null" setting:`}
   text={
     <>
       <strong>When null</strong> sets what happens when a row's value is null.{" "}
@@ -148,7 +148,10 @@ For audience members, choose:
 - **User ID column.** The user each row adds to the audience.
 - **Tenant column.** Optional. Adds the user for this tenant only.
 
-While a published sync manages an audience, its members can't be changed any other way, including from the dashboard or the API. This applies even while the sync is paused.
+<Callout
+  type="warning"
+  text="While a published sync manages an audience, its members can't be changed any other way, including from the dashboard or the API. This applies even while the sync is paused."
+/>
 
 For subscriptions, choose:
 
@@ -160,12 +163,12 @@ Knock creates the user or object if it doesn't exist yet, with no name or proper
   </Step>
   <Step title="Change detection">
 
-Both columns are optional. With neither, each run reads the whole source and compares it with the last run to find what changed. That works for most tables.
+Both columns are optional. With neither, each run reads the whole source and compares it with the last run to find what changed.
 
 - **Last modified column.** Use this when you want each run to only read rows that changed since the last run. It should be a timestamp column that updates whenever a row changes.
-- **Deleted flag column.** A true or false column that marks rows to remove. Flagged rows unsubscribe the user from the object, remove the member from the audience, or delete the user, tenant, or object from Knock. Deleting a user, tenant, or object can't be undone. **Note:** for users, tenants, and objects, a deleted flag column requires a last modified column.
+- **Deleted flag column.** A boolean column that marks rows to remove. Knock removes rows where it's `true`. **Note:** for users, tenants, and objects, a deleted flag column requires a last modified column.
 
-See [deleted rows](#deleted-rows).
+See [deleted rows](#deleted-rows) for more information on what happens when a row is removed from your source table.
 
   </Step>
   <Step title="Schedule">
@@ -173,9 +176,7 @@ See [deleted rows](#deleted-rows).
 Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 hours, or day. You can change this or pause the sync later from its **Settings** tab.
 
   </Step>
-</Steps>
-
-#### Save and publish
+  <Step title="Save and publish">
 
 - **Save draft** saves the sync without running it.
 - **Save and publish** saves the sync and makes it live. A new sync runs once right away, then on its schedule.
@@ -183,6 +184,9 @@ Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 
 Before publishing, Knock checks the preview rows. **Save and publish** is blocked when it detects an issue with the incoming data, but **Save draft** still works.
 
 The sync shows **Publishing** until it's live. If it doesn't go live, it shows **Delivery failed** with the error and a **Retry delivery** button.
+
+  </Step>
+</Steps>
 
 ## Manage a sync
 
@@ -252,7 +256,7 @@ On the sync's **Settings** tab, click **Archive sync**. Knock stops running the 
   text="If you edit a sync's table or query, primary key, or change detection columns, you won't see runs from before that edit was published. Edits to the mappings keep the run history."
 />
 
-The sync's **Runs** tab lists its 25 most recent runs, with when each started, its status, and how many rows were read and failed. The warehouse's **Runs** tab lists the 25 most recent runs across all its syncs, and you can filter it by sync or status.
+The sync's **Runs** tab lists its 25 most recent runs, with when each started, its status, how many rows it read, and how many failed. The warehouse's **Runs** tab lists the 25 most recent runs across all its syncs, and you can filter it by sync or status.
 
 | Status                | Meaning                                    |
 | --------------------- | ------------------------------------------ |
@@ -282,7 +286,7 @@ What happens when a row is deleted depends on what the sync writes to.
 
 **Subscriptions and audience members.** When a row is deleted from your warehouse or no longer matches your query, Knock unsubscribes the user from the object or removes them from the audience. You can also use a [deleted flag column](#change-detection) to mark rows to remove. If the sync has a last modified column, Knock only sees rows that changed, so use a deleted flag column instead of deleting rows.
 
-**Users, tenants, and objects.** Deleting a row doesn't delete the record in Knock. To delete records, add a deleted flag column and a last modified column to the sync. Knock deletes the records for rows where the flag is true. This can't be undone.
+**Users, tenants, and objects.** Deleting a row doesn't delete the record in Knock. To delete records, add a deleted flag column and a last modified column to the sync. Knock deletes the records for rows where the flag is `true`. This can't be undone.
 
 ## Environments
 
@@ -302,7 +306,7 @@ Syncs aren't part of the commit and promote flow. You create and edit a sync in 
 
 Production-only members can view and manage syncs only in Production.
 
-To open the **Sources** page, a custom permission group must also be allowed to view integrations. Recipient data permissions are set per environment, so a group can manage syncs in Development and only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions).
+To open the **Sources** page, a custom permission group must also be allowed to view integrations. Recipient data permissions are set per environment, so it's possible for a custom group to manage syncs in Development and only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions) for more information.
 
 ### Connection status
 
