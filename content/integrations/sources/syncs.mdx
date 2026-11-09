@@ -87,7 +87,7 @@ A sync writes to one collection. To sync several collections, create a sync for 
 
 Choose what the sync reads:
 
-- **Table or view** reads one table or view. If a table you just created isn't listed, click **Refresh tables**.
+- **Table or view** reads one table or view. If a table you just created isn't listed, click the refresh icon next to the table picker.
 - **SQL query** reads the result of a query. Write the query and click **Preview query**. Use a query to filter rows, join tables, rename columns, or convert types. See [data types](#data-types).
 
 If an admin has turned on **Knock agents** in your account's [AI settings](/ai/agent#configuration), click **Ask agent** to have it write the query, or **Ask agent to fix** when a preview fails.
@@ -116,9 +116,8 @@ Check each column you want to sync, or check **Sync all columns**. Then choose i
 | ------- | ------------------------------------------------------- |
 | Users   | `name`, `email`, `phone_number`, `avatar`, `created_at` |
 | Tenants | `name`                                                  |
-| Objects | `name`                                                  |
 
-Any other field name not in the standard fields becomes a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number.
+Any other field name becomes a custom property. Objects have no standard fields, so every field you map on an object is a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number.
 
 A column that holds a JSON object can be mapped as one property, or each of its keys can be mapped to its own field.
 
@@ -172,8 +171,6 @@ See [deleted rows](#deleted-rows).
   <Step title="Schedule">
 
 Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 hours, or day. You can change this or pause the sync later from its **Settings** tab.
-
-{/* TODO: confirm whether Production has a minimum frequency before publishing. */}
 
   </Step>
 </Steps>
@@ -275,10 +272,6 @@ Click a run to see its details:
 - **Rejected rows** and **Failed rows**, with a sample of each grouped by error, and the primary keys each error affected.
 - The batches Knock received. Large runs arrive in several batches, which Knock applies in order.
 
-{/* PENDING: the Applied, Failed, and Failed rows labels ship in control#12930. Until it merges, the dashboard says Applied in Knock and Failed in Knock. Check it's merged before publishing. */}
-
-{/* PENDING: failure emails. When a run fails, account owners and admins get at most one email per sync every 24 hours. The workflow that sends them isn't live yet, so leave this out until it is. */}
-
 ## When a run fails
 
 The sync shows **Needs attention**, and its **Overview** tab says why the last run failed. If the warehouse's connection works, the warehouse also shows **Needs attention** on the **Sources** page. The sync keeps running on its schedule, and the status clears after a run succeeds.
@@ -301,11 +294,13 @@ Syncs aren't part of the commit and promote flow. You create and edit a sync in 
 
 ### Permissions
 
-| Action                                  | Built-in roles       | Custom permission groups  |
-| --------------------------------------- | -------------------- | ------------------------- |
-| Add, edit, test, and archive warehouses | Owner, Admin         | Can manage integrations   |
-| View warehouses and syncs               | Owner, Admin, Member | Can view recipient data   |
-| Create and manage syncs                 | Owner, Admin, Member | Can manage recipient data |
+| Action                                  | Built-in roles                               | Custom permission groups  |
+| --------------------------------------- | -------------------------------------------- | ------------------------- |
+| Add, edit, test, and archive warehouses | Owner, Admin                                 | Can manage integrations   |
+| View warehouses and syncs               | Owner, Admin, Member, Production-only member | Can view recipient data   |
+| Create and manage syncs                 | Owner, Admin, Member, Production-only member | Can manage recipient data |
+
+Production-only members can view and manage syncs only in Production.
 
 To open the **Sources** page, a custom permission group must also be allowed to view integrations. Recipient data permissions are set per environment, so a group can manage syncs in Development and only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions).
 
@@ -373,8 +368,6 @@ A user's `created_at` must include a timezone, such as `2026-09-26T20:19:49Z`.
 - **Snowflake.** Timestamp columns, including `TIMESTAMP_NTZ`, can be mapped directly.
 - **Text columns.** The value must include a timezone, such as `Z` or `+00:00`.
 
-{/* TODO: after the first real BigQuery run, document whether TIMESTAMP and DATETIME columns can be mapped to created_at directly. */}
-
 ### IDs
 
 Record IDs are strings. If your ID column is a number, cast it in your query, such as `CAST(account_id AS VARCHAR)`.
@@ -383,7 +376,7 @@ Record IDs are strings. If your ID column is a number, cast it in your query, su
 
 | Problem                                          | What to check                                                                                                                      |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| A table is missing from the table picker         | Click **Refresh tables**. If it's still missing, check the database user's grants.                                                 |
+| A table is missing from the table picker         | Click the refresh icon next to the table picker. If it's still missing, check the database user's grants.                          |
 | The preview or a run fails reading the source    | That the database user can read every table the query uses.                                                                        |
 | Every row is rejected                            | A type mismatch, most often a Redshift or PostgreSQL `TIMESTAMP` mapped to `created_at`. See [timestamps](#timestamps).            |
 | Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                     |
