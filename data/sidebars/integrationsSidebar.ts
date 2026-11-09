@@ -15,8 +15,8 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/syncs", title: "Syncs" },
       { slug: "/streams", title: "Event streams" },
+      { slug: "/syncs", title: "Syncs" },
       { slug: "/redshift", title: "Amazon Redshift" },
       { slug: "/amplitude", title: "Amplitude" },
       { slug: "/census", title: "Census" },
