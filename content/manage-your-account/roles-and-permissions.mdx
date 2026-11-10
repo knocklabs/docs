@@ -20,6 +20,8 @@ Knock uses an account-level roles model, where a given account member's role det
 
 You set an account member's role when you invite them to the Knock dashboard. You can update their role on the **Members** page under the **Admin** section of your account settings. Learn more in our [managing members documentation](/manage-your-account/managing-members).
 
+## Built-in roles
+
 Knock provides a set of built-in roles for common team functions.
 
 Here's an overview of the built-in roles available to Knock account members:
@@ -27,7 +29,7 @@ Here's an overview of the built-in roles available to Knock account members:
 - **Owner.** For your primary admin who manages billing. This role can invite and manage members, manage billing, and do anything available in the admin role. Your account must always have at least one account owner.
 - **Admin.** For admins who need to manage account-level settings. This role can invite and manage members (excluding owner and billing roles), manage account branding, manage environments and channels, and manage advanced developer concepts such as signing keys, enhanced security mode, variables, and webhooks. This role has all permissions available to the member role.
 - **Member.** For users who are editing notification workflows and templates in Knock. This role can manage workflows, guides, broadcasts, and other content, as well as users, objects, and tenants. It can commit changes and has full access to message and API logs for debugging. If you've enabled [environments](/version-control/environments), it can also promote changes to subsequent environments.
-- **Production-only member.** For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only has access to the production environment. Until you enable [environments](/version-control/environments), these roles have the same level of access.
+- **Production-only member.** For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only has access to the production environment. Until you enable environments, these roles have the same level of access.
 - **Support.** For users who should be able to view workflows and content and dig into message and API logs for debugging, but shouldn't be able to make changes.
 - **Billing.** For account members who shouldn't have access to anything in Knock but billing.
 
@@ -61,11 +63,132 @@ When you create a permission group, you choose which capabilities members in tha
 - **Account.** Settings and resources that apply across the whole account, such as members, billing, integrations, and API keys.
 - **Environment.** Resources that live in an environment, such as workflows, guides, content, broadcasts, audiences, recipient data, observability, and release management.
 
-Most capabilities support none, view, and manage. Release management uses a different set of levels:
+Most capabilities support none, view, and manage permissions. Release management uses a different set of levels:
 
 - **None.** No commit or promotion access in that environment.
 - **Commit.** Commit changes in that environment.
 - **Manage.** Commit and promote changes between environments.
+
+#### Account capabilities
+
+Account capabilities apply account-wide and cannot be limited to specific environments. Each capability bundles a set of permissions:
+
+<AccordionGroup>
+  <Accordion title="Account content" anchorSlug="capability-account-content">
+
+    - **View:** [Variables](/concepts/variables), tags, saved views, [account branding](/template-editor/branding), [environment default preferences](/preferences/overview#environment-level-default-preferences), [preference centers](/preferences/hosted-preference-center), [recipient schemas](/managing-recipients/schemas), and [agent skills](/ai/skills).
+    - **Manage:** Everything in view, plus [goals](/concepts/goals) and preference categories.
+
+  </Accordion>
+  <Accordion title="Account governance" anchorSlug="capability-account-governance">
+
+    - **Manage:** Account settings, [SSO](/manage-your-account/saml-sso), [directory sync](/manage-your-account/directory-sync), [custom domains](/manage-your-account/custom-domains), and [environments](/version-control/environments).
+
+  </Accordion>
+  <Accordion title="API keys" anchorSlug="capability-api-keys">
+
+    - **View:** [API keys](/developer-tools/api-keys) and [signing keys](/in-app-ui/security-and-authentication).
+    - **Manage:** API keys and signing keys.
+
+  </Accordion>
+  <Accordion title="Audit logs" anchorSlug="capability-audit-logs">
+
+    - **View:** Account [audit logs](/manage-your-account/audit-logs).
+
+  </Accordion>
+  <Accordion title="Billing" anchorSlug="capability-billing">
+
+    - **View:** Billing.
+    - **Manage:** Billing.
+
+  </Accordion>
+  <Accordion title="Integrations" anchorSlug="capability-integrations">
+
+    - **View:** [Channels](/concepts/channels), [sources](/integrations/sources/overview), [webhooks](/developer-tools/outbound-webhooks/overview), and [event routing](/integrations/sources/streams#event-to-action-mapping).
+    - **Manage:** Everything in view, plus [extensions](/integrations/overview#platform-extensions) and partner integrations.
+
+  </Accordion>
+  <Accordion title="Members" anchorSlug="capability-members">
+
+    - **View:** Account [members](/manage-your-account/managing-members) and permission groups.
+    - **Manage:** Account members and permission groups.
+
+  </Accordion>
+  <Accordion title="Service tokens" anchorSlug="capability-service-tokens">
+
+    - **View:** [Service tokens](/developer-tools/service-tokens).
+    - **Manage:** Service tokens.
+
+  </Accordion>
+</AccordionGroup>
+
+#### Environment capabilities
+
+You can set environment capabilities to the same level in every environment or to a different level in each one. Learn more in [environment access](#environment-access).
+
+<AccordionGroup>
+  <Accordion title="Workflows" anchorSlug="capability-workflows">
+
+    - **View:** [Workflows](/concepts/workflows), their [commit history](/version-control/commits), goals, preference categories, and recipient schemas.
+    - **Manage:** Everything in view, plus [running test workflows](/send-notifications/testing-workflows).
+
+    The workflow editor requires view access to additional resources, so the dashboard grants it when you enable workflows at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage [assets](/manage-your-account/managing-assets).
+
+  </Accordion>
+  <Accordion title="Guides" anchorSlug="capability-guides">
+
+    - **View:** [Guides](/concepts/guides), goals, preference categories, and recipient schemas.
+    - **Manage:** Everything in view, plus previewing guides.
+
+    The guide editor requires view access to additional resources, so the dashboard grants it when you enable guides at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
+
+  </Accordion>
+  <Accordion title="Content" anchorSlug="capability-content">
+
+    - **View:** [Email layouts](/integrations/email/layouts), [partials](/template-editor/partials/overview), [reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions), [translations](/template-editor/translations), [message types](/in-app-ui/message-types/overview), goals, preference categories, and recipient schemas.
+    - **Manage:** Everything in view.
+
+    Content resource editors require view access to additional resources, so the dashboard grants it when you enable content at any permission level. This includes [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
+
+  </Accordion>
+  <Accordion title="Broadcasts" anchorSlug="capability-broadcasts">
+
+    - **View:** [Broadcasts](/concepts/broadcasts), goals, preference categories, and recipient schemas.
+    - **Manage:** Everything in view, plus sending broadcasts.
+
+    The broadcast editor requires view access to additional resources, so the dashboard grants it when you enable broadcasts at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
+
+  </Accordion>
+  <Accordion title="Audiences" anchorSlug="capability-audiences">
+
+    - **View:** [Audiences](/concepts/audiences).
+    - **Manage:** Everything in view, plus importing audience data from a CSV.
+
+  </Accordion>
+  <Accordion title="Recipient data" anchorSlug="capability-recipient-data">
+
+    - **View:** [Users](/concepts/users), [tenants](/multi-tenancy/overview), [objects](/concepts/objects), [schedules](/concepts/schedules), and [warehouse syncs](/integrations/sources/syncs).
+    - **Manage:** Everything in view, plus importing users from a CSV.
+
+  </Accordion>
+  <Accordion title="Observability" anchorSlug="capability-observability">
+
+    - **View:** [Analytics](/send-notifications/analytics), [message logs](/concepts/messages), [API logs](/developer-tools/api-logs), [workflow run logs](/send-notifications/debugging-workflows), and schedules.
+
+  </Accordion>
+  <Accordion title="Release management" anchorSlug="capability-release-management">
+
+    - **Commit:** Viewing commit history and committing changes.
+    - **Manage:** Everything in commit, plus [promoting changes](/version-control/commits#promoting-commits) between environments.
+
+  </Accordion>
+  <Accordion title="Branches" anchorSlug="capability-branches">
+
+    - **View:** [Branches](/version-control/branches).
+    - **Manage:** Everything in view.
+
+  </Accordion>
+</AccordionGroup>
 
 ### Environment access
 
