@@ -40,22 +40,22 @@ Run `knock agent` with no prompt in a terminal to chat. The command waits for a 
 In the chat:
 
 - **Stop the current run.** Press Esc or Ctrl-C. The chat stays open. Press Ctrl-C again while the run is stopping to exit. The chat ignores other input until the run ends.
-- **Leave the chat.** Press Ctrl-D, or submit `/exit`. At the prompt, Ctrl-C clears the line you are typing, and quits when the line is empty. The command prints how to resume the session.
+- **Leave the chat.** Press Ctrl-D, or submit `/exit` or `/quit`. At the prompt, Ctrl-C clears the line you are typing, and quits when the line is empty. Once a session has started, the command prints how to resume it.
 - **Continue a line.** End a line with `\` to keep typing on the next line. A paste is sent as one prompt.
 
 A chat needs a terminal. `--json` and `--response-only` need a prompt as well. Without a terminal, pass the prompt as an argument or with `-`. Closing the terminal stops the agent.
 
-To continue a session, pass `--session` with the session id or with the session's dashboard URL. With a prompt, this runs one follow-up. With no prompt, in a terminal, this resumes the chat. The agent keeps what it knows from that session.
+To continue a session, pass `--session` with the session ID or with the session's dashboard URL. With a prompt, this runs one follow-up. With no prompt, in a terminal, this resumes the chat. The agent keeps what it knows from that session.
 
 A follow-up keeps the session's environment or branch. Pass `--environment` or `--branch` on that command to move the session. You can follow up after a run finishes, including a run that failed. When a session is still running, wait for that run to finish before you send another prompt.
 
 Pass `--branch` to run on a [branch](/version-control/branches) in the development environment. When a `.knockbranch` file is present, a new session uses that branch. [Switching to a branch](/cli/branch/switch) writes this file. Pass `--environment` to select an environment when no branch applies. Omitting both uses the account's default environment. A branch can only be used with the development environment, so when the branch comes from `.knockbranch`, [exit the branch](/cli/branch/exit) with `knock branch exit` before you target another environment. A follow-up leaves the session where it is, including when `.knockbranch` names a branch.
 
-By default the command shows the agent's activity as it happens, then lists the resources it changed. `--response-only` waits until the run finishes, then prints the response and that same list. `--json` prints one JSON object and no activity. That object includes:
+`--response-only` waits until the run finishes, then prints the response and the list of changed resources. `--json` prints one JSON object and no activity. That object includes:
 
-- **`session_id`.** The id to pass to `--session`.
-- **`run_id`.** The id of this prompt's run.
-- **`session_url`.** The dashboard link for the session.
+- **`session_id`.** The ID to pass to `--session`.
+- **`run_id`.** The ID of this prompt's run.
+- **`session_url`.** The dashboard link for the session. Omitted when the CLI can't look up the account.
 - **`status`.** One of `complete`, `error`, `timeout`, `interrupted`, or `lost`.
 - **`text`.** The agent's response.
 - **`tool_calls`.** Each tool the agent called, with `call_id`, `name`, and `arguments`.
@@ -81,7 +81,7 @@ The command waits 1800 seconds by default. Pass `--timeout` to wait a different 
   <Attribute
     name="--session"
     type="string"
-    description="The id of an agent session to follow up in, or the session's dashboard URL."
+    description="The ID of an agent session to follow up in, or the session's dashboard URL."
   />
   <Attribute
     name="--response-only"
