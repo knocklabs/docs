@@ -1,21 +1,18 @@
 ---
 title: Sources in Knock
-description: Learn how to connect external services to Knock using incoming webhooks, CDPs, or reverse ETL integrations.
+description: Bring data into Knock from webhooks, CDPs, reverse ETL tools, and other external services.
 metaTitle: Source integrations overview
-metaDescription: Connect external services to Knock using incoming webhooks, CDPs like Segment, or reverse ETL tools like Hightouch and Census.
+metaDescription: Connect external services to Knock. Event streams from webhooks and CDPs like Segment drive workflows and keep recipient data current, and syncs from reverse ETL tools like Hightouch and Census keep users, tenants, and objects in step with your warehouse.
 section: Integrations > Sources
 layout: integrations
 ---
 
-Sources connect external services to Knock so that events from those services can drive actions such as triggering workflows, identifying users, and managing objects and tenants.
+Sources bring data from external services into Knock. Use them to trigger workflows and to keep users, tenants, objects, and audiences up to date.
 
-Knock supports three categories of source integrations:
+There are two kinds of sources:
 
-- **Incoming webhooks.** Receive events from services like Stripe, Clerk, and WorkOS. Pre-built templates handle payload verification and provide default action mappings, or create a [custom source](/integrations/sources/custom) for any webhook provider.
-
-- **CDP integrations.** Forward `track` and `identify` events from platforms like Segment and RudderStack to trigger workflows and keep recipient data in sync.
-
-- **Reverse ETL integrations.** Sync warehouse data from platforms like Hightouch and Census to keep users, objects, and tenants up to date.
+- **Event streams.** The service sends Knock an event each time something happens, and you choose what Knock does with each event, such as triggering a workflow or identifying a user. This covers incoming webhooks from services like Stripe, Clerk, and WorkOS, CDPs like Segment and RudderStack, and [custom sources](/integrations/sources/custom) for any other webhook provider. See [event streams](/integrations/sources/streams).
+- **Syncs.** A table you maintain elsewhere, such as in your data warehouse, keeps users, tenants, and objects in Knock up to date on a schedule. Reverse ETL tools like Hightouch, Census, and Polytomic sync warehouse data by calling the Knock API.
 
 ## Available sources
 
@@ -60,139 +57,3 @@ If you've enabled [environments](/version-control/environments), each source has
   height={1350}
 
 />
-
-## Triggering actions from source events
-
-When a source event is received, you can configure Knock to execute any of the following actions:
-
-| Action                 | Description                                                            |
-| ---------------------- | ---------------------------------------------------------------------- |
-| Trigger workflow       | Start a [workflow](/concepts/workflows) run for one or more recipients |
-| Cancel workflow        | Cancel an in-progress workflow run                                     |
-| Identify user          | Create or update a [user](/concepts/users) in Knock                    |
-| Subscribe user         | Add a user to an [object's subscribers list](/concepts/subscriptions)  |
-| Unsubscribe user       | Remove a user from an object's subscribers list                        |
-| Set object             | Create or update an [object](/concepts/objects)                        |
-| Delete object          | Remove an object                                                       |
-| Set tenant             | Create or update a [tenant](/multi-tenancy/overview)                   |
-| Delete tenant          | Remove a tenant                                                        |
-| Add audience member    | Add a member to an [audience](/concepts/audiences)                     |
-| Remove audience member | Remove a member from an audience                                       |
-
-### Event-to-action mapping
-
-After events start flowing into Knock you can configure mappings that tell Knock which action to run and how to populate its parameters. Mappings use dot-notation paths to extract values from the incoming payload and map them to the fields required by each action.
-
-<Image
-  src="/images/integrations/sources/event-action-mapping.png"
-  alt="The event-to-action mapping configuration in the Knock dashboard, showing how incoming event fields map to action parameters"
-  width={2912}
-  height={1448}
-
-/>
-
-For example, a Stripe `invoice.paid` event includes nested data about the invoice and customer:
-
-```json
-{
-  "type": "invoice.paid",
-  "data": {
-    "object": {
-      "id": "in_1abc123",
-      "customer": "cus_abc123",
-      "customer_email": "jane@example.com",
-      "amount_due": 4999,
-      "currency": "usd",
-      "subscription": "sub_xyz789"
-    }
-  }
-}
-```
-
-You could map `data.object.customer` to the `recipients` field and `data.object` to the `data` field when triggering a workflow, giving your templates access to the invoice amount, currency, and subscription details.
-
-### Execution order for multiple mappings
-
-If a single event type has multiple action mappings, Knock executes them in a fixed priority order based on action type, not the order in which you create mappings in the dashboard.
-
-1. `users_identify`
-2. `users_delete`
-3. `objects_set`
-4. `objects_delete`
-5. `tenants_set`
-6. `tenants_delete`
-7. `objects_subscribe`
-8. `objects_unsubscribe`
-9. `audiences_add_member`
-10. `audiences_remove_member`
-11. `workflows_trigger`
-
-This ordering is consistent across incoming webhook sources, including custom sources.
-
-For full details on configuring custom event types and field mappings, see the [custom source page](/integrations/sources/custom).
-
-## Debugging source events
-
-In some cases, you may need to debug source event connections to ensure your integration is sending the correct payloads to Knock.
-
-<Callout
-  emoji="⚠️"
-  title="Data subject to retention policy enforcement."
-  text={
-    <>
-      See the{" "}
-      <a href="/manage-your-account/data-retention">data retention docs</a> for
-      more details on how Knock enforces this policy.
-    </>
-  }
-/>
-
-#### Event logs
-
-Event logs show the contents of each event sent into Knock.
-
-#### Action logs
-
-Action logs describe what (if any) action Knock took after receiving an event. Action logs are a helpful starting point when troubleshooting workflows or auditing actions Knock has taken for any given event.
-
-#### Filtered values
-
-Before Knock stores these logs, it replaces the value of any [filtered log key](/manage-your-account/data-obfuscation#filtered-log-keys) with `[filtered]`. This covers the event contents, [preprocessing script](/integrations/sources/custom#preprocessing) output, action payload, and action result. Some keys that Knock filters by default in other logs, such as `email`, stay visible here unless you add them.
-
-Knock only filters the logged copy, so your actions still receive the full values. Action logs keep your field mappings as they are, since those values are paths and not event data.
-
-## Source event idempotency
-
-By default, Knock processes every valid event received from your source. You can enable idempotency checks to deduplicate events that have already been received and processed. This is useful if you know your source may send duplicate events.
-
-<Callout
-  type="warning"
-  emoji="💡"
-  title="The default idempotency window for Knock sources is 24 hours."
-  text={
-    <>
-      If you're interested in configuring a different idempotency window for
-      your account, please contact us at{" "}
-      <a href="mailto:support@knock.app">support@knock.app</a>.
-    </>
-  }
-/>
-
-Idempotency configuration varies by source type. For pre-built webhook integrations, Knock auto-configures the idempotency key. For CDP sources and custom webhooks, you may need to enable idempotency and verify the key field. See your individual source page for setup details.
-
-### Key validation
-
-Your idempotency keys must be valid strings no more than 255 characters in length. If an invalid key is found, Knock still ingests your source event but will not attempt to execute your event idempotently. In addition, Knock drops the invalid idempotency key and you will not see it appear in your event logs.
-
-### How Knock handles idempotent events
-
-When Knock executes a source event with an idempotency key, it first checks whether a preceding execution should be replayed. Knock finds a preceding execution if it is recorded within the idempotency window with the same:
-
-- Idempotency key value
-- Event type
-- Integration source configuration
-- Knock environment in your account
-
-If no preceding execution is found, Knock executes your event normally and records that execution for future replay by the same idempotency key. However, if Knock fails to execute your source event, it will not record the execution. Knock only records successful event executions for idempotent replay.
-
-If Knock replays an event via an idempotency check, you will still see an event log for that execution. However, the log will not have any actions associated and Knock will label it as idempotent.

@@ -15,6 +15,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/streams", title: "Event streams" },
       { slug: "/clerk", title: "Clerk" },
       { slug: "/posthog", title: "PostHog" },
       { slug: "/stripe", title: "Stripe" },
@@ -175,7 +176,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/slack", title: "Slack" },
-      { slug: "/data-sync", title: "Data warehouse sync" },
+      { slug: "/warehouse-export", title: "Warehouse export" },
       { slug: "/segment", title: "Segment" },
       { slug: "/datadog", title: "Datadog" },
       { slug: "/new-relic", title: "New Relic" },
