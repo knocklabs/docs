@@ -1,0 +1,50 @@
+---
+title: How to sync data from Amazon Redshift into Knock
+description: Sync Amazon Redshift models to Knock users, tenants, objects, audiences, and subscriptions.
+metaTitle: Amazon Redshift source integration
+metaDescription: Connect Amazon Redshift to Knock as a warehouse source and keep users, tenants, objects, audience members, and subscriptions in sync on a schedule.
+section: Integrations > Sources
+layout: integrations
+---
+
+Knock connects to Redshift by assuming an IAM role in your AWS account and requesting temporary credentials for a database user. You don't give Knock a password. Every environment in your account can sync from the warehouse once it's connected.
+
+## Add the warehouse
+
+To add or edit a warehouse, you need the owner or admin [role](/manage-your-account/roles-and-permissions), or a custom permission group that's allowed to manage integrations.
+
+1. Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a>.
+2. Under **Connect a new source**, click **Amazon Redshift**.
+3. Enter a **Name** and a **Key**. The key can't be changed later.
+4. Click **Add warehouse**. Knock opens the warehouse's **Details** tab.
+
+## Connect Amazon Redshift
+
+1. Create a database user for Knock and grant it read access to the tables you'll sync:
+
+   ```sql
+   CREATE USER knock_sync PASSWORD DISABLE;
+   GRANT USAGE ON SCHEMA analytics TO knock_sync;
+   GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO knock_sync;
+   ```
+
+2. Create an IAM role that Knock can assume, with permission to call `redshift:GetClusterCredentials` for that user and database.
+3. On the warehouse's **Details** tab, fill in the connection and click **Save connection**:
+
+   | Field              | What to enter                                                                   |
+   | ------------------ | ------------------------------------------------------------------------------- |
+   | Host               | The cluster endpoint, such as `cluster.abc123.us-east-1.redshift.amazonaws.com` |
+   | Port               | Defaults to `5439`                                                              |
+   | Database           | The database to read from                                                       |
+   | Cluster identifier | The Redshift cluster identifier                                                 |
+   | Region             | The cluster's AWS region, such as `us-east-1`                                   |
+   | Database user      | The user you created for Knock                                                  |
+   | IAM role ARN       | The role Knock assumes, such as `arn:aws:iam::123456789012:role/knock-sync`     |
+
+4. Click **Test connection**.
+
+If your cluster isn't reachable from the internet, [connect through an SSH tunnel](/integrations/sources/syncs#connect-through-an-ssh-tunnel).
+
+If you map a `TIMESTAMP` column to a user's `created_at`, convert it to `TIMESTAMPTZ` first. See [timestamps](/integrations/sources/syncs#timestamps).
+
+Once the connection works, create a sync. See [create a sync](/integrations/sources/syncs#create-a-sync).

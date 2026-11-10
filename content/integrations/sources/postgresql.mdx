@@ -1,0 +1,49 @@
+---
+title: How to sync data from PostgreSQL into Knock
+description: Sync PostgreSQL models to Knock users, tenants, objects, audiences, and subscriptions.
+metaTitle: PostgreSQL source integration
+metaDescription: Connect PostgreSQL to Knock as a warehouse source and keep users, tenants, objects, audience members, and subscriptions in sync on a schedule.
+section: Integrations > Sources
+layout: integrations
+---
+
+Knock connects to PostgreSQL with a database user and password. Every environment in your account can sync from the warehouse once it's connected.
+
+## Add the warehouse
+
+To add or edit a warehouse, you need the owner or admin [role](/manage-your-account/roles-and-permissions), or a custom permission group that's allowed to manage integrations.
+
+1. Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a>.
+2. Under **Connect a new source**, click **PostgreSQL**.
+3. Enter a **Name** and a **Key**. The key can't be changed later.
+4. Click **Add warehouse**. Knock opens the warehouse's **Details** tab.
+
+## Connect PostgreSQL
+
+1. Create a read-only database user for Knock and grant it read access to the tables you'll sync:
+
+   ```sql
+   CREATE USER knock_sync WITH PASSWORD 'choose-a-password';
+   GRANT USAGE ON SCHEMA public TO knock_sync;
+   GRANT SELECT ON ALL TABLES IN SCHEMA public TO knock_sync;
+   ```
+
+2. On the warehouse's **Details** tab, fill in the connection and click **Save connection**:
+
+   | Field         | What to enter                               |
+   | ------------- | ------------------------------------------- |
+   | Host          | The database host, such as `db.example.com` |
+   | Port          | Defaults to `5432`                          |
+   | Database      | The database to read from                   |
+   | Database user | The user you created for Knock              |
+   | Password      | That user's password                        |
+
+3. Click **Test connection**.
+
+Knock doesn't show the password after you save it. To change the connection later, enter the password again.
+
+If your database isn't reachable from the internet, [connect through an SSH tunnel](/integrations/sources/syncs#connect-through-an-ssh-tunnel).
+
+If you map a `TIMESTAMP` column to a user's `created_at`, convert it to `TIMESTAMPTZ` first. See [timestamps](/integrations/sources/syncs#timestamps).
+
+Once the connection works, create a sync. See [create a sync](/integrations/sources/syncs#create-a-sync).

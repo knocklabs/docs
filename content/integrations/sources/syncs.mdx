@@ -1,0 +1,423 @@
+---
+title: Syncs
+description: Sync models from your data warehouse into Knock users, tenants, objects, audiences, and subscriptions.
+metaTitle: Warehouse syncs
+metaDescription: Sync users, tenants, objects, audience members, and subscriptions into Knock on a schedule from a table or SQL query in a data warehouse such as Snowflake or Amazon Redshift.
+section: Integrations > Sources
+layout: integrations
+---
+
+A sync reads a table or SQL query in your data warehouse on a schedule and writes the rows into Knock. Use syncs to keep your users, tenants, and other recipient data in Knock up to date from your warehouse.
+
+To send Knock's message data to your warehouse instead, see [warehouse export](/integrations/extensions/warehouse-export).
+
+## How syncs work
+
+1. **Connect a warehouse.** Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a> and add your warehouse. You add a warehouse once for your whole account.
+2. **Create a sync.** A sync reads a table or SQL query, then writes each changed row to the corresponding resource in Knock. You create a sync in each Knock [environment](/version-control/environments) you want to sync into, and choose how columns map to Knock fields and how often it runs. See [create a sync](#create-a-sync).
+
+When you publish a sync, it runs once right away and then on its schedule. Each run applies only the rows that changed since the last run.
+
+## Supported warehouses
+
+| Warehouse                                         | How Knock connects                             |
+| ------------------------------------------------- | ---------------------------------------------- |
+| [Amazon Redshift](/integrations/sources/redshift) | An IAM role you give Knock access to           |
+| [Snowflake](/integrations/sources/snowflake)      | Key-pair authentication                        |
+| [PostgreSQL](/integrations/sources/postgresql)    | A database user and password                   |
+| [Google BigQuery](/integrations/sources/bigquery) | A service account in your Google Cloud project |
+| Databricks                                        | Coming soon                                    |
+
+If you'd like us to support a warehouse that isn't listed, let us know at [support@knock.app](mailto:support@knock.app?subject=Warehouse%20syncs).
+
+<Callout
+  type="info"
+  title="Note:"
+  text="Each warehouse you add reads from one database. To sync from more than one database, add a warehouse for each."
+/>
+
+A warehouse's page in the dashboard has three tabs:
+
+- **Syncs** lists the warehouse's syncs in your current environment.
+- **Runs** lists recent runs of those syncs.
+- **Details** has the connection, which every environment shares.
+
+## What you can sync
+
+Each sync writes to one of these resources in Knock:
+
+| Target           | What each row does                              |
+| ---------------- | ----------------------------------------------- |
+| Users            | Creates or updates a user.                      |
+| Tenants          | Creates or updates a tenant.                    |
+| Objects          | Creates or updates an object in one collection. |
+| Audience members | Updates members of a static audience.           |
+| Subscriptions    | Manages a user's subscription to an object.     |
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      Knock only changes the fields you map. If fields that already exist on the
+      user are not mapped in the sync, they won't be affected. Tenant syncs set
+      a tenant's name and custom properties, not its settings such as branding.
+    </>
+  }
+/>
+
+## Create a sync
+
+To create a sync, switch to the environment you want to sync into, go to **Platform** > **Sources**, open the warehouse, and click **Create sync**. Then complete the following steps.
+
+<Steps>
+  <Step title="Details">
+
+- **Name** is how the sync appears in Knock.
+- **Key** identifies the sync. It can't be changed after the sync is created.
+- **Syncs to** is what each row writes to: **users**, **tenants**, **objects**, **audience members**, or **subscriptions**. It can't be changed later.
+  - For objects, enter the **collection** to write to.
+  - For subscriptions, enter the **collection** of the objects users subscribe to. It defaults to `$tenants`.
+  - For audience members, choose an **audience**. Only [static audiences](/concepts/audiences#static-audiences) are supported for syncs.
+
+A sync writes to one collection. To sync several collections, create a sync for each and filter its rows with a `WHERE` clause in a SQL query.
+
+  </Step>
+  <Step title="Source">
+
+Choose what the sync reads:
+
+- **Table or view** reads one table or view. If a table you just created isn't listed, click the refresh icon next to the table picker.
+- **SQL query** reads the result of a query. Write the query and click **Preview query**. Use a query to filter rows, join tables, rename columns, or convert types. See [data types](#data-types).
+
+If an admin has turned on **Knock agents** in your account's [AI settings](/ai/agent#configuration), click **Ask agent** to have it write the query, or **Ask agent to fix** when a preview fails.
+
+  </Step>
+  <Step title="Preview">
+
+Knock shows the first 20 rows as your warehouse returns them; confirm the data you expect is available with this sample. You'll map columns from this preview in the next step.
+
+  </Step>
+  <Step title="Map columns">
+
+**Primary key**
+
+Choose the column that uniquely identifies each row (usually the ID). Knock uses the primary key to find rows that changed.
+
+For users, tenants, and objects, the primary key is also the record's ID in Knock. It must be a non-empty string of at most 256 characters with no `/`.
+
+For subscriptions and audience members, if no single column is unique, build one in a SQL query such as `account_id || ':' || user_id`.
+
+**Columns**
+
+Check each column you want to sync, or check **Sync all columns**. Then choose its **Knock field**:
+
+| Target  | Standard fields                                         |
+| ------- | ------------------------------------------------------- |
+| Users   | `name`, `email`, `phone_number`, `avatar`, `created_at` |
+| Tenants | `name`                                                  |
+
+Any other field name becomes a custom property. Map a column to `timezone` or `locale` to set a user's timezone or locale. Objects have no standard fields, so every field you map on an object is a custom property. Field names can contain letters, numbers, and underscores, and can't start with a number.
+
+A column that holds a JSON object can be mapped as one property, or each of its keys can be mapped to its own field.
+
+Columns you don't check are never changed in Knock.
+
+<Callout
+  type="info"
+  title={`Configuring the "When null" setting:`}
+  text={
+    <>
+      <strong>When null</strong> sets what happens when a row's value is null.{" "}
+      <strong>Clear the field</strong> removes the value in Knock, and is the
+      default. <strong>Keep Knock's value</strong> leaves the value in Knock as
+      it is.
+    </>
+  }
+/>
+
+**Audience members and subscriptions**
+
+Audience member and subscription syncs work differently from the others:
+
+- They don't use the mapping table. Instead, you choose the columns that identify each membership or subscription. Subscription syncs use the table only for subscription properties.
+- They don't update the users, tenants, or objects they point to. To sync those records' names or properties, create a users or objects sync from the same query.
+
+For audience members, choose:
+
+- **User ID column.** The user each row adds to the audience.
+- **Tenant column.** Optional. Adds the user for this tenant only.
+
+<Callout
+  type="warning"
+  text="While a published sync manages an audience, its members can't be changed any other way, including from the dashboard or the API. This applies even while the sync is paused."
+/>
+
+For subscriptions, choose:
+
+- **Object ID column.** The object in the sync's collection that the user subscribes to.
+- **User ID column.** The user who subscribes.
+
+Knock creates the user or object if it doesn't exist yet, with no name or properties. Any other columns you check become properties on the subscription.
+
+  </Step>
+  <Step title="Change detection">
+
+Both columns are optional. With neither, each run reads the whole source and compares it with the last run to find what changed.
+
+- **Last modified column.** Use this when you want each run to only read rows that changed since the last run. It should be a timestamp column that updates whenever a row changes.
+- **Deleted flag column.** A boolean column that marks rows to remove. Knock removes the record or membership for each row where it's `true`. **Note:** for users, tenants, and objects, a deleted flag column requires a last modified column.
+
+See [deleted rows](#deleted-rows) for more information on what happens when a row is removed from your source table.
+
+  </Step>
+  <Step title="Schedule">
+
+Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 hours, or day. You can change this or pause the sync later from its **Settings** tab.
+
+  </Step>
+  <Step title="Save and publish">
+
+- **Save draft** saves the sync without running it.
+- **Save and publish** saves the sync and makes it live. A new sync runs once right away, then on its schedule.
+
+Before publishing, Knock checks the preview rows. **Save and publish** is blocked when it detects an issue with the incoming data, but **Save draft** still works.
+
+The sync shows **Publishing** until it's live. If it doesn't go live, it shows **Delivery failed** with the error and a **Retry delivery** button.
+
+  </Step>
+</Steps>
+
+## Manage a sync
+
+To find a sync, go to **Platform** > **Sources** in the environment it syncs into and open its warehouse. The **Syncs** tab lists the warehouse's syncs with their status and last run.
+
+A sync's page has four tabs:
+
+- **Overview** shows the sync's recent and next runs and its current setup.
+- **Runs** lists recent runs.
+- **Settings** has the schedule and the option to archive the sync.
+- **Changes** lists each published version.
+
+#### Sync statuses
+
+| Status          | Meaning                                                                     |
+| --------------- | --------------------------------------------------------------------------- |
+| Draft           | Saved but never published, so it doesn't run.                               |
+| Publishing      | Knock is making the published version live.                                 |
+| Delivery failed | The published version didn't go live. Click **Retry delivery** on the sync. |
+| Live            | Runs on its schedule.                                                       |
+| Needs attention | The last run failed. The sync keeps running on its schedule.                |
+| Paused          | Published, but doesn't run until you resume it.                             |
+
+A published sync can also have a draft. When you save edits to a published sync without publishing them, it keeps its status, shows **Unpublished changes**, and keeps running the published version until you publish.
+
+#### Run a sync now
+
+Click **Run now** on a published sync to run it right away. If a run is already in progress, Knock doesn't start another.
+
+#### Pause and resume
+
+Click **Pause** on the sync, or turn off **Run on schedule** on its **Settings** tab. A run that has already started finishes. Click **Resume** to start running on the schedule again.
+
+#### Change the schedule
+
+On the sync's **Settings** tab, change the **Frequency**. Schedule changes apply right away and don't create a new version.
+
+#### Edit a sync
+
+On the sync's **Overview** tab, click the edit button on the section you want to change: **Details**, **Source**, **Mappings**, or **Change detection**. The key, target, and warehouse can't be changed.
+
+Click **Save** to save a new version. The sync shows **Unpublished changes** until you click **Publish**.
+
+When you publish a change to the table or query, the primary key, or a change detection column, the next run reads every row in the source again. Rows removed from the source before that run aren't treated as deleted.
+
+#### Version history
+
+The **Changes** tab lists every published version of the sync, newest first, with who published it and when. Click the revert button on a version to publish it again as a new version. You can revert in any environment, including Production.
+
+#### Clone a sync
+
+Click **Clone** on a sync to copy its source, mappings, and schedule into a new sync. The copy can go in the same environment or another one.
+
+Enter a name and key for the copy, and choose the warehouse it reads from. For object and subscription syncs, you can change the collection. For audience syncs, choose an audience in the environment you're cloning into.
+
+The copy includes the sync's unpublished changes. It starts as a draft, with no runs.
+
+#### Archive a sync
+
+On the sync's **Settings** tab, click **Archive sync**. Knock stops running the sync, and its key can be used again. Records it already wrote stay in Knock. This can't be undone.
+
+## Run history
+
+<Callout
+  type="info"
+  title="Note:"
+  text="If you edit a sync's table or query, primary key, or change detection columns, you won't see runs from before that edit was published. Edits to the mappings keep the run history."
+/>
+
+The sync's **Runs** tab lists its 25 most recent runs, with when each started, its status, how many rows it read, and how many failed. The warehouse's **Runs** tab lists the 25 most recent runs across all its syncs, and you can filter it by sync or status.
+
+| Status                | Meaning                                    |
+| --------------------- | ------------------------------------------ |
+| Running               | The run is in progress.                    |
+| Completed             | Every changed row was applied.             |
+| Completed with errors | Some rows were applied and some weren't.   |
+| Failed                | The run stopped. The run details show why. |
+
+Each run only applies rows that changed since the last run. A run that finds no changes applies nothing.
+
+#### Run details
+
+Click a run to see its details:
+
+- **Rows read**, **Rejected**, **Applied**, and **Failed**. Rejected rows never reached Knock. Failed rows reached Knock but couldn't be saved.
+- For a failed run, where it stopped and the error.
+- **Rejected rows** and **Failed rows**, with a sample of each grouped by error, and the primary keys each error affected.
+- The batches Knock received. Large runs arrive in several batches, which Knock applies in order.
+
+## When a run fails
+
+The sync shows **Needs attention**, and its **Overview** tab says why the last run failed. If the warehouse's connection works, the warehouse also shows **Needs attention** on the **Sources** page. The sync keeps running on its schedule, and the status clears after a run succeeds.
+
+## Deleted rows
+
+What happens when a row is deleted depends on what the sync writes to.
+
+**Subscriptions and audience members.** When a row is deleted from your warehouse or no longer matches your query, Knock unsubscribes the user from the object or removes them from the audience. You can also use a [deleted flag column](#change-detection) to mark rows to remove. If the sync has a last modified column, Knock only sees rows that changed, so use a deleted flag column instead of deleting rows.
+
+**Users, tenants, and objects.** Deleting a row doesn't delete the record in Knock. To delete records, add a deleted flag column and a last modified column to the sync. Knock deletes the records for rows where the flag is `true`. This can't be undone.
+
+## Environments
+
+A warehouse is shared by every environment in your account. A sync belongs to one environment, so you can sync into Development and Production separately from the same warehouse. To copy a sync into another environment, [clone it](#clone-a-sync).
+
+Syncs aren't part of the commit and promote flow. You create and edit a sync in the environment it syncs into, including Production. Each published version is listed on the sync's **Changes** tab, where you can revert to an earlier one. Syncs aren't available in branch environments.
+
+## Manage a warehouse
+
+### Permissions
+
+| Action                                  | Built-in roles                               | Custom permission groups  |
+| --------------------------------------- | -------------------------------------------- | ------------------------- |
+| Add, edit, test, and archive warehouses | Owner, Admin                                 | Can manage integrations   |
+| View warehouses and syncs               | Owner, Admin, Member, Production-only member | Can view recipient data   |
+| Create and manage syncs                 | Owner, Admin, Member, Production-only member | Can manage recipient data |
+
+Production-only members can view and manage syncs only in Production.
+
+To open the **Sources** page, a custom permission group must also be allowed to view integrations. Recipient data permissions are set per environment, so it's possible for a custom group to manage syncs in Development and only view them in Production. See [roles and permissions](/manage-your-account/roles-and-permissions) for more information.
+
+### Connection status
+
+The connection's status shows on the warehouse's page and in the **Connected** list on the **Sources** page:
+
+| Status            | Meaning                                                       |
+| ----------------- | ------------------------------------------------------------- |
+| Not configured    | No connection has been saved yet.                             |
+| Key not installed | Knock generated a key. Install it, then test the connection.  |
+| Connecting        | Knock is setting up the connection.                           |
+| Not tested        | The connection is saved but hasn't been tested.               |
+| Connected         | The last test succeeded.                                      |
+| Connection failed | The last test failed. The error shows on the **Details** tab. |
+
+If the connection works but one of the warehouse's syncs is failing in your current environment, the warehouse shows **Needs attention**. See [when a run fails](#when-a-run-fails).
+
+A connection change applies to every environment. Test the connection after you change it.
+
+<Callout
+  type="info"
+  title="Note:"
+  text="A connection test only checks that Knock can log in. If a table is missing when you create a sync, or its preview fails, check the database user's grants."
+/>
+
+### Connect through an SSH tunnel
+
+Redshift and PostgreSQL connections can go through a bastion host when the database isn't reachable from the internet.
+
+1. Create a user for Knock on the bastion host, such as `knock-sync`.
+2. On the warehouse's **Details** tab, click **Connect through an SSH tunnel** and enter the **Tunnel host**, **Tunnel port**, and **Tunnel user**.
+3. Leave **Public key** empty and click **Save connection**. Knock generates a key pair and shows the public key, labeled `knock-ssh-tunneling-public-key`.
+4. Click **Copy public key** and add it to the tunnel user's `~/.ssh/authorized_keys` on the bastion host.
+5. Click **Test connection**.
+
+To use a key that's already authorized on the bastion host, paste its public key into **Public key** before saving.
+
+### Archive a warehouse
+
+To remove a warehouse, first archive its syncs in every environment. Then click **Archive warehouse** on its **Details** tab. Knock removes the warehouse from every environment and deletes its saved connection, including any password or key. This can't be undone. To sync from the database again, add it as a new warehouse.
+
+## Data types
+
+Knock reads values as your warehouse returns them. Convert types in a SQL query when a column doesn't match its Knock field.
+
+### Timestamps
+
+A user's `created_at` must include a timezone, such as `2026-09-26T20:19:49Z`.
+
+- **Redshift and PostgreSQL.** `TIMESTAMP` columns have no timezone, so Knock rejects rows that map one to `created_at`. Convert it in your query. For timestamps stored in UTC:
+
+  ```sql
+  -- Redshift
+  SELECT user_id, email, created_at::TIMESTAMPTZ AS created_at
+  FROM analytics.dim_users
+
+  -- PostgreSQL
+  SELECT user_id, email, created_at AT TIME ZONE 'UTC' AS created_at
+  FROM public.users
+  ```
+
+  For timestamps stored in another time zone, name it: `CONVERT_TIMEZONE('America/New_York', 'UTC', created_at)::TIMESTAMPTZ` in Redshift, or `created_at AT TIME ZONE 'America/New_York'` in PostgreSQL. `TIMESTAMPTZ` columns can be mapped directly.
+
+- **Snowflake.** Timestamp columns, including `TIMESTAMP_NTZ`, can be mapped directly.
+- **Text columns.** The value must include a timezone, such as `Z` or `+00:00`.
+
+### IDs
+
+Record IDs are strings. If your ID column is a number, cast it in your query, such as `CAST(account_id AS VARCHAR)`.
+
+## Troubleshooting
+
+| Problem                                          | What to check                                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| A table is missing from the table picker         | Click the refresh icon next to the table picker. If it's still missing, check the database user's grants.                          |
+| The preview or a run fails reading the source    | That the database user can read every table the query uses.                                                                        |
+| Every row is rejected                            | A type mismatch, most often a Redshift or PostgreSQL `TIMESTAMP` mapped to `created_at`. See [timestamps](#timestamps).            |
+| Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                     |
+| A record is still in Knock after its row is gone | See [deleted rows](#deleted-rows). If the sync has a last modified column, set the row's deleted flag instead of deleting the row. |
+| No runs appear                                   | That the sync is published and not paused. Click **Run now** to run it without waiting.                                            |
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Can I sync from more than one database?"
+    anchorSlug="faq-more-than-one-database"
+  >
+    Yes. Each warehouse you add reads from one database, so add a warehouse for
+    each database you want to sync from.
+  </Accordion>
+  <Accordion
+    title="What happens when I delete a row in my warehouse?"
+    anchorSlug="faq-delete-a-row"
+  >
+    It depends on what the sync writes to. Subscription and audience member
+    syncs unsubscribe the user or remove them from the audience. User, tenant,
+    and object syncs keep the record in Knock unless the row is marked with a
+    deleted flag column. See <a href="#deleted-rows">deleted rows</a>.
+  </Accordion>
+  <Accordion title="How often can a sync run?" anchorSlug="faq-how-often">
+    As often as every 10 minutes. To run a published sync between scheduled
+    runs, click **Run now**.
+  </Accordion>
+  <Accordion
+    title="Why does editing the query re-read every row?"
+    anchorSlug="faq-edit-query-rereads-rows"
+  >
+    Knock finds changed rows by comparing each run with the last one. When you
+    publish a change to the table or query, the primary key, or a change
+    detection column, there's no earlier run of the new version to compare with,
+    so the next run reads every row in the source again. Edits to the mappings
+    don't do this.
+  </Accordion>
+</AccordionGroup>
