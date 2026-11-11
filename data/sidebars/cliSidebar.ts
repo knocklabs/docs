@@ -273,4 +273,31 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/get", title: "Get source" },
     ],
   },
+
+  {
+    title: "Warehouses",
+    slug: "/cli/warehouse",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/list", title: "List warehouses" },
+      { slug: "/get", title: "Get warehouse" },
+    ],
+  },
+
+  {
+    title: "Warehouse syncs",
+    slug: "/cli/warehouse-sync",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List warehouse syncs" },
+      { slug: "/get", title: "Get warehouse sync" },
+      { slug: "/pull", title: "Pull warehouse syncs" },
+      { slug: "/push", title: "Push warehouse syncs" },
+      { slug: "/validate", title: "Validate warehouse sync" },
+      { slug: "/run", title: "Run warehouse sync" },
+      { slug: "/runs", title: "List warehouse sync runs" },
+      { slug: "/open", title: "Open warehouse sync" },
+    ],
+  },
 ];

@@ -1,0 +1,388 @@
+---
+title: Warehouse syncs
+description: Commands for managing warehouse syncs in the Knock CLI.
+---
+
+<Section path="/warehouse-sync">
+<ContentColumn>
+
+Warehouse sync commands enable you to manage [syncs](/integrations/sources/syncs) from the CLI. A sync reads rows from a [warehouse](/cli/warehouse) on a schedule and writes them to Knock as users, tenants, objects, audience members, or subscriptions.
+
+A push saves a draft of the sync. Pass `--commit` to publish it. Syncs aren't part of the commit and promote flow: you push a sync into the environment it syncs into, including Production. To copy a sync into another environment, pull it from one environment and push it to the other.
+
+`knock pull` and `knock push` don't include warehouse syncs. Use `knock warehouse-sync pull` and `knock warehouse-sync push`. Syncs aren't available in branch environments.
+
+</ContentColumn>
+</Section>
+
+<Section title="Warehouse sync file structure" path="/warehouse-sync/file-structure">
+<ContentColumn>
+
+When syncs are pulled from Knock, they are stored in directories named by their sync key. Each sync directory contains a `warehouse_sync.json` file. The sync key is the directory name.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local warehouse sync files structure">
+{`warehouse-syncs/
+└── users/
+    └── warehouse_sync.json`}
+</PreTextDiagram>
+
+`warehouse_sync.json` has these fields you can edit:
+
+- **name.** The name of the sync.
+- **description.** Optional context about what the sync does.
+- **warehouse_key.** The warehouse the sync reads from. Can't change after the sync is created.
+- **target_type.** What each row becomes in Knock: `user`, `tenant`, `object`, `static_audience_membership`, or `subscription`. Can't change after the sync is created.
+- **target.** The object collection (`collection`) for `object` and `subscription` syncs, or the static audience (`audience_key`) for `static_audience_membership` syncs. Null for `user` and `tenant` syncs. Can't change after the sync is created.
+- **source.** The rows to read. Set `mode` to `relation` with a `schema` and `name` to read a table or view, or to `sql` with a `query`.
+- **primary_key_column.** The column that uniquely identifies each row.
+- **change_tracking.** The `last_modified_column` and `is_deleted_column` the sync uses to detect changed and deleted rows. See [create a sync](/integrations/sources/syncs#create-a-sync) and [deleted rows](/integrations/sources/syncs#deleted-rows).
+- **mappings.** How columns map to Knock fields. Each mapping has a `source_column`, a `target_field`, and an `on_null` of `set_null` or `preserve`.
+
+Pulled files also include a `__readonly` object with the sync's status, schedule, and other fields that a push doesn't change. A push never changes the sync's schedule. Pause a sync or change how often it runs from its **Settings** tab in the dashboard, or with the [Management API](/mapi-reference). A sync that a push creates starts on the default schedule.
+
+A field set to `null` is cleared on the next push. A field left out of the file keeps its current value.
+
+```json title="Example warehouse_sync.json"
+{
+  "name": "Users",
+  "description": "Syncs users from the analytics warehouse",
+  "warehouse_key": "analytics",
+  "target_type": "user",
+  "target": null,
+  "source": {
+    "mode": "sql",
+    "query": "SELECT id, email, name, updated_at FROM analytics.users"
+  },
+  "primary_key_column": "id",
+  "change_tracking": {
+    "last_modified_column": "updated_at",
+    "is_deleted_column": null
+  },
+  "mappings": [
+    { "source_column": "id", "target_field": "id", "on_null": "set_null" },
+    {
+      "source_column": "email",
+      "target_field": "email",
+      "on_null": "set_null"
+    },
+    { "source_column": "name", "target_field": "name", "on_null": "preserve" }
+  ]
+}
+```
+
+</ContentColumn>
+</Section>
+
+<Section title="knock warehouse-sync list [flags]" path="/warehouse-sync/list">
+<ContentColumn>
+
+Display all warehouse syncs for an environment, with their warehouse, target, and status.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Shows the published version of each sync instead of its draft, and leaves out syncs that were never published."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync list
+```
+
+```bash title="List syncs in a different environment"
+knock warehouse-sync list --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync get <warehouse_sync_key> [flags]" path="/warehouse-sync/get">
+<ContentColumn>
+
+Display a single warehouse sync from an environment, including its status and setup.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Shows the published version instead of the draft."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync get users
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync pull <warehouse_sync_key> [flags]" path="/warehouse-sync/pull">
+<ContentColumn>
+
+Pull one or more warehouse syncs from an environment into a local file system. Knock CLI will create a new sync directory or update the existing sync directory in the local file system.
+
+By default this command will resolve to the warehouse syncs resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--warehouse-syncs-dir` flag.
+
+Note: if pulling the target sync for the first time (or all syncs), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Warehouse sync file structure](/cli/warehouse-sync/file-structure) section for details on how sync files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all warehouse syncs from the specified environment into the target directory path set by \`--warehouse-syncs-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all syncs from the specified environment.`}
+/>
+
+  <Attribute
+    name="--warehouse-syncs-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all warehouse syncs into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Pulls the published version of each sync instead of its draft."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync pull users
+```
+
+```bash title="Pulling all syncs into ./warehouse-syncs directory"
+knock warehouse-sync pull --all --warehouse-syncs-dir=./warehouse-syncs
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync push <warehouse_sync_key> [flags]" path="/warehouse-sync/push">
+<ContentColumn>
+
+Push one or more warehouse syncs from a local file system to Knock. Knock saves a new draft of an existing sync with the matching key, or creates the sync if it doesn't exist yet. Pass `--commit` to publish the draft too. A draft that fails to publish stays saved.
+
+A push doesn't change the sync's schedule, and a sync that a push creates starts on the default schedule.
+
+By default this command will resolve to the warehouse syncs resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--warehouse-syncs-dir` flag.
+
+Note: you must be directly above the target sync directory when running the `warehouse-sync push` command, so the CLI can locate the `warehouse_sync.json` file.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all warehouse syncs from the target directory path set by `--warehouse-syncs-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--warehouse-syncs-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all warehouse syncs from. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and publish the warehouse syncs at the same time. Defaults to false."
+  />
+  <Attribute
+    name="--commit-message"
+    type="string"
+    description="Use the given value as the commit message. Only available to be used with --commit."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync push users
+```
+
+```bash title="Pushing and publishing a sync"
+knock warehouse-sync push users \
+  --commit \
+  -m "Add the plan column"
+```
+
+```bash title="Copying a sync into Production"
+knock warehouse-sync pull users --environment=development
+knock warehouse-sync push users --environment=production --commit
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync validate <warehouse_sync_key> [flags]" path="/warehouse-sync/validate">
+<ContentColumn>
+
+Validate one or more warehouse syncs from a local file system. Knock checks the sync the same way as the `warehouse-sync push` command, except without saving it.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all warehouse syncs from the target directory path set by `--warehouse-syncs-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--warehouse-syncs-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all warehouse syncs from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync validate users
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync run <warehouse_sync_key> [flags]" path="/warehouse-sync/run">
+<ContentColumn>
+
+Run a published warehouse sync now, instead of waiting for its schedule. Knock doesn't start another run while one is in progress. See the run's progress with [`knock warehouse-sync runs`](/cli/warehouse-sync/runs).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync run users
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync runs <warehouse_sync_key> [flags]" path="/warehouse-sync/runs">
+<ContentColumn>
+
+Display the most recent runs of a warehouse sync, newest first, with their status and how many rows were applied or failed. See [run history](/integrations/sources/syncs#run-history).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync runs users
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock warehouse-sync open <warehouse_sync_key> [flags]" path="/warehouse-sync/open">
+<ContentColumn>
+
+Open a warehouse sync in the Knock dashboard. This command opens the sync's page in your default browser.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock warehouse-sync open users
+```
+
+</ExampleColumn>
+</Section>
