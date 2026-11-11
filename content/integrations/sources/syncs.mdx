@@ -15,6 +15,7 @@ tags:
     "snowflake",
     "redshift",
     "bigquery",
+    "databricks",
     "postgresql",
     "postgres",
     "users",
@@ -46,7 +47,7 @@ When you publish a sync, it runs once right away and then on its schedule. Each 
 | [Snowflake](/integrations/sources/snowflake)      | Key-pair authentication                        |
 | [PostgreSQL](/integrations/sources/postgresql)    | A database user and password                   |
 | [Google BigQuery](/integrations/sources/bigquery) | A service account in your Google Cloud project |
-| Databricks                                        | Coming soon                                    |
+| [Databricks](/integrations/sources/databricks)    | A service principal with an OAuth secret       |
 
 If you'd like us to support a warehouse that isn't listed, let us know at [support@knock.app](mailto:support@knock.app?subject=Warehouse%20syncs).
 
@@ -394,6 +395,7 @@ A user's `created_at` must include a timezone, such as `2026-09-26T20:19:49Z`.
   For timestamps stored in another time zone, name it: `CONVERT_TIMEZONE('America/New_York', 'UTC', created_at)::TIMESTAMPTZ` in Redshift, or `created_at AT TIME ZONE 'America/New_York'` in PostgreSQL. `TIMESTAMPTZ` columns can be mapped directly.
 
 - **BigQuery.** `DATETIME` columns have no timezone, so Knock rejects rows that map one to `created_at`. Convert it in your query with `TIMESTAMP(created_at)`, which reads the value as UTC. For values stored in another time zone, name it: `TIMESTAMP(created_at, 'America/New_York')`. `TIMESTAMP` columns can be mapped directly.
+- **Databricks.** `TIMESTAMP_NTZ` columns have no timezone, so Knock rejects rows that map one to `created_at`. Convert it in your query with `CAST(created_at AS TIMESTAMP)`, which reads the value in the SQL warehouse's session time zone, UTC by default. For values stored in another time zone, name it: `to_utc_timestamp(created_at, 'America/New_York')`. `TIMESTAMP` columns can be mapped directly.
 - **Snowflake.** Timestamp columns, including `TIMESTAMP_NTZ`, can be mapped directly.
 - **Text columns.** The value must include a timezone, such as `Z` or `+00:00`.
 
@@ -403,14 +405,14 @@ Record IDs are strings. If your ID column is a number, cast it in your query, su
 
 ## Troubleshooting
 
-| Problem                                          | What to check                                                                                                                                    |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A table is missing from the table picker         | Click the refresh icon next to the table picker. If it's still missing, check the database user's grants.                                        |
-| The preview or a run fails reading the source    | That the database user can read every table the query uses.                                                                                      |
-| Every row is rejected                            | A type mismatch, most often a Redshift or PostgreSQL `TIMESTAMP` or a BigQuery `DATETIME` mapped to `created_at`. See [timestamps](#timestamps). |
-| Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                                   |
-| A record is still in Knock after its row is gone | See [deleted rows](#deleted-rows). If the sync has a last modified column, set the row's deleted flag instead of deleting the row.               |
-| No runs appear                                   | That the sync is published and not paused. Click **Run now** to run it without waiting.                                                          |
+| Problem                                          | What to check                                                                                                                                                                   |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A table is missing from the table picker         | Click the refresh icon next to the table picker. If it's still missing, check the database user's grants.                                                                       |
+| The preview or a run fails reading the source    | That the database user can read every table the query uses.                                                                                                                     |
+| Every row is rejected                            | A type mismatch, most often a Redshift or PostgreSQL `TIMESTAMP`, a BigQuery `DATETIME`, or a Databricks `TIMESTAMP_NTZ` mapped to `created_at`. See [timestamps](#timestamps). |
+| Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                                                                  |
+| A record is still in Knock after its row is gone | See [deleted rows](#deleted-rows). If the sync has a last modified column, set the row's deleted flag instead of deleting the row.                                              |
+| No runs appear                                   | That the sync is published and not paused. Click **Run now** to run it without waiting.                                                                                         |
 
 ## Frequently asked questions
 
