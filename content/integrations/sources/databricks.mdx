@@ -1,0 +1,63 @@
+---
+title: How to sync data from Databricks into Knock
+description: Sync Databricks models to Knock users, tenants, objects, audiences, and subscriptions.
+metaTitle: Databricks source integration
+metaDescription: Connect a Databricks SQL warehouse to Knock as a warehouse source and keep users, tenants, objects, audience members, and subscriptions in sync on a schedule.
+tags:
+  [
+    "warehouse",
+    "data warehouse",
+    "sync",
+    "import",
+    "reverse ETL",
+    "SQL",
+    "database",
+    "databricks",
+  ]
+section: Integrations > Sources
+layout: integrations
+---
+
+Knock connects to a Databricks SQL warehouse as a service principal, using an OAuth secret. Every environment in your account can sync from the warehouse once it's connected.
+
+Knock reads from one Unity Catalog catalog. Tables in the Hive metastore aren't supported. To sync from more than one catalog, add a warehouse for each.
+
+## Add the warehouse
+
+To add or edit a warehouse, you need the owner or admin [role](/manage-your-account/roles-and-permissions), or a custom permission group that's allowed to manage integrations.
+
+1. Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a>.
+2. Under **Connect a new source**, click **Databricks**.
+3. Enter a **Name** and a **Key**. The key can't be changed later.
+4. Click **Add warehouse**. Knock opens the warehouse's **Details** tab.
+
+## Connect Databricks
+
+1. In your Databricks workspace, create a service principal for Knock and give it the **Databricks SQL access** entitlement.
+2. On the SQL warehouse's **Permissions**, give the service principal **Can use**.
+3. Grant the service principal read access to the tables you'll sync, using its application ID:
+
+   ```sql
+   GRANT USE CATALOG ON CATALOG main TO `<application-id>`;
+   GRANT USE SCHEMA ON SCHEMA main.analytics TO `<application-id>`;
+   GRANT SELECT ON SCHEMA main.analytics TO `<application-id>`;
+   ```
+
+4. On the service principal's **Secrets** tab, generate an OAuth secret. Copy the client ID and secret.
+5. On the warehouse's **Details** tab in Knock, fill in the connection and click **Save connection**. The server hostname and HTTP path are on the SQL warehouse's **Connection details** tab.
+
+   | Field           | What to enter                                                                  |
+   | --------------- | ------------------------------------------------------------------------------ |
+   | Server hostname | The SQL warehouse's hostname, such as `dbc-a1b2c3d4-e5f6.cloud.databricks.com` |
+   | HTTP path       | The SQL warehouse's HTTP path, such as `/sql/1.0/warehouses/a1b2c3d4e5f6`      |
+   | Catalog         | The Unity Catalog catalog to read from, such as `main`                         |
+   | Client ID       | The service principal's application ID                                         |
+   | Client secret   | The OAuth secret you generated                                                 |
+
+6. Click **Test connection**.
+
+Knock doesn't show the client secret after you save it. To change the connection later, enter the secret again. OAuth secrets expire, so generate a new one and save it before the old one expires, or syncs will fail.
+
+Each sync run starts the SQL warehouse if it's stopped, and Databricks bills for the time it runs. A serverless SQL warehouse starts fastest.
+
+Once the connection works, [create a sync](/integrations/sources/syncs#create-a-sync) to start syncing data into Knock. If you map a `TIMESTAMP_NTZ` column to a user's `created_at`, you'll need to convert it to `TIMESTAMP` first. See [timestamps](/integrations/sources/syncs#timestamps) for more information.

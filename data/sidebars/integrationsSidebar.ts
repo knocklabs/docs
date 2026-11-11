@@ -23,6 +23,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/clay", title: "Clay" },
       { slug: "/clerk", title: "Clerk" },
       { slug: "/custom", title: "Custom source" },
+      { slug: "/databricks", title: "Databricks" },
       { slug: "/freshpaint", title: "Freshpaint" },
       { slug: "/bigquery", title: "Google BigQuery" },
       { slug: "/hightouch", title: "Hightouch" },
