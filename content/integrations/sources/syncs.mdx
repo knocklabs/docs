@@ -102,6 +102,8 @@ To create a sync, switch to the environment you want to sync into, go to **Platf
 
 A sync writes to one collection. To sync several collections, create a sync for each and filter its rows with a `WHERE` clause in a SQL query.
 
+Collection names can't contain spaces or start with `$`, which Knock reserves. The exception is a subscription sync's `$tenants`, which subscribes users to [tenants](/multi-tenancy/overview). To sync the tenants themselves, choose **tenants** under **Syncs to**.
+
   </Step>
   <Step title="Source">
 
@@ -185,7 +187,7 @@ Knock creates the user or object if it doesn't exist yet, with no name or proper
 
 Both columns are optional. With neither, each run reads the whole source and compares it with the last run to find what changed.
 
-- **Last modified column.** Use this when you want each run to only read rows that changed since the last run. It should be a timestamp column that updates whenever a row changes.
+- **Last modified column.** Use this when you want each run to only read rows that changed since the last run. It must be a timestamp or datetime column that updates whenever a row changes. A date-only column isn't accepted, because a run could skip rows that change later on the same day.
 - **Deleted flag column.** A boolean column that marks rows to remove. Knock removes the record or membership for each row where it's `true`. **Note:** for users, tenants, and objects, a deleted flag column requires a last modified column.
 
 See [deleted rows](#deleted-rows) for more information on what happens when a row is removed from your source table.
@@ -201,7 +203,7 @@ Choose how often the sync runs: every 10 minutes, 15 minutes, hour, 6 hours, 12 
 - **Save draft** saves the sync without running it.
 - **Save and publish** saves the sync and makes it live. A new sync runs once right away, then on its schedule.
 
-Before publishing, Knock checks the preview rows. **Save and publish** is blocked when it detects an issue with the incoming data, but **Save draft** still works.
+Before publishing, Knock checks the preview rows against your mappings and the types of your change detection columns. **Save and publish** is blocked when it detects an issue, but **Save draft** still works.
 
 The sync shows **Publishing** until it's live. If it doesn't go live, it shows **Delivery failed** with the error and a **Retry delivery** button.
 
@@ -389,6 +391,7 @@ A user's `created_at` must include a timezone, such as `2026-09-26T20:19:49Z`.
 
   For timestamps stored in another time zone, name it: `CONVERT_TIMEZONE('America/New_York', 'UTC', created_at)::TIMESTAMPTZ` in Redshift, or `created_at AT TIME ZONE 'America/New_York'` in PostgreSQL. `TIMESTAMPTZ` columns can be mapped directly.
 
+- **BigQuery.** `DATETIME` columns have no timezone, so Knock rejects rows that map one to `created_at`. Convert it in your query with `TIMESTAMP(created_at)`, which reads the value as UTC. For values stored in another time zone, name it: `TIMESTAMP(created_at, 'America/New_York')`. `TIMESTAMP` columns can be mapped directly.
 - **Snowflake.** Timestamp columns, including `TIMESTAMP_NTZ`, can be mapped directly.
 - **Text columns.** The value must include a timezone, such as `Z` or `+00:00`.
 
@@ -398,14 +401,14 @@ Record IDs are strings. If your ID column is a number, cast it in your query, su
 
 ## Troubleshooting
 
-| Problem                                          | What to check                                                                                                                      |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| A table is missing from the table picker         | Click the refresh icon next to the table picker. If it's still missing, check the database user's grants.                          |
-| The preview or a run fails reading the source    | That the database user can read every table the query uses.                                                                        |
-| Every row is rejected                            | A type mismatch, most often a Redshift or PostgreSQL `TIMESTAMP` mapped to `created_at`. See [timestamps](#timestamps).            |
-| Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                     |
-| A record is still in Knock after its row is gone | See [deleted rows](#deleted-rows). If the sync has a last modified column, set the row's deleted flag instead of deleting the row. |
-| No runs appear                                   | That the sync is published and not paused. Click **Run now** to run it without waiting.                                            |
+| Problem                                          | What to check                                                                                                                                    |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A table is missing from the table picker         | Click the refresh icon next to the table picker. If it's still missing, check the database user's grants.                                        |
+| The preview or a run fails reading the source    | That the database user can read every table the query uses.                                                                                      |
+| Every row is rejected                            | A type mismatch, most often a Redshift or PostgreSQL `TIMESTAMP` or a BigQuery `DATETIME` mapped to `created_at`. See [timestamps](#timestamps). |
+| Some rows are rejected or failed                 | The **Rejected rows** and **Failed rows** on the run. Fix or filter those rows in a SQL query.                                                   |
+| A record is still in Knock after its row is gone | See [deleted rows](#deleted-rows). If the sync has a last modified column, set the row's deleted flag instead of deleting the row.               |
+| No runs appear                                   | That the sync is published and not paused. Click **Run now** to run it without waiting.                                                          |
 
 ## Frequently asked questions
 
