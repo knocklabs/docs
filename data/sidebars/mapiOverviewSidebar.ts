@@ -30,6 +30,8 @@ export const RESOURCE_ORDER = [
   "templates",
   "translations",
   "variables",
+  "warehouse_syncs",
+  "warehouses",
   "webhooks",
   "workflows",
   "$shared",

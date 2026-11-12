@@ -969,7 +969,7 @@ components:
           x-struct: null
           x-validate: null
         value:
-          description: The default value of the variable. Required when creating a variable. When omitted or null on an update, the existing value is kept. An empty string clears the default value.
+          description: The default value of the variable. Required when creating a variable, unless `environment_values` sets a value for at least one environment. When omitted or null on an update, the existing value is kept. An empty string clears the default value.
           nullable: true
           type: string
           x-struct: null
@@ -1735,6 +1735,210 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Workflow
       x-validate: null
+    WarehouseSync:
+      description: A warehouse sync reads rows from a warehouse on a schedule and writes them to Knock as users, tenants, objects, audience members, or subscriptions.
+      example:
+        change_tracking:
+          last_modified_column: updated_at
+        created_at: "2026-10-01T12:00:00Z"
+        description: Syncs users from the analytics warehouse
+        enabled: true
+        environment: development
+        frequency_minutes: 60
+        has_unpublished_changes: false
+        key: users
+        last_failure: null
+        last_published_at: "2026-11-01T12:00:00Z"
+        mappings:
+          - on_null: set_null
+            source_column: id
+            target_field: id
+          - on_null: set_null
+            source_column: email
+            target_field: email
+          - on_null: preserve
+            source_column: name
+            target_field: name
+        name: Users
+        primary_key_column: id
+        publish_error: null
+        sha: abc123def456
+        source:
+          mode: sql
+          query: SELECT id, email, name, updated_at FROM analytics.users
+        status: live
+        target: null
+        target_type: user
+        updated_at: "2026-11-01T12:00:00Z"
+        version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+        warehouse_key: analytics
+      properties:
+        change_tracking:
+          $ref: '#/components/schemas/WarehouseSyncChangeTracking'
+        created_at:
+          description: When the sync was created. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the sync. Maximum of 280 characters allowed.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        enabled:
+          description: Whether the sync runs on its schedule.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment the sync belongs to. (read-only).
+          type: string
+          x-struct: null
+          x-validate: null
+        frequency_minutes:
+          description: How often the sync runs, in minutes.
+          enum:
+            - 10
+            - 15
+            - 60
+            - 360
+            - 720
+            - 1440
+          type: integer
+          x-struct: null
+          x-validate: null
+        has_unpublished_changes:
+          description: Whether the sync has a draft that hasn't been published.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key of the sync in its environment.
+          type: string
+          x-struct: null
+          x-validate: null
+        last_failure:
+          description: The last run failure, cleared when a run succeeds.
+          nullable: true
+          properties:
+            message:
+              description: What went wrong.
+              type: string
+              x-struct: null
+              x-validate: null
+            stage:
+              description: 'Where the run failed: reading the warehouse (`extract`), sending rows to Knock (`load`), or applying them (`apply`).'
+              enum:
+                - extract
+                - load
+                - apply
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        last_published_at:
+          description: When the sync was last published.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        mappings:
+          description: How columns map to Knock fields.
+          items:
+            $ref: '#/components/schemas/WarehouseSyncMapping'
+          type: array
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the sync. Must be at minimum 1 character and at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_key_column:
+          description: The column that uniquely identifies each row.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        publish_error:
+          description: Why the last publish didn't go live, when it failed.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        sha:
+          description: The SHA hash of the sync's definition. (read-only).
+          type: string
+          x-struct: null
+          x-validate: null
+        source:
+          $ref: '#/components/schemas/WarehouseSyncSource'
+        status:
+          description: The status of the sync.
+          enum:
+            - draft
+            - publishing
+            - delivery_failed
+            - paused
+            - needs_attention
+            - live
+          type: string
+          x-struct: null
+          x-validate: null
+        target:
+          $ref: '#/components/schemas/WarehouseSyncTarget'
+        target_type:
+          description: What each row becomes in Knock. Can't change after creation.
+          enum:
+            - user
+            - tenant
+            - object
+            - static_audience_membership
+            - subscription
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: When the returned version was saved. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        version_id:
+          description: The ID of the version returned. Send it back when saving to make sure nobody saved since.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        warehouse_key:
+          description: The key of the warehouse the sync reads from. Can't change after creation.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - name
+        - warehouse_key
+        - target_type
+        - mappings
+        - version_id
+        - enabled
+        - frequency_minutes
+        - status
+        - has_unpublished_changes
+        - environment
+        - created_at
+        - updated_at
+        - sha
+      title: WarehouseSync
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSync
+      x-validate: null
     GoalResourceAttachment:
       description: A goal attached to a workflow, guide, or broadcast in one environment. An attachment goes live without a commit.
       example:
@@ -1912,6 +2116,99 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowDelayStep
       x-validate: null
+    Warehouse:
+      description: A warehouse is one database in your data warehouse that Knock reads from. Warehouses belong to the project and are shared by every environment.
+      example:
+        connection_error: null
+        connection_settings:
+          database: ANALYTICS
+          host: acme.snowflakecomputing.com
+          port: 443
+          username: KNOCK
+        connection_status: connected
+        created_at: "2026-10-01T12:00:00Z"
+        key: analytics
+        last_tested_at: "2026-11-01T12:00:00Z"
+        name: Analytics
+        type: snowflake
+        updated_at: "2026-11-01T12:00:00Z"
+      properties:
+        connection_error:
+          additionalProperties: true
+          description: The error from the last connection test, with a `code` and a `message`. Null when the last test passed.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        connection_settings:
+          additionalProperties: true
+          description: How Knock connects to the warehouse. The fields depend on the warehouse type, such as `host`, `port`, `database`, and `username`, or `project_id`, `region`, and `service_account_email` for BigQuery. Credentials such as passwords are never returned.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        connection_status:
+          description: The status of the warehouse's connection.
+          enum:
+            - not_configured
+            - key_not_installed
+            - failed
+            - connecting
+            - untested
+            - connected
+          type: string
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: When the warehouse was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key of the warehouse.
+          type: string
+          x-struct: null
+          x-validate: null
+        last_tested_at:
+          description: When the connection was last tested.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the warehouse.
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of data warehouse.
+          enum:
+            - redshift
+            - snowflake
+            - postgres
+            - bigquery
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: When the warehouse was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - name
+        - type
+        - connection_status
+        - created_at
+        - updated_at
+      title: Warehouse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Warehouse
+      x-validate: null
     DetachGoalResponse:
       description: The response from detaching a goal.
       example:
@@ -1985,6 +2282,28 @@ components:
       title: WorkflowWaitForEventAudienceEvent
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventAudienceEvent
+      x-validate: null
+    WarehouseSyncTarget:
+      description: The collection or audience the sync writes to. `object` and `subscription` syncs set `collection`, and `static_audience_membership` syncs set `audience_key`. Null for `user` and `tenant` syncs.
+      example:
+        collection: projects
+      nullable: true
+      properties:
+        audience_key:
+          description: The key of the static audience the rows become members of.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        collection:
+          description: The object collection the rows are written to.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: WarehouseSyncTarget
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncTarget
       x-validate: null
     WorkflowBranchStepBranch:
       description: A branch in a branch step.
@@ -2282,6 +2601,115 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EnvironmentDefaultsPreferenceSet
       x-validate: null
+    WarehouseSyncRun:
+      description: 'One run of a warehouse sync: reading changed rows from the warehouse, then applying them in Knock.'
+      example:
+        ended_at: "2026-11-01T12:02:30Z"
+        error: null
+        id: 4b8e9a52-1c7d-4f0e-8a3b-6d2f5e9c1b07
+        load_id: 9d3c2b1a-7e6f-4a5b-8c9d-0e1f2a3b4c5d
+        records_errored: 0
+        records_processed: 1200
+        rows_applied: 1200
+        rows_failed: 0
+        started_at: "2026-11-01T12:00:05Z"
+        status: completed
+        submitted_at: "2026-11-01T12:00:00Z"
+      properties:
+        ended_at:
+          description: When the run ended.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        error:
+          description: Why the run failed.
+          nullable: true
+          properties:
+            message:
+              description: What went wrong.
+              type: string
+              x-struct: null
+              x-validate: null
+            stage:
+              description: Where the run failed.
+              enum:
+                - extract
+                - load
+                - apply
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        id:
+          description: The ID of the run.
+          type: string
+          x-struct: null
+          x-validate: null
+        load_id:
+          description: The ID of the delivery of rows to Knock. Null when the run hasn't sent rows yet, failed before sending them, or found no changes.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        records_errored:
+          description: How many rows failed before reaching Knock.
+          nullable: true
+          type: integer
+          x-struct: null
+          x-validate: null
+        records_processed:
+          description: How many changed rows were read from the warehouse.
+          nullable: true
+          type: integer
+          x-struct: null
+          x-validate: null
+        rows_applied:
+          description: How many rows were applied in Knock.
+          nullable: true
+          type: integer
+          x-struct: null
+          x-validate: null
+        rows_failed:
+          description: How many rows failed to apply in Knock.
+          nullable: true
+          type: integer
+          x-struct: null
+          x-validate: null
+        started_at:
+          description: When the run started.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        status:
+          description: The status of the run.
+          enum:
+            - running
+            - completed
+            - completed_with_errors
+            - failed
+          type: string
+          x-struct: null
+          x-validate: null
+        submitted_at:
+          description: When the run was queued.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - status
+      title: WarehouseSyncRun
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncRun
+      x-validate: null
     InAppFeedTemplate:
       description: An in-app feed template.
       example:
@@ -2352,6 +2780,35 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WrappedWarehouseSyncRequestResponse:
+      description: Wraps the WarehouseSyncRequest response under the `warehouse_sync` key.
+      example:
+        warehouse_sync:
+          change_tracking:
+            last_modified_column: updated_at
+          mappings:
+            - on_null: set_null
+              source_column: id
+              target_field: id
+            - on_null: set_null
+              source_column: email
+              target_field: email
+          name: Users
+          primary_key_column: id
+          source:
+            mode: sql
+            query: SELECT id, email, name, updated_at FROM analytics.users
+          target_type: user
+          warehouse_key: analytics
+      properties:
+        warehouse_sync:
+          $ref: '#/components/schemas/WarehouseSyncRequest'
+      required:
+        - warehouse_sync
+      title: WrappedWarehouseSyncRequestResponse
+      type: object
+      x-struct: null
+      x-validate: null
     ChatChannelSettings:
       description: Chat channel settings. Only used as configuration as part of a workflow channel step.
       example:
@@ -2380,6 +2837,82 @@ components:
       title: ChatChannelSettings
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ChatChannelSettings
+      x-validate: null
+    WarehouseSyncRequest:
+      description: A warehouse sync payload for upsert or validate. Fields left out keep their current values. `warehouse_key`, `target_type`, and `target` are required to create a sync and can't change after. Change `enabled` and `frequency_minutes` with the settings endpoint.
+      example:
+        change_tracking:
+          last_modified_column: updated_at
+        mappings:
+          - on_null: set_null
+            source_column: id
+            target_field: id
+          - on_null: set_null
+            source_column: email
+            target_field: email
+        name: Users
+        primary_key_column: id
+        source:
+          mode: sql
+          query: SELECT id, email, name, updated_at FROM analytics.users
+        target_type: user
+        warehouse_key: analytics
+      properties:
+        change_tracking:
+          $ref: '#/components/schemas/WarehouseSyncChangeTracking'
+        description:
+          description: An optional description of the sync. Maximum of 280 characters allowed.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        mappings:
+          description: How columns map to Knock fields.
+          items:
+            $ref: '#/components/schemas/WarehouseSyncMapping'
+          type: array
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the sync. Must be at minimum 1 character and at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_key_column:
+          description: The column that uniquely identifies each row.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        source:
+          $ref: '#/components/schemas/WarehouseSyncSource'
+        target:
+          $ref: '#/components/schemas/WarehouseSyncTarget'
+        target_type:
+          description: What each row becomes in Knock. Can't change after creation.
+          enum:
+            - user
+            - tenant
+            - object
+            - static_audience_membership
+            - subscription
+          type: string
+          x-struct: null
+          x-validate: null
+        version_id:
+          description: The `version_id` of the sync you last read. When it isn't the current version, someone saved since, and the request is refused.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        warehouse_key:
+          description: The key of the warehouse the sync reads from. Can't change after creation.
+          type: string
+          x-struct: null
+          x-validate: null
+      title: WarehouseSyncRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncRequest
       x-validate: null
     PaginatedBroadcastResponse:
       description: A paginated list of Broadcast. Contains a list of entries and page information.
@@ -3239,6 +3772,43 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ItemSchema
       x-validate: null
+    PaginatedWarehouseSyncRunResponse:
+      description: A paginated list of WarehouseSyncRun. Contains a list of entries and page information.
+      example:
+        entries:
+          - ended_at: "2026-11-01T12:02:30Z"
+            error: null
+            id: 4b8e9a52-1c7d-4f0e-8a3b-6d2f5e9c1b07
+            load_id: 9d3c2b1a-7e6f-4a5b-8c9d-0e1f2a3b4c5d
+            records_errored: 0
+            records_processed: 1200
+            rows_applied: 1200
+            rows_failed: 0
+            started_at: "2026-11-01T12:00:05Z"
+            status: completed
+            submitted_at: "2026-11-01T12:00:00Z"
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/WarehouseSyncRun'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedWarehouseSyncRunResponse
+      type: object
+      x-struct: null
+      x-validate: null
     BroadcastSendRequest:
       description: A request to send or schedule a broadcast.
       example:
@@ -3656,6 +4226,33 @@ components:
       title: Tag
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Tag
+      x-validate: null
+    WarehouseSyncSettingsRequest:
+      description: The sync's schedule settings. They take effect right away and aren't versioned. Fields left out keep their current values.
+      example:
+        enabled: false
+        frequency_minutes: 1440
+      properties:
+        enabled:
+          description: Whether the sync runs on its schedule.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        frequency_minutes:
+          description: How often the sync runs, in minutes.
+          enum:
+            - 10
+            - 15
+            - 60
+            - 360
+            - 720
+            - 1440
+          type: integer
+          x-struct: null
+          x-validate: null
+      title: WarehouseSyncSettingsRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncSettingsRequest
       x-validate: null
     WrappedGuideRequestRequest:
       description: Wraps the GuideRequest request under the guide key.
@@ -5510,6 +6107,53 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceLog
       x-validate: null
+    WrappedWarehouseSyncResponse:
+      description: Wraps the WarehouseSync response under the `warehouse_sync` key.
+      example:
+        warehouse_sync:
+          change_tracking:
+            last_modified_column: updated_at
+          created_at: "2026-10-01T12:00:00Z"
+          description: Syncs users from the analytics warehouse
+          enabled: true
+          environment: development
+          frequency_minutes: 60
+          has_unpublished_changes: false
+          key: users
+          last_failure: null
+          last_published_at: "2026-11-01T12:00:00Z"
+          mappings:
+            - on_null: set_null
+              source_column: id
+              target_field: id
+            - on_null: set_null
+              source_column: email
+              target_field: email
+            - on_null: preserve
+              source_column: name
+              target_field: name
+          name: Users
+          primary_key_column: id
+          publish_error: null
+          sha: abc123def456
+          source:
+            mode: sql
+            query: SELECT id, email, name, updated_at FROM analytics.users
+          status: live
+          target: null
+          target_type: user
+          updated_at: "2026-11-01T12:00:00Z"
+          version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+          warehouse_key: analytics
+      properties:
+        warehouse_sync:
+          $ref: '#/components/schemas/WarehouseSync'
+      required:
+        - warehouse_sync
+      title: WrappedWarehouseSyncResponse
+      type: object
+      x-struct: null
+      x-validate: null
     EmailButtonSetBlockButton:
       description: A button in a button set block.
       example:
@@ -5731,6 +6375,39 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowRequest
       x-validate: null
+    WarehouseSyncMapping:
+      description: Maps one column from the warehouse to one field in Knock.
+      example:
+        on_null: set_null
+        source_column: email
+        target_field: email
+      properties:
+        on_null:
+          default: set_null
+          description: What to do when the column is `NULL`. `set_null` clears the Knock field, and `preserve` keeps its current value.
+          enum:
+            - set_null
+            - preserve
+          type: string
+          x-struct: null
+          x-validate: null
+        source_column:
+          description: The column to read. Can be a dotted path into an object column, such as `PROPERTIES.plan`.
+          type: string
+          x-struct: null
+          x-validate: null
+        target_field:
+          description: The Knock field to write the value to.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - source_column
+        - target_field
+      title: WarehouseSyncMapping
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncMapping
+      x-validate: null
     BroadcastRequest:
       description: A broadcast request for upserting a broadcast.
       example:
@@ -5925,6 +6602,23 @@ components:
       title: CloneGoalRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.CloneGoalRequest
+      x-validate: null
+    HeadlessAccountClaimRequest:
+      description: The person an agent wants to hand a headless account to.
+      example:
+        email: founder@example.com
+      properties:
+        email:
+          description: The email of the person who will own the account. Only they can finish the claim.
+          format: email
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - email
+      title: HeadlessAccountClaimRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountClaimRequest
       x-validate: null
     AssetCreateRequest:
       description: Records a library asset for a key returned by an upload request.
@@ -7356,6 +8050,66 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.BooleanField
       x-validate: null
+    PaginatedWarehouseSyncResponse:
+      description: A paginated list of WarehouseSync. Contains a list of entries and page information.
+      example:
+        entries:
+          - change_tracking:
+              last_modified_column: updated_at
+            created_at: "2026-10-01T12:00:00Z"
+            description: Syncs users from the analytics warehouse
+            enabled: true
+            environment: development
+            frequency_minutes: 60
+            has_unpublished_changes: false
+            key: users
+            last_failure: null
+            last_published_at: "2026-11-01T12:00:00Z"
+            mappings:
+              - on_null: set_null
+                source_column: id
+                target_field: id
+              - on_null: set_null
+                source_column: email
+                target_field: email
+              - on_null: preserve
+                source_column: name
+                target_field: name
+            name: Users
+            primary_key_column: id
+            publish_error: null
+            sha: abc123def456
+            source:
+              mode: sql
+              query: SELECT id, email, name, updated_at FROM analytics.users
+            status: live
+            target: null
+            target_type: user
+            updated_at: "2026-11-01T12:00:00Z"
+            version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+            warehouse_key: analytics
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/WarehouseSync'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedWarehouseSyncResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WrappedGoalResourceAttachmentResponse:
       description: Wraps the GoalResourceAttachment response under the `attachment` key.
       example:
@@ -7919,6 +8673,39 @@ components:
       title: WrappedGoalResponse
       type: object
       x-struct: null
+      x-validate: null
+    HeadlessAccount:
+      description: A headless account an agent created, with the service token the agent uses to work in it.
+      example:
+        expires_at: "2026-10-29T12:00:00.000Z"
+        status: provisioning
+        token: knock_st_1234567890
+      properties:
+        expires_at:
+          description: When the account and its token are deleted unless a person claims the account first.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        status:
+          description: The account is still being set up. Poll the status endpoint.
+          enum:
+            - provisioning
+          type: string
+          x-struct: null
+          x-validate: null
+        token:
+          description: A service token for the Management API. It is only returned once and keeps working after a person claims the account.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - token
+        - status
+        - expires_at
+      title: HeadlessAccount
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccount
       x-validate: null
     MessageTypeSelectField:
       description: A select field used in a message type.
@@ -10035,7 +10822,7 @@ components:
       x-struct: null
       x-validate: null
     SourceEventTrigger:
-      description: A source event trigger that triggers the workflow when an event is received from an integration source. Read more in the [docs](https://docs.knock.app/integrations/sources/overview).
+      description: A source event trigger that triggers the workflow when an event is received from an integration source. Read more in the [docs](https://docs.knock.app/integrations/sources/streams).
       example:
         event_name: user.signed_up
         event_type: track
@@ -11567,6 +12354,45 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.TextareaField
       x-validate: null
+    PaginatedWarehouseResponse:
+      description: A paginated list of Warehouse. Contains a list of entries and page information.
+      example:
+        entries:
+          - connection_error: null
+            connection_settings:
+              database: ANALYTICS
+              host: acme.snowflakecomputing.com
+              port: 443
+              username: KNOCK
+            connection_status: connected
+            created_at: "2026-10-01T12:00:00Z"
+            key: analytics
+            last_tested_at: "2026-11-01T12:00:00Z"
+            name: Analytics
+            type: snowflake
+            updated_at: "2026-11-01T12:00:00Z"
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Warehouse'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedWarehouseResponse
+      type: object
+      x-struct: null
+      x-validate: null
     MessageTypeButtonField:
       description: A button field used in a message type.
       example:
@@ -11884,6 +12710,36 @@ components:
       title: Partial
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Partial
+      x-validate: null
+    HeadlessAccountStatus:
+      description: Where a headless account stands, from the point of view of the agent.
+      example:
+        expires_at: "2026-10-29T12:00:00.000Z"
+        status: unclaimed
+      properties:
+        expires_at:
+          description: When an unclaimed account is deleted, or null once it has been claimed.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        status:
+          description: Whether the account is still being set up, waiting to be claimed, claimed by a person, or expired because its claim window closed or its setup never finished.
+          enum:
+            - provisioning
+            - unclaimed
+            - claimed
+            - expired
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - status
+        - expires_at
+      title: HeadlessAccountStatus
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountStatus
       x-validate: null
     WebhookTemplate:
       description: A webhook template. By default, a webhook step will use the request settings you configured in your webhook channel. You can override this as you see fit on a per-step basis.
@@ -12289,6 +13145,35 @@ components:
       required:
         - preference_category
       title: WrappedPreferenceCategoryResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    WrappedWarehouseSyncRequestRequest:
+      description: Wraps the WarehouseSyncRequest request under the warehouse_sync key.
+      example:
+        warehouse_sync:
+          change_tracking:
+            last_modified_column: updated_at
+          mappings:
+            - on_null: set_null
+              source_column: id
+              target_field: id
+            - on_null: set_null
+              source_column: email
+              target_field: email
+          name: Users
+          primary_key_column: id
+          source:
+            mode: sql
+            query: SELECT id, email, name, updated_at FROM analytics.users
+          target_type: user
+          warehouse_key: analytics
+      properties:
+        warehouse_sync:
+          $ref: '#/components/schemas/WarehouseSyncRequest'
+      required:
+        - warehouse_sync
+      title: WrappedWarehouseSyncRequestRequest
       type: object
       x-struct: null
       x-validate: null
@@ -13245,6 +14130,37 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    HeadlessAccountClaim:
+      description: A claim an agent started for a person, with the link and code to show them.
+      example:
+        claim_url: https://dashboard.knock.app/claim-account?token=eyJhbGciOi
+        expires_at: "2026-10-28T12:10:00.000Z"
+        user_code: "042917"
+      properties:
+        claim_url:
+          description: The dashboard link the person opens and signs in with the email given when the claim started.
+          type: string
+          x-struct: null
+          x-validate: null
+        expires_at:
+          description: When the link and code stop working.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        user_code:
+          description: A six-digit code to show the person, who types it on the claim page. Show it separately from the link.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - claim_url
+        - user_code
+        - expires_at
+      title: HeadlessAccountClaim
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountClaim
+      x-validate: null
     WrappedGuideResponse:
       description: Wraps the Guide response under the `guide` key.
       example:
@@ -14047,6 +14963,28 @@ components:
       title: Goal
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Goal
+      x-validate: null
+    WarehouseSyncChangeTracking:
+      description: How the sync detects changed and deleted rows.
+      example:
+        is_deleted_column: is_deleted
+        last_modified_column: updated_at
+      properties:
+        is_deleted_column:
+          description: A boolean column that marks a row as deleted. Requires `last_modified_column`.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        last_modified_column:
+          description: A timestamp column that changes whenever a row changes. With it, each run reads only rows changed since the last run.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: WarehouseSyncChangeTracking
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncChangeTracking
       x-validate: null
     SourceEvent:
       description: A known unique event received by a source.
@@ -15038,6 +15976,44 @@ components:
       title: MessageTypeListField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.ListField
+      x-validate: null
+    WarehouseSyncSource:
+      description: 'The rows a warehouse sync reads: a table or view (`relation`), or the result of a SQL query (`sql`).'
+      example:
+        mode: sql
+        query: SELECT id, email, name, updated_at FROM analytics.users
+      properties:
+        mode:
+          description: Whether the sync reads a table or view, or a SQL query.
+          enum:
+            - relation
+            - sql
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the table or view. Required when `mode` is `relation`.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        query:
+          description: The SQL query to read. Required when `mode` is `sql`.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        schema:
+          description: The schema of the table or view. Required when `mode` is `relation`.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - mode
+      title: WarehouseSyncSource
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WarehouseSyncSource
       x-validate: null
     Duration:
       description: A duration of time, represented as a unit and a value.
@@ -18696,6 +19672,131 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.PromoteGroup)
           }
+  /v1/warehouse_syncs/{warehouse_sync_key}/run:
+    put:
+      callbacks: {}
+      description: Starts a run of the published warehouse sync now, instead of waiting for its schedule. Refused while a run is in progress.
+      operationId: runWarehouseSync
+      parameters:
+        - description: The key of the warehouse sync to run.
+          in: path
+          name: warehouse_sync_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the WarehouseSync response under the `warehouse_sync` key.
+                example:
+                  warehouse_sync:
+                    change_tracking:
+                      last_modified_column: updated_at
+                    created_at: "2026-10-01T12:00:00Z"
+                    description: Syncs users from the analytics warehouse
+                    enabled: true
+                    environment: development
+                    frequency_minutes: 60
+                    has_unpublished_changes: false
+                    key: users
+                    last_failure: null
+                    last_published_at: "2026-11-01T12:00:00Z"
+                    mappings:
+                      - on_null: set_null
+                        source_column: id
+                        target_field: id
+                      - on_null: set_null
+                        source_column: email
+                        target_field: email
+                      - on_null: preserve
+                        source_column: name
+                        target_field: name
+                    name: Users
+                    primary_key_column: id
+                    publish_error: null
+                    sha: abc123def456
+                    source:
+                      mode: sql
+                      query: SELECT id, email, name, updated_at FROM analytics.users
+                    status: live
+                    target: null
+                    target_type: user
+                    updated_at: "2026-11-01T12:00:00Z"
+                    version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+                    warehouse_key: analytics
+                properties:
+                  warehouse_sync:
+                    $ref: '#/components/schemas/WarehouseSync'
+                required:
+                  - warehouse_sync
+                title: WrappedWarehouseSyncResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Run a warehouse sync
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.warehouseSyncs.run('warehouse_sync_key');
+
+          console.log(response.warehouse_sync);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.warehouse_syncs.run(
+              warehouse_sync_key="warehouse_sync_key",
+          )
+          print(response.warehouse_sync)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.WarehouseSyncs.Run(
+          		context.TODO(),
+          		"warehouse_sync_key",
+          		knockmapi.WarehouseSyncRunParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.WarehouseSync)
+          }
   /v1/guides:
     get:
       callbacks: {}
@@ -18869,6 +19970,95 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+  /v1/headless_accounts:
+    post:
+      callbacks: {}
+      description: Creates an account that has no owner yet, and returns a service token the agent uses to work in it. The account is deleted after 24 hours unless a person claims it. This endpoint needs no authentication and is rate limited.
+      operationId: createHeadlessAccount
+      parameters: []
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeadlessAccount'
+          description: Created
+        "403":
+          content:
+            application/json:
+              schema:
+                description: Returned when the request carries an Origin header, which browsers add.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              schema:
+                description: Returned when too many accounts were created from this address or overall. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Too Many Requests
+        "500":
+          content:
+            application/json:
+              schema:
+                description: Returned when the account could not be created. Try again later.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              schema:
+                description: Returned when headless accounts are turned off or briefly unavailable. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Service Unavailable
+      security: []
+      summary: Create a headless account
+      tags:
+        - Headless accounts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt();
+
+          const headlessAccount = await client.headlessAccounts.create();
+
+          console.log(headlessAccount.token);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt()
+          headless_account = client.headless_accounts.create()
+          print(headless_account.token)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	headlessAccount, err := client.HeadlessAccounts.New(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", headlessAccount.Token)
           }
   /v1/audiences:
     get:
@@ -21703,6 +22893,81 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Commit)
           }
+  /v1/headless_accounts/status:
+    get:
+      callbacks: {}
+      description: Returns whether the headless account is still being set up, waiting to be claimed, claimed by a person, or past its claim window. Agents poll this endpoint to find out when a person has claimed the account.
+      operationId: getHeadlessAccountStatus
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeadlessAccountStatus'
+          description: OK
+        "403":
+          content:
+            application/json:
+              schema:
+                description: Returned when the token was not issued for a headless account.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              schema:
+                description: Returned when the account is polled more than once a second. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Too Many Requests
+      summary: Get a headless account's status
+      tags:
+        - Headless accounts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.headlessAccounts.retrieveStatus();
+
+          console.log(response.expires_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.headless_accounts.retrieve_status()
+          print(response.expires_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.HeadlessAccounts.GetStatus(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ExpiresAt)
+          }
   /v1/message_types/{message_type_key}/validate:
     put:
       callbacks: {}
@@ -22254,6 +23519,138 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+  /v1/warehouse_syncs/{warehouse_sync_key}/settings:
+    put:
+      callbacks: {}
+      description: Pauses or resumes a warehouse sync, or changes how often it runs. Settings take effect right away and don't need a publish.
+      operationId: updateWarehouseSyncSettings
+      parameters:
+        - description: The key of the warehouse sync to update.
+          in: path
+          name: warehouse_sync_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseSyncSettingsRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the WarehouseSync response under the `warehouse_sync` key.
+                example:
+                  warehouse_sync:
+                    change_tracking:
+                      last_modified_column: updated_at
+                    created_at: "2026-10-01T12:00:00Z"
+                    description: Syncs users from the analytics warehouse
+                    enabled: true
+                    environment: development
+                    frequency_minutes: 60
+                    has_unpublished_changes: false
+                    key: users
+                    last_failure: null
+                    last_published_at: "2026-11-01T12:00:00Z"
+                    mappings:
+                      - on_null: set_null
+                        source_column: id
+                        target_field: id
+                      - on_null: set_null
+                        source_column: email
+                        target_field: email
+                      - on_null: preserve
+                        source_column: name
+                        target_field: name
+                    name: Users
+                    primary_key_column: id
+                    publish_error: null
+                    sha: abc123def456
+                    source:
+                      mode: sql
+                      query: SELECT id, email, name, updated_at FROM analytics.users
+                    status: live
+                    target: null
+                    target_type: user
+                    updated_at: "2026-11-01T12:00:00Z"
+                    version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+                    warehouse_key: analytics
+                properties:
+                  warehouse_sync:
+                    $ref: '#/components/schemas/WarehouseSync'
+                required:
+                  - warehouse_sync
+                title: WrappedWarehouseSyncResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Update a warehouse sync's settings
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.warehouseSyncs.updateSettings('warehouse_sync_key');
+
+          console.log(response.warehouse_sync);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.warehouse_syncs.update_settings(
+              warehouse_sync_key="warehouse_sync_key",
+          )
+          print(response.warehouse_sync)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.WarehouseSyncs.UpdateSettings(
+          		context.TODO(),
+          		"warehouse_sync_key",
+          		knockmapi.WarehouseSyncUpdateSettingsParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.WarehouseSync)
           }
   /v1/message_types/{message_type_key}:
     get:
@@ -24007,6 +25404,208 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Result)
           }
+  /v1/headless_accounts/claim:
+    post:
+      callbacks: {}
+      description: Starts handing the account to a person. Returns a link and a six-digit code for the agent to show that person. They open the link, sign in with the email given here, and type the code to become the account's owner. The service token keeps working afterwards. Starting a new claim replaces the previous link and code.
+      operationId: claimHeadlessAccount
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeadlessAccountClaimRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeadlessAccountClaim'
+          description: OK
+        "403":
+          content:
+            application/json:
+              schema:
+                description: Returned when the token was not issued for a headless account.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Forbidden
+        "409":
+          content:
+            application/json:
+              schema:
+                description: Returned when the account is already claimed, or is still being set up.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Conflict
+        "410":
+          content:
+            application/json:
+              schema:
+                description: Returned when the claim window has closed.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Gone
+        "422":
+          content:
+            application/json:
+              schema:
+                description: Returned when the email is missing or is not a valid email address.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Unprocessable Entity
+        "429":
+          content:
+            application/json:
+              schema:
+                description: Returned when too many claims were started. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Too Many Requests
+        "503":
+          content:
+            application/json:
+              schema:
+                description: Returned when headless accounts are turned off. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Service Unavailable
+      summary: Start claiming a headless account
+      tags:
+        - Headless accounts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.headlessAccounts.claim({ email: 'founder@example.com' });
+
+          console.log(response.claim_url);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.headless_accounts.claim(
+              email="founder@example.com",
+          )
+          print(response.claim_url)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.HeadlessAccounts.Claim(context.TODO(), knockmapi.HeadlessAccountClaimParams{
+          		Email: "founder@example.com",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ClaimURL)
+          }
+  /v1/warehouses/{warehouse_key}:
+    get:
+      callbacks: {}
+      description: Retrieve a warehouse by its key.
+      operationId: getWarehouse
+      parameters:
+        - description: The key of the warehouse to retrieve.
+          in: path
+          name: warehouse_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+          description: OK
+      summary: Get a warehouse
+      tags:
+        - Warehouses
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const warehouse = await client.warehouses.retrieve('warehouse_key');
+
+          console.log(warehouse.connection_status);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          warehouse = client.warehouses.retrieve(
+              warehouse_key="warehouse_key",
+          )
+          print(warehouse.connection_status)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	warehouse, err := client.Warehouses.Get(
+          		context.TODO(),
+          		"warehouse_key",
+          		knockmapi.WarehouseGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", warehouse.ConnectionStatus)
+          }
   /v1/billing/summary:
     get:
       callbacks: {}
@@ -24072,6 +25671,164 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", billingSummary.InvoiceID)
+          }
+  /v1/warehouse_syncs:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of warehouse syncs for the given environment.
+      operationId: listWarehouseSyncs
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
+          in: query
+          name: hide_uncommitted_changes
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of WarehouseSync. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - change_tracking:
+                        last_modified_column: updated_at
+                      created_at: "2026-10-01T12:00:00Z"
+                      description: Syncs users from the analytics warehouse
+                      enabled: true
+                      environment: development
+                      frequency_minutes: 60
+                      has_unpublished_changes: false
+                      key: users
+                      last_failure: null
+                      last_published_at: "2026-11-01T12:00:00Z"
+                      mappings:
+                        - on_null: set_null
+                          source_column: id
+                          target_field: id
+                        - on_null: set_null
+                          source_column: email
+                          target_field: email
+                        - on_null: preserve
+                          source_column: name
+                          target_field: name
+                      name: Users
+                      primary_key_column: id
+                      publish_error: null
+                      sha: abc123def456
+                      source:
+                        mode: sql
+                        query: SELECT id, email, name, updated_at FROM analytics.users
+                      status: live
+                      target: null
+                      target_type: user
+                      updated_at: "2026-11-01T12:00:00Z"
+                      version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+                      warehouse_key: analytics
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/WarehouseSync'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedWarehouseSyncResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List warehouse syncs
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const warehouseSync of client.warehouseSyncs.list()) {
+            console.log(warehouseSync.version_id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.warehouse_syncs.list()
+          page = page.entries[0]
+          print(page.version_id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.WarehouseSyncs.List(context.TODO(), knockmapi.WarehouseSyncListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
           }
   /v1/schemas/{item_type}:
     get:
@@ -26468,6 +28225,135 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.ContentLength)
           }
+  /v1/warehouses:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of the project's warehouses. Warehouses are shared by every environment.
+      operationId: listWarehouses
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Warehouse. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - connection_error: null
+                      connection_settings:
+                        database: ANALYTICS
+                        host: acme.snowflakecomputing.com
+                        port: 443
+                        username: KNOCK
+                      connection_status: connected
+                      created_at: "2026-10-01T12:00:00Z"
+                      key: analytics
+                      last_tested_at: "2026-11-01T12:00:00Z"
+                      name: Analytics
+                      type: snowflake
+                      updated_at: "2026-11-01T12:00:00Z"
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Warehouse'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedWarehouseResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List warehouses
+      tags:
+        - Warehouses
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const warehouse of client.warehouses.list()) {
+            console.log(warehouse.connection_status);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.warehouses.list()
+          page = page.entries[0]
+          print(page.connection_status)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Warehouses.List(context.TODO(), knockmapi.WarehouseListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/email_layouts/{email_layout_key}/validate:
     put:
       callbacks: {}
@@ -27145,6 +29031,121 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.Translation)
+          }
+  /v1/warehouse_syncs/{warehouse_sync_key}/runs:
+    get:
+      callbacks: {}
+      description: Returns the most recent runs of a warehouse sync, newest first.
+      operationId: listWarehouseSyncRuns
+      parameters:
+        - description: The key of the warehouse sync.
+          in: path
+          name: warehouse_sync_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of WarehouseSyncRun. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - ended_at: "2026-11-01T12:02:30Z"
+                      error: null
+                      id: 4b8e9a52-1c7d-4f0e-8a3b-6d2f5e9c1b07
+                      load_id: 9d3c2b1a-7e6f-4a5b-8c9d-0e1f2a3b4c5d
+                      records_errored: 0
+                      records_processed: 1200
+                      rows_applied: 1200
+                      rows_failed: 0
+                      started_at: "2026-11-01T12:00:05Z"
+                      status: completed
+                      submitted_at: "2026-11-01T12:00:00Z"
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/WarehouseSyncRun'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedWarehouseSyncRunResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List warehouse sync runs
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.warehouseSyncs.listRuns('warehouse_sync_key');
+
+          console.log(response.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.warehouse_syncs.list_runs(
+              warehouse_sync_key="warehouse_sync_key",
+          )
+          print(response.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.WarehouseSyncs.ListRuns(
+          		context.TODO(),
+          		"warehouse_sync_key",
+          		knockmapi.WarehouseSyncListRunsParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Entries)
           }
   /v1/preference_categories/{name}:
     delete:
@@ -28847,6 +30848,150 @@ paths:
           	}
           	fmt.Printf("%+v\n", sourceEventsResponse.Entries)
           }
+  /v1/warehouse_syncs/{warehouse_sync_key}/validate:
+    put:
+      callbacks: {}
+      description: Checks a warehouse sync payload the way an upsert would, without saving it. Returns the payload as sent.
+      operationId: validateWarehouseSync
+      parameters:
+        - description: The key of the warehouse sync to validate.
+          in: path
+          name: warehouse_sync_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the WarehouseSyncRequest request under the warehouse_sync key.
+              example:
+                warehouse_sync:
+                  change_tracking:
+                    last_modified_column: updated_at
+                  mappings:
+                    - on_null: set_null
+                      source_column: id
+                      target_field: id
+                    - on_null: set_null
+                      source_column: email
+                      target_field: email
+                  name: Users
+                  primary_key_column: id
+                  source:
+                    mode: sql
+                    query: SELECT id, email, name, updated_at FROM analytics.users
+                  target_type: user
+                  warehouse_key: analytics
+              properties:
+                warehouse_sync:
+                  $ref: '#/components/schemas/WarehouseSyncRequest'
+              required:
+                - warehouse_sync
+              title: WrappedWarehouseSyncRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the WarehouseSyncRequest response under the `warehouse_sync` key.
+                example:
+                  warehouse_sync:
+                    change_tracking:
+                      last_modified_column: updated_at
+                    mappings:
+                      - on_null: set_null
+                        source_column: id
+                        target_field: id
+                      - on_null: set_null
+                        source_column: email
+                        target_field: email
+                    name: Users
+                    primary_key_column: id
+                    source:
+                      mode: sql
+                      query: SELECT id, email, name, updated_at FROM analytics.users
+                    target_type: user
+                    warehouse_key: analytics
+                properties:
+                  warehouse_sync:
+                    $ref: '#/components/schemas/WarehouseSyncRequest'
+                required:
+                  - warehouse_sync
+                title: WrappedWarehouseSyncRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate a warehouse sync
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.warehouseSyncs.validate('warehouse_sync_key', { warehouse_sync: {} });
+
+          console.log(response.warehouse_sync);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.warehouse_syncs.validate(
+              warehouse_sync_key="warehouse_sync_key",
+              warehouse_sync={},
+          )
+          print(response.warehouse_sync)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.WarehouseSyncs.Validate(
+          		context.TODO(),
+          		"warehouse_sync_key",
+          		knockmapi.WarehouseSyncValidateParams{
+          			WarehouseSync: knockmapi.WarehouseSyncRequestParam{},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.WarehouseSync)
+          }
   /v1/source_providers:
     get:
       callbacks: {}
@@ -29634,6 +31779,271 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", webhook.Webhook)
+          }
+  /v1/warehouse_syncs/{warehouse_sync_key}:
+    get:
+      callbacks: {}
+      description: Retrieve a warehouse sync by its key in a given environment.
+      operationId: getWarehouseSync
+      parameters:
+        - description: The key of the warehouse sync to retrieve.
+          in: path
+          name: warehouse_sync_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
+          in: query
+          name: hide_uncommitted_changes
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehouseSync'
+          description: OK
+      summary: Get a warehouse sync
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const warehouseSync = await client.warehouseSyncs.retrieve('warehouse_sync_key');
+
+          console.log(warehouseSync.version_id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          warehouse_sync = client.warehouse_syncs.retrieve(
+              warehouse_sync_key="warehouse_sync_key",
+          )
+          print(warehouse_sync.version_id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	warehouseSync, err := client.WarehouseSyncs.Get(
+          		context.TODO(),
+          		"warehouse_sync_key",
+          		knockmapi.WarehouseSyncGetParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", warehouseSync.VersionID)
+          }
+    put:
+      callbacks: {}
+      description: Creates a warehouse sync, or saves a new draft of it if it exists. Fields left out keep their current values. Pass `commit=true` to publish the draft. A draft that fails to publish stays saved.
+      operationId: upsertWarehouseSync
+      parameters:
+        - description: The key of the warehouse sync to upsert.
+          in: path
+          name: warehouse_sync_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to commit the resource at the same time as modifying it.
+          in: query
+          name: commit
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The message to commit the resource with, only used if `commit` is `true`.
+          in: query
+          name: commit_message
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the WarehouseSyncRequest request under the warehouse_sync key.
+              example:
+                warehouse_sync:
+                  change_tracking:
+                    last_modified_column: updated_at
+                  mappings:
+                    - on_null: set_null
+                      source_column: id
+                      target_field: id
+                    - on_null: set_null
+                      source_column: email
+                      target_field: email
+                  name: Users
+                  primary_key_column: id
+                  source:
+                    mode: sql
+                    query: SELECT id, email, name, updated_at FROM analytics.users
+                  target_type: user
+                  warehouse_key: analytics
+              properties:
+                warehouse_sync:
+                  $ref: '#/components/schemas/WarehouseSyncRequest'
+              required:
+                - warehouse_sync
+              title: WrappedWarehouseSyncRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the WarehouseSync response under the `warehouse_sync` key.
+                example:
+                  warehouse_sync:
+                    change_tracking:
+                      last_modified_column: updated_at
+                    created_at: "2026-10-01T12:00:00Z"
+                    description: Syncs users from the analytics warehouse
+                    enabled: true
+                    environment: development
+                    frequency_minutes: 60
+                    has_unpublished_changes: false
+                    key: users
+                    last_failure: null
+                    last_published_at: "2026-11-01T12:00:00Z"
+                    mappings:
+                      - on_null: set_null
+                        source_column: id
+                        target_field: id
+                      - on_null: set_null
+                        source_column: email
+                        target_field: email
+                      - on_null: preserve
+                        source_column: name
+                        target_field: name
+                    name: Users
+                    primary_key_column: id
+                    publish_error: null
+                    sha: abc123def456
+                    source:
+                      mode: sql
+                      query: SELECT id, email, name, updated_at FROM analytics.users
+                    status: live
+                    target: null
+                    target_type: user
+                    updated_at: "2026-11-01T12:00:00Z"
+                    version_id: 8f0a5c1e-4f5b-4c3e-9c62-2b0e3d1f7a10
+                    warehouse_key: analytics
+                properties:
+                  warehouse_sync:
+                    $ref: '#/components/schemas/WarehouseSync'
+                required:
+                  - warehouse_sync
+                title: WrappedWarehouseSyncResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a warehouse sync
+      tags:
+        - Warehouse syncs
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.warehouseSyncs.upsert('warehouse_sync_key', { warehouse_sync: {} });
+
+          console.log(response.warehouse_sync);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.warehouse_syncs.upsert(
+              warehouse_sync_key="warehouse_sync_key",
+              warehouse_sync={},
+          )
+          print(response.warehouse_sync)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.WarehouseSyncs.Upsert(
+          		context.TODO(),
+          		"warehouse_sync_key",
+          		knockmapi.WarehouseSyncUpsertParams{
+          			WarehouseSync: knockmapi.WarehouseSyncRequestParam{},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.WarehouseSync)
           }
   /v1/goals/{goal_key}/clone:
     post:
@@ -30784,6 +33194,8 @@ servers:
 tags:
   - description: Resources for managing your Knock account.
     name: Accounts
+  - description: Headless accounts let an agent create a Knock account on its own and hand it to a person to claim.
+    name: Headless accounts
   - description: Workflows let you express your cross-channel notification logic.
     name: Workflows
   - description: Sources receive external events that can trigger Knock actions.
@@ -30814,5 +33226,9 @@ tags:
     name: Assets
   - description: Preference categories are a project-level catalog of categories that can be applied to workflows and broadcasts.
     name: Preference categories
+  - description: Warehouses are the databases in your data warehouse that Knock reads from.
+    name: Warehouses
+  - description: Warehouse syncs read rows from a warehouse on a schedule and write them to Knock.
+    name: Warehouse syncs
   - description: Tags are a project-level catalog of labels that can be applied to workflows, partials, guides, and broadcasts.
     name: Tags

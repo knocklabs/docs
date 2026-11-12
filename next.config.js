@@ -124,6 +124,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/integrations/extensions/data-sync",
+        destination: "/integrations/extensions/warehouse-export",
+        permanent: true,
+      },
+      {
         source: "/designing-workflows/trigger-guide-step",
         destination: "/designing-workflows/in-app-guide-step",
         permanent: true,

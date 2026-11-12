@@ -1,0 +1,54 @@
+---
+title: How to sync data from Snowflake into Knock
+description: Sync Snowflake models to Knock users, tenants, objects, audiences, and subscriptions.
+metaTitle: Snowflake source integration
+metaDescription: Connect Snowflake to Knock as a warehouse source and keep users, tenants, objects, audience members, and subscriptions in sync on a schedule.
+tags:
+  [
+    "warehouse",
+    "data warehouse",
+    "sync",
+    "import",
+    "reverse ETL",
+    "SQL",
+    "database",
+  ]
+section: Integrations > Sources
+layout: integrations
+---
+
+Knock connects to Snowflake with key-pair authentication. Every environment in your account can sync from the warehouse once it's connected.
+
+## Add the warehouse
+
+To add or edit a warehouse, you need the owner or admin [role](/manage-your-account/roles-and-permissions), or a custom permission group that's allowed to manage integrations.
+
+1. Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a>.
+2. Under **Connect a new source**, click **Snowflake**.
+3. Enter a **Name** and a **Key**. The key can't be changed later.
+4. Click **Add warehouse**. Knock opens the warehouse's **Details** tab.
+
+## Connect Snowflake
+
+1. On the warehouse's **Details** tab, fill in the connection:
+
+   | Field        | What to enter                                           |
+   | ------------ | ------------------------------------------------------- |
+   | Account host | Your account's host, ending in `snowflakecomputing.com` |
+   | Port         | Defaults to `443`                                       |
+   | Database     | The database to read from                               |
+   | User         | The Snowflake user Knock reads as, such as `KNOCK_SYNC` |
+
+2. Leave **Public key** empty and click **Save connection**. Knock generates a key pair and shows the public key.
+3. Click **Copy public key** and assign it to the user in Snowflake, leaving out the `BEGIN` and `END` lines:
+
+   ```sql
+   ALTER USER KNOCK_SYNC SET RSA_PUBLIC_KEY = 'MIIBIjANBgkqh...';
+   ```
+
+4. Make sure the user's default role can read the tables you'll sync and that the user has a default warehouse.
+5. Click **Test connection**.
+
+To use a key that's already assigned to the user, paste its public key into **Public key** before saving.
+
+Once the connection works, create a sync. See [create a sync](/integrations/sources/syncs#create-a-sync).
