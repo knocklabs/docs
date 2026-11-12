@@ -850,6 +850,11 @@ const nextConfig = {
         destination: "/integrations/sources/custom",
         permanent: true,
       },
+      {
+        source: "/integrations/sources/census",
+        destination: "/integrations/sources/fivetran",
+        permanent: true,
+      },
     ];
   },
 

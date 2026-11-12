@@ -1,0 +1,359 @@
+---
+title: How to integrate Fivetran with Knock
+description: Learn how to power your Knock product notifications using synced data from your data warehouse using Fivetran Activations.
+metaTitle: Fivetran source integration
+metaDescription: Connect Fivetran Activations to Knock to sync user and audience data from your data warehouse into Knock on a scheduled basis.
+section: Integrations > Sources
+layout: integrations
+---
+
+## Getting started
+
+Knock can be integrated as a downstream target in <a href="https://fivetran.com/docs/activations" target="_blank" rel="noopener">Fivetran Activations</a>, formerly Census, to sync customer and event data from your data warehouse.
+
+### Use cases
+
+You can use our Fivetran integration to:
+
+1. Sync customer data into Knock from your data warehouse ([identify recipients](/managing-recipients/identifying-recipients)).
+2. [Trigger workflows](/send-notifications/triggering-workflows/overview) from records added, changed, or removed in your data warehouse.
+3. Populate [audiences](/concepts/audiences) with data from your data warehouse. Audiences can be used to trigger workflows or power conditional logic during workflow execution.
+
+## Create a Knock activation in Fivetran
+
+In Fivetran, an activation connects an activation source, such as your data warehouse, to a target. Before you can sync data into Knock, you need to create an activation with Knock as its target.
+
+<Callout
+  type="info"
+  title="All configuration happens in Fivetran."
+  text={
+    <>
+      Once you've completed the setup steps below, you will not need to take any
+      additional steps in the Knock dashboard.
+    </>
+  }
+/>
+
+### Prerequisites
+
+1. Connect the data source you want to sync from as an activation source in Fivetran, under **Activations** > **Activation Sources**.
+2. If you've enabled [environments](/version-control/environments), determine which Knock environment you want to sync your data to. You most likely want to sync to your production environment, unless you're configuring a test sync.
+3. Have your Knock environment's secret API key ready. Each environment has its own unique set of API keys; you can find your secret API key in your dashboard under **Platform** > **API keys**. Be sure that the correct environment is selected in the switcher at the top of the page.
+4. Choose your target type. Your options are:
+
+- **Custom Destination API.** Our recommended target type for syncing audiences into Knock. Setup is simpler and includes automatic support for removing a user from an audience during your syncs without additional configuration.
+- **HTTP Request.** This target type is required if you need to [sync users and their properties to Knock](#syncing-customer-data-into-knock-from-fivetran) or if you need to include [tenant](/multi-tenancy/overview) data in your Knock audience.
+
+### Configuration instructions
+
+<AccordionGroup>
+  <Accordion title="Custom Destination API" description="Our recommended configuration.">
+    <Steps>
+      <Step title="Add an activation">
+        In Fivetran, navigate to **Activations** and click "Add activation." Select the activation source that you want to sync from.
+      </Step>
+      <Step title="Select the target type">
+        Search for and select "Custom Destination API." If Fivetran lists existing activations for this target type, click "New Activation" to create a new one.
+      </Step>
+      <Step title="Configure the activation">
+        **a.** Input an activation name. We recommend something like **Knock Production** that correlates to the Knock environment that you're syncing to.
+
+        **b.** Copy and paste the following into the API URL field:
+        ```txt title="Knock Custom Destination API URL"
+        https://api.knock.app/v1/integrations/census/custom-destination
+        ```
+        <br/>
+        This endpoint kept its `census` path when Census became Fivetran Activations, so use it as written.
+
+        **c.** Click the "Add Header" button to add an `Authorization` [header](/api-reference/overview/authentication). Check the "Secret?" box for the value:
+
+        | Header | Value |
+        | ------ | ----- |
+        | `Authorization` | `Bearer <your Knock secret API key>` |
+        <br/>
+
+        **d.** Leave "1" selected as the API Version, then click "Connect" to complete the configuration.
+
+        Fivetran will now test connectivity with Knock. This process may take a few moments to complete.
+      </Step>
+    </Steps>
+
+  </Accordion>
+  <Accordion title="HTTP Request" description="Required for syncing user properties or including tenant data in your Knock audience.">
+    <Steps>
+      <Step title="Add an activation">
+        In Fivetran, navigate to **Activations** and click "Add activation." Select the activation source that you want to sync from.
+      </Step>
+      <Step title="Select the target type">
+        Search for and select "HTTP Request." If Fivetran lists existing activations for this target type, click "New Activation" to create a new one.
+      </Step>
+      <Step title="Configure the activation">
+        **a.** Input an activation name. We recommend something like **Knock Production HTTP API** that correlates to the Knock environment that you're syncing to.
+
+        **b.** Leave the Authorization Type set to "Manual."
+
+        **c.** Copy and paste the following into the Base URL field:
+        ```txt title="Knock API Base URL"
+        https://api.knock.app/v1
+        ```
+        <br/>
+        **d.** Click the "Add Header" button to add an `Authorization` [header](/api-reference/overview/authentication). Check the "Secret?" box for the value:
+
+        | Header | Value |
+        | ------ | ----- |
+        | `Authorization` | `Bearer <your Knock secret API key>` |
+        <br/>
+        **e.** Click "Connect" to complete the configuration.
+      </Step>
+    </Steps>
+
+  </Accordion>
+</AccordionGroup>
+
+## Syncing audiences into Knock from Fivetran
+
+Records from your activation source can be synced to Knock audiences using either a Custom Destination API activation or an HTTP Request activation connected to Knock's audiences API.
+
+<Callout
+  type="warning"
+  title="Audience syncs only sync audience membership."
+  text={
+    <>
+      To sync users and their properties into Knock, see the section below on{" "}
+      <a href="#syncing-customer-data-into-knock-from-fivetran">
+        syncing customer data into Knock from Fivetran
+      </a>
+      .
+    </>
+  }
+/>
+
+### Prerequisites
+
+1. Complete the steps to [create a Knock activation in Fivetran](#create-a-knock-activation-in-fivetran).
+2. Create a [static audience](/concepts/audiences#static-audiences) in Knock that will serve as the target for your sync. Be sure that you create your audience in the same environment that you used to configure your Knock activation. The HTTP Request target type requires the audience to exist before your sync runs. The Custom Destination API target type creates a missing audience automatically, named after its key, but creating it first lets you set up the workflows in the next step before any members arrive.
+3. Ensure that any Knock workflows that should be [triggered by a user's audience entry](/send-notifications/triggering-workflows/audiences) are configured and published before finalizing your Fivetran sync. If you've enabled environments, make sure they're promoted to the environment you're syncing to.
+4. Choose an audience that isn't populated by a Knock [warehouse sync](/integrations/sources/syncs). Knock rejects changes from Fivetran to an audience that a warehouse sync manages.
+
+### Add an audience sync to your Knock activation
+
+Each activation can hold multiple activation syncs. An activation sync sends records from one table or dataset in your activation source to Knock. Fivetran presents the sync configuration as a single form; the steps below follow its sections from top to bottom.
+
+<AccordionGroup>
+  <Accordion title="Custom Destination API">
+    <Steps>
+      <Step title="Create a new activation sync">
+        Navigate to **Activations**, open your Knock activation, and click "Add activation sync."
+      </Step>
+      <Step title="Configure the activation source">
+        Under "Configure Activation Source," select "Existing Dataset & Segments" to sync from a dataset or segment you've defined in Fivetran, or "Any Warehouse Table" to sync directly from a table in your source. Then select the data that you want to sync to Knock.
+      </Step>
+      <Step title="Confirm the target">
+        Under "Configure Target," your Knock activation is listed as the target. The "Audiences" object should be selected by default.
+      </Step>
+      <Step title="Select a sync behavior">
+        Under "Select a Sync Behavior," select the behavior that you want to use.
+
+        - **Create only.** New rows added to your source will be synced to Knock. Removing rows from your source will have no effect on your Knock audience.
+        - **Mirror.** New rows added to your source will be added to your audience, and rows removed from your source will be removed from your audience.
+      </Step>
+      <Step title="Select a sync key">
+        Under "Select a Sync Key," choose the column from your source that maps to the Knock audience User ID field. This field's value must be unique; if Fivetran detects multiple rows with the same sync key value, it marks them as duplicates and does not sync them.
+      </Step>
+      <Step title="Add the audience key">
+        Under "Set Up Custom Destination API Field Mappings," you'll add the key of the Knock audience that you want to sync to. The "Knock audience key" mapping is required.
+
+        **a.** Click the "Source value..." dropdown next to "Knock audience key."
+
+        **b.** Click "Constant Value" on the left-hand side, then enter the key of your Knock audience in the input field.
+
+        **c.** Click "Save."
+      </Step>
+      <Step title="Test your sync (optional)">
+        Under "Run a Test Sync," we recommend clicking "Run Test" to test your sync. If successful, this will sync one row of data to your Knock audience, which you can confirm in the Knock dashboard. Any errors with your source data or field mappings will be displayed in the test results. Expand "Show API Inspector" to see the request Fivetran sent to Knock and the response it received.
+      </Step>
+      <Step title="Finalize your sync">
+        Click "Next." Fivetran shows a summary of your sync. Optionally add a label under "Label your Sync," then choose when the sync runs under "Setup a Trigger": "Scheduled," "Sequence," or "Manual."
+
+        Click "Create" to complete the sync creation process.
+      </Step>
+    </Steps>
+
+  </Accordion>
+  <Accordion title="HTTP Request">
+    <Steps>
+      <Step title="Create a new activation sync for adding users to an audience">
+        Navigate to **Activations**, open your Knock HTTP Request activation, and click "Add activation sync."
+      </Step>
+      <Step title="Configure the activation source">
+        Under "Configure Activation Source," select "Existing Dataset & Segments" to sync from a dataset or segment you've defined in Fivetran, or "Any Warehouse Table" to sync directly from a table in your source. Then select the data that you want to sync to Knock.
+      </Step>
+      <Step title="Specify the request endpoint">
+        Under "Configure Target," your Knock HTTP Request activation is listed as the target, with its base URL.
+
+        Under "Specify a request endpoint," enter the following, replacing `<audience-key>` with the key of your destination audience. For example, if your audience key is `new-signups`, you'd enter `/audiences/new-signups/members`.
+        ```txt title="Knock API audience members endpoint"
+        /audiences/<audience-key>/members
+        ```
+      </Step>
+      <Step title="Choose the request trigger">
+        Under "Choose the request trigger," select "Records added."
+      </Step>
+      <Step title="Specify the number of records in each request">
+        Select "Multiple records per request" to sync audience members in batches. Set "How many rows should be in the batch?" to 500.
+      </Step>
+      <Step title="Select a sync key">
+        Under "Select a Sync Key," choose the column from your source that stores Knock user IDs. This field's value must be unique; if Fivetran detects multiple rows with the same sync key value, it marks them as duplicates and does not sync them.
+      </Step>
+      <Step title="Choose a request method and payload type">
+        Under "Choose a request method," select `POST`.
+
+        Then, under "Choose payload type," select "JSON." Under "Choose how to customize the JSON payload," select "Template editor."
+      </Step>
+      <Step title="Configure the request body template">
+        Modify the following template, replacing `source_user_id` and `source_tenant_id` with the names of columns from your data source that map to the Knock user ID and the Knock tenant ID. Then paste it into the editor under "Define the payload." Fivetran renders the payload as a Liquid template.
+
+        Note that column names are case-sensitive.
+
+        ```json title="Request body template"
+        {
+            "members": [
+                {% for record in records %}
+                    {
+                        "user": { "id": "{{ record['source_user_id']}}" },
+                        "tenant": "{{ record['source_tenant_id'] }}"
+                    }
+                {% endfor %}
+            ]
+        }
+        ```
+      </Step>
+      <Step title="Configure rate limits">
+        Under "Configure rate limits," select "Yes," then set the desired rate limit. The rate limit for [add members](/api-reference/audiences/add_members) API requests to Knock is 60 requests per second. We recommend choosing a lower number (such as 10 requests per second) to allow for multiple syncs to run at once.
+
+        You can leave "Add custom headers" empty. The `Authorization` header you set on your activation is included in every request.
+      </Step>
+      <Step title="Choose whether to backfill existing records">
+        Under "Should existing data be synced?" select "Backfill All Records" to sync all existing records in your source data to your Knock audience, or "Skip Current Records" to only sync new records going forward.
+      </Step>
+      <Step title="Test your sync (optional)">
+        Under "Run a Test Sync," we recommend clicking "Run Test" to test your sync. If successful, this will sync one row of data to your Knock audience, which you can confirm in the Knock dashboard. Any errors with your source data or field mappings will be displayed in the test results.
+      </Step>
+      <Step title="Finalize your sync">
+        Click "Next." Fivetran shows a summary of your sync. Optionally add a label under "Label your Sync," then choose when the sync runs under "Setup a Trigger": "Scheduled," "Sequence," or "Manual."
+
+        Click "Create" to complete the sync creation process.
+
+        If you want your audience sync to run in "insert only" mode, you're all set. If you'd like to also remove audience members when rows are deleted from your data source, proceed to the next step.
+      </Step>
+      <Step title="Create an optional sync for removing audience members">
+        Repeat steps 1 and 2 above, using the same source data and your Knock HTTP Request activation.
+
+        When you get to step 3, paste the following into the request endpoint, with replacements:
+
+        - `audience_key` should be the same audience key used in the previous section.
+        - `source_user_id` should be the name of the column that stores Knock user IDs.
+        - `source_tenant_id` should be the name of the column that stores Knock tenant IDs.
+
+        ```txt title="Knock API audience members endpoint"
+        /audiences/<audience_key>/members?members=[{"user": {"id": "{{ record['source_user_id'] }}"}, "tenant": "{{ record['source_tenant_id'] }}"}]
+        ```
+      </Step>
+      <Step title="Configure the request">
+        **a.** Select "Records removed" as the request trigger.
+
+        **b.** Select "One record per request" to remove audience members one at a time.
+
+        **c.** Select the same sync key as the one that you used in your "add members" sync.
+
+        **d.** Select `DELETE` as the request method. Fivetran switches the payload type to "Empty."
+
+        **e.** Configure a rate limit for the sync. The same 60 requests per second rate limit as your "add members" sync applies to the [remove members](/api-reference/audiences/remove_members) endpoint, and we recommend a similar setting to allow for multiple syncs to run at once.
+      </Step>
+      <Step title="Test and finalize your sync">
+        As above, we recommend clicking "Run Test" to test your sync. If successful, this will remove one row of data from your Knock audience, which you can confirm in the Knock dashboard. Any errors with your source data or field mappings will be displayed in the test results.
+
+        Click "Next." Fivetran shows a summary of your sync. Optionally add a label under "Label your Sync," then choose when the sync runs under "Setup a Trigger": "Scheduled," "Sequence," or "Manual."
+
+        Click "Create" to complete the sync creation process. Your setup is now complete.
+      </Step>
+    </Steps>
+
+  </Accordion>
+</AccordionGroup>
+
+## Syncing customer data into Knock from Fivetran
+
+Records from your activation source can be synced to Knock users using an HTTP Request activation connected to Knock's users API.
+
+### Prerequisites
+
+1. Complete the steps to [create a Knock activation in Fivetran](#create-a-knock-activation-in-fivetran). You'll need to configure an HTTP Request activation.
+
+### Add a user sync to your Knock activation
+
+Follow the steps below to add a user data sync to your Knock HTTP Request activation in Fivetran. These instructions use our [bulk identify endpoint](/api-reference/users/bulk/identify) to optimize migrating large numbers of user records to Knock, but you can adapt this approach to use our [identify endpoint](/api-reference/users/update) for ongoing syncs of individual user records.
+
+<Steps>
+      <Step title="Create a new activation sync">
+        Navigate to **Activations**, open your Knock HTTP Request activation, and click "Add activation sync."
+      </Step>
+      <Step title="Configure the activation source">
+        Under "Configure Activation Source," select "Existing Dataset & Segments" to sync from a dataset or segment you've defined in Fivetran, or "Any Warehouse Table" to sync directly from a table in your source. Then select the data that you want to sync to Knock.
+      </Step>
+      <Step title="Specify the request endpoint">
+        Under "Specify a request endpoint," enter the following:
+        ```txt title="Knock API bulk identify endpoint"
+        /users/bulk/identify
+        ```
+      </Step>
+      <Step title="Choose the request trigger">
+        Under "Choose the request trigger," select either "Records added" or "Records added or changed." If you only plan to run a one-time sync to migrate your user data to Knock, your selection doesn't matter. Ongoing syncs should use "Records added or changed" to ensure that updated user records are synced to Knock.
+      </Step>
+      <Step title="Specify the number of records in each request">
+        Select "Multiple records per request" to sync users in batches. Set "How many rows should be in the batch?" to 1000.
+      </Step>
+      <Step title="Select a sync key">
+        Under "Select a Sync Key," choose the column from your source that stores Knock user IDs. This field's value must be unique; if Fivetran detects multiple rows with the same sync key value, it marks them as duplicates and does not sync them.
+      </Step>
+      <Step title="Choose a request method and payload type">
+        Under "Choose a request method," select `POST`.
+
+        Then, under "Choose payload type," select "JSON." Under "Choose how to customize the JSON payload," select "Template editor."
+      </Step>
+      <Step title="Configure the request body template">
+        Under "Define the payload," write a template for your request body. Fivetran renders the payload as a Liquid template. The only required Knock field is `id`. To reference source columns, use the `{{ record['source_column_name'] }}` syntax. Note that column names are case-sensitive.
+
+        Here is an example template that identifies `id`, `name`, `email`, and `favorite_color` attributes in Knock using the columns from your source data:
+
+        ```json title="Request body template"
+        {
+            "users": [
+              {% for record in records %}
+              {
+                "id": "{{ record['user_id'] }}",
+                "name": "{{ record['name'] }}",
+                "email": "{{ record['email'] }}",
+                "favorite_color": "{{ record['fav_color'] }}"
+              },
+              {% endfor %}
+            ]
+        }
+        ```
+      </Step>
+      <Step title="Configure rate limits">
+        Under "Configure rate limits," select "Yes," then set the desired rate limit to 1 request per second, which is the rate limit for bulk identify API requests to Knock.
+      </Step>
+      <Step title="Choose whether to backfill existing records">
+        Under "Should existing data be synced?" select "Backfill All Records" to sync all existing user records in your source data to Knock, or "Skip Current Records" to only sync new user records going forward.
+      </Step>
+      <Step title="Test your sync (optional)">
+        Under "Run a Test Sync," we recommend clicking "Run Test" to test your sync. If successful, this will sync one user to your Knock environment, which you can confirm in the Knock dashboard. Any errors with your source data or field mappings will be displayed in the test results.
+      </Step>
+      <Step title="Finalize your sync">
+        Click "Next." Fivetran shows a summary of your sync. Optionally add a label under "Label your Sync," then choose when the sync runs under "Setup a Trigger": "Scheduled," "Sequence," or "Manual."
+
+        Click "Create" to complete the sync creation process.
+      </Step>
+
+</Steps>
