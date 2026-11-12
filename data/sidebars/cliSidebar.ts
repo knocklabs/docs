@@ -16,39 +16,38 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Assets",
+    slug: "/cli/asset",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/upload", title: "Upload asset" },
+      { slug: "/archive", title: "Archive asset" },
+    ],
+  },
+
+  {
+    title: "Audiences",
+    slug: "/cli/audience",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List audiences" },
+      { slug: "/get", title: "Get audience" },
+      { slug: "/new", title: "Create a new audience" },
+      { slug: "/pull", title: "Pull audiences" },
+      { slug: "/push", title: "Push audiences" },
+      { slug: "/validate", title: "Validate audience" },
+      { slug: "/open", title: "Open audience" },
+      { slug: "/archive", title: "Archive audience" },
+    ],
+  },
+
+  {
     title: "Authentication",
     slug: "/cli/authentication",
     pages: [
       { slug: "/login", title: "Login" },
       { slug: "/logout", title: "Logout" },
-    ],
-  },
-
-  {
-    title: "Managing resources",
-    slug: "/cli/resources",
-    pages: [
-      { slug: "/init", title: "Initialize a new project" },
-      { slug: "/pull", title: "Pull all resources" },
-      { slug: "/push", title: "Push all resources" },
-    ],
-  },
-
-  {
-    title: "Environments",
-    slug: "/cli/environment",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/list", title: "List environments" },
-    ],
-  },
-
-  {
-    title: "Channels",
-    slug: "/cli/channel",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/list", title: "List channels" },
     ],
   },
 
@@ -68,21 +67,23 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
-    title: "Workflows",
-    slug: "/cli/workflow",
+    title: "Channels",
+    slug: "/cli/channel",
     pages: [
       { slug: "/", title: "Overview" },
-      { slug: "/file-structure", title: "File structure" },
-      { slug: "/list", title: "List workflows" },
-      { slug: "/get", title: "Get workflow" },
-      { slug: "/new", title: "Create a new workflow" },
-      { slug: "/pull", title: "Pull workflows" },
-      { slug: "/push", title: "Push workflows" },
-      { slug: "/run", title: "Run workflow" },
-      { slug: "/validate", title: "Validate workflow" },
-      { slug: "/activate", title: "Activate workflow" },
-      { slug: "/open", title: "Open workflow" },
-      { slug: "/generate-types", title: "Generate types" },
+      { slug: "/list", title: "List channels" },
+    ],
+  },
+
+  {
+    title: "Commits",
+    slug: "/cli/commit",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/list", title: "List commits" },
+      { slug: "/get", title: "Get commits" },
+      { slug: "/all", title: "Commit changes" },
+      { slug: "/promote", title: "Promote changes" },
     ],
   },
 
@@ -103,16 +104,73 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
-    title: "Translations",
-    slug: "/cli/translation",
+    title: "Environments",
+    slug: "/cli/environment",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/list", title: "List environments" },
+    ],
+  },
+
+  {
+    title: "Goals",
+    slug: "/cli/goal",
     pages: [
       { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
-      { slug: "/list", title: "List translations" },
-      { slug: "/get", title: "Get translations" },
-      { slug: "/pull", title: "Pull translations" },
-      { slug: "/push", title: "Push translations" },
-      { slug: "/validate", title: "Validate translations" },
+      { slug: "/list", title: "List goals" },
+      { slug: "/get", title: "Get goal" },
+      { slug: "/new", title: "Create a new goal" },
+      { slug: "/pull", title: "Pull goals" },
+      { slug: "/push", title: "Push goals" },
+      { slug: "/validate", title: "Validate goal" },
+      { slug: "/open", title: "Open goal" },
+      { slug: "/clone", title: "Clone goal" },
+      { slug: "/archive", title: "Archive goal" },
+    ],
+  },
+
+  {
+    title: "Guides",
+    slug: "/cli/guide",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List guides" },
+      { slug: "/get", title: "Get guide" },
+      { slug: "/new", title: "Create a new guide" },
+      { slug: "/pull", title: "Pull guides" },
+      { slug: "/push", title: "Push guides" },
+      { slug: "/validate", title: "Validate guide" },
+      { slug: "/activate", title: "Activate guide" },
+      { slug: "/open", title: "Open guide" },
+      { slug: "/generate-types", title: "Generate types" },
+    ],
+  },
+
+  {
+    title: "Managing resources",
+    slug: "/cli/resources",
+    pages: [
+      { slug: "/init", title: "Initialize a new project" },
+      { slug: "/pull", title: "Pull all resources" },
+      { slug: "/push", title: "Push all resources" },
+    ],
+  },
+
+  {
+    title: "Message types",
+    slug: "/cli/message-type",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List message types" },
+      { slug: "/get", title: "Get message type" },
+      { slug: "/new", title: "Create a new message type" },
+      { slug: "/pull", title: "Pull message types" },
+      { slug: "/push", title: "Push message types" },
+      { slug: "/validate", title: "Validate message type" },
+      { slug: "/open", title: "Open message type" },
     ],
   },
 
@@ -160,81 +218,26 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
-    title: "Commits",
-    slug: "/cli/commit",
+    title: "Sources",
+    slug: "/cli/source",
     pages: [
       { slug: "/", title: "Overview" },
-      { slug: "/list", title: "List commits" },
-      { slug: "/get", title: "Get commits" },
-      { slug: "/all", title: "Commit changes" },
-      { slug: "/promote", title: "Promote changes" },
+      { slug: "/list", title: "List sources" },
+      { slug: "/get", title: "Get source" },
     ],
   },
 
   {
-    title: "Guides",
-    slug: "/cli/guide",
+    title: "Translations",
+    slug: "/cli/translation",
     pages: [
       { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
-      { slug: "/list", title: "List guides" },
-      { slug: "/get", title: "Get guide" },
-      { slug: "/new", title: "Create a new guide" },
-      { slug: "/pull", title: "Pull guides" },
-      { slug: "/push", title: "Push guides" },
-      { slug: "/validate", title: "Validate guide" },
-      { slug: "/activate", title: "Activate guide" },
-      { slug: "/open", title: "Open guide" },
-      { slug: "/generate-types", title: "Generate types" },
-    ],
-  },
-  {
-    title: "Message types",
-    slug: "/cli/message-type",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/file-structure", title: "File structure" },
-      { slug: "/list", title: "List message types" },
-      { slug: "/get", title: "Get message type" },
-      { slug: "/new", title: "Create a new message type" },
-      { slug: "/pull", title: "Pull message types" },
-      { slug: "/push", title: "Push message types" },
-      { slug: "/validate", title: "Validate message type" },
-      { slug: "/open", title: "Open message type" },
-    ],
-  },
-  {
-    title: "Audiences",
-    slug: "/cli/audience",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/file-structure", title: "File structure" },
-      { slug: "/list", title: "List audiences" },
-      { slug: "/get", title: "Get audience" },
-      { slug: "/new", title: "Create a new audience" },
-      { slug: "/pull", title: "Pull audiences" },
-      { slug: "/push", title: "Push audiences" },
-      { slug: "/validate", title: "Validate audience" },
-      { slug: "/open", title: "Open audience" },
-      { slug: "/archive", title: "Archive audience" },
-    ],
-  },
-
-  {
-    title: "Goals",
-    slug: "/cli/goal",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/file-structure", title: "File structure" },
-      { slug: "/list", title: "List goals" },
-      { slug: "/get", title: "Get goal" },
-      { slug: "/new", title: "Create a new goal" },
-      { slug: "/pull", title: "Pull goals" },
-      { slug: "/push", title: "Push goals" },
-      { slug: "/validate", title: "Validate goal" },
-      { slug: "/open", title: "Open goal" },
-      { slug: "/clone", title: "Clone goal" },
-      { slug: "/archive", title: "Archive goal" },
+      { slug: "/list", title: "List translations" },
+      { slug: "/get", title: "Get translations" },
+      { slug: "/pull", title: "Pull translations" },
+      { slug: "/push", title: "Push translations" },
+      { slug: "/validate", title: "Validate translations" },
     ],
   },
 
@@ -255,22 +258,21 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
-    title: "Assets",
-    slug: "/cli/asset",
+    title: "Workflows",
+    slug: "/cli/workflow",
     pages: [
       { slug: "/", title: "Overview" },
-      { slug: "/upload", title: "Upload asset" },
-      { slug: "/archive", title: "Archive asset" },
-    ],
-  },
-
-  {
-    title: "Sources",
-    slug: "/cli/source",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/list", title: "List sources" },
-      { slug: "/get", title: "Get source" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List workflows" },
+      { slug: "/get", title: "Get workflow" },
+      { slug: "/new", title: "Create a new workflow" },
+      { slug: "/pull", title: "Pull workflows" },
+      { slug: "/push", title: "Push workflows" },
+      { slug: "/run", title: "Run workflow" },
+      { slug: "/validate", title: "Validate workflow" },
+      { slug: "/activate", title: "Activate workflow" },
+      { slug: "/open", title: "Open workflow" },
+      { slug: "/generate-types", title: "Generate types" },
     ],
   },
 ];
