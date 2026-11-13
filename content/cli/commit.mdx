@@ -59,6 +59,26 @@ List all commits in the environment. Use an `--environment` flag to specify the 
     type="string"
     description="Filter commits by the given resource identifier. This is most typically the `key` of the resource. In the case of translations, this will be the locale code and namespace, separated by a `/`. Must be used together with `--resource-type`."
   />
+  <Attribute
+    name="--promote-group-id"
+    type="string"
+    description="Filter commits by promote group. Only show commits created by one promote. A promote's commits live in the environment they were promoted to. If that isn't the default environment, you also need `--environment`, or you get an empty list."
+  />
+  <Attribute
+    name="--promoted-from-environment"
+    type="string"
+    description="Filter commits by source environment. Only show promoted commits from this source environment or branch, by slug."
+  />
+  <Attribute
+    name="--since"
+    type="string"
+    description="Filter commits by creation time. Only show commits created at or after this RFC 3339 timestamp, e.g. `2026-01-31T09:00:00Z`."
+  />
+  <Attribute
+    name="--until"
+    type="string"
+    description="Filter commits by creation time. Only show commits created at or before this RFC 3339 timestamp."
+  />
   <Attribute name="--json" type="string" description="Format output as json." />
 </Attributes>
 
@@ -75,6 +95,14 @@ knock commit list --no-promoted --environment=staging
 
 ```bash title="List commits for a specific workflow"
 knock commit list --resource-type=workflow --resource-id=new-comment
+```
+
+```bash title="List commits by promote group"
+knock commit list --environment=production --promote-group-id=<promote_group_id>
+```
+
+```bash title="List commits by time range"
+knock commit list --since=2026-01-01T00:00:00Z --until=2026-01-31T00:00:00Z
 ```
 
 </ExampleColumn>
@@ -191,6 +219,8 @@ knock commit get <commit_id>
 
 You can promote one change to the subsequent environment, or all changes across all resources to the target environment from its directly preceding environment, using the `commit promote` command. Promotion only applies to accounts that have enabled [environments](/version-control/environments).
 
+The command prints the promote group ID after a successful promotion for both `--to` and `--only`. This is the ID you can pass to `knock commit list --promote-group-id` to see all commits created by that promote. When `--to` has nothing to promote, the ID line is not included.
+
 Note:
 
 - For example, if you have three environments "development", "staging", and "production" (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment.
@@ -222,6 +252,11 @@ Note:
 
 ```bash title="Promotes all changes"
 knock commit promote --to=production
+```
+
+```bash title="Example output with promote group ID"
+‣ Successfully promoted all changes to `production` environment
+    Promote group id: 11111111-1111-1111-1111-111111111111
 ```
 
 ```bash title="Promotes one change"
