@@ -32,7 +32,7 @@ tags:
   }
 />
 
-Access to Knock's [API](/api-reference) is protected using a secret API key for your backend application, and a public API key for your client application.
+Access to Knock's [API](/api-reference/overview) is protected using a secret API key for your backend application, and a public API key for your client application.
 
 ## Public API key endpoints
 
@@ -300,63 +300,104 @@ You can limit access to the endpoints that can be called with a public API key b
 You can ensure that **no other actions** can be taken on any other resources by setting the `explicit_grants` option to `true` when generating the user token. Without this option, the token will be granted access to all resources by default.
 
 <Table
-  headers={["Type", "Grants", "Description"]}
+  headers={["Type", "Grants", "Required from version", "Description"]}
   rows={[
     [
       "Read profile",
       "user/read",
+      "1",
       "Allow the token to read the user's profile.",
     ],
     [
       "Write profile",
       "user/write",
+      "1",
       "Allow the token to write to the user's profile.",
     ],
-    ["Read feed", "user/feed_read", "Allow the token to read the user's feed."],
+    [
+      "Read feed",
+      "user/feed_read",
+      "1",
+      "Allow the token to read the user's feed.",
+    ],
     [
       "Write feed",
       "user/feed_write",
+      "1",
       "Allow the token to perform message actions on the user's feed (e.g. mark as read, seen, or archived).",
     ],
     [
       "Read schedules",
       "user/schedule_read",
+      "1",
       "Allow the token to read the user's workflow schedules.",
     ],
     [
       "Read guides",
       "user/guide_read",
+      "1",
       "Allow the token to read the user's guides.",
     ],
     [
       "Write guides",
       "user/guide_write",
+      "1",
       "Allow the token to perform message actions on the user's guides (e.g. mark as seen, interacted, or archived).",
     ],
     [
       "Read preferences",
       "preferences/read",
+      "1",
       "Allow the token to read the user's preferences.",
     ],
     [
       "Write preferences",
       "preferences/write",
+      "1",
       "Allow the token to write to the user's preferences.",
     ],
     [
       "Read channel data",
       "channel_data/read",
+      "1",
       "Allow the token to read the channel data for the user.",
     ],
     [
       "Write channel data",
       "channel_data/write",
+      "1",
       "Allow the token to write the channel data for the user.",
+    ],
+    [
+      "Read Slack channels",
+      "slack/channels_read",
+      "1",
+      "Allow the token to check a tenant's Slack connection and list its Slack channels.",
+    ],
+    [
+      "Write Slack channels",
+      "slack/channels_write",
+      "2",
+      "Allow the token to connect and disconnect Slack for a tenant. Also grants read access.",
+    ],
+    [
+      "Read Microsoft Teams channels",
+      "ms_teams/channels_read",
+      "1",
+      "Allow the token to check a tenant's Microsoft Teams connection and list its teams and channels.",
+    ],
+    [
+      "Write Microsoft Teams channels",
+      "ms_teams/channels_write",
+      "2",
+      "Allow the token to connect and disconnect Microsoft Teams for a tenant. Also grants read access.",
     ],
   ]}
 />
 
-Grants are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener noreferrer">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
+Slack and Microsoft Teams grants apply to the tenant that stores the connection, keyed as an object grant (`https://api.knock.app/v1/objects/$tenants/<tenant_id>`). See [SlackKit](/in-app-ui/react/slack-kit#resources-access-grants) and [TeamsKit](/in-app-ui/react/teams-kit#resource-access-grants) for full examples.
+
+Grants are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
 
 Each grant is keyed by the URL of the resource it applies to. A grant for a user uses the user's ID as the key (`https://api.knock.app/v1/users/<user_id>`), which should match the `sub` claim in the user token. Grants for [tenants](#scoping-a-token-to-a-tenant) and [objects](#scoping-a-token-to-an-object) use their own keys, covered below.
 
@@ -378,6 +419,24 @@ Each grant is keyed by the URL of the resource it applies to. A grant for a user
       "user/feed_read": [{}],
       "preferences/read": [{}],
       "channel_data/read": [{}]
+    }
+  }
+}
+```
+
+### Grants versions
+
+You can set the `grants_version` claim on your signed user token to choose which grants Knock requires. Knock adds a version when it starts requiring a grant that existing tokens don't carry, so the tokens you already sign keep working until you opt in. A token without the claim currently uses version 1.
+
+The **Required from version** column in the [grants table](#limiting-access-to-specific-resources) shows the version where each grant becomes required. For example, on version 2, connecting and disconnecting Slack or Microsoft Teams requires `slack/channels_write` or `ms_teams/channels_write`.
+
+```json title="Example of a user token on grants version 2"
+{
+  "sub": "<user_id>",
+  "grants_version": 2,
+  "grants": {
+    "https://api.knock.app/v1/objects/$tenants/<tenant_id>": {
+      "slack/channels_write": [{}]
     }
   }
 }
