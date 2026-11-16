@@ -1,0 +1,444 @@
+---
+title: Broadcasts
+description: Commands for managing broadcasts in the Knock CLI.
+---
+
+<Section path="/broadcast">
+<ContentColumn>
+
+Broadcast commands enable you to manage [broadcasts](/concepts/broadcasts) in your Knock account from the CLI.
+
+Broadcasts aren't versioned. `knock broadcast push` writes the broadcast straight to the target environment. There's no `--commit` flag and no commit or promote step. See [Broadcasts and the environment model](/concepts/broadcasts#broadcasts-and-the-environment-model) for more details.
+
+`knock pull` and `knock push` don't include broadcasts. Use `knock broadcast pull` and `knock broadcast push` instead.
+
+</ContentColumn>
+</Section>
+
+<Section title="Broadcast file structure" path="/broadcast/file-structure">
+<ContentColumn>
+
+When broadcasts are pulled from Knock, they are stored in directories named by their broadcast key. Each broadcast directory contains a `broadcast.json` file that describes all of a given broadcast's steps. Like workflows, each broadcast directory also contains individual folders for each of the [channel steps](/designing-workflows/channel-step) in the broadcast that hold additional content and formatting data.
+
+Broadcast steps can only be channel, branch, or delay steps.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local broadcast files structure">
+{`broadcasts/
+└── product-update/
+    ├── email_1/
+    │   ├── visual_blocks/
+    │   │   └── 1.content.md
+    │   └── visual_blocks.json
+    ├── in_app_feed_1/
+    │   └── markdown_body.md
+    └── broadcast.json`}
+</PreTextDiagram>
+
+Pulled files include a `$schema` property that points to `https://schemas.knock.app/cli/broadcast.json`.
+
+If you're migrating your local broadcast files into Knock, you can arrange them using the example file structure above and then push them into Knock with [`knock broadcast push --all`](/cli/broadcast/push).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock broadcast list [flags]" path="/broadcast/list">
+<ContentColumn>
+
+Display all broadcasts for an environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number of entries to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="The cursor after which to fetch the next page."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="The cursor before which to fetch the previous page."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast list
+```
+
+```bash title="Pagination example"
+knock broadcast list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast get <broadcast_key> [flags]" path="/broadcast/get">
+<ContentColumn>
+
+Display a single broadcast from an environment.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI uses the account's default environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast get product-update
+```
+
+```bash title="Get a broadcast in a different environment"
+knock broadcast get product-update --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast new [flags]" path="/broadcast/new">
+<ContentColumn>
+
+Create a new broadcast with a minimal configuration.
+
+The broadcast key must use only lowercase letters, numbers, dashes, or underscores.
+
+The command prompts for the broadcast name, key, and channel steps unless you provide them via flags. A broadcast needs at least one channel step. Without `--steps`, the command asks for them. Each step uses the account's first channel of that type. The command fails if no email, in-app feed, SMS, push, or chat channel is set up.
+
+The command cannot be run inside an existing resource directory. By default, the command writes into the broadcasts resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--name, -n"
+    type="string"
+    description="The name of the broadcast."
+  />
+  <Attribute
+    name="--key, -k"
+    type="string"
+    description="The key of the broadcast."
+  />
+  <Attribute
+    name="--steps, -s"
+    type="string"
+    description="Comma-separated list of channel step types to include in the broadcast (e.g. email,in_app_feed). Broadcasts need at least one channel step."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Force the creation of the broadcast directory without confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast new
+```
+
+```bash title="Create a broadcast with flags"
+knock broadcast new --name="Product update" --key=product-update --steps=email,in_app_feed
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast pull [broadcast_key] [flags]" path="/broadcast/pull">
+<ContentColumn>
+
+Pull one or more broadcasts from an environment into a local file system. Knock CLI will create a new broadcast directory or update the existing broadcast directory in the local file system.
+
+By default this command will resolve to the broadcasts resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--broadcasts-dir` flag.
+
+Note: if pulling the target broadcast for the first time (or all broadcasts), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Broadcast file structure](/cli/broadcast/file-structure) section for details on how broadcast files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all broadcasts from the specified environment into the target directory path set by \`--broadcasts-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all broadcasts from the specified environment.`}
+/>
+
+  <Attribute
+    name="--broadcasts-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all broadcasts into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast pull product-update
+```
+
+```bash title="Pulling a broadcast in a different environment"
+knock broadcast pull product-update --environment=production
+```
+
+```bash title="Pulling all broadcasts into ./broadcasts directory"
+knock broadcast pull --all --broadcasts-dir=./broadcasts
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast push [broadcast_key] [flags]" path="/broadcast/push">
+<ContentColumn>
+
+Push one or more broadcasts from a local file system to Knock. Knock will update an existing broadcast by the matching broadcast key, or create a new broadcast if it does not exist yet. The command validates before it pushes. The push publishes the broadcast in the target environment. There is no `--commit` flag.
+
+By default this command will resolve to the broadcasts resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--broadcasts-dir` flag.
+
+Note: you must be directly above the target broadcast directory when running the `broadcast push` command, so the CLI can locate the `broadcast.json` file.
+
+See the [Broadcast file structure](/cli/broadcast/file-structure) section for details on how broadcast files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all broadcasts from the target directory path set by `--broadcasts-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--broadcasts-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all broadcasts from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast push product-update
+```
+
+```bash title="Pushing a broadcast to a different environment"
+knock broadcast push product-update --environment=production
+```
+
+```bash title="Pushing all broadcasts from ./broadcasts directory"
+knock broadcast push --all --broadcasts-dir=./broadcasts
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast validate [broadcast_key] [flags]" path="/broadcast/validate">
+<ContentColumn>
+
+Validate one or more broadcasts from a local file system. Knock will validate the given broadcast payload in the same way as it would with the `broadcast push` command, except without persisting those changes.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all broadcasts from the target directory path set by `--broadcasts-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--broadcasts-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all broadcasts from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast validate product-update
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast run <broadcast_key> [flags]" path="/broadcast/run">
+<ContentColumn>
+
+Test run a broadcast for one recipient without publishing it.
+
+Runs the current version of a broadcast for a single recipient. This does not publish the broadcast or message its target audience. Use `--sandbox-mode` to generate messages without sending them to the downstream provider.
+
+This is the CLI version of "Run test" in the dashboard.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--recipient"
+    type="string"
+    description="(required) The user id to run this broadcast for."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+  <Attribute
+    name="--tenant"
+    type="string"
+    description="A tenant id for the broadcast run."
+  />
+  <Attribute
+    name="--sandbox-mode"
+    type="boolean"
+    description="When enabled, channels generate messages but don't send them to the downstream provider. Defaults to false."
+  />
+  <Attribute
+    name="--skip-delay"
+    type="boolean"
+    description="When enabled, delay steps in this broadcast will be skipped. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast run product-update --recipient=user-123
+```
+
+```bash title="Run a broadcast in sandbox mode"
+knock broadcast run product-update --recipient=user-123 --sandbox-mode
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast send <broadcast_key> [flags]" path="/broadcast/send">
+<ContentColumn>
+
+Send or schedule a broadcast in a given environment.
+
+Sends a broadcast immediately or schedules it for a future time. Use the `--send-at` flag to schedule the broadcast for a specific time.
+
+<Callout
+  type="alert"
+  title="Sending a broadcast cannot be undone."
+  text="Once a broadcast is sent, it cannot be canceled or recalled. Scheduled broadcasts can be canceled before they are sent."
+/>
+
+The `--environment` flag is **required** for this command. There is no default environment. The command asks for confirmation unless you pass `--force`. With `--json` you must also pass `--force`.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="(required) The environment to use."
+  />
+  <Attribute
+    name="--send-at"
+    type="string"
+    description="ISO 8601 datetime to schedule the broadcast. Omit to send immediately."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Remove the confirmation prompt. Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Send a broadcast immediately"
+knock broadcast send product-update --environment=production
+```
+
+```bash title="Schedule a broadcast"
+knock broadcast send product-update --environment=production --send-at=2026-12-01T15:00:00Z
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock broadcast open <broadcast_key> [flags]" path="/broadcast/open">
+<ContentColumn>
+
+Open a broadcast in the Knock dashboard. This command opens the broadcast page in your default browser.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. When omitted, the account's default environment is used."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock broadcast open product-update
+```
+
+```bash title="Open a broadcast in a different environment"
+knock broadcast open product-update --environment=production
+```
+
+</ExampleColumn>
+</Section>

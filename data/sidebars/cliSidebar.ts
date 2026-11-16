@@ -239,6 +239,24 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Broadcasts",
+    slug: "/cli/broadcast",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List broadcasts" },
+      { slug: "/get", title: "Get broadcast" },
+      { slug: "/new", title: "Create a new broadcast" },
+      { slug: "/pull", title: "Pull broadcasts" },
+      { slug: "/push", title: "Push broadcasts" },
+      { slug: "/validate", title: "Validate broadcast" },
+      { slug: "/run", title: "Run broadcast" },
+      { slug: "/send", title: "Send broadcast" },
+      { slug: "/open", title: "Open broadcast" },
+    ],
+  },
+
+  {
     title: "Variables",
     slug: "/cli/variable",
     pages: [
