@@ -1,5 +1,5 @@
 ---
-description: Rules for validating Callout component usage and Accordion anchorSlug conventions
+description: Rules for validating Callout usage, Accordion anchorSlug conventions, and recurring docs review issues
 globs:
   - content/**/*.mdx
 alwaysApply: true
@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## Callout type validation
 
-When reviewing documentation, validate that Callout components use the appropriate type based on their content. The available types are: `info`, `warning`, `alert`, `enterprise`, `beta`, and `roadmap`.
+When reviewing documentation, validate that Callout components use the appropriate type based on their content. The available types are: `info`, `warning`, `alert`, `enterprise`, `beta`, `roadmap`, and `community_sourced`. `community_sourced` takes no other props.
 
 ### Callout type definitions
 
@@ -254,7 +254,7 @@ Lean toward adding one. Readers and support link to individual panels often, and
 2. Underscores appear only inside a code identifier reproduced verbatim from the title, such as `format_date_in_locale`.
 3. The slug is 50 characters or fewer.
 4. An accordion under a "Frequently asked questions" heading carries a `faq-` prefix and condenses the question to a topic phrase. An accordion outside such a section does not carry that prefix.
-5. The `Settings`, `Overrides`, and `Conditions` accordions under a provider's "Channel configuration" heading carry a `configuration-` prefix.
+5. The `Settings`, `Advanced`, `Overrides`, and `Conditions` accordions under a provider's "Channel configuration" heading carry a `configuration-` prefix.
 6. The slug is unique within its page, and never equal to a heading id or a `<Step>` id on that page.
 
 An accordion may skip `anchorSlug` when the enclosing heading is the better link target, which covers titles that repeat across a page and small groups presenting alternative routes to one outcome. Treat a whole group the same way rather than slugging only some of its panels.
@@ -316,3 +316,24 @@ An accordion may skip `anchorSlug` when the enclosing heading is the better link
 When flagging incorrect `anchorSlug` usage, use this format:
 
 > **Accordion anchorSlug issue:** This accordion's `anchorSlug` [is missing / collides with [target] / repeats the full question / exceeds 50 characters] because [reason]. Consider using `anchorSlug="[suggestion]"`.
+
+## Recurring docs review issues
+
+Human reviewers flag these on most docs PRs, agent-written ones especially. `AGENTS.md` at the repo root explains each rule. Flag them in changed lines only. Older pages break several of these rules, and fixing them is out of scope for an unrelated PR.
+
+1. **Environment-specific steps.** New accounts have a single production environment. Flag steps that assume a development environment, promotion, or branches without an "If you've enabled [environments](/version-control/environments)" sentence. Flag "parent environment" where the development environment is meant, and `environment=development` in example requests.
+2. **Unlinked dashboard paths.** Flag a step that sends the reader to a dashboard page, such as **Platform** > **Sources**, without a `https://dashboard.knock.app/~/…` link on the path. Suggest the URL only when another page in `/content` already uses it.
+3. **Capitalized role or environment names.** Flag Owner, Admin, Member, Production-only member, Support, or Billing capitalized mid-sentence, and Development, Staging, or Production capitalized as environment names. Environment names are lowercase in prose, so never suggest capitalizing "the development environment".
+4. **Callout titles that label rather than state.** Flag `title="Note:"`, `title="Tip:"`, and any title that ends in a colon.
+5. **Steps that hide from the table of contents.** Flag `<Steps titleSize="h4">`. Suggest `h3` under a `##` heading when readers might link to a step, or the default otherwise.
+6. **Documenting the absence of a feature.** Flag sentences that describe what a reader can't do through a path they wouldn't try, deprecated fields, or "previously" and "no longer" phrasing. Suggest documenting the supported way instead.
+7. **Speculative hedges.** Flag "currently", "at this time", and "in the future, we may".
+8. **Inline link styles.** Flag `style={{ color: "var(--tgph-accent-11)" … }}` on a link. Table links are styled by `styles/global.css`.
+9. **TODO comments.** Flag `{/* TODO` and `{/* PENDING` comments in MDX.
+10. **Links that rely on a redirect.** Flag an internal link whose path is a `source` in the `redirects` list in `next.config.js`, and suggest its `destination`.
+11. **Inline code as link text.** Flag `` [`…`](…) ``. Suggest linking a plain-text phrase and keeping the code beside it.
+12. **Incomplete renames.** When a PR adds a `next.config.js` redirect or renames a page, flag links to the old path that remain in `/content` and `data/specs`, and a missing sidebar update.
+
+### Suggested review message format
+
+> **Docs review:** [issue] because [reason]. Consider [suggestion].

@@ -84,13 +84,41 @@ Every page in `/content` opens with frontmatter. `title`, `description`, and `se
 
 `description` does double duty: it renders as the subtitle under the page title, and it's the snippet a reader sees in search results. Write one sentence that says what the page covers, and make it stand on its own — a reader meets it before they've read anything else on the page. Keep it to a line, and don't restate the page's opening paragraph: the reader sees both in sequence, so a description that paraphrases the intro spends the line twice.
 
-`tags` are written into the search index, so a tag earns its place by grouping this page with others. A tag that appears on one page matches only what the title already matches. Check that a tag is in use elsewhere in `/content` before adding it, and prefer an existing tag over a more precise new one.
+`tags` are written into the search index, so a tag earns its place by grouping this page with others. A tag that appears on one page matches only what the title already matches. Check that a tag is in use elsewhere in `/content` before adding it, and prefer an existing tag over a more precise new one. The exception is a former name: after a rename, tag the page with the old name so searches for it still land there.
+
+## Renaming or moving a page
+
+When a page moves, or the feature or integration it covers is renamed, update everything that points at the old name in the same change:
+
+- Add a permanent redirect from the old path to the new one in `next.config.js`.
+- Update the sidebar entry in `data/sidebars`.
+- Update every link and mention in `/content` and `data/specs`. Don't rely on the redirect.
+- Name the old term once, in the page's opening sentence, such as "Fivetran Activations, formerly Census". Add it to `tags`.
+- Keep heading text the same when the content moves unchanged, so its anchors still work.
 
 Match `section` to a value already in use. A new section value creates a group of one.
+
+## Specs and sidebars
+
+Resource descriptions in `data/specs/api/customizations.yml` and `data/specs/mapi/customizations.yml` render as prose on the API reference pages, so the style guide below applies to them. Sidebar labels for spec subresources are set there too, under `subresources`.
+
+## Environments are opt-in
+
+New Knock accounts start with a single production environment. Development, promotion, and branches exist only after an account owner or admin [enables environments](/version-control/environments#enable-environments). Accounts created before October 2026 started with both. Write every page so it reads correctly for both kinds of account.
+
+- Write steps that work in any environment. Don't open a procedure with "in your development environment" or end it with "promote to production".
+- Put anything that only applies with environments in a conditional sentence: "If you've enabled [environments](/version-control/environments), …". The pattern is in use across the docs, so match it.
+- In production the dashboard labels the commit action **Publish**. In other environments it reads **Commit**.
+- Name the environment you mean. Branches are created only from development, so write "merges into the development environment", not "merges into the parent environment".
+- Don't add `environment=development` to example requests. It returns a 404 on accounts without environments.
+- Resources that aren't promoted, such as goals and warehouse syncs, are set up in each environment that uses them. Say so where the reader sets one up.
+- State the scope of every resource and action you document. Say whether it's account-wide or per environment ("Assets are account-wide"), whether an action reaches other environments ("Archive a goal in the current environment"), and whether a change waits for a commit or takes effect at once ("An update takes effect immediately in the target environment, including production").
 
 ---
 
 # Knock writing style guide
+
+Many existing pages predate these rules. They still have `Note:` callout titles, inline link styles, and capitalized role names. Don't copy a pattern because a nearby page uses it. Follow this guide, and fix the pattern in the lines you're editing.
 
 ## Use "enable", not "allow"
 
@@ -128,10 +156,19 @@ Don't capitalize these:
 - messages
 - environments
 - audiences
+- goals
 - agents
 - agent function
 
 "Agent" is lowercase everywhere except in "Agent Toolkit". Write "the Knock agent" in long-form prose and "Knock agents" for the plural.
+
+Environment names are lowercase in prose: "the development environment", "publish in production". Use code formatting only when you mean the slug, such as `development`.
+
+## Account roles are lowercase
+
+Write owner, admin, member, production-only member, support, and billing in lowercase: "you need the owner or admin role". Use code formatting when you mean the value a setting takes, such as setting the auto-join default to `member`. Link "role" to [roles and permissions](/manage-your-account/roles-and-permissions) the first time a page mentions one.
+
+Describe a custom permission group by what it's allowed to do, such as "a custom permission group that's allowed to manage integrations". Don't use the capability's label, such as "Integrations: manage".
 
 ## Case: always use sentence case
 
@@ -158,6 +195,7 @@ This covers headers, page titles, bold list-item labels, technical terms, compon
 Stays capitalized:
 
 - Knock product names — see the list above.
+- Plan names: Enterprise plan, Starter plan.
 - Brand names (React, iOS, Android), programming languages (JavaScript, TypeScript), framework names (React Native).
 
 Regex patterns that surface title case violations:
@@ -242,10 +280,24 @@ External links carry `target="_blank"` and `rel="noopener"`.
 
 Dashboard links (`dashboard.knock.app`) skip `rel` entirely — it's a Knock property. Substitute `~` for the account and environment slugs, which resolves to the signed-in user's own account and environment: `https://dashboard.knock.app/acme/development/broadcasts` becomes `https://dashboard.knock.app/~/broadcasts`.
 
+When a step sends the reader to a dashboard page, link the bolded path itself, so the reader can click straight there:
+
+```mdx
+1. Go to <a href="https://dashboard.knock.app/~/sources" target="_blank">**Platform** > **Sources**</a>.
+```
+
+Do this in each procedure that names the page, not only the first. Take the URL from an existing link in `/content` (search for `dashboard.knock.app/~/`). If no page links that route yet and you can't confirm it, leave the path unlinked and list it in the PR description. Don't guess a route.
+
+Link a Knock concept the first time a page mentions it in prose. Point the link at the section that answers the reader's question when there is one, such as `[static audiences](/concepts/audiences#static-audiences)`. One link per concept per page is enough.
+
+Links inside tables get their color and underline from `styles/global.css`, like any other link. Don't add an inline `style` to a link, and remove one when you edit its line.
+
+Don't put inline code in link text. The MDX `code` component sets its own color, so the link loses its link styling and doesn't read as a link. Link a plain-text phrase and keep the code beside it: "[exit the branch](/cli/branch/exit) with `knock branch exit`".
+
 Check the links in every file you edit, not just the ones you added or changed. Fix what's wrong.
 
-- Internal links: the path resolves against `/content`, and any anchor matches a heading id on the target page.
-- External links: `target="_blank"` and `rel="noopener"` are both present, except dashboard links, which skip `rel`.
+- Internal links: the path resolves against `/content`, and any anchor matches a heading id on the target page. A path that works only through a redirect in `next.config.js`, such as `/concepts/tenants` or `/concepts/environments`, is wrong. Point it at the redirect's destination.
+- External links: `target="_blank"` and `rel="noopener"` are both present, except dashboard links, which skip `rel`. Replace `rel="noopener noreferrer"` with `rel="noopener"`.
 
 ## Images
 
@@ -254,6 +306,8 @@ Use the `Image` component from `lib/mdxComponents.tsx` for every image, includin
 - `className="mx-auto"` centers it.
 - `border={false}` removes the border, for logos and badges.
 - Don't restate the component's own border or radius classes in `className`.
+
+Don't add screenshots of third-party UIs, such as a CDP's or a warehouse's console. They go stale when the vendor changes its UI, and no one at Knock is notified. Describe those steps in text, naming each control by its label.
 
 ## Callouts
 
@@ -269,7 +323,8 @@ Use the `Image` component from `lib/mdxComponents.tsx` for every image, includin
 | `roadmap`           | Planned but not shipped.               |
 | `community_sourced` | Community-contributed tutorials.       |
 
-- Give `title` the point of the note, not a label. `title="Note:"` wastes the line the reader looks at first.
+- Give `title` the point of the note, not a label. `title="Note:"` wastes the line the reader looks at first. So does a title that only names a setting, such as `title="When null:"`. Many older pages use `Note:` titles, so don't copy them. Leave off the trailing colon.
+- A JSX string prop can't contain a double quote. When a title quotes a UI label, pass a template literal: `` title={`Set "When null" per column`} ``.
 - `community_sourced` fills in its own title and text. Pass it alone: `<Callout type="community_sourced" />`.
 - Use the `emoji` prop only when no `type` fits the content. Without a `type`, the callout falls back to the gray `default` background unless you also pass `bgColor`.
 - Pass `text` as a fragment when it contains links or code: `text={<>… <a href="/concepts/workflows">workflows</a> …</>}`.
@@ -280,6 +335,20 @@ A callout works by interrupting the page. Too many on one page undermines their 
 
 - Never stack two callouts back to back. Content that needs two consecutive interruptions belongs in prose or in its own section.
 - Limit callouts to the points a reader can't afford to miss. When a page accumulates them, its headings and ordering usually aren't carrying the content, and the fix is restructuring the page rather than adding another callout.
+- A rule that silently overrides the reader's other actions is one of those points. For example, while a sync manages an audience, its members can't be edited any other way. Put a rule like that in a `warning` callout, not in a sentence at the end of a step.
+
+## Steps
+
+Use `Steps` and `Step` from `components/ui/Step.tsx` for a procedure whose steps each need more than a sentence.
+
+- `titleSize` sets the tag for every step title in the group. The default, `p`, renders bold body text that stays out of the table of contents. `h2` and `h3` render headings that appear in it. Under a `##` heading, use `titleSize="h3"` when a reader might link to a single step, such as "Map columns". Don't use `h4`. It stays out of the table of contents like `p` does, and heading styles at body-text size look out of place.
+- Each step's id is its title, lowercased, with spaces replaced by hyphens. Keep step titles unique on the page and different from its headings.
+- Include every action through the last one, such as **Save and publish**, as a step. Don't follow the `Steps` block with a separate heading for the final action.
+- Introduce the steps with "Complete the following steps", not a count. A count goes stale when a step is added.
+
+## Tables
+
+Use a markdown table for short text and parameter lists. Use the `Table` component from `components/ui/Table.tsx` when cells hold components, links, or multi-line text. Don't use an HTML `<table>`, which renders without the docs' table styles.
 
 ## Feature matrices
 
@@ -357,13 +426,76 @@ Write in active voice.
 
 Passive is the right choice when the actor is the system and naming it adds nothing, or when the sentence is about what happened to its object: "The message is marked as read when the feed opens." Don't contort a sentence to avoid it.
 
+## Document the product as it works today
+
+Write what the reader can do and how to do it. Leave out:
+
+- **What the reader can't do, unless they'd try it.** "`workflow.json` doesn't include a goal attachment" describes a path no one needs, and the goals page already says where to attach a goal. A limitation that blocks something the reader wants to do belongs in the page's limitations or FAQ section.
+- **Deprecated fields and old behavior.** Document the supported way. History belongs in the changelog, so avoid "previously", "now", and "no longer".
+- **Settings that make no difference.** If goals can be cloned into any environment, say that. Don't add "even when modify resources in any environment is disabled".
+- **Hedges about the future.** Cut "currently", "at this time", and "in the future, we may". Planned work goes in a `roadmap` callout.
+
+## Say it once
+
+Give each fact one home on the page.
+
+- When a step links to the section that explains something, don't explain it in the step as well.
+- When two sentences say the same thing in different words, keep the clearer one.
+- Cut sentences that reassure rather than inform, such as "That works for most tables."
+
+Leave out detail the reader can't act on. That includes standard HTTP behavior, such as a 404 for a missing resource, and full lists of the checks or questions a tool runs internally.
+
+A tutorial that runs a skill or the Knock agent should say what each phase does for the reader and link the skill. Listing the skill's internal checks repeats the skill, and the list goes stale when the skill changes.
+
+## Say what happens at a limit
+
+When you document a limit, a restriction, or a failure, say what happens when the reader hits it and what to do instead.
+
+- "If the resolved time is more than 365 days out, Knock logs an error and halts the workflow run" tells the reader more than "the maximum is 365 days". Follow it with the alternative, such as a one-time schedule.
+- Quote a dashboard error message exactly when the reader will see it.
+- Give the reason when a reader would otherwise wonder about it: "Because sandbox mode never calls your provider, you can save the configuration without provider credentials."
+
+## Write sentences that read one way
+
+Reread each sentence as someone new to the feature. If it can be read two ways, rewrite it.
+
+- **Separate what applies from what doesn't.** "Channel conditions, preferences, and send windows apply during a single-step test, but the step's own conditions are ignored."
+- **Watch "and" between separate things.** "How many rows were read and failed" can read as rows that were read and then failed. "How many rows it read, and how many failed" can't.
+- **Say which value does what.** Call a true-or-false column a boolean and name the value that triggers the behavior: "Knock removes rows where it's `true`." Format literal values as code, such as `true`, `null`, and `$tenants`.
+- **Say what a cross-reference holds.** When a link ends a step, tell the reader what they'll find there: "See [deleted rows](#deleted-rows) for what happens when a row is removed from your source table." When the link text would repeat the action the sentence names, link the action instead. Write "Once the connection works, [create a sync](…) to start syncing data into Knock", not "Once the connection works, create a sync. See [create a sync](…)."
+- **Use "must" for requirements.** "It should be a timestamp column" reads as advice. If Knock rejects anything else, write "It must be a timestamp or datetime column."
+- **Explain what looks like a mistake.** When a value the reader copies looks stale or wrong, say that it's intentional: "This endpoint kept its `census` path when Census became Fivetran Activations, so use it as written."
+
+## Keep facts consistent and sourced
+
+- When a fact changes, such as a limit, a default, or a supported file type, search `/content` and `data/specs` for every statement of it. That includes FAQ answers, callouts, `Attribute` descriptions, and the CLI and API reference pages, which a concept-page update tends to miss. Update them in the same change.
+- When a page lists behavior per provider, per SDK, or per resource type, cover every one the page supports. A timestamps section that covers Redshift and PostgreSQL but not BigQuery leaves BigQuery readers guessing. Update any shared troubleshooting row along with it.
+- When the dashboard, the Management API, and the CLI behave differently, say which does what: "The dashboard accepts JPEG, PNG, GIF, and SVG files. The Management API and the CLI accept JPEG, PNG, and GIF files."
+- Take lists of fields, options, and limits from a source: the OpenAPI specs in `data/specs`, the product code, or the ticket. A list a reviewer finds incomplete, such as user fields without `timezone` and `locale`, costs a review round. If you can't confirm an item, ask in the PR description.
+- Make example values satisfy the rules the page states. If a timestamp must be in the future, set the example date years ahead.
+- Don't leave `{/* TODO */}` or pending-review comments in MDX. Put open questions in the PR description.
+
+## Before opening a PR
+
+Reviewers keep catching the same issues. Check these in every file you changed:
+
+- Steps read correctly for a production-only account. Environment-specific content sits in an "If you've enabled environments" sentence.
+- Each resource and action you document states its scope: account-wide or per environment, and committed or immediate.
+- Dashboard paths in steps link to the dashboard. No internal link relies on a redirect, and no link text is inline code.
+- A renamed or moved page has a redirect, an updated sidebar entry, and no remaining links to the old path.
+- Role names are lowercase, and the first mention of a Knock concept links to its page.
+- No callout is titled `Note:` or ends in a colon. A rule that overrides the reader's other actions sits in a `warning` callout.
+- No sentence describes what the reader can't do, deprecated behavior, or a setting that has no effect.
+- Each fact appears once per page. When you changed a fact, every other page that states it, FAQs included, matches.
+- No TODO comments are left in MDX.
+
 # Tutorial writing guidelines for /content/tutorials/\*
 
 The following guidelines apply specifically to content in the `/content/tutorials/` directory:
 
 ## Always link to Knock docs when possible
 
-Any time you first reference a Knock API, a Knock concept, or any other concept covered elsewhere in this documentation, link to it so the reader can learn more.
+Any time you first reference a Knock API, a Knock concept, or any other concept covered elsewhere in this documentation, link to it so the reader can learn more. This applies to every page, as the links section describes, but tutorials lean on it most.
 
 ## Consistent terminology
 
@@ -372,6 +504,8 @@ Use consistent terminology for features and processes, such as "incoming replies
 ## Configuration instructions
 
 Provide clear, step-by-step instructions for configuration tasks, including where to find necessary settings in the UI.
+
+In a prerequisites list, mark anything the reader can skip with "Optional:" and say what it gets them: "Optional: a configured email provider. Setting it up first saves you from updating your workflows after the migration."
 
 ## Payload structure
 
@@ -391,7 +525,7 @@ Include a frequently asked questions section to address common concerns or limit
 
 ## Limitations and future features
 
-Clearly state current limitations and potential future enhancements to manage user expectations.
+State current limitations so readers know what to expect. Mention future enhancements only when they're planned, in a `roadmap` callout, and don't speculate about what Knock may support.
 
 ## Educate the user
 
