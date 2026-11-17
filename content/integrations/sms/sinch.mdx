@@ -1,6 +1,6 @@
 ---
 title: How to send SMS messages with Sinch
-description: Get started sending SMS notifications with Sinch and Knock.
+description: Configure Sinch credentials, sender settings, and delivery status webhooks in Knock.
 section: Integrations > SMS
 layout: integrations
 ---
@@ -57,6 +57,12 @@ Configure the following settings per [environment](/version-control/environments
         type="string*"
         description="The Sinch Sender ID to send messages from. Required when From (under Advanced) is set to Sender ID."
       />
+      <Attribute
+        name="Incoming webhook"
+        type="boolean"
+        nameSlug="#delivery-status-webhooks"
+        description="Whether to receive message delivery status updates from Sinch via webhook."
+      />
     </Attributes>
 
   </Accordion>
@@ -106,3 +112,59 @@ Configure the following settings per [environment](/version-control/environments
 ## Recipient data requirements
 
 In order to send an SMS notification you'll need a valid `phone_number` property set on your recipient.
+
+## Delivery status webhooks
+
+When enabled, Sinch sends delivery reports directly to Knock, so message statuses update as soon as the carrier reports them, including failures. Without a webhook, Knock [polls Sinch](/send-notifications/delivering-notifications#polling) for delivery status, and a report that arrives after polling ends won't update the message.
+
+Sinch only sends a delivery report when a message asks for one. With the incoming webhook turned on, Knock requests a final delivery report on every message it sends and points it at the environment's webhook URL, so there's nothing to configure in Sinch.
+
+To enable delivery status webhooks:
+
+1. Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your Knock dashboard
+2. Select your Sinch channel
+3. Under **Environment configurations**, click the environment you want to configure to expand its settings
+4. Turn on **Incoming webhook**
+5. Click "Save changes"
+
+Each environment has its own webhook URL, so turn on the incoming webhook for each environment you want to track.
+
+<Callout
+  type="info"
+  title="Payload overrides take precedence."
+  text={
+    <>
+      Knock sets the <code>delivery_report</code> and <code>callback_url</code>{" "}
+      fields on each message. If your{" "}
+      <a href="/integrations/sms/settings-and-overrides#provider-json-overrides">
+        payload overrides
+      </a>{" "}
+      set either field, the override wins, and Knock only receives the delivery
+      reports Sinch sends to the URL you configured.
+    </>
+  }
+/>
+
+### Supported delivery statuses
+
+When delivery status webhooks are enabled for Sinch, Knock updates message statuses based on these delivery reports:
+
+| Sinch status | Knock status | Description                                                                 |
+| ------------ | ------------ | --------------------------------------------------------------------------- |
+| Delivered    | `delivered`  | The recipient received the message                                          |
+| Failed       | `bounced`    | The message couldn't be delivered                                           |
+| Rejected     | `bounced`    | The carrier rejected the message                                            |
+| Aborted      | `bounced`    | Sinch stopped the message before it reached the carrier                     |
+| Expired      | `bounced`    | The message expired before it reached the carrier                           |
+| Deleted      | `bounced`    | The carrier deleted the message, such as for an invalid or opted-out number |
+| Cancelled    | `bounced`    | The message was canceled before it reached the carrier                      |
+
+Other Sinch statuses, such as `Queued`, `Dispatched`, and `Unknown`, don't change the message status in Knock. Learn more about the `bounced` status in the [message statuses](/send-notifications/message-statuses#2-bounced) docs.
+
+### Troubleshooting
+
+If delivery status updates aren't appearing in Knock:
+
+1. **Check your payload overrides.** Overrides that set `delivery_report` to `none` or point `callback_url` elsewhere stop delivery reports from reaching Knock.
+2. **Check that the environment has the incoming webhook turned on.** Knock only requests delivery reports for messages sent from environments where the setting is on, so messages sent before you turned it on still rely on polling.
+3. **Check the message's delivery logs.** The request to Sinch in the message's delivery logs should include `delivery_report` and `callback_url`.
