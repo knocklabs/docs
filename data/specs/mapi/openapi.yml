@@ -77,6 +77,31 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Translation
       x-validate: null
+    Feedback:
+      description: Feedback received by Knock.
+      example:
+        created_at: "2021-01-01T00:00:00Z"
+        id: 2f9a3b8e-6d1c-4c55-9b6e-0a7f3f2d1c84
+      properties:
+        created_at:
+          description: The timestamp of when the feedback was received.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier of the feedback.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - created_at
+      title: Feedback
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Feedback
+      x-validate: null
     SourceProvidersResponse:
       description: Source providers available for creating sources.
       example:
@@ -6938,6 +6963,21 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowInAppFeedStep
       x-validate: null
+    WrappedFeedbackResponse:
+      description: Wraps the Feedback response under the `feedback` key.
+      example:
+        feedback:
+          created_at: "2021-01-01T00:00:00Z"
+          id: 2f9a3b8e-6d1c-4c55-9b6e-0a7f3f2d1c84
+      properties:
+        feedback:
+          $ref: '#/components/schemas/Feedback'
+      required:
+        - feedback
+      title: WrappedFeedbackResponse
+      type: object
+      x-struct: null
+      x-validate: null
     ExitCriteriaIntegrationSourceEvent:
       description: An integration source event that exits the run.
       example:
@@ -7437,6 +7477,84 @@ components:
       title: MessageType
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageType
+      x-validate: null
+    FeedbackRequest:
+      description: Feedback about Knock. Do not include credentials, secrets, personally identifiable information, or full conversations.
+      example:
+        context:
+          expected: An error that identifies the missing variable.
+          model: claude-opus-5-5
+          tool: upsertWorkflow
+          type: friction
+        message: Please name the missing variable in workflow validation errors.
+      properties:
+        context:
+          additionalProperties: true
+          description: Relevant details about the feedback, up to 64 KiB when JSON encoded. The listed keys are recommended and any other keys are accepted.
+          nullable: true
+          properties:
+            actual:
+              description: What happened, including any error text.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            expected:
+              description: What you expected to happen.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            impact:
+              description: The time spent, retries, or workarounds used.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            model:
+              description: The name of the model used for the task.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            product:
+              description: The Knock product involved, such as workflows or guides.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            task:
+              description: What you were trying to do.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            tool:
+              description: The tool, command, or endpoint affected.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: A category such as bug, friction, or feature.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        message:
+          description: Your feedback. Must contain non-whitespace text.
+          maxLength: 10000
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - message
+      title: FeedbackRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.FeedbackRequest
       x-validate: null
     BillingSummary:
       description: A snapshot of the current draft Orb invoice for the account, including plan, per-metric usage, and remaining credit blocks.
@@ -12843,6 +12961,9 @@ components:
       example:
         expires_at: "2026-10-29T12:00:00.000Z"
         status: unclaimed
+        usage_limits:
+          message_limit: 100
+          workflow_run_limit: 100
       properties:
         expires_at:
           description: When an unclaimed account is deleted, or null once it has been claimed.
@@ -12861,9 +12982,31 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        usage_limits:
+          description: How much the account can use per UTC calendar month until a person claims it. Each limit is null when there is none, which is always the case once the account is claimed.
+          properties:
+            message_limit:
+              description: How many messages the account can send.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+            workflow_run_limit:
+              description: How many workflow runs, one per recipient, the account can trigger.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+          required:
+            - workflow_run_limit
+            - message_limit
+          type: object
+          x-struct: null
+          x-validate: null
       required:
         - status
         - expires_at
+        - usage_limits
       title: HeadlessAccountStatus
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountStatus
@@ -19542,6 +19685,89 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
           }
+  /v1/feedback:
+    post:
+      callbacks: {}
+      description: Sends bugs, friction, and feature requests to the Knock team. Agents can use this to report issues they encounter while completing a task. Do not include secrets or personally identifiable information.
+      operationId: createFeedback
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+        description: Params
+        required: false
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Feedback response under the `feedback` key.
+                example:
+                  feedback:
+                    created_at: "2021-01-01T00:00:00Z"
+                    id: 2f9a3b8e-6d1c-4c55-9b6e-0a7f3f2d1c84
+                properties:
+                  feedback:
+                    $ref: '#/components/schemas/Feedback'
+                required:
+                  - feedback
+                title: WrappedFeedbackResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Created
+      summary: Send feedback
+      tags:
+        - Feedback
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const feedback = await client.feedback.create({
+            message: 'Please name the missing variable in workflow validation errors.',
+          });
+
+          console.log(feedback.feedback);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          feedback = client.feedback.create(
+              message="Please name the missing variable in workflow validation errors.",
+          )
+          print(feedback.feedback)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	feedback, err := client.Feedback.New(context.TODO(), knockmapi.FeedbackNewParams{
+          		Message: "Please name the missing variable in workflow validation errors.",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", feedback.Feedback)
+          }
   /v1/templates/preview:
     post:
       callbacks: {}
@@ -23287,7 +23513,7 @@ paths:
   /v1/headless_accounts/status:
     get:
       callbacks: {}
-      description: Returns whether the headless account is still being set up, waiting to be claimed, claimed by a person, or past its claim window. Agents poll this endpoint to find out when a person has claimed the account.
+      description: Returns whether the headless account is still being set up, waiting to be claimed, claimed by a person, or past its claim window, and the monthly usage limits it has until it is claimed. Agents poll this endpoint to find out when a person has claimed the account.
       operationId: getHeadlessAccountStatus
       parameters: []
       responses:
@@ -34323,3 +34549,5 @@ tags:
     name: Warehouse syncs
   - description: Tags are a project-level catalog of labels that can be applied to workflows, partials, guides, and broadcasts.
     name: Tags
+  - description: Feedback lets you report bugs, friction, and feature requests to Knock.
+    name: Feedback
