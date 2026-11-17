@@ -26,7 +26,7 @@ The steps below apply when you are building a customer-facing Slack integration 
 Knock supports multiple ways to connect your own Slack app depending on your technical requirements:
 
 - Using Knock's managed approach with our [SlackKit components](/in-app-ui/react/slack-kit)
-- Using Knock's [Slack-related React hooks](https://docs.knock.app/in-app-ui/react/slack-kit#using-slackkit-headless) with your own components
+- Using Knock's [Slack-related React hooks](/in-app-ui/react/slack-kit#using-slackkit-headless) with your own components
 - Building the UI and OAuth flow entirely yourself
 
 If you haven’t built a Slack app yet, you can get started in <a href="https://api.slack.com/start/quickstart#creating" target="_blank" rel="noopener">Slack’s app documentation</a>.
@@ -150,7 +150,7 @@ In this section we'll complete the steps for setting up your Knock account and S
 
 ## How to set channel data for a Slack integration in Knock
 
-In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given integration. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for a `SlackConnection` stored on a [`User`](/concepts/users) or an [`Object`](/concepts/objects) in Knock.
+In Knock, the [channel data](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given integration. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for a `SlackConnection` stored on a [user](/concepts/users) or an [object](/concepts/objects) in Knock.
 
 Here's an example of setting channel data on an `Object` in Knock.
 
@@ -184,7 +184,7 @@ Every Slack notification needs two things, and Knock lets them live in different
 - **Auth** — permission to post: either a bot **access token** (`xoxb-…`) from Slack's OAuth flow, or a self-contained **incoming webhook URL**. A bot token authorizes exactly one Slack workspace.
 - **Destination** — where the message goes: a `channel_id` (a channel) or a `user_id` (a direct message).
 
-The **destination** is stored on the recipient (a [`User`](/concepts/users) or [`Object`](/concepts/objects)). The **auth** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares a single connection. The two sections below cover each location.
+The **destination** is stored on the recipient (a [user](/concepts/users) or an [object](/concepts/objects)). The **auth** can be stored on the recipient too — or, in a multi-workspace product, once on the [tenant](#tenant-channel-data-requirements), so every recipient in that tenant shares a single connection. The two sections below cover each location.
 
 If one recipient stores destinations for several tenants, add `knock_tenant_id` to each `SlackConnection`. When you trigger the workflow with a tenant, Knock uses connections tagged with that Knock tenant ID. If none match, Knock uses only untagged connections. This selection happens before Knock applies any access token stored on the tenant. See [tenant-scoped chat connections](/managing-recipients/setting-channel-data#scope-chat-connections-by-tenant) for the full selection behavior and an example.
 
@@ -204,12 +204,12 @@ Here's an overview of the data requirements for [setting recipient channel data]
       If you're using standard Slack OAuth with access token scopes, your `SlackConnection` schema looks like this. You'll use
     either a `channel_id` or `user_id` depending on whether you're storing connection data to message a channel or user in Slack:
 
-    | Property        | Type     | Description                                                                                                                                                                                                                              |
-    | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | access_token    | `string` | A bot access token. Not required when the access token is <a href="/integrations/chat/slack/overview#tenant-channel-data-requirements" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>stored on a tenant</a>. |
-    | channel_id      | `string` | A Slack channel ID.                                                                                                                                                                                                                      |
-    | user_id         | `string` | A Slack user ID.                                                                                                                                                                                                                         |
-    | knock_tenant_id | `string` | The optional Knock tenant ID that scopes this connection.                                                                                                                                                                                |
+    | Property        | Type     | Description                                                                                                        |
+    | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+    | access_token    | `string` | A bot access token. Not required when the access token is [stored on a tenant](#tenant-channel-data-requirements). |
+    | channel_id      | `string` | A Slack channel ID.                                                                                                |
+    | user_id         | `string` | A Slack user ID.                                                                                                   |
+    | knock_tenant_id | `string` | The optional Knock tenant ID that scopes this connection.                                                          |
 
     <br/>
 
@@ -283,7 +283,7 @@ Depending on the Slack integration you build into your product, you’ll store t
     - by <a href="https://api.slack.com/methods/users.lookupByEmail" target="_blank" rel="noopener">a given user's email address</a>
     - for <a href="https://api.slack.com/methods/users.list" target="_blank" rel="noopener">a list of all of a workspace's users</a>
 
-    You'll need to be sure that you request the appropriate [`scopes`](#add-a-scope) for these methods during the auth process.
+    You'll need to be sure that you request the appropriate [scopes](#add-a-scope) for these methods during the auth process.
 
   </Accordion>
   <Accordion title="Objects" description="For notifying Slack channels about non-user resources">
@@ -292,7 +292,7 @@ Depending on the Slack integration you build into your product, you’ll store t
     You can find the correct `channel_id` and display a list of channels for your user to select from by querying the Slack API:
     - for <a href="https://api.slack.com/methods/conversations.list" target="_blank" rel="noopener">a list of all of a workspace's channels</a>
 
-    The [`SlackChannelCombobox`](/in-app-ui/react/slack-kit#slackchannelcombobox) component of Knock's SlackKit can help you with this.
+    The `SlackChannelCombobox` [component](/in-app-ui/react/slack-kit#slackchannelcombobox) of Knock's SlackKit can help you with this.
 
     You can learn more about the Knock object model and see an example how to use it to power Slack notifications in our [Objects documentation](/concepts/objects).
 
