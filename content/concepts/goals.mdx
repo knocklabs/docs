@@ -62,15 +62,15 @@ If multiple resources are attached to a goal, Knock attributes a goal's completi
 
 When you connect a goal to a messaging resource, you'll configure an attribution window. The window defines the number of days after a message is sent during which a completion can be credited to the resource; completions that occur after the window has elapsed will not be attributed. The attribution window defaults to 7 days, and can be set to any value between 1 and 30 days.
 
-A goal's attribution window opens when one of its attached resources sends a message to a recipient. If the resource sends the recipient another message, a new window begins from that send event. Messages sent before the goal was attached will not open a window, so the goal can't attribute completions to them.
+A goal's attribution window opens when one of its attached resources sends a message to a recipient. If the resource sends the recipient another message, a new window begins from that `sent` event. Messages sent before the goal was attached will not open a window, so the goal can't attribute completions to them.
 
 ### Examples
 
 The following scenarios use a "Project created" goal, which completes when Knock receives a `project.created` event for a recipient. The goal is attached to two resources: an onboarding email workflow with a 7-day attribution window, and a "create your first project" guide with a 30-day attribution window.
 
-1. **A new message resets the attribution window.** The onboarding workflow emailed a user 8 days ago and again yesterday. The user first saw the guide 6 days ago. When the user creates a project today, the first email's window has closed, but yesterday's email started a new one, so both resources are within their windows. The workflow sent the most recent message, so Knock attributes the completion to the workflow.
+1. **A new message opens a new attribution window.** The onboarding workflow emailed a user 8 days ago and again yesterday. Knock recorded the guide's `sent` event for the user 6 days ago. When the user creates a project today, the first email's window has closed, but yesterday's email started a new one, so both resources are within their windows. The workflow sent the most recent message, so Knock attributes the completion to the workflow.
 
-2. **The most recent message's attribution window has expired.** The onboarding workflow emailed a user 8 days ago, and the user first saw the guide 10 days ago. Although the workflow sent the most recent message, its 7-day window has closed. The guide is still within its 30-day window, so Knock attributes the completion to the guide.
+2. **The most recent message's attribution window has expired.** The onboarding workflow emailed a user 8 days ago, and Knock recorded the guide's `sent` event for the user 10 days ago. Although the workflow sent the most recent message, its 7-day window has closed. The guide is still within its 30-day window, so Knock attributes the completion to the guide.
 
 3. **A message can only be attributed once.** The onboarding workflow emails a user, and the user then creates two projects. Knock records two completions but attributes only the first one. The user's next completion can be attributed only after the workflow sends a new message.
 
@@ -160,12 +160,24 @@ The following are not currently supported by the goals feature:
     title="Why does my goal show completions but no attributed completions?"
     anchorSlug="faq-completions-without-attributions"
   >
-    Knock attributes completions only to messages sent after the goal was attached to a resource. A recipient who received a message from the resource before you attached the goal can still complete it, but Knock records those completions without attribution until the resource sends them a new message. To test attribution, we recommend using a recipient who hasn't received a message from the resource yet.
+    Knock attributes completions only to messages sent after the goal was
+    attached to a resource. A recipient who received a message from the resource
+    before you attached the goal can still complete it, but Knock can't
+    attribute those completions to the resource until it sends them a new
+    message. To test attribution, we recommend using a recipient who hasn't
+    received a message from the resource yet.
   </Accordion>
   <Accordion
-    title="When does a guide open an attribution window?"
+    title="How do attribution windows work for guides?"
     anchorSlug="faq-guide-attribution-window"
   >
-    A guide sends a message the first time a recipient sees each of its steps, and that message opens the window. Later views and interactions with the same step don't send another message, so a recipient who saw a step before you attached the goal has no window for that step. To open a new one, [reset the recipient's guide engagement](/api-reference/users/guides/reset_guide_engagements). Their next view of the guide sends a new message.
+    Knock records a guide's `sent` event when your application first marks the
+    guide as seen, interacted, or archived for a recipient. Each recipient gets
+    one `sent` event for that guide message, regardless of how many times it is
+    rendered for them. If a recipient's `sent` event came before you attached
+    the goal, the goal's attribution window will not be opened and their
+    completions can't be attributed to the guide. To measure a guide's impact,
+    attach the goal before the guide goes live, and test attribution with a
+    recipient who hasn't engaged with the guide yet.
   </Accordion>
 </AccordionGroup>
