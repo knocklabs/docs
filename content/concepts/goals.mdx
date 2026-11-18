@@ -62,7 +62,7 @@ If multiple resources are attached to a goal, Knock attributes a goal's completi
 
 When you connect a goal to a messaging resource, you'll configure an attribution window. The window defines the number of days after a message is sent during which a completion can be credited to the resource; completions that occur after the window has elapsed will not be attributed. The attribution window defaults to 7 days, and can be set to any value between 1 and 30 days.
 
-A guide's attribution window is measured from the first time a recipient sees the guide. For workflows and broadcasts, a window begins when a message is sent to a recipient. Each new message from a workflow or broadcast resets its attribution window.
+A goal's attribution window opens when one of its attached resources sends a message to a recipient. If the resource sends the recipient another message, a new window begins from that send event. Messages sent before the goal was attached will not open a window, so the goal can't attribute completions to them.
 
 ### Examples
 
@@ -152,3 +152,20 @@ The following are not currently supported by the goals feature:
 - Attaching more than one goal to a single messaging resource.
 - Promoting goals between environments (clone a goal instead).
 - Creating, editing, or attaching goals on a branch.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Why does my goal show completions but no attributed completions?"
+    anchorSlug="faq-completions-without-attributions"
+  >
+    Knock attributes completions only to messages sent after the goal was attached to a resource. A recipient who received a message from the resource before you attached the goal can still complete it, but Knock records those completions without attribution until the resource sends them a new message. To test attribution, we recommend using a recipient who hasn't received a message from the resource yet.
+  </Accordion>
+  <Accordion
+    title="When does a guide open an attribution window?"
+    anchorSlug="faq-guide-attribution-window"
+  >
+    A guide sends a message the first time a recipient sees each of its steps, and that message opens the window. Later views and interactions with the same step don't send another message, so a recipient who saw a step before you attached the goal has no window for that step. To open a new one, [reset the recipient's guide engagement](/api-reference/users/guides/reset_guide_engagements). Their next view of the guide sends a new message.
+  </Accordion>
+</AccordionGroup>
