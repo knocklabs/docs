@@ -56,148 +56,152 @@ Custom permission groups enable you to define your own roles with specific capab
 
 When you create a permission group, you set a unique **key** (lowercase letters, numbers, underscores, and hyphens). The key cannot be changed after creation. [Directory sync](/manage-your-account/directory-sync#custom-permission-groups) uses this key to map identity provider groups to the permission group.
 
-Once you've created a permission group, you choose which capabilities members in the group receive. Most capabilities support none, view, and manage permissions, and fall into two scopes:
+Once you've created a permission group, you choose which capabilities members in the group receive. Most capabilities support None, View, and Manage permissions, and fall into two scopes:
 
 - **[Account capabilities](#account-capabilities).** Settings and resources that apply across the whole account, such as members, billing, integrations, and API keys.
 - **[Environment capabilities](#environment-capabilities).** Resources that live in an environment, such as workflows, guides, content, broadcasts, audiences, recipient data, observability, and release management.
 
 ### Account capabilities
 
-Account capabilities apply account-wide and cannot be limited to specific environments. Each capability bundles a set of permissions:
+Account capabilities apply account-wide and cannot be configured per environment. With the exception of API keys, these capabilities continue to be available when [access to one or more environments is denied](#environment-capabilities).
+
+Each capability bundles a set of permissions:
 
 <AccordionGroup>
   <Accordion title="Account content" anchorSlug="capability-account-content">
 
-    **View:** [Variables](/concepts/variables), tags, saved views, [account branding](/template-editor/branding), [environment default preferences](/preferences/overview#environment-level-default-preferences), [preference centers](/preferences/hosted-preference-center), [recipient schemas](/managing-recipients/schemas), and [agent skills](/ai/skills).
+    **View:** Can read [variables](/concepts/variables), tags, saved views, [account branding](/template-editor/branding), [environment default preferences](/preferences/overview#environment-level-default-preferences), [preference centers](/preferences/hosted-preference-center), [recipient schemas](/managing-recipients/schemas), and [agent skills](/ai/skills).
 
-    **Manage:** Everything in view, plus [goals](/concepts/goals) and preference categories.
+    **Manage:** Can read and modify everything in View, plus [goals](/concepts/goals) and preference categories.
 
   </Accordion>
   <Accordion title="Account governance" anchorSlug="capability-account-governance">
 
-    **Manage:** Account settings, [SSO](/manage-your-account/saml-sso), [directory sync](/manage-your-account/directory-sync), [custom domains](/manage-your-account/custom-domains), and [environments](/version-control/environments).
+    **Manage:** Can read and modify account settings, [SSO](/manage-your-account/saml-sso), [directory sync](/manage-your-account/directory-sync), [custom domains](/manage-your-account/custom-domains), and [environments](/version-control/environments).
 
   </Accordion>
   <Accordion title="API keys" anchorSlug="capability-api-keys">
 
-    **View:** [API keys](/developer-tools/api-keys) and [signing keys](/in-app-ui/security-and-authentication).
+    **View:** Can read [API keys](/developer-tools/api-keys) and [signing keys](/in-app-ui/security-and-authentication).
 
-    **Manage:** API keys and signing keys.
+    **Manage:** Can read and modify API keys and signing keys.
+
+    This capability is only available in environments that the account member has access to.
 
   </Accordion>
   <Accordion title="Audit logs" anchorSlug="capability-audit-logs">
 
-    **View:** Account [audit logs](/manage-your-account/audit-logs).
+    **View:** Can read account [audit logs](/manage-your-account/audit-logs).
 
   </Accordion>
   <Accordion title="Billing" anchorSlug="capability-billing">
 
-    **View:** Billing.
+    **View:** Can read billing information.
 
-    **Manage:** Billing.
+    **Manage:** Can read and modify billing information.
 
   </Accordion>
   <Accordion title="Integrations" anchorSlug="capability-integrations">
 
-    **View:** [Channels](/concepts/channels), [sources](/integrations/sources/overview), [webhooks](/developer-tools/outbound-webhooks/overview), and [event routing](/integrations/sources/streams#event-to-action-mapping).
+    **View:** Can read [channels](/concepts/channels), [sources](/integrations/sources/overview), [webhooks](/developer-tools/outbound-webhooks/overview), and [event routing](/integrations/sources/streams#event-to-action-mapping).
 
-    **Manage:** Everything in view, plus [extensions](/integrations/overview#platform-extensions) and partner integrations.
+    **Manage:** Can read and modify everything in View, plus [extensions](/integrations/overview#platform-extensions) and partner integrations.
 
   </Accordion>
   <Accordion title="Members" anchorSlug="capability-members">
 
-    **View:** Account [members](/manage-your-account/managing-members) and permission groups.
+    **View:** Can read account [members](/manage-your-account/managing-members) and permission groups.
 
-    **Manage:** Account members and permission groups.
+    **Manage:** Can read and modify account members and permission groups.
 
   </Accordion>
   <Accordion title="Service tokens" anchorSlug="capability-service-tokens">
 
-    **View:** [Service tokens](/developer-tools/service-tokens).
+    **View:** Can read [service tokens](/developer-tools/service-tokens).
 
-    **Manage:** Service tokens.
+    **Manage:** Can read and modify service tokens.
 
   </Accordion>
 </AccordionGroup>
 
 ### Environment capabilities
 
-For environment capabilities, you control both what members can do and which environments they can access:
+Environment capabilities control both what members can do and which environments they can access:
 
 1. **Same access in every environment.** Apply one set of environment capabilities across development, production, and any additional environments.
-2. **Per-environment access.** Use granular mode to set different capability levels in each environment. For example, grant manage access to workflows in development, and view-only access in production.
-3. **No access to an environment.** Deny an environment to hide it from members in the group and block all environment-scoped permissions there, including on its branches. Account-level capabilities still apply. At least one environment must remain accessible.
+2. **Per-environment access.** Use granular mode to set different capability levels in each environment. For example, grant Manage access to workflows in development, and View access in production.
+3. **No access to an environment.** Deny an environment to hide it from members in the group and block all environment-scoped permissions there, including on its branches. Account capabilities still apply, with the exception of API keys (which cannot be accessed in a denied environment). At least one environment must remain accessible.
 
 Each capability bundles a set of permissions:
 
 <AccordionGroup>
   <Accordion title="Workflows" anchorSlug="capability-workflows">
 
-    **View:** [Workflows](/concepts/workflows), their [commit history](/version-control/commits), goals, preference categories, and recipient schemas.
+    **View:** Can read [workflows](/concepts/workflows), their [commit history](/version-control/commits), goals, preference categories, and recipient schemas.
 
-    **Manage:** Everything in view, plus [testing workflows](/send-notifications/testing-workflows).
+    **Manage:** Can read and modify everything in View, and [test workflows](/send-notifications/testing-workflows).
 
-    The workflow editor requires view access to additional resources, so the dashboard grants it when you enable workflows at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage [assets](/manage-your-account/managing-assets).
+    The workflow editor requires read access to additional resources, so the dashboard grants it when you enable workflows at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage [assets](/manage-your-account/managing-assets).
 
   </Accordion>
   <Accordion title="Guides" anchorSlug="capability-guides">
 
-    **View:** [Guides](/concepts/guides), goals, preference categories, and recipient schemas.
+    **View:** Can read [guides](/concepts/guides), goals, preference categories, and recipient schemas.
 
-    **Manage:** Everything in view, plus previewing guides.
+    **Manage:** Can read and modify everything in View, and preview guides.
 
-    The guide editor requires view access to additional resources, so the dashboard grants it when you enable guides at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
+    The guide editor requires read access to additional resources, so the dashboard grants it when you enable guides at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
 
   </Accordion>
   <Accordion title="Content" anchorSlug="capability-content">
 
-    **View:** [Email layouts](/integrations/email/layouts), [partials](/template-editor/partials/overview), [reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions), [translations](/template-editor/translations), [message types](/in-app-ui/message-types/overview), goals, preference categories, and recipient schemas.
+    **View:** Can read [email layouts](/integrations/email/layouts), [partials](/template-editor/partials/overview), [reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions), [translations](/template-editor/translations), [message types](/in-app-ui/message-types/overview), goals, preference categories, and recipient schemas.
 
-    **Manage:** Everything in view.
+    **Manage:** Can read and modify everything in View.
 
-    Content resource editors require view access to additional resources, so the dashboard grants it when you enable content at any permission level. This includes [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
+    Content resource editors require read access to additional resources, so the dashboard grants it when you enable content at any permission level. This includes [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
 
   </Accordion>
   <Accordion title="Broadcasts" anchorSlug="capability-broadcasts">
 
-    **View:** [Broadcasts](/concepts/broadcasts), goals, preference categories, and recipient schemas.
+    **View:** Can read [broadcasts](/concepts/broadcasts), goals, preference categories, and recipient schemas.
 
-    **Manage:** Everything in view, plus sending broadcasts.
+    **Manage:** Can read and modify everything in View, and send broadcasts.
 
-    The broadcast editor requires view access to additional resources, so the dashboard grants it when you enable broadcasts at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
+    The broadcast editor requires read access to additional resources, so the dashboard grants it when you enable broadcasts at any permission level. This includes [recipient data](#capability-recipient-data) and [content](#capability-content) in the same environment, plus [integrations](#capability-integrations), account branding, variables, tags, and saved views across the account. It also includes the ability to manage assets.
 
   </Accordion>
   <Accordion title="Audiences" anchorSlug="capability-audiences">
 
-    **View:** [Audiences](/concepts/audiences).
+    **View:** Can read [audiences](/concepts/audiences).
 
-    **Manage:** Everything in view, plus importing audience data from a CSV.
+    **Manage:** Can read and modify audiences, and import audience data from a CSV file.
 
   </Accordion>
   <Accordion title="Recipient data" anchorSlug="capability-recipient-data">
 
-    **View:** [Users](/concepts/users), [tenants](/multi-tenancy/overview), [objects](/concepts/objects), [schedules](/concepts/schedules), and [warehouse syncs](/integrations/sources/syncs).
+    **View:** Can read [users](/concepts/users), [tenants](/multi-tenancy/overview), [objects](/concepts/objects), [schedules](/concepts/schedules), and [warehouse syncs](/integrations/sources/syncs).
 
-    **Manage:** Everything in view, plus importing users from a CSV.
+    **Manage:** Can read and modify everything in View, and import users from a CSV file.
 
   </Accordion>
   <Accordion title="Observability" anchorSlug="capability-observability">
 
-    **View:** [Analytics](/send-notifications/analytics), [message logs](/concepts/messages), [API logs](/developer-tools/api-logs), [workflow run logs](/send-notifications/debugging-workflows), and schedules.
+    **View:** Can read [analytics](/send-notifications/analytics), [message logs](/concepts/messages), [API logs](/developer-tools/api-logs), [workflow run logs](/send-notifications/debugging-workflows), and schedules.
 
   </Accordion>
   <Accordion title="Release management" anchorSlug="capability-release-management">
 
-    **Commit:** Viewing commit history and committing changes.
+    **Commit:** Can commit changes and read commit history.
 
-    **Manage:** Everything in commit, plus [promoting changes](/version-control/commits#promoting-commits) between environments.
+    **Manage:** Can do everything in Commit, and [promote changes](/version-control/commits#promoting-commits) between environments.
 
   </Accordion>
   <Accordion title="Branches" anchorSlug="capability-branches">
 
-    **View:** [Branches](/version-control/branches).
+    **View:** Can read [branches](/version-control/branches).
 
-    **Manage:** Branches.
+    **Manage:** Can read and modify branches.
 
   </Accordion>
 </AccordionGroup>
