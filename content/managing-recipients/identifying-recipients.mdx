@@ -19,11 +19,12 @@ To send notifications to a recipient or reference them as an actor in a notifica
 
 Recipient properties enable Knock to deliver personalized notifications. Properties like `email` and `phone_number` are essential for message delivery, while `name` and custom properties power personalization in your notification content and workflow logic. Properties like `timezone` and `locale` enable you to design mindful notifications for users around the world via [send windows](/designing-workflows/send-windows) and [translations](/template-editor/translations). Knock also tracks [delivery and engagement analytics](/send-notifications/message-statuses) for each identified recipient, giving you insights into notification performance and user behavior.
 
-There are three ways to identify recipients:
+There are four ways to identify recipients:
 
 - **Direct identification**. Make a single server-side API request (`PUT /v1/users/{user_id}`) to upsert one recipient.
 - **Inline identification**. Upsert recipients by including recipient data in other server-side API requests (e.g., `POST /v1/workflows/{workflow_key}/trigger`) or when initializing the `KnockProvider` client-side.
 - **Bulk identification**. Make a single server-side API request (`POST /v1/users/bulk/identify`) to upsert many recipients at once.
+- **Dashboard CSV upload**. Upload a CSV file from the Users page in the dashboard to upsert many users at once.
 
 <Callout
   type="info"
@@ -123,6 +124,38 @@ The bulk identification endpoint enables you to upsert many recipients in a sing
 
 [API reference ->](/api-reference/users/bulk/identify)
 
+## Dashboard CSV upload
+
+You can upload a CSV file from the Users page in the dashboard to identify users in bulk. This is useful for initial data imports or when you need to quickly add users without writing code.
+
+To upload a CSV:
+
+1. Navigate to the **Users** page in the dashboard
+2. Click **Upload CSV** in the top right
+3. Upload your CSV file (up to 100MB)
+4. Map the CSV columns to user fields in Knock
+5. Review and confirm the upload
+
+After uploading, Knock will upsert the users and refresh the list when the import is complete. The mapping step works the same as CSV uploads for [static audiences](/concepts/audiences#static-audiences) and [broadcasts](/concepts/broadcasts#targeting-users-for-a-broadcast).
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      CSV uploads use the same upsert behavior as other identification methods.
+      Existing users are merged, not replaced. Knock will skip any users with
+      malformed or missing IDs.
+    </>
+  }
+/>
+
+### Limitations
+
+- Files can be up to 100MB in size.
+- CSV upload is available for users only, not objects.
+- Tenant fields are not available during the mapping step, so a `tenant_id` column cannot be mapped. To upload user-tenant pairs, use [static audience CSV upload](/concepts/audiences#static-audiences) or [broadcast CSV upload](/concepts/broadcasts#targeting-users-for-a-broadcast) instead.
+
 ## Setting recipient properties
 
 When identifying recipients, you pass a set of properties that are persisted. We recommend using your internal user identifier for the `id` value, which is the only required property. Although additional properties aren't required for identification, some properties such as `email` or `phone_number` are required for certain [channel steps](/designing-workflows/channel-step).
@@ -166,7 +199,7 @@ Knock provides a flexible set of APIs for you to manage your user data as you sc
 When getting started with Knock, you'll likely have existing recipients to migrate into Knock:
 
 - **Quick start**. Use [inline identification](#inline-identification) to start calling your workflows without any prerequisite calls to the Knock API.
-- **Data import**. Use our [bulk identification](/api-reference/users/bulk/identify) to import all recipient data into Knock first.
+- **Data import**. Use [bulk identification](/api-reference/users/bulk/identify) via the API or [dashboard CSV upload](#dashboard-csv-upload) to import all recipient data into Knock first.
 
 ### Ongoing updates
 
