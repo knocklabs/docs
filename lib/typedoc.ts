@@ -1,4 +1,3 @@
-import { glob } from "glob";
 import fs from "fs";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
@@ -13,34 +12,37 @@ export interface TypedocPage {
   mdxSource: MDXRemoteSerializeResult;
 }
 
-export async function getAllTypedocs() {
-  const typedocs = await glob("typedocs/**/*.mdx");
+const TYPEDOCS_DIR = "typedocs";
 
-  const typedocMdx = await Promise.all(
-    typedocs.map(async (typedoc): Promise<TypedocPage> => {
-      const file = fs.readFileSync(typedoc, "utf8");
+// Matches `<Typedoc file="react-core/hooks/use-feed" />` in MDX source.
+const TYPEDOC_USAGE = /<Typedoc\b[^>]*?\bfile="([^"]+)"/g;
 
-      const mdxSource = await serialize(file, {
-        parseFrontmatter: true,
-        mdxOptions: {
-          remarkPlugins: [remarkGfm],
-          rehypePlugins: [
-            rehypeSlug,
-            rehypeMdxCodeProps,
-            rehypeAutolinkHeadings,
-          ],
-        },
-        blockJS: false,
-        blockDangerousJS: true,
-      });
+/**
+ * Returns the slugs of the typedocs that an MDX page renders, so the page
+ * only receives those.
+ */
+export function getTypedocSlugs(source: string): string[] {
+  const slugs = Array.from(source.matchAll(TYPEDOC_USAGE), (match) => match[1]);
+  return Array.from(new Set(slugs));
+}
 
-      return {
-        path: typedoc,
-        slug: typedoc.replace("typedocs/", "").replace(".mdx", ""),
-        mdxSource,
-      };
-    }),
-  );
+async function getTypedoc(slug: string): Promise<TypedocPage> {
+  const path = `${TYPEDOCS_DIR}/${slug}.mdx`;
+  const file = fs.readFileSync(path, "utf8");
 
-  return typedocMdx;
+  const mdxSource = await serialize(file, {
+    parseFrontmatter: true,
+    mdxOptions: {
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [rehypeSlug, rehypeMdxCodeProps, rehypeAutolinkHeadings],
+    },
+    blockJS: false,
+    blockDangerousJS: true,
+  });
+
+  return { path, slug, mdxSource };
+}
+
+export async function getTypedocs(slugs: string[]): Promise<TypedocPage[]> {
+  return Promise.all(slugs.map(getTypedoc));
 }
