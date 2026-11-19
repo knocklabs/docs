@@ -5,9 +5,11 @@ tags: ["guides", "analytics", "observability", "metrics", "engagement"]
 section: Building in-app UI > Guides
 ---
 
-Knock provides comprehensive analytics and observability features for guides, enabling you to track user engagement, monitor guide performance, and understand how your in-product messaging is performing across your application.
+Use guide analytics to measure how each guide performs and monitor engagement. You can access analytics in the Knock dashboard, or export guide data to your own systems. Guide analytics are based on the engagement events your application sends to Knock, either through Knock's prebuilt components or by [tracking engagement](/in-app-ui/guides/handling-engagement#tracking-guide-engagement) in custom components.
 
-## Guide analytics overview
+## Guide metrics
+
+Use guide metrics to see how many users in a guide's audience have seen, interacted with, or archived it. Each guide's **Overview** tab includes an analytics summary that highlights key metrics over the last N days, based on your account's [retention period](/manage-your-account/data-retention).
 
 <Image
   src="/images/in-app-ui/GuideAnalytics.png"
@@ -17,56 +19,18 @@ Knock provides comprehensive analytics and observability features for guides, en
   className="rounded-md mx-auto border border-gray-200"
 />
 
-Each guide page includes an analytics summary that highlights key metrics over the last N days, based on your account's [retention period](/manage-your-account/data-retention). These metrics are based on the [engagement events tracked for the guide](/in-app-ui/guides/handling-engagement).
-
-The key metrics available include:
+Guide overview metrics include:
 
 - **Audience**. The total number of users in the target audience for this guide.
 - **Seen**. The number of users for whom this guide is marked as seen.
 - **Interacted**. The number of users who interacted with this guide.
 - **Archived**. The number of users who archived or dismissed this guide.
 
-## Guide message status
-
-Guide analytics measure user interaction based on message status. You'll interact with a set of [engagement status](/send-notifications/message-statuses#engagement-status) options to track user interaction. When using Knock's pre-built components, these message status events will be handled automatically, but you also have the option to map these statuses to your own internal meanings to make your guides analytics useful for your team.
-
-The available engagement tracking options for guides include:
-
-- **Seen**. The guide was rendered and visible to the user.
-- **Interacted**. The user took an action within the guide (clicked a button, link, etc.).
-- **Archived**. The user dismissed or archived the guide. This action removes the guide from eligibility for that user.
-
-These statuses help you understand the effectiveness of your guides and identify opportunities for optimization.
-
-## Accessing guide analytics
-
-### Knock dashboard
-
-You can view guide analytics directly in the Knock dashboard:
-
-1. Navigate to **Guides** in your environment.
-2. Select the guide you want to review.
-3. View the analytics summary on the guide's **Overview** tab, or open the [**Activity** tab](#guide-activity) to see its events as they happen.
-
 You can also view analytics across all guides in the **Observability** > **Analytics** section, where you can filter and group by guide key to compare performance across different guides.
-
-<Image
-  src="/images/in-app-ui/AnalyticsByGuideKey.png"
-  alt="Analytics dashboard filtered by guide key showing total messages processed over time"
-  width={1200}
-  height={600}
-  className="rounded-md mx-auto border border-gray-200"
-/>
-
-### API
-
-Knock doesn't offer a metrics API for guides. The [guides API](/api-reference/users/guides) returns the guides a user is eligible to see, along with that user's engagement state for each step. It doesn't return totals across users.
-
-To read guide engagement in your own code, list your guide channel's messages with the [messages API](/api-reference/messages/list). Filter by `channel_id` and `engagement_status`. Fetch a single message's events with the [list message events](/api-reference/messages/list_events) endpoint. To send guide events to an analytics tool or data warehouse, see [data export](#data-export).
 
 ## Guide activity
 
-The **Activity** tab lists the guide's [message events](/send-notifications/message-statuses#message-events) as they happen, newest first. For example, it shows each time a user sees, reads, interacts with, or archives the guide. Each row shows the event type, the recipient, and when the event happened. The tab isn't available in branch environments.
+The **Activity** tab lists the guide's [message events](/send-notifications/message-statuses#message-events) as they happen, newest first. For example, it shows each time a user sees, reads, interacts with, or archives the guide, as your application reports that engagement. Each row shows the event type, the recipient, and when the event happened. The tab isn't available in branch environments.
 
 <Image
   src="/images/in-app-ui/GuideActivity.png"
@@ -94,9 +58,11 @@ Select an event to view its recipient, message ID, tenant, guide, and environmen
 
 You can access message details for guides through the **Messages** tab of each guide in the Knock dashboard, or via **Observability** > **Messages**. In the messages table, you can identify:
 
-- **Engagement status**. Current engagement state (seen, archived, etc.) per recipient.
+- **Engagement status**. Current [engagement state](/send-notifications/message-statuses#engagement-status) (seen, archived, etc.) per recipient.
 - **Recipient information**. Which users received the guide and when.
 - **Message timeline**. Creation and engagement timestamps for each guide message.
+
+To read guide engagement through the API, list your guide channel's messages with the [messages API](/api-reference/messages/list) and use each message's `source.key` to tell guides apart. For one user's engagement, use the [guides API](/api-reference/users/guides).
 
 <Callout
   type="warning"
@@ -110,8 +76,23 @@ You can access message details for guides through the **Messages** tab of each g
   }
 />
 
-## Data export
+## Exporting guide data
 
 Guide message events are included in Knock's [available integrations](/integrations/extensions/overview) with analytics platforms, enabling you to track guide engagement alongside your other product data.
 
-Customers using [warehouse export](/integrations/extensions/warehouse-export), can also access guide analytics data in the exported messages table. Guides messages can be identified by the presence of a `guide_id` and `guide_key`, which allows you to filter and analyze guide-specific message data in your data warehouse.
+Customers using [warehouse export](/integrations/extensions/warehouse-export) can also access guide analytics data in the exported messages table. Guide messages can be identified by the presence of a `guide_id` and `guide_key`, which allows you to filter and analyze guide-specific message data in your data warehouse.
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      <a href="/integrations/extensions/warehouse-export">Warehouse export</a>{" "}
+      is only available on our{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan
+      </a>
+      .
+    </>
+  }
+/>
