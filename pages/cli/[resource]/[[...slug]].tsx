@@ -3,6 +3,7 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
+import rehypeHighlightCode from "@/lib/rehypeHighlightCode";
 import remarkGfm from "remark-gfm";
 
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
@@ -105,7 +106,7 @@ export const getStaticProps: GetStaticProps<CliPageProps> = async ({
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps],
+      rehypePlugins: [rehypeHighlightCode, rehypeMdxCodeProps],
     },
     blockJS: false,
     blockDangerousJS: true,
