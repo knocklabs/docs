@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -26,9 +27,19 @@ export function getTypedocSlugs(source: string): string[] {
   return Array.from(new Set(slugs));
 }
 
+// Resolves a slug to its file, and refuses any path outside `typedocs/`.
+function getTypedocPath(slug: string): string {
+  const dir = path.resolve(TYPEDOCS_DIR);
+  const filePath = path.resolve(dir, `${slug}.mdx`);
+  if (!filePath.startsWith(dir + path.sep)) {
+    throw new Error(`Typedoc file "${slug}" is outside ${TYPEDOCS_DIR}/`);
+  }
+  return filePath;
+}
+
 async function getTypedoc(slug: string): Promise<TypedocPage> {
-  const path = `${TYPEDOCS_DIR}/${slug}.mdx`;
-  const file = fs.readFileSync(path, "utf8");
+  const filePath = getTypedocPath(slug);
+  const file = fs.readFileSync(filePath, "utf8");
 
   const mdxSource = await serialize(file, {
     parseFrontmatter: true,
@@ -40,7 +51,7 @@ async function getTypedoc(slug: string): Promise<TypedocPage> {
     blockDangerousJS: true,
   });
 
-  return { path, slug, mdxSource };
+  return { path: path.relative(process.cwd(), filePath), slug, mdxSource };
 }
 
 export async function getTypedocs(slugs: string[]): Promise<TypedocPage[]> {
