@@ -205,6 +205,8 @@ export const CodeBlock: React.FC<Props> = ({
         </Stack>
       </Stack>
       <pre data-code-body>
+        {/* Safe to inject: highlightCode and plainCodeToHtml escape every
+            character of the code and add only their own <span> markup. */}
         <code dangerouslySetInnerHTML={{ __html: html }} />
       </pre>
     </Box>
