@@ -13,7 +13,7 @@ const nextConfig = {
     "/api/md/*": ["./public/**/*.md"],
   },
 
-  transpilePackages: ["next-mdx-remote", "streamdown"],
+  transpilePackages: ["next-mdx-remote"],
 
   serverExternalPackages: [
     "remark-gfm",

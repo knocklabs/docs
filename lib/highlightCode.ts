@@ -11,7 +11,7 @@ import { escapeHtml, resolveCodeLanguage, wrapCodeLines } from "./codeBlock";
 // for light and dark mode are set in styles/global.css. Scopes not listed here
 // fall back to their parent scope (`keyword.control` uses `keyword`), then to
 // `--code-foreground`.
-const theme: Theme = {
+export const codeTheme: Theme = {
   name: "knock-docs",
   appearance: "light",
   cssVariables: { prefix: "--code-" },
@@ -102,6 +102,6 @@ function lineToHtml(tokens: ThemedToken[]): string {
 export function highlightCode(code: string, language?: string): string {
   const resolved = resolveCodeLanguage(language);
   const lang = isSupportedLanguage(resolved) ? resolved : "plaintext";
-  const { tokens } = codeToTokens(code, { lang, theme });
+  const { tokens } = codeToTokens(code, { lang, theme: codeTheme });
   return wrapCodeLines(tokens.map(lineToHtml));
 }
