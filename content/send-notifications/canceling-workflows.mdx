@@ -9,14 +9,14 @@ Canceling a workflow allows you to stop a workflow run mid-execution. This actio
 
 Only workflows with a step that can pause the run can be canceled, since otherwise Knock will _immediately_ send a notification to your recipients. The steps that can pause a workflow run are:
 
-- [Batch functions](/send-notifications/designing-workflows/batch-function) will pause workflows while the batch window is open.
-- [Delay functions](/send-notifications/designing-workflows/delay-function) will pause workflows for the configured delay window.
-- [Wait for event functions](/send-notifications/designing-workflows/wait-for-event-function) will pause workflows until a matching event is received or the wait time expires.
-- [Fetch functions](/send-notifications/designing-workflows/fetch-function) may pause workflows during a [retry backoff](/send-notifications/designing-workflows/fetch-function#error-handling).
+- [Batch functions](/designing-workflows/batch-function) will pause workflows while the batch window is open.
+- [Delay functions](/designing-workflows/delay-function) will pause workflows for the configured delay window.
+- [Wait for event functions](/designing-workflows/wait-for-event-function) will pause workflows until a matching event is received or the wait time expires.
+- [Fetch functions](/designing-workflows/fetch-function) may pause workflows during a [retry backoff](/designing-workflows/fetch-function#error-handling).
 
 ## Canceling a triggered workflow
 
-To perform a cancellation, you first need to provide a `cancellation_key` in the [workflow trigger](/send-notifications/triggering-workflows) request. Knock will use this key to uniquely identify the triggered workflow for cancellation.
+To perform a cancellation, you first need to provide a `cancellation_key` in the [workflow trigger](/send-notifications/triggering-workflows/overview) request or map one from the event payload in the [source event mapping](/integrations/sources/streams#event-to-action-mapping) that triggers your workflow. Knock will use this key to uniquely identify the triggered workflow for cancellation.
 
 You can read about generating workflow cancellation keys and some best practices in the [triggering workflows documentation](/send-notifications/triggering-workflows/api#generating-a-cancellation-key).
 
@@ -52,7 +52,7 @@ There are a few fundamentals to consider when using workflow cancellations:
 
 3. Workflow cancellations are both deferred and executed concurrently to the workflow run itself. The [cancel workflow API](/api-reference/workflows/cancel) will return a `204 No Content` response on success, but this only means Knock has successfully enqueued the cancellation request, _not_ that the cancellation has been performed. **We recommend against issuing a cancellation request within 5 seconds of a given workflow trigger**. Cancellations issued too soon after a workflow trigger may not cancel the intended target. Cancellations issued prior to a workflow trigger may overtake and cancel the subsequent workflow.
 
-4. Canceling a workflow with a [batch step](/send-notifications/designing-workflows/batch-function) will not close the open batch window. Read more [here](/designing-workflows/batch-function#using-workflow-cancellation-with-batches).
+4. Canceling a workflow with a [batch step](/designing-workflows/batch-function) will not close the open batch window. See [using workflow cancellation with batches](/designing-workflows/batch-function#using-workflow-cancellation-with-batches).
 
 ## Frequently asked questions
 
