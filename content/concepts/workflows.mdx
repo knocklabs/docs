@@ -78,7 +78,42 @@ See the [frequently asked questions](#frequently-asked-questions) section below 
 
 ### Archiving workflows
 
-Archiving a workflow allows you to permanently remove a workflow from Knock. When you archive a workflow it will be removed from **all environments** and cannot be called via API. Once a workflow is archived, it **cannot be undone**. If you have delayed runs for a workflow that is archived, when the workflow run resumes after the delay it will immediately terminate.
+To archive a workflow, open its "..." menu in the dashboard and select "Archive workflow." Archiving removes the workflow from **all environments**, meaning it can no longer be triggered or generate new notifications. It also:
+
+- Deletes the workflow's [schedules](/concepts/schedules)
+- Detaches the workflow's [goal](/concepts/goals)
+- Frees the workflow's key, so a new workflow can use it
+- Terminates delayed runs of the workflow when they resume after the delay
+
+You can [unarchive](#unarchiving-workflows) an archived workflow later.
+
+The <a href="https://dashboard.knock.app/~/workflows?view=system.archived" target="_blank">**Archived** view</a> of your workflows list shows each archived workflow, its archive date, and who archived it. You can search the view by a workflow's name or key. On a [branch](/version-control/branches), the view lists only workflows archived in that branch, and **View archives on main** opens main's list.
+
+<Image
+  src="/images/concepts/workflows/archived-view.png"
+  alt="Archived view of the workflows list, showing each workflow's name, key, archive date, and who archived it, with one key marked Key in use"
+  width={520}
+  height={490}
+  className="mx-auto"
+/>
+
+### Unarchiving workflows
+
+You can unarchive a workflow from the **Archived** view. A direct link to a workflow that has been archived will also open a page where you can unarchive it. The unarchive dialog lists the environments where the workflow will be restored.
+
+<Image
+  src="/images/concepts/workflows/unarchive-dialog.png"
+  alt="Unarchive dialog showing who archived the workflow and when, the environments where it returns, and that it returns inactive"
+  width={544}
+  height={238}
+  className="mx-auto"
+/>
+
+The workflow returns with its key and its commit history. An unarchived workflow has its status set to [inactive](#workflow-status), so you'll need to activate it in each environment where it should send. Schedules and goals are not restored, so recreate any schedules it needs and reattach its goal if it had one.
+
+To unarchive a workflow, you need permission to manage workflows in each environment where it returns.
+
+If a live workflow uses the archived workflow's key, the **Archived** view marks it "Key in use," and the unarchive dialog says so. To free the key, you can archive the live workflow from the dialog before restoring the archived one.
 
 ## Running workflows
 
