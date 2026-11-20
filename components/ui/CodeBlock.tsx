@@ -1,53 +1,16 @@
-import React, { useMemo } from "react";
-import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
-import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";
-import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
-import elixir from "react-syntax-highlighter/dist/cjs/languages/hljs/elixir";
-import python from "react-syntax-highlighter/dist/cjs/languages/hljs/python";
-import php from "react-syntax-highlighter/dist/cjs/languages/hljs/php";
-import dotnet from "react-syntax-highlighter/dist/cjs/languages/hljs/csharp";
-import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
-import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
-import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
-import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
-import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
-import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
-import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
-import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
-import xml from "react-syntax-highlighter/dist/cjs/languages/hljs/xml";
+import React, { useEffect, useMemo, useState } from "react";
 import { useClipboard } from "@/hooks/useClipboard";
-import { useTheme } from "@/components/theme/ThemeProvider";
+import {
+  DEFAULT_CODE_LANGUAGE,
+  getCodeContent,
+  getLanguageFromClassName,
+  plainCodeToHtml,
+} from "@/lib/codeBlock";
 
-import { lightCodeTheme, darkCodeTheme } from "../../styles/codeThemes";
-import { normalize } from "../../lib/normalizeCode";
-import { useIsMounted } from "../../hooks/useIsMounted";
 import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Check, Copy } from "lucide-react";
-
-SyntaxHighlighter.registerLanguage("node", javascript);
-SyntaxHighlighter.registerLanguage("javascript", javascript);
-SyntaxHighlighter.registerLanguage("jsx", javascript);
-SyntaxHighlighter.registerLanguage("js", javascript);
-SyntaxHighlighter.registerLanguage("jsweb", javascript);
-SyntaxHighlighter.registerLanguage("tsx", javascript);
-SyntaxHighlighter.registerLanguage("ruby", ruby);
-SyntaxHighlighter.registerLanguage("elixir", elixir);
-SyntaxHighlighter.registerLanguage("csharp", dotnet);
-SyntaxHighlighter.registerLanguage("python", python);
-SyntaxHighlighter.registerLanguage("php", php);
-SyntaxHighlighter.registerLanguage("shell", shell);
-SyntaxHighlighter.registerLanguage("liquid", liquid);
-SyntaxHighlighter.registerLanguage("go", go);
-SyntaxHighlighter.registerLanguage("java", java);
-SyntaxHighlighter.registerLanguage("yaml", yaml);
-SyntaxHighlighter.registerLanguage("curl", bash);
-SyntaxHighlighter.registerLanguage("swift", swift);
-SyntaxHighlighter.registerLanguage("kotlin", kotlin);
-SyntaxHighlighter.registerLanguage("xml", xml);
-SyntaxHighlighter.registerLanguage("mjml", xml);
-SyntaxHighlighter.registerLanguage("vue", xml);
 
 export type SupportedLanguage =
   | "javascript"
@@ -95,28 +58,6 @@ export interface Props {
   title?: string;
 }
 
-const getParams = (
-  className = "",
-): { language?: string; for?: string; always?: boolean } => {
-  const [language, params = ""] = className.split(":");
-
-  const splitParams: { [key: string]: string } = params
-    .split("&")
-    .reduce((merged, param) => {
-      const [key, value] = param.split("=");
-      if (key !== "") {
-        merged[key] = value ?? true;
-      }
-
-      return merged;
-    }, {});
-
-  return {
-    language: language.split("language-")[1],
-    ...splitParams,
-  };
-};
-
 export const CodeBlock: React.FC<Props> = ({
   children,
   className = children?.props ? children.props.className : "",
@@ -125,10 +66,7 @@ export const CodeBlock: React.FC<Props> = ({
   setLanguage,
   ...props
 }) => {
-  const isMounted = useIsMounted();
-  const { appearance } = useTheme();
-
-  const params = useMemo(() => getParams(className) as any, [className]);
+  const fenceLanguage = getLanguageFromClassName(className);
 
   // Determine language to be used for syntax highlighting
   const lang = useMemo(() => {
@@ -141,41 +79,75 @@ export const CodeBlock: React.FC<Props> = ({
     else if (language && languages && !languages.includes(language)) {
       return languages[0];
     }
-    // Finally, fallback to `params.language` or to "shell" if it's also not defined
+    // Finally, fall back to the fence language, or to "shell" if it's also not defined
     else {
-      return params.language ?? "shell";
+      return fenceLanguage ?? DEFAULT_CODE_LANGUAGE;
     }
-  }, [language, languages, params.language]);
+  }, [language, languages, fenceLanguage]);
 
-  const [content] = useMemo(() => {
+  const content = useMemo(() => {
     // Extract code content from children, ensuring we always get a string
     if (typeof children === "string") {
-      return normalize(children, className);
+      return getCodeContent(children, className);
     }
     if (children?.props?.children != null) {
       const innerContent = children.props.children;
       if (typeof innerContent === "string") {
-        return normalize(innerContent, className);
+        return getCodeContent(innerContent, className);
       }
       if (Array.isArray(innerContent)) {
         const text = innerContent
           .filter((c): c is string => typeof c === "string")
           .join("");
-        return normalize(text, className);
+        return getCodeContent(text, className);
       }
     }
-    return normalize("", className);
+    return getCodeContent("", className);
   }, [children, className]);
+
+  // MDX fences arrive highlighted from the build (lib/rehypeHighlightCode.ts).
+  const prehighlightedHtml: string | undefined =
+    children?.props?.["data-highlighted-html"];
+
+  // Other code, such as API reference examples, is highlighted in the browser.
+  // The highlighter loads on first use, and the code shows as plain text until then.
+  const [clientHighlight, setClientHighlight] = useState<{
+    content: string;
+    lang: string;
+    html: string;
+  }>();
+
+  useEffect(() => {
+    if (prehighlightedHtml !== undefined) return;
+
+    let isCurrent = true;
+    import("@/lib/highlightCode").then(({ highlightCode }) => {
+      if (isCurrent) {
+        setClientHighlight({
+          content,
+          lang,
+          html: highlightCode(content, lang),
+        });
+      }
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [prehighlightedHtml, content, lang]);
+
+  const html = useMemo(() => {
+    if (prehighlightedHtml !== undefined) return prehighlightedHtml;
+    if (clientHighlight?.content === content && clientHighlight.lang === lang) {
+      return clientHighlight.html;
+    }
+    return plainCodeToHtml(content);
+  }, [prehighlightedHtml, clientHighlight, content, lang]);
 
   const title = props.title || children?.props?.metastring;
 
   const [isCopied, setCopied] = useClipboard(content, {
     successDuration: 2000,
   });
-
-  if (!isMounted) {
-    return null;
-  }
 
   return (
     <Box
@@ -232,23 +204,11 @@ export const CodeBlock: React.FC<Props> = ({
           />
         </Stack>
       </Stack>
-      <SyntaxHighlighter
-        showLineNumbers
-        lineNumberStyle={{
-          // ensure consistent line number styles across languages
-          color: "var(--tgph-gray-8)",
-          display: "inline-block",
-          minWidth: "2.25em",
-          paddingRight: "1em",
-          textAlign: "right",
-          userSelect: "none",
-          paddingLeft: "0px",
-        }}
-        language={lang}
-        style={appearance === "dark" ? darkCodeTheme : lightCodeTheme}
-      >
-        {content}
-      </SyntaxHighlighter>
+      <pre data-code-body>
+        {/* Safe to inject: highlightCode and plainCodeToHtml escape every
+            character of the code and add only their own <span> markup. */}
+        <code dangerouslySetInnerHTML={{ __html: html }} />
+      </pre>
     </Box>
   );
 };
