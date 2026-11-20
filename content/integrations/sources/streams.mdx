@@ -80,6 +80,25 @@ This ordering is consistent across incoming webhook sources, including custom so
 
 For full details on configuring custom event types and field mappings, see the [custom source page](/integrations/sources/custom).
 
+## Canceling event-triggered workflows
+
+Source events can't be mapped directly to a cancel action. Use one of the following options to stop an in-flight workflow run that was triggered by a source event.
+
+### Wait for event step
+
+A [wait for event step](/designing-workflows/wait-for-event-function) pauses a workflow run and terminates it if a second source event arrives while it waits. If the configured event doesn't arrive within the wait time, the run continues. This is the best option when the event that should stop the run also comes from a source.
+
+For example, a workflow triggered by a Stripe `invoice.created` event sends a payment reminder, and an `invoice.paid` event for the same customer should stop it. Add a wait for event step that listens for `invoice.paid` before the step that sends the reminder. See [wait for an external action](/designing-workflows/wait-for-event-function#wait-for-an-external-action-before-sending-a-follow-up) for how to configure the step.
+
+### Cancellation API
+
+Map a cancellation key from the event payload that triggers your workflow, then cancel the run by calling the [cancel workflow API](/api-reference/workflows/cancel) with that key. This option should be used when your application decides that the run should stop, or when the event that should stop it doesn't come from a source.
+
+1. In the trigger workflow mapping, set **Cancellation key** to the path of a value in the event payload that uniquely identifies the run. In the Stripe `invoice.paid` example above, `data.object.id` represents the invoice ID and can be mapped as the run's `cancellation_key`.
+2. When the run should stop, call the cancel workflow API with the workflow key and the same `cancellation_key` value.
+
+See [canceling workflows](/send-notifications/canceling-workflows) for more information.
+
 ## Debugging source events
 
 In some cases, you may need to debug source event connections to ensure your integration is sending the correct payloads to Knock.
