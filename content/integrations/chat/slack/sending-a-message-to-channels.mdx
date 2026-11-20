@@ -16,7 +16,7 @@ SlackKit connects multiple concepts in Knock to make it easier for your users to
 
 ### About tenants
 
-[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a standard SlackKit implementation, you'll store a Slack workspace's `access_token` on a corresponding tenant in Knock. See [how the tenant access token is used at send time](/integrations/chat/slack/overview#tenant-channel-data-requirements) for the full model.
+[Tenants](/multi-tenancy/overview) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a standard SlackKit implementation, you'll store a Slack workspace's `access_token` on a corresponding tenant in Knock. See [how the tenant access token is used at send time](/integrations/chat/slack/overview#tenant-channel-data-requirements) for the full model.
 
 If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application. If you don't already use tenants in Knock, SlackKit can create tenants for you on the fly if they don't already exist.
 
@@ -84,7 +84,7 @@ To facilitate the OAuth flow and channel selection process, we'll use Knock's [S
 
 ### Signing a user token
 
-The only access you'll need to manage when using SlackKit are grants for your users to interact with their [Tenants](/concepts/tenants) and [Objects](/concepts/objects) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
+The only access you'll need to manage when using SlackKit are grants for your users to interact with their [tenants](/multi-tenancy/overview) and [objects](/concepts/objects) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
 
 We've made it easy for you to tell Knock which resources your users should have access to by making it a part of their user token. In this section you'll learn how to generate these grants using the Node SDK and, if you're not using the SDK, how to structure them for other languages.
 
@@ -100,9 +100,10 @@ import {
 } from "@knocklabs/node/lib/tokenSigner";
 
 const token = await signUserToken("user-1", {
+  grantsVersion: 2,
   grants: [
     buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
-      Grants.SlackChannelsRead,
+      Grants.SlackChannelsWrite,
     ]),
     buildUserTokenGrant(
       { type: "object", id: "repo-1", collection: "repositories" },
