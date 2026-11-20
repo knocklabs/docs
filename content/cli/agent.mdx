@@ -1,0 +1,151 @@
+---
+title: Agent
+description: Run a prompt with the Knock agent from the terminal, or chat with it in a session.
+---
+
+<Section path="/agent">
+<ContentColumn>
+
+The `knock agent` command starts a session with the [Knock agent](/ai/agent) in your account. The agent reads resources in the account and can create or update them, including workflows, templates, guides, broadcasts, partials, and goals. It can also answer questions about the account and apply one change across many resources.
+
+The command prints a link to the session in the dashboard and follows the run until it finishes. The session keeps what the agent learned, so a later prompt can continue in that same session.
+
+The Knock agent must be enabled for the account. Workspace admins turn it on under [**Settings** > **AI settings**](/ai/agent#configuration). When the agent is unavailable on the account, the command asks you to contact support. The agent uses the permissions of the signed-in user or [service token](/developer-tools/service-tokens).
+
+<Callout
+  type="warning"
+  title="The agent writes its changes to your Knock account."
+  text={
+    <>
+      A prompt can create or update resources in Knock. Your local files stay as
+      they are until you <a href="/cli/resources/pull">pull</a>. Committing and
+      promoting those changes are separate steps. Review the session in the
+      dashboard before you commit.
+    </>
+  }
+/>
+
+</ContentColumn>
+</Section>
+
+<Section title="knock agent [prompt] [flags]" path="/agent/run">
+<ContentColumn>
+
+Pass the prompt as an argument to run it once. The command shows the agent's activity as the run happens, then lists each resource the agent changed, with the action, type, and key.
+
+Pass `-` to read the prompt from stdin. Put `--` before the prompt when the prompt itself starts with a dash. The prompt has to contain text. Passing `-` in a terminal with nothing piped in exits with an error.
+
+Run `knock agent` with no prompt in a terminal to chat. The command waits for a prompt, runs it, then waits for the next one in the same session and environment. The session starts when you send the first prompt, so leaving before that creates nothing.
+
+In the chat:
+
+- **Stop the current run.** Press Esc or Ctrl-C. The chat stays open. Press Ctrl-C again while the run is stopping to exit. The chat ignores other input until the run ends.
+- **Leave the chat.** Press Ctrl-D, or submit `/exit` or `/quit`. At the prompt, Ctrl-C clears the line you are typing, and quits when the line is empty. Once a session has started, the command prints how to resume it.
+- **Continue a line.** End a line with `\` to keep typing on the next line. A paste is sent as one prompt.
+
+A chat needs a terminal. `--json` and `--response-only` need a prompt as well. Without a terminal, pass the prompt as an argument or with `-`. Closing the terminal stops the agent.
+
+To continue a session, pass `--session` with the session ID or with the session's dashboard URL. With a prompt, this runs one follow-up. With no prompt, in a terminal, this resumes the chat. The agent keeps what it knows from that session.
+
+A follow-up keeps the session's environment or branch. Pass `--environment` or `--branch` on that command to move the session. You can follow up after a run finishes, including a run that failed. When a session is still running, wait for that run to finish before you send another prompt.
+
+Pass `--branch` to run on a [branch](/version-control/branches) in the development environment. When a `.knockbranch` file is present, a new session uses that branch. [Switching to a branch](/cli/branch/switch) writes this file. Pass `--environment` to select an environment when no branch applies. Omitting both uses the account's default environment. A branch can only be used with the development environment, so when the branch comes from `.knockbranch`, [exit the branch](/cli/branch/exit) with `knock branch exit` before you target another environment. A follow-up leaves the session where it is, including when `.knockbranch` names a branch.
+
+`--response-only` waits until the run finishes, then prints the response and the list of changed resources. `--json` prints one JSON object and no activity. That object includes:
+
+- **`session_id`.** The ID to pass to `--session`.
+- **`run_id`.** The ID of this prompt's run.
+- **`session_url`.** The dashboard link for the session. Omitted when the CLI can't look up the account.
+- **`status`.** One of `complete`, `error`, `timeout`, `interrupted`, or `lost`.
+- **`text`.** The agent's response.
+- **`tool_calls`.** Each tool the agent called, with `call_id`, `name`, and `arguments`.
+- **`modified_resources`.** Each resource the agent changed, with `type`, `key`, and `action`.
+
+A run that did not complete includes `error`. When the prompt fails before a session starts, `--json` prints an `error.message` instead of a result.
+
+The command waits 1800 seconds by default. Pass `--timeout` to wait a different number of seconds. When the wait ends first, the agent keeps running in the session. For a single prompt, the command exits 0 when the run completes, 130 when the run is interrupted, and 2 when the run fails, times out, or the command loses the connection. In a chat, a failed or interrupted run returns to the prompt.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. On a new session with no branch, omitting it uses the account's default environment. A follow-up keeps the session's environment unless you pass this flag or `--branch`."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The slug of the branch to use. A new session uses the branch in `.knockbranch` when that file is present. A follow-up keeps the session's branch unless you pass this flag."
+  />
+  <Attribute
+    name="--session"
+    type="string"
+    description="The ID of an agent session to follow up in, or the session's dashboard URL."
+  />
+  <Attribute
+    name="--response-only"
+    type="boolean"
+    description="Print only the agent's response, once the run finishes, instead of its activity as it happens."
+  />
+  <Attribute
+    name="--timeout"
+    type="number"
+    description="Seconds to wait for the agent to finish. Defaults to 1800. The agent keeps running after the command stops waiting."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Run a prompt"
+knock agent "Add an email step to the welcome workflow"
+```
+
+```bash title="Chat with the agent"
+knock agent
+```
+
+```bash title="Read a prompt from stdin"
+cat prompt.txt | knock agent -
+```
+
+```bash title="Pass a prompt that starts with a dash"
+knock agent -- "- Add an email step"
+```
+
+```bash title="Print only the response on a branch"
+knock agent "Add a new-user guide" --response-only --branch=my-feature
+```
+
+```bash title="Follow up in a session"
+knock agent --session=3f2a6c1e-8b4d-4f7a-9c2e-5d1b0a7e6f43 "Now shorten the subject line"
+```
+
+```bash title="Resume a chat"
+knock agent --session=3f2a6c1e-8b4d-4f7a-9c2e-5d1b0a7e6f43
+```
+
+```json title="JSON result"
+{
+  "session_id": "3f2a6c1e-8b4d-4f7a-9c2e-5d1b0a7e6f43",
+  "run_id": "9c1e0b7a-2d4f-4a6c-8e3b-1f0a5d6c7b89",
+  "session_url": "https://dashboard.knock.app/acme/agents/sessions/3f2a6c1e-8b4d-4f7a-9c2e-5d1b0a7e6f43",
+  "status": "complete",
+  "text": "Done, added the email step.",
+  "tool_calls": [
+    {
+      "call_id": "call_1",
+      "name": "upsert_workflow",
+      "arguments": { "key": "welcome" }
+    }
+  ],
+  "modified_resources": [
+    { "type": "workflow", "key": "welcome", "action": "update" }
+  ]
+}
+```
+
+</ExampleColumn>
+</Section>
