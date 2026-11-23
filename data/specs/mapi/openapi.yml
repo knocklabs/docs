@@ -2859,6 +2859,44 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    CreateEnvironmentRequest:
+      description: A request to create an environment.
+      example:
+        hide_pii_data: false
+        label_color: '#14B8A7'
+        name: Staging
+        preceding_environment: development
+      properties:
+        hide_pii_data:
+          default: false
+          description: Whether to hide PII data in the dashboard for the environment. Read more in the [data obfuscation docs](https://docs.knock.app/manage-your-account/data-obfuscation).
+          type: boolean
+          x-struct: null
+          x-validate: null
+        label_color:
+          description: A 3- or 6-digit hex color code for the environment label in the dashboard. A color is picked at random when omitted.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A human-readable name for the environment. The environment's slug is derived from it and must be unique in the project.
+          maxLength: 255
+          type: string
+          x-struct: null
+          x-validate: null
+        preceding_environment:
+          description: The slug of the environment the new environment comes directly after. Cannot be the last environment (Production). Defaults to the environment just before Production.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+      title: CreateEnvironmentRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.CreateEnvironmentRequest
+      x-validate: null
     WrappedWarehouseSyncRequestResponse:
       description: Wraps the WarehouseSyncRequest response under the `warehouse_sync` key.
       example:
@@ -8624,6 +8662,33 @@ components:
       title: WrappedEmailLayoutResponse
       type: object
       x-struct: null
+      x-validate: null
+    UpdateEnvironmentRequest:
+      description: A request to update an environment. Omitted fields are left unchanged, and at least one field is required.
+      example:
+        hide_pii_data: true
+        label_color: '#6678D6'
+        name: QA
+      properties:
+        hide_pii_data:
+          description: Whether to hide PII data in the dashboard for the environment. Read more in the [data obfuscation docs](https://docs.knock.app/manage-your-account/data-obfuscation).
+          type: boolean
+          x-struct: null
+          x-validate: null
+        label_color:
+          description: A 3- or 6-digit hex color code for the environment label in the dashboard.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A new name for the environment. Renaming an environment you created also changes its slug. Production keeps its slug. Other Knock-defined environments can't be renamed, and a name other than their current one returns an error.
+          maxLength: 255
+          type: string
+          x-struct: null
+          x-validate: null
+      title: UpdateEnvironmentRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.UpdateEnvironmentRequest
       x-validate: null
     WorkflowChatStep:
       description: A chat step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
@@ -14947,7 +15012,7 @@ components:
           x-struct: null
           x-validate: null
         owner:
-          description: The owner of the environment.
+          description: 'Who created the environment. `system` environments, such as Development and Production, are defined by Knock: they can''t be deleted, and only Production can be renamed. `user` environments were created by you and can be renamed or deleted.'
           enum:
             - system
             - user
@@ -19361,6 +19426,73 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+    post:
+      callbacks: {}
+      description: Creates an environment. The slug is derived from the `name`. Without `preceding_environment`, the environment is placed just before Production. Creating an environment also creates its public and secret API keys and copies the project's variables, channel and source settings, and preference center into it. Everything committed in the preceding environment is then promoted into it asynchronously, so its content may not be available as soon as this request returns. Requires environments to be enabled on the account.
+      operationId: createEnvironment
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnvironmentRequest'
+        description: Params
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+          description: Created
+      summary: Create an environment
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const environment = await client.environments.create({ name: 'Staging' });
+
+          console.log(environment.hide_pii_data);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          environment = client.environments.create(
+              name="Staging",
+          )
+          print(environment.hide_pii_data)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	environment, err := client.Environments.New(context.TODO(), knockmapi.EnvironmentNewParams{
+          		Name: "Staging",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", environment.HidePiiData)
           }
   /v1/assets/{asset_id}:
     delete:
@@ -23835,6 +23967,89 @@ paths:
           	fmt.Printf("%+v\n", response.Guide)
           }
   /v1/sources/{key}:
+    delete:
+      callbacks: {}
+      description: |
+        Deletes a source by key from every environment in the project, not only the one in the
+        request. The token needs the `sources:manage` permission in every environment. Sources aren't
+        branched, so the `branch` parameter isn't accepted.
+
+        Deleting removes the source's settings in every environment and deactivates its event
+        mappings, so its events stop triggering workflows. The workflows themselves are kept. The key
+        is freed for a new source. A deleted source can't be restored.
+
+        Returns a 422 with the code `source_in_use` while a goal, or a workflow's exit criteria,
+        references the source in any environment. Archive those goals or remove those exit criteria
+        first. Returns a 404 when no source has the key.
+      operationId: deleteSource
+      parameters:
+        - description: The key of the source to delete.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          content:
+            application/json: {}
+          description: No Content
+      summary: Delete a source
+      tags:
+        - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.dataSources.delete('key');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.data_sources.delete(
+              key="key",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.DataSources.Delete(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceDeleteParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     get:
       callbacks: {}
       description: Returns a source with environment-specific settings, preprocess scripts, and event mappings.
@@ -24922,6 +25137,64 @@ paths:
           	fmt.Printf("%+v\n", page)
           }
   /v1/environments/{environment_slug}:
+    delete:
+      callbacks: {}
+      description: Deletes an environment you created (`owner` is `user`). Every API key in the environment is revoked first, so any integration still using those keys stops working. A deleted environment can't be restored from the API or the dashboard. Knock-defined environments, such as Development and Production, can't be deleted. To delete a branch, use the delete branch endpoint.
+      operationId: deleteEnvironment
+      parameters:
+        - description: The slug of the environment.
+          in: path
+          name: environment_slug
+          required: true
+          schema:
+            example: staging
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          description: No Content
+      summary: Delete an environment
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.environments.delete('staging');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.environments.delete(
+              "staging",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.Environments.Delete(context.TODO(), "staging")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     get:
       callbacks: {}
       description: Returns a single environment by the `environment_slug`.
@@ -24984,6 +25257,84 @@ paths:
           		option.WithServiceToken("My Service Token"),
           	)
           	environment, err := client.Environments.Get(context.TODO(), "development")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", environment.HidePiiData)
+          }
+    put:
+      callbacks: {}
+      description: Updates an environment. Omitted fields are left unchanged, and at least one field is required. What can change depends on the environment's `owner`. Environments you create (`user`) can change `name`, `label_color` and `hide_pii_data`. Renaming one also changes its slug, and the response holds the new slug. Later requests must use the new slug, and permission groups that reference the environment are updated to match. Production can change its `name`, but its slug stays `production`. Other Knock-defined environments, such as Development, can only change `label_color` and `hide_pii_data`. Sending them a `name` other than their current one returns an error.
+      operationId: updateEnvironment
+      parameters:
+        - description: The slug of the environment.
+          in: path
+          name: environment_slug
+          required: true
+          schema:
+            example: staging
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnvironmentRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+          description: OK
+      summary: Update an environment
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const environment = await client.environments.update('staging');
+
+          console.log(environment.hide_pii_data);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          environment = client.environments.update(
+              environment_slug="staging",
+          )
+          print(environment.hide_pii_data)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	environment, err := client.Environments.Update(
+          		context.TODO(),
+          		"staging",
+          		knockmapi.EnvironmentUpdateParams{},
+          	)
           	if err != nil {
           		panic(err.Error())
           	}
