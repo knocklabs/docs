@@ -70,22 +70,31 @@ Static audiences are populated by adding users directly. You can populate a stat
 
 ## Exporting audience members
 
-You can export the members of a [dynamic audience](#dynamic-audiences) to a CSV file from the Knock dashboard. The file has one column, `id`, and a row for each member's user ID. Exporting static audiences isn't supported yet.
+You can export the members of an audience to a CSV file from the Knock dashboard. You can export both [dynamic](#dynamic-audiences) and [static](#static-audiences) audiences.
 
 Complete the following steps:
 
-1. Go to the **Audiences** page under the **Recipients** section of the dashboard sidebar, and open a dynamic audience.
+1. Go to the **Audiences** page under the **Recipients** section of the dashboard sidebar, and open an audience.
 2. Click **Export** above the audience's members.
 3. Wait for the export to finish. Knock writes the file in the background, so you can leave the page. When the file is ready, Knock emails you a link back to the audience.
 4. Click **Download** above the audience's members to save the file.
 
 The file is named `audience-<audience-key>-<date>.csv`, where the date is the day the export started.
 
-An export holds the audience's members in the current environment when the export runs. Save or discard any unsaved condition changes before you export.
+### What the file holds
+
+An export holds the audience's members in the current environment. The columns depend on the audience type:
+
+- **Dynamic audiences.** One column, `id`, with one row for each member's user ID.
+- **Static audiences.** Two columns, `id` and `tenant`, with one row for each membership. A user who is in the audience with more than one [tenant](#audiences-and-tenants) has one row for each tenant. The `tenant` field is empty when a membership has no tenant.
+
+Knock reads a static audience's members while the export runs. It doesn't take a snapshot first. If members are added to or removed from the audience during the export, the file may or may not include those changes.
+
+For a dynamic audience, save or discard any unsaved condition changes before you export.
 
 <Callout
   type="warning"
-  title="Exports include only members that match the published conditions."
+  title="Dynamic audience exports include only members that match the published conditions."
   text={
     <>
       If you've saved condition changes but haven't published them, the members
@@ -97,7 +106,7 @@ An export holds the audience's members in the current environment when the expor
 
 ### Who can export
 
-Exporting an audience requires permission to view both audiences and users. The owner, admin, member, production-only member, and support [roles](/manage-your-account/roles-and-permissions) can export. A custom permission group can export when it's allowed to view audiences and recipient data. If [customer data obfuscation](/manage-your-account/data-obfuscation) applies to you in an environment, the export option doesn't appear there, because the file holds unobfuscated user IDs.
+Exporting an audience requires permission to view both audiences and users. The owner, admin, member, production-only member, and support [roles](/manage-your-account/roles-and-permissions) can export. A custom permission group can export when it's allowed to view audiences and recipient data. If [customer data obfuscation](/manage-your-account/data-obfuscation) applies to you in an environment, the export option doesn't appear there, because the file holds unobfuscated user and tenant IDs.
 
 ### Export status and expiration
 
@@ -169,9 +178,6 @@ For more information about how audience membership is evaluated for guides eligi
   </Accordion>
   <Accordion title="How quickly are dynamic audiences updated?" anchorSlug="faq-dynamic-audience-update-speed">
     Dynamic audiences are updated in real-time. Any changes to the user data in Knock will be reflected in the dynamic audience immediately. That means if you have a property `plan_type` on the user object, and you build a dynamic audience for users on the `pro` plan, setting the `plan_type` to `pro` will immediately add the user to the dynamic audience.
-  </Accordion>
-  <Accordion title="Can I export the members of a static audience?" anchorSlug="faq-export-static-audience">
-    Not yet. You can currently [export members](#exporting-audience-members) from dynamic audiences only, and the file holds user IDs only. Please [get in touch](mailto:support@knock.app) if you have a specific use case for exporting static audiences or other user data.
   </Accordion>
   <Accordion title="Can I use audiences on a branch?" anchorSlug="faq-audiences-on-branch">
     While you can use an audience on a development [branch](/version-control/branches) to power workflows, broadcasts, and guides, you cannot make changes to an audience on a branch. You can only make changes to an audience on the main branch.
