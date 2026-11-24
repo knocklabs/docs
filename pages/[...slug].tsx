@@ -22,7 +22,7 @@ import newRelicDashboardJson from "../content/integrations/extensions/new_relic_
 
 import { FrontMatter } from "../types";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import { getAllTypedocs } from "@/lib/typedoc";
+import { getTypedocSlugs, getTypedocs } from "@/lib/typedoc";
 import { TypedocsProvider } from "@/components/Typedoc/Provider";
 import { Typedoc } from "@/components/Typedoc";
 
@@ -80,7 +80,8 @@ export async function getStaticProps({ params: { slug } }) {
     throw new Error("Unable to read page content.");
   }
 
-  const typedocs = await getAllTypedocs();
+  // Only the typedocs this page renders, so other pages don't carry them
+  const typedocs = await getTypedocs(getTypedocSlugs(source.toString()));
 
   // Serialize file contents into mdx, and parse frontmatter
   const mdxSource = await serialize<{}, FrontMatter>(source.toString(), {
