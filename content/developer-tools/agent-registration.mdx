@@ -1,0 +1,135 @@
+---
+title: Agent registration
+description: Let an AI agent create a Knock account on its own, build in it, and hand it to a person to claim.
+section: Developer tools
+tags: ["AI", "agent"]
+---
+
+An AI agent can set up a Knock account without a person present. The agent creates an account, gets a [Management API service token](/developer-tools/service-tokens), builds workflows and other resources, and then asks a person to claim the account. If the account isn't claimed, it is deleted 24 hours after it is created.
+
+Agents can read how to create an account from the `auth.md` file Knock publishes at <a href="https://knock.app/auth.md" target="_blank" rel="noopener">knock.app/auth.md</a>.
+
+## How it works
+
+1. The agent creates an account and receives a [service token](/developer-tools/service-tokens) for the [Management API](/developer-tools/management-api).
+2. The agent polls the status endpoint until the account is ready, then can work in it directly via the management API or the [Knock CLI](/developer-tools/knock-cli).
+3. A person can claim the account, and the agent shows the person a link and a six-digit code within the Knock dashboard.
+4. The person opens the link, signs in to the Knock dashboard or creates a user account, and types the code. They become the owner of the account.
+
+## Create a headless account
+
+Send a `POST` request to `/v1/headless_accounts`. The request needs no authentication.
+
+```bash
+curl -X POST https://control.knock.app/v1/headless_accounts
+```
+
+The response includes the values the agent needs.
+
+| Property     | Description                                                                           |
+| ------------ | ------------------------------------------------------------------------------------- |
+| `token`      | A service token that starts with `knock_st_`. Knock returns it only in this response. |
+| `status`     | Always `provisioning` in this response. The account takes a short time to set up.     |
+| `expires_at` | When Knock deletes the account if nobody claims it.                                   |
+
+Send the token as a bearer token to the Management API, or give it to the [Knock CLI](/developer-tools/knock-cli).
+
+## Check the status
+
+Send a `GET` request to `/v1/headless_accounts/status` with the token.
+
+```bash
+curl https://control.knock.app/v1/headless_accounts/status \
+  -H "Authorization: Bearer <token>"
+```
+
+| `status`       | Meaning                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------- |
+| `provisioning` | The account is still being set up. Check again in a few seconds.                              |
+| `unclaimed`    | The account is ready and waiting for a person to claim it.                                    |
+| `claimed`      | A person claimed the account. `expires_at` is `null`.                                         |
+| `expired`      | The claim window closed or setup never finished. Knock will delete the account and the token. |
+
+## What the token can do
+
+The service token for the account lets the agent author and operate in [every environment](/version-control/environments).
+
+| The agent can                                                                                                                                    | The agent cannot                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| Create and edit workflows, email layouts, partials, message types, translations, guides, audiences, goals, broadcasts, and the preference center | Read billing information                         |
+| Edit schemas, variables, and reusable steps                                                                                                      | List or remove members                           |
+| Commit and promote changes, and work with branches                                                                                               | Manage service tokens, permission groups, or SSO |
+| Read and manage channels, channel groups, sources, tags, and preference categories                                                               | Delete the account                               |
+| Exchange for the API keys of any environment                                                                                                     |                                                  |
+
+## Claim ownership
+
+1. Ask the person for their email address.
+2. Send a `POST` request to `/v1/headless_accounts/claim` with the token and the email.
+
+   ```bash
+   curl -X POST https://control.knock.app/v1/headless_accounts/claim \
+     -H "authorization: Bearer <token>" \
+     -H "content-type: application/json" \
+     -d '{"email": "person@example.com"}'
+   ```
+
+3. Show the person the `claim_url` and the `user_code` from the response. The code is valid for 10 minutes. Show the code separately from the link, so that a person who only sees the link cannot finish the claim.
+4. Poll the status endpoint until `status` is `claimed`.
+
+Claiming the account does the following:
+
+- The person becomes the owner of the account.
+- The person can name the account. Until then it has a generated name of three words, such as `quiet-river-falcon`.
+- The agent's token keeps working. It appears on the service tokens page in the dashboard, where the owner can revoke it.
+
+### Claim errors
+
+| Status | Code                         | Meaning                                                                 |
+| ------ | ---------------------------- | ----------------------------------------------------------------------- |
+| `409`  | `headless_account_not_ready` | The account is still being set up. Check the status and try again.      |
+| `409`  | `headless_account_claimed`   | A person already claimed the account.                                   |
+| `410`  | `headless_account_expired`   | The claim window closed. Create a new account.                          |
+| `422`  | `invalid_params`             | The email is missing or not a valid email address.                      |
+| `429`  | `rate_limited`               | The agent started too many claims. Retry after the `Retry-After` delay. |
+
+## Manage the agent's access
+
+After a claim, the owner can see and delete the agent's token on the service tokens page in the dashboard. Deleting it ends the agent's access. The agent cannot get a new token for that account, only a person can once an account is claimed.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion
+    title="Does the agent need an existing Knock account?"
+    anchorSlug="faq-existing-account"
+  >
+    No. The agent creates a new account. A person who already has a Knock
+    account becomes the owner of one more account when they claim it. Knock does
+    not merge accounts.
+  </Accordion>
+  <Accordion
+    title="What happens if nobody claims the account?"
+    anchorSlug="faq-unclaimed-accounts"
+  >
+    Knock deletes the account along with all its resources 24 hours after it is
+    created.
+  </Accordion>
+  <Accordion
+    title="Can the agent send notifications?"
+    anchorSlug="faq-sending-notifications"
+  >
+    The agent can build and run workflows with the token. Sending to real
+    recipients depends on the channels in the account, and the Management API
+    does not create channel providers. Plan limits for the Free plan apply.
+  </Accordion>
+  <Accordion
+    title="What are the restrictions on the account?"
+    anchorSlug="faq-account-restrictions"
+  >
+    The account is limited to the Free plan, which includes 10,000 messages per
+    month. An agent provisioned account cannot send an email to any real
+    recipients. Only claiming the account can lift these restrictions.
+    Additional limits and safeguards may apply.
+  </Accordion>
+</AccordionGroup>

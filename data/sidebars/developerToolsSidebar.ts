@@ -11,6 +11,7 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
   { slug: `${baseSlug}/overview`, title: "Overview" },
   { slug: `${baseSlug}/api-keys`, title: "API keys" },
   { slug: `${baseSlug}/service-tokens`, title: "Service tokens" },
+  { slug: `${baseSlug}/agent-registration`, title: "Agent registration" },
   { slug: `${baseSlug}/knock-cli`, title: "Knock CLI" },
   { slug: `${baseSlug}/sdks`, title: "SDKs" },
   { slug: `${baseSlug}/management-api`, title: "Management API" },
