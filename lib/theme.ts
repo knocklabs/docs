@@ -47,6 +47,32 @@ export const persistThemeAppearance = (appearance: ThemeAppearance): void => {
   window.localStorage.setItem(THEME_STORAGE_KEY, appearance);
 };
 
+/**
+ * Suppresses CSS transitions while the theme flips. Without this, any element
+ * that transitions a color (such as content card borders) animates from the old
+ * theme's value to the new one and briefly flashes a contrasting color. Call
+ * before changing the theme, then call the returned function once the new
+ * theme is applied.
+ */
+export const disableTransitionsTemporarily = (): (() => void) => {
+  if (typeof document === "undefined") {
+    return () => {};
+  }
+
+  const style = document.createElement("style");
+  style.appendChild(
+    document.createTextNode("*,*::before,*::after{transition:none!important}"),
+  );
+  document.head.appendChild(style);
+
+  return () => {
+    // Force a style recalculation so the new theme lands with transitions off,
+    // then re-enable them on the next tick.
+    window.getComputedStyle(document.body).opacity;
+    setTimeout(() => style.remove(), 1);
+  };
+};
+
 export const applyThemeAppearance = (
   appearance: ThemeAppearance,
   element: HTMLElement | null = typeof document !== "undefined"

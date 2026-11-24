@@ -9,6 +9,7 @@ import React, {
 
 import {
   applyThemeAppearance,
+  disableTransitionsTemporarily,
   getInitialThemeAppearance,
   isThemeAppearance,
   persistThemeAppearance,
@@ -47,10 +48,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setAppearance = useCallback(
     (newAppearance: ThemeAppearance) => {
+      const enableTransitions = disableTransitionsTemporarily();
       setAppearanceState(newAppearance);
       setTelegraphAppearance(newAppearance);
       applyThemeAppearance(newAppearance);
       persistThemeAppearance(newAppearance);
+      enableTransitions();
     },
     [setTelegraphAppearance],
   );
