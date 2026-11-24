@@ -1,30 +1,34 @@
 ---
 title: Managing content across regions
-description: Best practices for teams who create and update notifications in the Knock dashboard when you run an account in more than one region.
+description: Learn where to create and update notification content when your organization runs a Knock account in more than one region.
 tags: ["regional accounts", "sync", "data residency"]
 section: Tutorials
 ---
 
 {/* TODO: Once the data residency docs page ships, link "data residency" below to it as the place to learn more about how to set up a regional account. */}
 
-When your team uses data residency with a Knock account in each region, a sync applies approved changes from your main Knock account to every region. This tutorial covers where to make changes, how they reach each region, and how to handle content that needs to differ between regions, so your changes reach every region without breaking the sync.
+This tutorial is for content and product teams that create and update notifications in Knock. It assumes your engineering team has already configured the regional accounts and the [sync described in this tutorial set](/tutorials/multiple-regions/overview#how-changes-reach-each-region).
+
+You'll learn where to make changes, how approved changes reach each region, and how to handle content that needs to differ between regions.
 
 ## Where to make changes
 
-Make every change to shared content in the **main account's development environment**. Never make changes to shared content in your other regional accounts, and never in the main account's staging or production environments.
+Make every change to shared content in the **main account's [development environment](/version-control/environments)**. Don't edit shared content in a regional account or directly in the main account's staging or production environments.
 
 - **Edits in a regional account are overwritten.** The sync replaces shared resources in each region with the main account's version, so an edit made in a region disappears the next time that resource syncs.
-- **Resources created in staging never sync.** A resource can only be edited in the [environment](/version-control/environments) it was created in, so anything created directly in staging can't move through the normal flow.
+- **Changes made directly in staging bypass the sync.** The sync reacts when the main account [promotes](/version-control/commits#promoting-commits) changes into staging. Creating or editing a resource directly in staging doesn't produce that promote, so the change doesn't follow the regional sync.
 
 Each region has its own dashboard and sign-in, so your main account and a regional account may be in different regions. To check where you are, look at the dashboard's URL, which shows the region you're signed in to, and the account and environment names at the top of the sidebar. If you can't find your main account in the account switcher, it's in a different region, and you'll need to sign in to that region's dashboard. {/* TODO: Confirm sign-in and account switcher behavior with eng (friction log question 3), then add a screenshot. */}
 
-In a regional account, shared resources carry a tag such as `shared`, and region-only resources carry a tag such as `eu-only`. Your team may set up views that hide shared resources by default, so the resources you see are the ones you can edit there.
+As part of [planning your account structure](/tutorials/multiple-regions/overview#plan-your-account-structure), we recommend tagging shared resources with a tag such as `shared` and region-only resources with a tag such as `eu-only`. Your team can then build views in each regional account that hide shared resources by default, making it easier to find the resources you can edit there.
+
+{/* TODO: If we are able to ship the docs update KNO-16662 to add views/tags, we should link to that above. */}
+
+These rules also apply when you use the [Knock MCP server](/ai/mcp-server) or another AI tool. Point the tool at the main account's development environment for shared content, and use it in a regional account only for region-only resources.
 
 ## The lifecycle of a change
 
-{/* TODO: Diagram. Edit → commit → promote to staging (syncs to every region) → promote to production in the main account (every region follows). */}
-
-A change to shared content moves through four stages:
+The [overview explains the full regional model](/tutorials/multiple-regions/overview#how-changes-reach-each-region). For day-to-day content work, a shared change moves through four stages:
 
 1. **Edit.** Make your change in the main account's development environment.
 2. **Commit.** [Commit](/version-control/commits) the change when it's ready for review.
@@ -34,6 +38,8 @@ A change to shared content moves through four stages:
 If you work in [branches](/version-control/branches), merging a branch lands its changes in the main account's development environment. They still need a promote to staging to reach the regions.
 
 After a change syncs, you'll see a matching commit in each regional account, made by a service token rather than a person.
+
+To verify a change, open the resource in the regional account's staging environment and confirm that it matches the main account. You may need to sign in to that region's dashboard separately. After the production promote, check the resource in each account's production environment the same way.
 
 There are two exceptions to this lifecycle.
 
@@ -45,7 +51,7 @@ Check with your engineering team before changing a message type that live [guide
 
 ### Archives take effect right away
 
-Archiving a shared resource in the main account removes it from every environment of that account right away, including production. There's no staging step, and the archive isn't synced: your engineering team gets an alert and archives the resource in each region.
+Archiving a shared resource in the main account removes it from every environment of that account right away, including production. There's no staging step, and the archive isn't synced: your team [should set up alerting](/tutorials/multiple-regions/syncing-accounts#archives) to be notified when a shared resource is archived to then take the necessary next steps for the regional accounts.
 
 Archive only what's no longer used anywhere, including by region-only resources. Never archive a shared resource from a regional account.
 
@@ -59,38 +65,30 @@ A promote can include more than the change you just made. Before you promote to 
 
 ## Handling content differences
 
-Most content is the same in every region. When it isn't, use the lightest option that covers the difference.
+Most content is the same in every region. When it isn't, choose the smallest regional override that represents the difference without duplicating an entire resource.
 
-| The difference                                                     | Use                                                                                | Who sets it up                                         |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| None. The content is the same everywhere.                          | A shared resource, edited in the main account.                                     | You                                                    |
-| A small value, such as a footer link, support URL, or sender name. | A [variable](/concepts/variables) with a value for each region.                    | Engineering adds the key and sets each region's value. |
-| Content that depends on the recipient's data.                      | [Conditions](/concepts/conditions) in the template.                                | You                                                    |
-| Entirely different content.                                        | A region-only resource, created in that region.                                    | You, in the regional account                           |
-| Language.                                                          | [Translations](/template-editor/translations), synced like other shared resources. | You                                                    |
+| The difference                                      | Use                                                                               | Where to configure it                                                               |
+| --------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| The content is the same everywhere                  | A shared resource                                                                 | Edit it in the main account's development environment                               |
+| A small value, such as a footer link or support URL | A [variable](/concepts/variables) with a value for each region                    | Create the same variable key and set its value in each account                      |
+| Content depends on recipient data                   | [Conditions](/concepts/conditions) in the template                                | Add the conditions to the shared resource in the main account                       |
+| The content is entirely different                   | A region-only resource                                                            | Create and edit it in that regional account's development environment               |
+| Language                                            | [Translations](/template-editor/translations), synced like other shared resources | Create translations in the main account, and set the default locale in each account |
 
-A region-only resource is the one case where you work directly in a regional account. Give it a key with the region's prefix, such as `eu-welcome-email`, and a tag such as `eu-only`, so it never collides with a shared resource and your team can tell it apart.
+Use conditions when the shared template can choose content from recipient data that is already available in that region, such as a recipient's country or plan. The resource remains shared; only the rendered content changes.
 
-## What needs engineering
+A region-only resource is the one case where you work directly in a regional account. Consider giving it a key with the region's prefix, such as `eu-welcome-email`, and a tag such as `eu-only`. This keeps it distinct from shared resources and helps your team identify where it belongs.
 
-Some changes can't be made from the main account's dashboard. Ask your engineering team when you need:
+## Changes to make in each account
 
-- A new variable, channel, channel group, or source.
-- A shared resource archived in the regions. They get an alert when you archive it in the main account.
+Some resources and actions aren't handled by the content sync. A team member with the required permissions must make these changes in each account:
+
+- Create or update a variable, channel, channel group, or source.
+- Archive a shared resource in each regional account after it is archived in the main account.
+- Check whether any region-only resource still depends on a shared resource before archiving it.
+- Ask the team that operates the sync to investigate a change that didn't reach a region.
 
 {/* TODO (archive webhooks): Link `*.archived` / `*.unarchived` to /developer-tools/outbound-webhooks/event-types once docs#1813 merges and KNO-15721 removes the control-resource-archive-webhooks flag. */}
-
-- To archive a shared resource that a region-only resource still uses.
-- To find out why a change didn't reach a region.
-
-## Using the Knock MCP server and AI tools
-
-When you use the [Knock MCP server](/ai/mcp-server) or other AI tools to work on content, follow the same rules as in the dashboard:
-
-- Point them at the main account's development environment for shared content.
-- Use them in a regional account only for region-only resources.
-
-{/* TODO: Confirm current MCP setup steps and permissions (e.g., per-account service tokens) before publishing. */}
 
 ## Frequently asked questions
 
@@ -111,7 +109,7 @@ When you use the [Knock MCP server](/ai/mcp-server) or other AI tools to work on
     Changes reach the regions when they're promoted to the main account's
     staging environment, so check that your change has been committed and
     promoted. If it was promoted and still hasn't arrived, the sync may have
-    failed. Ask your engineering team to re-run it.
+    failed. Ask the team that operates the sync to re-run it.
   </Accordion>
   <Accordion
     title="Why did my message type change go live in production right away?"
@@ -125,17 +123,18 @@ When you use the [Knock MCP server](/ai/mcp-server) or other AI tools to work on
     title="I archived something in the main account. Why is it still in a region?"
     anchorSlug="faq-archive-still-in-region"
   >
-    Archives aren't synced. Your engineering team gets an alert and archives the
-    resource in each region by hand.
+    Archives aren't synced. Your team receives an alert, and a member with the
+    required permissions archives the resource in each regional account.
   </Accordion>
   <Accordion
     title="Can I make one small change for just one region?"
     anchorSlug="faq-change-for-one-region"
   >
-    Yes. For a small value, such as a link or sender name, ask your engineering
-    team to add a variable with a different value in each region. For entirely
-    different content, create a region-only resource in that region. See
-    [handling content differences](#handling-content-differences).
+    Yes. For a small value, such as a link, use a variable with a different
+    value in each region. A team member with the required permissions can
+    configure the variable in each account. For entirely different content,
+    create a region-only resource in that region. See [handling content
+    differences](#handling-content-differences).
   </Accordion>
   <Accordion
     title="Who promotes changes to production?"

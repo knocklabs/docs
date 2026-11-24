@@ -9,7 +9,9 @@ section: Tutorials
 
 When you use data residency with a Knock account in each region, a sync keeps their notification content consistent. This tutorial walks through building that sync for the [recommended model](/tutorials/multiple-regions/overview#how-changes-reach-each-region), where approved changes in your main account flow to every regional account, and production follows the main account.
 
-The steps apply to any CI system, but the examples provided in this tutorial use GitHub actions.
+This tutorial is for engineers who will build and operate the sync. By the end, you'll understand how to detect approved changes, apply them to each regional account, promote them to production, and recover when a run fails.
+
+The steps apply to any CI system, but the examples in this tutorial use GitHub Actions. They assume a main account in the US and one regional account in the EU, with development, staging, and production environments in both accounts.
 
 ## How the sync works
 
@@ -27,22 +29,28 @@ Using promotes as the trigger means regional accounts are updated only when some
 
 This tutorial assumes you have:
 
-- Completed [setting up your accounts](/tutorials/multiple-regions/overview#setting-up-your-accounts), including enabling environments in every account. The examples in this tutorial use development, staging, and production.
+- Completed [planning your account structure](/tutorials/multiple-regions/overview#plan-your-account-structure), including enabling environments in every account. The examples in this tutorial use development, staging, and production.
 - Installed [Knock CLI](/cli/overview/installation) v1.6.3 or later.
 - Generated a [service token](/developer-tools/service-tokens) for each account.
 - Checked your shared Knock resources in to a `.knock` directory in a repository. See [local development](/tutorials/integrating-into-cicd#local-development) in the CI/CD tutorial for more information.
 
 {/* TODO (hostnames): Confirm how the CLI targets an EU account. CLI v1.6.2 only has a hidden, dev-only `--api-origin` flag (default https://control.knock.app) and no env var. If EU needs a flag/config, add it to the prerequisites and to every region command + the GitHub Actions matrix. */}
 
-## Set up each region
+## Prepare each account
 
-Before the first sync, set up the [per-account resources and settings](/tutorials/multiple-regions/overview#resources-set-up-in-each-account) each regional account needs. Depending on the features you use, you may need to take a few need extra steps:
+Before you automate the sync, set up the [per-account resources and settings](/tutorials/multiple-regions/overview#resources-set-up-in-each-account) each account needs. The additional preparation depends on which features you use:
 
 - **Variables.** If you use variables, keep a directory of [variables](/concepts/variables) for each region, and manage them with [`knock variable pull`](/cli/variable/pull) and [`knock variable push`](/cli/variable/push) using the `--knock-dir` flag. Knock never returns secret values, so set those with [`knock variable set`](/cli/variable/set) and `--value-stdin`.
-- **Sources.** If you use sources, copy each [source's](/integrations/sources/overview) event mappings from the main account to each region with the Management API. Send only the mapping fields, and leave out `settings.endpoint` and `updated_at`, so the region keeps its own source URL.
-- **Translations.** If you use translations, be sure to set each region's default translation locale before the first sync.
+- **Sources.** If you use sources, copy each [source's](/integrations/sources/overview) event mappings from the main account to each region with the [Management API](/developer-tools/management-api). Send only the mapping fields, and leave out `settings.endpoint` and `updated_at`, so the region keeps its own source URL.
+- **Translations.** If you use translations, set each region's default translation locale before you seed its shared resources.
 
-Once everything has been set up, run a first sync that pushes every shared resource to each region's development environment and promotes it to staging.
+If you don't use one of these features, skip its setup. See [resources with a separate lifecycle](#handle-resources-with-a-separate-lifecycle) for message types, guides, and archives.
+
+## Seed each regional account
+
+Before the event-driven sync can keep your accounts aligned, establish a baseline by pushing every existing shared resource from the main account to each regional account's development environment, then promoting those resources to staging.
+
+Push resources in dependency order: reusable requests, layouts, partials, translations, message types, audiences, guides, and then workflows. Confirm that the same resource keys now exist in the main and regional staging environments before you enable the webhooks.
 
 ## Set up webhooks
 
@@ -50,15 +58,17 @@ Once everything has been set up, run a first sync that pushes every shared resou
 
 Each event identifies a promote, but not what changed. The sync uses three of its fields:
 
-| Field                 | Type   | What it is                                                         | How the sync uses it                                                                                                                  |
-| --------------------- | ------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `data.id`             | string | The [promote group ID](/version-control/commits#promote-group-ids) | Looks up what the promote moved                                                                                                       |
-| `data.to_environment` | string | The environment the promote went into                              | `staging` starts the [promote sync](#sync-promoted-changes), and `production` starts the [production promote](#promote-to-production) |
-| `data.actor`          | object | The person who promoted, with `name` and `email`                   | Credits them as the author in your repository                                                                                         |
+| Field                 | Type   | What it is                                                         | How the sync uses it                                                                                                                             |
+| --------------------- | ------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `data.id`             | string | The [promote group ID](/version-control/commits#promote-group-ids) | Looks up what the promote moved                                                                                                                  |
+| `data.to_environment` | string | The environment the promote went into                              | `staging` starts the [staging sync](#sync-approved-changes-to-staging), and `production` starts the [production promote](#promote-to-production) |
+| `data.actor`          | object | The person who promoted, with `name` and `email`                   | Credits them as the author in your repository                                                                                                    |
 
 Merging a branch also sends `commits.promoted`, but into development, so it doesn't reach either webhook. Merged changes sync once they're promoted to staging.
 
 When an event arrives, [verify its signature](/developer-tools/outbound-webhooks/overview#verifying-the-signature), respond with a `200` right away, and then start the sync in the background. [Retries](/developer-tools/outbound-webhooks/overview#retries) keep the same `data.id`, so use it to skip events you've already handled.
+
+The receiver doesn't need to perform the sync itself. Its responsibilities are to verify the event, map the event fields to your CI system's input, start the appropriate job, and record enough information to deduplicate retries. The [GitHub Actions example](#github-actions-example) uses `repository_dispatch` as that handoff.
 
 ```json title="Example commits.promoted event"
 {
@@ -81,7 +91,7 @@ When an event arrives, [verify its signature](/developer-tools/outbound-webhooks
 }
 ```
 
-Depending on the features you use, you may want more webhooks. Each environment's webhook has its own signing secret.
+Depending on the features you use, you may want to subscribe to additional events:
 
 | If you use    | Subscribe to                    | In the main account's                               | See                             |
 | ------------- | ------------------------------- | --------------------------------------------------- | ------------------------------- |
@@ -89,13 +99,9 @@ Depending on the features you use, you may want more webhooks. Each environment'
 | Guides        | `guide.updated`                 | Production environment                              | [Guides](#guides)               |
 | Archiving     | `*.archived` and `*.unarchived` | Staging environment (development for message types) | [Archives](#archives)           |
 
-{/* TODO (archive webhooks): Link `*.archived` / `*.unarchived` to /developer-tools/outbound-webhooks/event-types once docs#1813 merges and KNO-15721 removes the control-resource-archive-webhooks flag. Confirm which resources send *.unarchived. */}
+## Sync approved changes to staging
 
-{/* TODO: message_type.committed and message_type.archived in development are confirmed in control code, not yet tested end to end. */}
-
-## Sync promoted changes
-
-Each promote to the main account's staging environment starts a run. The event doesn't say what changed, so a run starts by looking that up. The steps below walk through each part of a run. For a complete script that puts them together, see the [full sync script](#full-sync-script) in the example below.
+Each promote to the main account's staging environment starts a run. The event doesn't say what changed, so a run starts by looking that up. The steps below walk through each part of a run. The [GitHub Actions example](#github-actions-example) shows how these parts fit together.
 
 <Steps titleSize="h3">
   <Step title="List what was promoted">
@@ -128,7 +134,7 @@ Each promote to the main account's staging environment starts a run. The event d
     Commit the pulled resources. Credit the person who promoted (the event's `data.actor`) as the author, and include the promote group ID in the message, so you can trace any change back to its promote in Knock.
   </Step>
   <Step title="Push to each region">
-    Push the resources to each region's development environment with `--commit`, then promote them to staging. Pushing directly to staging fails, because a resource can only be edited in the environment it was created in.
+    Push the resources to each region's development environment with `--commit`, then promote them to staging.
 
     Push in dependency order, so each resource's dependencies exist before it does: reusable requests, layouts, partials, translations, message types, audiences, guides, and then workflows. Before you push a guide, check that each message type it uses (each step's `schema_key`) exists in the region, and push any that are missing.
 
@@ -148,9 +154,28 @@ Each promote to the main account's staging environment starts a run. The event d
 
   </Step>
   <Step title="Record what synced">
-    Once a region has every resource from the promote, record the main account's promote group ID and when it was promoted (the `promoted_at` on its commits). If a run fails partway through, leave the region's record as it was, so the promote still counts as missed and the next [catch-up](#catch-up-on-missed-changes) syncs it again.
+    Once a region has every resource from the promote, record the main account's promote group ID and when it was promoted (the `promoted_at` on its commits). Store this state somewhere durable that every run can read and update. If a run fails partway through, leave the region's record as it was, so the promote still counts as missed and the next [catch-up](#catch-up-on-missed-changes) syncs it again.
   </Step>
 </Steps>
+
+After the run finishes, open the **Commits** page in the regional account's staging environment. Confirm that the expected resources have commits from the sync's service token and that those commits match the promote from the main account.
+
+{/* TODO: Choose and document the durable state store used by the copyable example. It must keep the last successfully synced promote group ID and promoted_at value for each regional account, support atomic updates, and remain available across CI runs. */}
+
+## Promote to production
+
+Production follows the main account. When someone promotes the main account's staging environment to production, Knock sends a `commits.promoted` event from its production environment. On that event, for each region:
+
+1. [Catch up](#catch-up-on-missed-changes) on any staging promotes the region missed, so it has everything the main account just promoted.
+2. List the resources the main account promoted to production, the same way as in the [staging sync](#sync-approved-changes-to-staging).
+3. Promote only the region's staging commits for those resources, with `knock commit promote --only`.
+4. If you use guides, match the region's [guide status](#guides) to the main account.
+
+We recommend promoting only the shared resources the main account promoted, rather than everything in the region's staging environment. A region's staging environment can also hold region-only changes that your team is still testing. Match resources by type and key, and match translations by namespace and locale, since a translation's identifier differs between accounts. The [sync script](#full-sync-script) includes this step.
+
+If you'd rather ship notification changes with your application deploys, trigger the production promote from your deploy pipeline instead. Promote the main account, then run the same steps for each region. The [CI/CD tutorial](/tutorials/integrating-into-cicd#promote-to-production-on-deploy) shows this pattern for a single account.
+
+After the run finishes, open the **Commits** page in each account's production environment and confirm that the same shared resources were promoted.
 
 ## Catch up on missed changes
 
@@ -173,7 +198,7 @@ A webhook can be missed, or a run can fail partway through. Either way, a region
 
   </Step>
   <Step title="Sync each one, oldest first">
-    Run the [promote sync](#sync-promoted-changes) for each promote group ID you found, in order, and record each one as it succeeds.
+    Run the [staging sync](#sync-approved-changes-to-staging) for each promote group ID you found, in order, and record each one as it succeeds.
   </Step>
 </Steps>
 
@@ -186,22 +211,15 @@ Whatever runs the sync also needs to:
 - **Alert someone when a run fails.** A failed run that nobody looks at means a region falls behind.
 - **Check variables (optional).** Pushing doesn't check that the variables a template uses exist in the target account. Before pushing, you can check that every `vars.*` a template references exists in each region.
 
-## Promote to production
+<Callout
+  type="warning"
+  title="A pull can include a newer version."
+  text="The CLI pulls the latest committed version of a resource in staging, not its version at a specific promote. If the same resource is promoted again before a run pulls it, the regional account can receive the newer version. Process promotes in order and avoid overlapping runs, but account for this limitation when you design production promotion and recovery."
+/>
 
-Production follows the main account. When someone promotes the main account's staging environment to production, Knock sends a `commits.promoted` event from its production environment. On that event, for each region:
+## Handle resources with a separate lifecycle
 
-1. [Catch up](#catch-up-on-missed-changes) on any staging promotes the region missed, so it has everything the main account just promoted.
-2. List the resources the main account promoted to production, the same way as in the [promote sync](#sync-promoted-changes).
-3. Promote only the region's staging commits for those resources, with `knock commit promote --only`.
-4. If you use guides, match the region's [guide status](#guides) to the main account.
-
-We recommend promoting only the shared resources the main account promoted, rather than everything in the region's staging environment. A region's staging environment can also hold region-only changes that your team is still testing. Match resources by type and key, and match translations by namespace and locale, since a translation's identifier differs between accounts. The [full sync script](#full-sync-script) includes this step.
-
-If you'd rather ship notification changes with your application deploys, trigger the production promote from your deploy pipeline instead. Promote the main account, then run the same steps for each region. The [CI/CD tutorial](/tutorials/integrating-into-cicd#promote-to-production-on-deploy) shows this pattern for a single account.
-
-## Resources that need extra steps
-
-Depending on the features you use, some resources need more than the promote sync to stay consistent across regions.
+Depending on the features you use, some resources follow a different lifecycle or need more than the staging sync to stay consistent across regions. Skip the subsections for features you don't use.
 
 ### Message types
 
@@ -223,9 +241,9 @@ knock message-type push "$MESSAGE_TYPE_KEY" --environment=development --commit \
 
 Guides sync like any other shared resource, but a guide depends on a few things that don't travel with it. To make guides work the same way in every region:
 
-- **Message types.** A region rejects a guide until the message types it uses exist there. The [message type sync](#message-types) keeps them in place, and the [push step](#sync-promoted-changes) checks for them before each guide.
+- **Message types.** A region rejects a guide until the message types it uses exist there. The [message type sync](#message-types) keeps them in place, and the [push step](#sync-approved-changes-to-staging) checks for them before each guide.
 - **Active status.** Pushing a guide doesn't set whether it's active, so by default, a new guide arrives inactive in each region. Use the `guide.updated` event from the main account's production environment to keep each region's status in step.
-- **Priority order.** A guide's place in the priority order is managed only in the dashboard, and new guides are added to the bottom. After a new guide reaches production, you will need to manually set the order in each region to match the main account.
+- **Priority order.** A guide's place in the priority order is managed only in the dashboard, and new guides are added to the bottom. After a new guide reaches production, set the order in each region to match the main account.
 - **Assets.** Upload images and other [assets](/manage-your-account/managing-assets) to the main account. Synced guides and templates keep their asset URLs, which load in every region, so you don't need to upload them again.
 
 `guide.updated` fires when a guide's content, status, or schedule changes, so compare the guide's `active` value with each region's before changing anything:
@@ -251,11 +269,18 @@ A new guide doesn't reach a region's production environment until the next produ
 
 Archiving a shared resource in the main account removes it from every environment of that account right away, including production, but does not automatically remove it from regional accounts.
 
-To ensure your team is aware of any archived shared resources, we recommend subscribing to `*.archived` events and using that to create an internal alert for your team to review and determine the next steps. Archive events are sent once for each environment in which the resource exists, so you only need to subscribe to them in one environment. It could be helpful to do so for either staging or production, to ensure you are only being alerted on resources that have been promoted to those environments and likely synced across accounts. Note that message type archive events only come from development.
+Subscribe to `*.archived` events in the main account's staging environment and send them to an internal alert your team reviews. Using staging limits alerts to resources that were approved and likely synced to the regional accounts. Message type archive events are the exception: subscribe to them in development.
 
-If the archived shared resource should be archived in each region, you will want to first archive it in each region, and then delete it from `.knock/` and commit. If it stays in the repository, the next full push could create a new resource with the same key.
+When a shared resource should be archived everywhere:
 
-## Examples
+1. Archive it in each regional account.
+2. Delete it from `.knock/` and commit the deletion.
+
+If the resource stays in the repository, the next full push could create another resource with the same key.
+
+Subscribe to `*.unarchived` events alongside archive events if your team may restore resources. Route them to the same review process so the team can decide whether to restore the resource in each regional account.
+
+## GitHub Actions example
 
 This example runs the sync with GitHub Actions: a script that does the syncing, and three GitHub Actions workflows that run it.
 
@@ -263,6 +288,7 @@ Before you use it:
 
 - **Add a receiver.** GitHub Actions can't receive Knock webhooks directly, so a small service verifies each event and sends a <a href="https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event" target="_blank" rel="noopener">`repository_dispatch`</a> event to your repository.
 - **Store service tokens.** Add one token per account as a repository secret, such as `KNOCK_SERVICE_TOKEN_MAIN` and `KNOCK_SERVICE_TOKEN_EU`.
+- **Configure the regional API host.** Ensure each regional job targets that account's API hostname.
 
 | Knock event                      | Dispatch type              | `client_payload` fields                         |
 | -------------------------------- | -------------------------- | ----------------------------------------------- |
@@ -461,8 +487,6 @@ jobs:
         include:
           - region: eu
             token_secret: KNOCK_SERVICE_TOKEN_EU
-          - region: apac
-            token_secret: KNOCK_SERVICE_TOKEN_APAC
     steps:
       - uses: actions/checkout@v4
         with:
@@ -538,12 +562,9 @@ jobs:
       - name: Push to each region
         env:
           EU_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN_EU }}
-          APAC_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN_APAC }}
         run: |
-          for token in "$EU_TOKEN" "$APAC_TOKEN"; do
-            knock message-type push "$MESSAGE_TYPE_KEY" --environment=development \
-              --commit -m "Sync message type $MESSAGE_TYPE_KEY" --service-token="$token"
-          done
+          knock message-type push "$MESSAGE_TYPE_KEY" --environment=development \
+            --commit -m "Sync message type $MESSAGE_TYPE_KEY" --service-token="$EU_TOKEN"
 ```
 
   </Accordion>
@@ -573,8 +594,6 @@ jobs:
         include:
           - region: eu
             token_secret: KNOCK_SERVICE_TOKEN_EU
-          - region: apac
-            token_secret: KNOCK_SERVICE_TOKEN_APAC
     steps:
       - uses: actions/checkout@v4
 

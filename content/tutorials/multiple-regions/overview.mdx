@@ -5,12 +5,14 @@ tags: ["regional accounts", "sync", "data residency"]
 section: Tutorials
 ---
 
+{/* TODO: Confirm plan gates and if necessary, update the callout below. */}
+
 <Callout
   type="enterprise"
   title="Enterprise plan feature."
   text={
     <>
-      Data residency is only available on our{" "}
+      Data residency is available on the{" "}
       <a href="https://knock.app/pricing" target="_blank" rel="noopener">
         Enterprise plan
       </a>
@@ -27,6 +29,11 @@ If you serve customers in more than one region and need each region's data to st
 
 The model in these tutorials moves changes through environments, so each of your accounts needs [environments enabled](/version-control/environments#enable-environments).
 
+Start with this overview to plan your accounts and understand what the sync manages. Then continue with the tutorial for your role:
+
+- **Engineering teams.** Build and operate the sync with [Syncing accounts across regions](/tutorials/multiple-regions/syncing-accounts).
+- **Content and product teams.** After engineering configures the sync, learn how to make day-to-day changes with [Managing content across regions](/tutorials/multiple-regions/managing-content).
+
 ## How regional accounts work
 
 <Callout
@@ -42,11 +49,20 @@ The model in these tutorials moves changes through environments, so each of your
   }
 />
 
-With data residency, Knock stores and processes your customer and notification data in the region your account is hosted in. An account's region is set when the account is created, and an account can't be moved to a different region later.
+With data residency, Knock stores and processes your customer and notification data in the region where your account is hosted. An account's region is set when the account is created, and an account can't be moved to a different region later.
 
 Each regional account has its own environments, channels, API keys, members, and data. Each region also has its own dashboard and API hostnames, so your application and client-side SDKs connect to the hostnames for the region they send data to.
 
-To keep your accounts consistent, pick one of them as your **main account**. Your team creates resources such as workflows and templates once in the main account, and a sync copies approved changes into your other regional accounts. These are your **shared resources**. See [shared and per-account resources](#shared-and-per-account-resources) for the full list. The sync moves notification **configuration** like this. It never moves end-user data. Recipients, messages, preferences, and logs stay in the account, and the region, where they were created.
+These tutorials use four terms to describe how the accounts work together:
+
+- **Main account.** The account where your team creates and edits notification content that should be consistent across regions.
+- **Regional accounts.** The other accounts that receive approved content from the main account.
+- **Shared resources.** Resources, such as workflows and templates, that your team creates once in the main account and syncs to each regional account.
+- **Per-account resources.** Resources and settings that contain region-specific credentials or values, so you configure them separately in each account.
+
+The sync moves notification configuration between accounts. It never moves end-user data. Recipients, messages, preferences, and logs stay in the account—and therefore the region—where they were created.
+
+{/* TODO: Add an Excalidraw diagram with a US main account and an EU regional account. Show development, staging, and production inside each account; horizontal arrows for promotes; vertical arrows from main staging to EU development and from main production to EU production; and label main staging as the approval point. Add a note below the accounts: "Configuration moves between accounts. End-user data stays in its original region." */}
 
 ## How changes reach each region
 
@@ -59,7 +75,15 @@ A change to a shared resource moves through four steps:
 
 Because staging is the approval point, a change has to be committed and reviewed in the main account before it can reach any region. A few resources reach the regions differently, such as message types. See [shared and per-account resources](#shared-and-per-account-resources) for how each one is handled.
 
-[Syncing accounts across regions](/tutorials/multiple-regions/syncing-accounts) covers how to build the sync, and [Managing content across regions](/tutorials/multiple-regions/managing-content) covers how your team makes changes day to day.
+## Plan your account structure
+
+The sync relies on consistent environments and resource keys across accounts. Make these decisions before you create your first regional account:
+
+- **Main account.** Choose the account where your team will build shared resources.
+- **Environments.** We recommend at least a development and a production environment. These tutorials use three: development, staging, and production. Use the same environments, in the same order, in every account, since the sync pushes to each region's development environment and promotes from there.
+- **Keys.** Use identical keys for shared resources in every account. Consider giving region-only resources a prefix, such as `eu-welcome-email`, to keep their keys distinct from shared resources.
+- **Regional differences.** Put small differences, such as a support URL or footer link, in variables, and create entirely different content as a region-only resource. See [handling content differences](/tutorials/multiple-regions/managing-content#handling-content-differences).
+- **Tags and views.** We recommend tagging shared resources (for example, `shared`) and region-only resources (for example, `eu-only`). You can then build views in each regional account that hide shared resources by default. Tags and views are available on workflows, partials, guides, and broadcasts.
 
 ## Shared and per-account resources
 
@@ -67,25 +91,18 @@ Because staging is the approval point, a change has to be committed and reviewed
 
 If you follow the pattern in these tutorials, these resources are created once in your main account and synced to every region:
 
-| Resource                                                                          | How it reaches each region                                                                                                     |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| [Workflows](/concepts/workflows)                                                  | Synced when promoted to staging                                                                                                |
-| [Email layouts](/integrations/email/layouts)                                      | Synced when promoted to staging                                                                                                |
-| [Partials](/template-editor/partials/overview)                                    | Synced when promoted to staging                                                                                                |
-| [Translations](/template-editor/translations)                                     | Synced when promoted to staging                                                                                                |
-| [Guides](/concepts/guides)                                                        | Synced when promoted to staging                                                                                                |
-| [Audiences](/concepts/audiences)                                                  | Synced when promoted to staging                                                                                                |
-| [Reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions) | Synced when promoted to staging                                                                                                |
-| [Message types](/in-app-ui/message-types/overview)                                | Synced when committed. Message types can't be promoted, so a committed change reaches every environment, including production. |
+| Resource                                                                          | Sync trigger       | What you manage in each account                                                                                              |
+| --------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| [Workflows](/concepts/workflows)                                                  | Promote to staging | No additional setup                                                                                                          |
+| [Email layouts](/integrations/email/layouts)                                      | Promote to staging | No additional setup                                                                                                          |
+| [Partials](/template-editor/partials/overview)                                    | Promote to staging | No additional setup                                                                                                          |
+| [Translations](/template-editor/translations)                                     | Promote to staging | Set the account's default locale                                                                                             |
+| [Guides](/concepts/guides)                                                        | Promote to staging | Set each guide's [active status and priority order](/tutorials/multiple-regions/syncing-accounts#guides)                     |
+| [Audiences](/concepts/audiences)                                                  | Promote to staging | Add static audience members. Dynamic audiences compute their members from the users in that account.                         |
+| [Reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions) | Promote to staging | No additional setup                                                                                                          |
+| [Message types](/in-app-ui/message-types/overview)                                | Commit             | No additional setup. Message types can't be promoted, so a committed change reaches every environment, including production. |
 
-The sync copies each resource's content. It doesn't carry the following, so set them in each region:
-
-- **Guide active status.** Activate each guide in each region. Pushing a guide doesn't set its status.
-- **Guide priority order.** Set the order in each region. Priority order is managed only in the dashboard.
-- **Static audience members.** Add members to static audiences in each region. Dynamic audiences compute their members from the region's own users.
-- **Archives.** Archiving a shared resource in the main account takes effect in all of its environments right away, but isn't synced. Archive it in each region after the sync alerts you.
-
-{/* TODO: Once the guides subsection exists on the syncing page, link the guide items to it. */}
+Archives don't follow either trigger. Archiving a shared resource in the main account takes effect in all of that account's environments right away, but the archive isn't synced. Archive the resource in each regional account after the sync alerts your team.
 
 ### Resources set up in each account
 
@@ -109,16 +126,6 @@ Also configure these settings in each account:
 - **[Branding](/template-editor/branding).** Set your logo, icon, and brand colors.
 - **[Default locale](/template-editor/translations#get-started).** If using translations, be sure to set the default `locale` in each account.
 
-## Setting up your accounts
-
-The sync depends on every account looking the same from the outside. Make these decisions before you create your first regional account.
-
-- **Main account.** Choose the account your team will build in. Shared resources are created and edited only there.
-- **Environments.** We recommend at least a development and a production environment. These tutorials use three: development, staging, and production. Use the same environments, in the same order, in every account, since the sync pushes to each region's development environment and promotes from there.
-- **Keys.** Shared resources use identical keys in every account. Give region-only resources a unique prefix, such as `eu-welcome-email`, so they never collide with a shared key.
-- **Regional differences.** Put small differences, such as a support URL or footer link, in variables, and create entirely different content as a region-only resource. See [handling content differences](/tutorials/multiple-regions/managing-content#handling-content-differences).
-- **Tags and views.** Tag shared resources (for example, `shared`) and region-only resources (for example, `eu-only`), then build views in each regional account that hide shared resources by default. Tags and views are available on workflows, partials, guides, and broadcasts.
-
 ## Team access
 
 Each regional account has its own members, roles, and authentication settings. Plan who needs access to which accounts, and what they can do in each.
@@ -135,7 +142,7 @@ Before you build anything:
 1. Pick your main account.
 2. Enable environments in every account, and match their names and order.
 3. List what each region needs from the [per-account resources and settings](#resources-set-up-in-each-account).
-4. Move regional differences into variables, and choose a prefix and tags for region-only resources.
+4. Decide how to handle regional differences, and choose any prefixes and tags you'll use for region-only resources.
 5. Plan who needs access to each account.
 
 Then continue with the tutorial for your role:
