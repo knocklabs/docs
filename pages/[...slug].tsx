@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
+import rehypeHighlightCode from "@/lib/rehypeHighlightCode";
 import remarkGfm from "remark-gfm";
 import type { Pluggable } from "unified";
 
@@ -86,7 +87,12 @@ export async function getStaticProps({ params: { slug } }) {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeSlug, rehypeMdxCodeProps, rehypeAutolinkHeadings],
+      rehypePlugins: [
+        rehypeSlug,
+        rehypeHighlightCode,
+        rehypeMdxCodeProps,
+        rehypeAutolinkHeadings,
+      ],
     },
     blockJS: false,
     blockDangerousJS: true,
