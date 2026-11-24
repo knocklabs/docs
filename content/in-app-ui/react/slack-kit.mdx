@@ -332,9 +332,10 @@ import {
 } from "@knocklabs/node/lib/tokenSigner";
 
 await signUserToken("user-1", {
+  grantsVersion: 2,
   grants: [
     buildUserTokenGrant({ type: "tenant", id: "jurassic-park" }, [
-      Grants.SlackChannelsRead,
+      Grants.SlackChannelsWrite,
     ]),
     buildUserTokenGrant(
       { type: "object", id: "dinosaurs-loose", collection: "videos" },
@@ -352,14 +353,15 @@ You'll need to pass this token along with the public API key to the `KnockProvid
 
 ### Other languages
 
-If you're not using the Node SDK, you can still generate a user token using a JWT signing library in your preferred language. Here's an <a href="https://github.com/knocklabs/knock-elixir?tab=readme-ov-file#signing-jwts" target="_blank" rel="noopener">example of using Joken for the Elixir library</a>. You'll include the `grants` key in the root of the payload and put your resource grants in there. We'll go into detail about how they work below, but if you want to skip that and just get started, here's what that will look like in a given JWT payload for the example above:
+If you're not using the Node SDK, you can still generate a user token using a JWT signing library in your preferred language. Here's an <a href="https://github.com/knocklabs/knock-elixir?tab=readme-ov-file#signing-jwts" target="_blank" rel="noopener">example of using Joken for the Elixir library</a>. You'll include the `grants` key in the root of the payload and put your resource grants in there. We'll go into detail about how they work below, but if you want to skip that and just get started, here's the JWT payload for the example above:
 
 ```json
 {
   "sub": "user123",
+  "grants_version": 2,
   "grants": {
     "https://api.knock.app/v1/objects/$tenants/jurassic-park": {
-      "slack/channels_read": [{}]
+      "slack/channels_write": [{}]
     },
     "https://api.knock.app/v1/objects/videos/dinosaurs-loose": {
       "channel_data/read": [{}],
@@ -382,12 +384,12 @@ The two resources you'll be granting access to are:
 
 These resources need different permissions. Here are the permissions needed for each:
 
-- **Tenant**: reading slack channels
-- **Recipient Object**: reading channel data; writing channel data
+- **Tenant.** `slack/channels_read` to check the connection and list Slack channels, and `slack/channels_write` to connect and disconnect Slack. `slack/channels_write` also grants read access, so a token that connects Slack needs only that grant.
+- **Recipient object.** `channel_data/read` and `channel_data/write`.
 
 ### How the grants are structured
 
-Resource access grants in Knock are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener noreferrer">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
+Resource access grants in Knock are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
 
 How to read a resource grant:
 
