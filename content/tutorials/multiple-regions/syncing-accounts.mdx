@@ -34,7 +34,7 @@ This tutorial assumes you have:
 - Generated a [service token](/developer-tools/service-tokens) for each account.
 - Checked your shared Knock resources in to a `.knock` directory in a repository. See [local development](/tutorials/integrating-into-cicd#local-development) in the CI/CD tutorial for more information.
 
-{/* TODO (hostnames): Confirm how the CLI targets an EU account. CLI v1.6.2 only has a hidden, dev-only `--api-origin` flag (default https://control.knock.app) and no env var. If EU needs a flag/config, add it to the prerequisites and to every region command + the GitHub Actions matrix. */}
+{/* TODO: Confirm with eng how the CLI targets an EU account. CLI v1.6.2 only has a hidden, dev-only `--api-origin` flag (default https://control.knock.app) and no env var. If EU needs a flag/config, add it to the prerequisites and to every region command. */}
 
 ## Prepare each account
 
@@ -66,7 +66,7 @@ Each event identifies a promote, but not what changed. The sync uses three of it
 
 Merging a branch also sends `commits.promoted`, but into development, so it doesn't reach either webhook. Merged changes sync once they're promoted to staging.
 
-When an event arrives, [verify its signature](/developer-tools/outbound-webhooks/overview#verifying-the-signature), respond with a `200` right away, and then start the sync in the background. [Retries](/developer-tools/outbound-webhooks/overview#retries) keep the same `data.id`, so use it to skip events you've already handled.
+When an event arrives, [verify its signature](/developer-tools/outbound-webhooks/overview#verifying-the-signature), check whether you've already accepted its `data.id`, and record the event in a durable queue before responding with a `200`. Then run the sync in the background. [Retries](/developer-tools/outbound-webhooks/overview#retries) keep the same `data.id`, so use it to skip events you've already handled.
 
 The receiver doesn't need to perform the sync itself. Its responsibilities are to verify the event, map the event fields to your CI system's input, start the appropriate job, and record enough information to deduplicate retries. The [GitHub Actions example](#github-actions-example) uses `repository_dispatch` as that handoff.
 
@@ -101,37 +101,32 @@ Depending on the features you use, you may want to subscribe to additional event
 
 ## Sync approved changes to staging
 
-Each promote to the main account's staging environment starts a run. The event doesn't say what changed, so a run starts by looking that up. The steps below walk through each part of a run. The [GitHub Actions example](#github-actions-example) shows how these parts fit together.
+Each promote to the main account's staging environment starts a run. The event doesn't say what changed, so a run starts by looking that up. The steps below walk through each part of a run. The [GitHub Actions examples](#github-actions-example) show how these parts fit together.
 
 <Steps titleSize="h3">
   <Step title="List what was promoted">
-    List the promote's commits with [`knock commit list`](/cli/commit/list), and follow pagination until you've read every page. Pass `--environment=staging`, since a promote's commits live in the environment they were promoted into.
+    List the promote's commits with [`knock commit list`](/cli/commit/list), and follow pagination until you've read every page. Pass `--environment=staging`, since a promote's commits live in the environment they were promoted into. Before continuing, confirm that the number of commits you found matches the webhook event's `data.commit_count`.
 
-    Each commit's `resource` names what changed. For translations, build the CLI's ref from the commit's `namespace` and `locale_code`: `<namespace>.<locale>`, or `<locale>` when there's no namespace. The CLI doesn't support tenant-scoped translations, so skip any translation with a `tenant` and log a warning.
+    {/* TODO: The commit_count check depends on KNO-16933 shipping so the event count matches the commits returned by the list endpoint. */}
 
-    ```bash title="List the resources in a promote"
-    knock commit list --environment=staging --promote-group-id="$PROMOTE_GROUP_ID" \
-      --limit=100 --json --service-token="$KNOCK_SERVICE_TOKEN_MAIN" \
-      | jq -r '.entries[].resource
-        | if .type != "translation" then "\(.type) \(.identifier)"
-          elif .tenant then "skip \(.identifier)"
-          else "translation \(if .namespace then "\(.namespace)." else "" end)\(.locale_code)"
-          end' \
-      | sort -u # A promote can hold several commits for one resource
-    ```
+    Each commit's `resource` names what changed. For translations, build the CLI's ref from `resource.metadata.namespace` and `resource.metadata.locale_code`: `<namespace>.<locale>`, or `<locale>` when there's no namespace. The CLI doesn't support tenant-scoped translations, so skip any translation with `resource.metadata.tenant` and log a warning.
+
+    {/* TODO: Test the changes made in KNO-16975 to the translation metadata and CLI ref mapping end to end. */}
+
+    The [`list_commits` and `promoted_keys` functions](#full-sync-script) in the GitHub Actions example handle pagination and deduplicate resources.
 
   </Step>
   <Step title="Pull the resources into your repository">
     Pull each resource from the main account's staging environment with `--hide-uncommitted-changes`, so you get the approved version and not someone's work in progress.
 
-    ```bash title="Pull a resource"
-    knock workflow pull my-workflow --environment=staging --hide-uncommitted-changes \
-      --force --service-token="$KNOCK_SERVICE_TOKEN_MAIN"
-    ```
+    The [`pull` function](#full-sync-script) in the GitHub Actions example pulls each resource identified in the previous step.
 
   </Step>
   <Step title="Commit to your repository">
     Commit the pulled resources. Credit the person who promoted (the event's `data.actor`) as the author, and include the promote group ID in the message, so you can trace any change back to its promote in Knock.
+
+    The [staging sync workflow](#staging-sync) performs the Git commit because it has access to the repository credentials and the webhook event's actor.
+
   </Step>
   <Step title="Push to each region">
     Push the resources to each region's development environment with `--commit`, then promote them to staging.
@@ -140,17 +135,7 @@ Each promote to the main account's staging environment starts a run. The event d
 
     We recommend promoting only the commits the sync created, with [`knock commit promote --only`](/cli/commit/promote), rather than promoting everything in the region's development environment. A promote-all could also ship region-specific changes that weren't ready. Use a commit message that's unique to the run, so you can find its commits.
 
-    ```bash title="Push a resource and promote this run's commits"
-    knock workflow push my-workflow --environment=development --commit \
-      -m "$COMMIT_MESSAGE" --service-token="$REGION_TOKEN"
-
-    knock commit list --environment=development --no-promoted --json \
-      --service-token="$REGION_TOKEN" \
-      | jq -r --arg msg "$COMMIT_MESSAGE" '.entries[] | select(.commit_message == $msg) | .id' \
-      | while read -r id; do
-          knock commit promote --only="$id" --force --service-token="$REGION_TOKEN"
-        done
-    ```
+    The [`push` function](#full-sync-script) performs these operations, and the [staging sync workflow](#staging-sync) runs it once for each regional account.
 
   </Step>
   <Step title="Record what synced">
@@ -159,8 +144,6 @@ Each promote to the main account's staging environment starts a run. The event d
 </Steps>
 
 After the run finishes, open the **Commits** page in the regional account's staging environment. Confirm that the expected resources have commits from the sync's service token and that those commits match the promote from the main account.
-
-{/* TODO: Choose and document the durable state store used by the copyable example. It must keep the last successfully synced promote group ID and promoted_at value for each regional account, support atomic updates, and remain available across CI runs. */}
 
 ## Promote to production
 
@@ -179,22 +162,13 @@ After the run finishes, open the **Commits** page in each account's production e
 
 ## Catch up on missed changes
 
-A webhook can be missed, or a run can fail partway through. Either way, a region falls behind until something notices. Because each region records the last promote it synced, you can find what it's missing and sync it.
+A webhook delivery or sync run can fail, leaving a regional account behind the main account. To recover, record the last main-account promote that completed for each region. Before processing a new promote, compare that checkpoint with the commits in the main account and sync any promotes the region missed.
 
 <Steps titleSize="h3">
   <Step title="Find the promotes a region missed">
-    List the commits that landed in the main account's staging environment since the region's last recorded promote time. `--since` matches commits by when they landed, so it finds a promoted commit even if the commit was first made weeks earlier.
+    List the commits that landed in the main account's staging environment since the region's last recorded promote time, and follow pagination until you've read every page. Group promoted commits by `promote_group_id`, then order the groups by their `promoted_at` values.
 
-    `--since` includes the exact time you pass, so skip the promote you've already recorded. Skip commits without a promote group ID too. Those were created directly in staging, and they don't sync.
-
-    ```bash title="Find the promotes a region hasn't synced"
-    # Follow pagination with --after, as in the list step
-    knock commit list --environment=staging --since="$LAST_SYNCED_AT" --limit=100 --json \
-      --service-token="$KNOCK_SERVICE_TOKEN_MAIN" \
-      | jq -r '.entries[] | select(.promote_group_id != null) | "\(.promoted_at) \(.promote_group_id)"' \
-      | sort | awk '{print $2}' | awk '!seen[$0]++' \
-      | grep -v "^$LAST_SYNCED_PROMOTE_GROUP_ID$"
-    ```
+    `--since` includes commits created at the exact time you pass, so exclude the promote group ID in the region's checkpoint. Skip commits without a promote group ID too. Those were created directly in staging and don't belong to the regional sync.
 
   </Step>
   <Step title="Sync each one, oldest first">
@@ -202,19 +176,20 @@ A webhook can be missed, or a run can fail partway through. Either way, a region
   </Step>
 </Steps>
 
-Check for missed promotes at the start of every run, so the next run picks up anything a dropped one missed. A nightly run catches anything that's still behind. To recover a specific promote, run the sync by hand with its promote group ID, which is on the webhook event, on the `Promote group id:` line that `knock commit promote` prints, and on the commits in the main account's staging environment.
+Run this check before each webhook-triggered sync, and consider running it on a schedule as a backstop. To replay a specific promote, start the staging workflow manually with its promote group ID. You can find the ID in the webhook payload, the output from `knock commit promote`, or the main account's staging commit log.
 
-Whatever runs the sync also needs to:
+Design the sync runner to:
 
 - **Run one sync at a time, oldest promote first.** A pull gets a resource's latest committed version in staging, not its version at the time of a specific promote. If two runs overlap, an older run can finish last and leave a region with an older version.
 - **Retry a failed push once.** A race inside a single promote resolves itself on retry.
 - **Alert someone when a run fails.** A failed run that nobody looks at means a region falls behind.
-- **Check variables (optional).** Pushing doesn't check that the variables a template uses exist in the target account. Before pushing, you can check that every `vars.*` a template references exists in each region.
+
+{/* TODO: Depends on KNO-16933 shipping and its promoted_at backfill running. Confirm the deployed API behavior before implementing catch-up in the GitHub Actions example. */}
 
 <Callout
   type="warning"
   title="A pull can include a newer version."
-  text="The CLI pulls the latest committed version of a resource in staging, not its version at a specific promote. If the same resource is promoted again before a run pulls it, the regional account can receive the newer version. Process promotes in order and avoid overlapping runs, but account for this limitation when you design production promotion and recovery."
+  text="The CLI pulls the latest committed version of a resource in staging, not its version at a specific promote. If the same resource is promoted again before a run pulls it, the regional account can receive the newer version. The production sync also matches resources across accounts by type and key, not by version, so a newer regional staging commit for the same resource can reach production. Process promotes in order, avoid overlapping runs, and account for this limitation in production verification and recovery."
 />
 
 ## Handle resources with a separate lifecycle
@@ -262,8 +237,6 @@ fi
 ```
 
 A new guide doesn't reach a region's production environment until the next production promote, so you may also want to run this check for every guide after each [production promote](#promote-to-production).
-
-{/* TODO: Test the guide status sync end to end: guide.updated payload shape (data.key, data.active), `knock guide get --json` output, and activating a guide that was just released. */}
 
 ### Archives
 
@@ -322,8 +295,8 @@ ORDER="reusable-request layout partial translation message-type audience guide w
 # matched on namespace and locale, since their identifiers differ between accounts.
 KEY_DEF='def key:
   if .type != "translation" then "\(.type) \(.identifier)"
-  elif .tenant then "skip \(.identifier)"
-  else "translation \(if .namespace then "\(.namespace)." else "" end)\(.locale_code)"
+  elif .metadata.tenant then "skip \(.identifier)"
+  else "translation \(if .metadata.namespace then "\(.metadata.namespace)." else "" end)\(.metadata.locale_code)"
   end;'
 
 # Commits and the CLI name a few resource types differently
@@ -614,17 +587,16 @@ jobs:
   </Accordion>
 </AccordionGroup>
 
-{/* TODO: Add the message type check before guide pushes, and the catch-up, to the script. Add the catch-up and guide status check to the production promote. */}
-
 <Callout
   type="warning"
-  title="GitHub concurrency groups keep only one waiting run."
+  title="GitHub concurrency groups aren't a durable queue."
   text={
     <>
       If a third run starts while one is running and another is waiting, GitHub
-      cancels the waiting run, so two quick promotes in a row can drop the
-      middle one. Start every run with the{" "}
-      <a href="#catch-up-on-missed-changes">catch-up</a>, or use a job queue.
+      replaces the waiting run. A staging catch-up can recover a missed staging
+      promote, but it doesn't recover a missed production promote or message
+      type event. Use a durable job queue, or add recovery for every event type
+      before relying on the concurrency group.
     </>
   }
 />
@@ -637,6 +609,7 @@ Start with the webhook's [delivery logs](/developer-tools/outbound-webhooks/over
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | No `commits.promoted` events arrive              | Confirm the webhooks are in the main account's staging and production environments, are enabled, and have `commits.promoted` selected.                                                                               |
 | A change never reached a region                  | Confirm the change was promoted to staging, not only committed. If it was promoted, check whether the run failed, then run the [catch-up](#catch-up-on-missed-changes) or re-run the sync with its promote group ID. |
+| Fewer commits than the event's `commit_count`    | Follow `page_info.after` until you've read every page. Don't push any resources until the counts match.                                                                                                              |
 | Listing a promote's commits returns nothing      | Pass `--environment=staging`. A promote's commits live in the environment they were promoted into.                                                                                                                   |
 | The same promote syncs more than once            | Skip events whose `data.id` you've already handled, and respond with a `200` before doing slow work, so Knock doesn't retry the delivery.                                                                            |
 | `"is_read_only" workflow cannot be changed`      | The sync pushed to a region's staging environment, or the resource was created directly there. Push to development and promote, or recreate the resource in development.                                             |

@@ -18,11 +18,13 @@ Make every change to shared content in the **main account's [development environ
 - **Edits in a regional account are overwritten.** The sync replaces shared resources in each region with the main account's version, so an edit made in a region disappears the next time that resource syncs.
 - **Changes made directly in staging bypass the sync.** The sync reacts when the main account [promotes](/version-control/commits#promoting-commits) changes into staging. Creating or editing a resource directly in staging doesn't produce that promote, so the change doesn't follow the regional sync.
 
-Each region has its own dashboard and sign-in, so your main account and a regional account may be in different regions. To check where you are, look at the dashboard's URL, which shows the region you're signed in to, and the account and environment names at the top of the sidebar. If you can't find your main account in the account switcher, it's in a different region, and you'll need to sign in to that region's dashboard. {/* TODO: Confirm sign-in and account switcher behavior with eng (friction log question 3), then add a screenshot. */}
+Each region has its own dashboard and sign-in, so your main account and a regional account may be in different regions. To check where you are, look at the dashboard's URL, which shows the region you're signed in to, and the account and environment names at the top of the sidebar. If you can't find your main account in the account switcher, it's in a different region, and you'll need to sign in to that region's dashboard.
 
 As part of [planning your account structure](/tutorials/multiple-regions/overview#plan-your-account-structure), we recommend tagging shared resources with a tag such as `shared` and region-only resources with a tag such as `eu-only`. Your team can then build views in each regional account that hide shared resources by default, making it easier to find the resources you can edit there.
 
 {/* TODO: If we are able to ship the docs update KNO-16662 to add views/tags, we should link to that above. */}
+
+Region-only resources are the exception to the main-account rule. Create and edit a resource directly in a regional account when it should exist only in that region. Consider using a region prefix in its key, such as `eu-welcome-email`, and a tag such as `eu-only` to distinguish it from shared resources.
 
 These rules also apply when you use the [Knock MCP server](/ai/mcp-server) or another AI tool. Point the tool at the main account's development environment for shared content, and use it in a regional account only for region-only resources.
 
@@ -57,15 +59,16 @@ Archive only what's no longer used anywhere, including by region-only resources.
 
 ## Before you promote
 
-A promote can include more than the change you just made. Before you promote to staging:
+A promote can include more than the change you just made. Before every promote, review all unpromoted commits for the resources you're promoting. This includes earlier commits to the same resource, including changes from another team member. Review them on the **Commits** page in your main account.
 
-- **Check what's waiting on a resource.** A promote includes any earlier unpromoted commits for the same resource, including ones a teammate made. Review them on the **Commits** page in your main account.
-- **Promote reusable requests with the workflows that use them.** A workflow can't sync to a region until the reusable requests it depends on exist there.
-- **Commit a guide's message type before you promote the guide.** Message types sync when they're committed, not when they're promoted, so the guide needs its message type in place first.
+Then check the dependencies that apply to your change:
+
+- **A workflow uses a new or updated reusable request.** Promote the reusable request with the workflow so it exists in each regional account before the workflow syncs.
+- **A guide uses a new or updated message type.** Commit the message type before promoting the guide. Message types sync when they're committed rather than when they're promoted.
 
 ## Handling content differences
 
-Most content is the same in every region. When it isn't, choose the smallest regional override that represents the difference without duplicating an entire resource.
+Use shared content when every region can use the same resource. When content needs to vary by region, use the table below to choose whether to change a value inside the shared resource or create a separate resource for that region.
 
 | The difference                                      | Use                                                                               | Where to configure it                                                               |
 | --------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -77,8 +80,6 @@ Most content is the same in every region. When it isn't, choose the smallest reg
 
 Use conditions when the shared template can choose content from recipient data that is already available in that region, such as a recipient's country or plan. The resource remains shared; only the rendered content changes.
 
-A region-only resource is the one case where you work directly in a regional account. Consider giving it a key with the region's prefix, such as `eu-welcome-email`, and a tag such as `eu-only`. This keeps it distinct from shared resources and helps your team identify where it belongs.
-
 ## Changes to make in each account
 
 Some resources and actions aren't handled by the content sync. A team member with the required permissions must make these changes in each account:
@@ -87,8 +88,6 @@ Some resources and actions aren't handled by the content sync. A team member wit
 - Archive a shared resource in each regional account after it is archived in the main account.
 - Check whether any region-only resource still depends on a shared resource before archiving it.
 - Ask the team that operates the sync to investigate a change that didn't reach a region.
-
-{/* TODO (archive webhooks): Link `*.archived` / `*.unarchived` to /developer-tools/outbound-webhooks/event-types once docs#1813 merges and KNO-15721 removes the control-resource-archive-webhooks flag. */}
 
 ## Frequently asked questions
 
