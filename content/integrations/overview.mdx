@@ -142,13 +142,13 @@ A channel group enables you to combine multiple channels of the same type into a
 
 Every channel group has a `key` that identifies it, along with these settings:
 
-| Field           | Description                                                                                                                                                                                                                                        |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`          | The human-readable name of the group.                                                                                                                                                                                                              |
-| `channel_type`  | The type of channels the group contains, such as `email`, `sms`, `push`, `chat`, or `http`. Every channel in the group must be of this type.                                                                                                       |
-| `operator`      | Determines how many matching rules will result in message routing: `any` or `all`. When set to `any`, Knock routes to the first matching rule's channel only. When set to `all`, Knock routes to every matching rule's channel. Defaults to `any`. |
-| `channel_rules` | The ordered list of rules that determine which of the group's channels Knock routes to. The rules must point to at least two channels, and each channel can appear in only one rule.                                                               |
-| `visible_in`    | Where the group appears as a step destination: `workflow`, `broadcast`, or both. Defaults to both.                                                                                                                                                 |
+| Field           | Description                                                                                                                                                                                                                                              |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`          | The human-readable name of the group.                                                                                                                                                                                                                    |
+| `channel_type`  | The type of channels the group contains, such as `email`, `sms`, `push`, `chat`, or `http`. Every channel in the group must be of this type. Channels in a group can use the same provider, such as two email channels that send from different domains. |
+| `operator`      | Determines how many matching rules will result in message routing: `any` or `all`. When set to `any`, Knock routes to the first matching rule's channel only. When set to `all`, Knock routes to every matching rule's channel. Defaults to `any`.       |
+| `channel_rules` | The ordered list of rules that determine which of the group's channels Knock routes to. The rules must point to at least one channel, and a channel can appear in more than one rule.                                                                    |
+| `visible_in`    | Where the group appears as a step destination: `workflow`, `broadcast`, or both. Defaults to both.                                                                                                                                                       |
 
 ### Channel rules
 
@@ -162,6 +162,8 @@ Each rule in `channel_rules` points to one of the group's channels and sets the 
 | `variable`    | The workflow property to evaluate. Not applicable for `always` rules.                                                                                                                                                                                                                    |
 | `operator`    | The comparison to apply between the variable and the argument. Accepts any of the [condition operators](/concepts/conditions#operators), plus `is_in_random_cohort` for percentage-based cohort routing. Not applicable for `always` rules.                                              |
 | `argument`    | The value to compare the variable against. Not applicable for `always` rules.                                                                                                                                                                                                            |
+
+When a group's `operator` is `any` and it has more than one rule, every rule except the last must be an `if` or `unless` rule. An `always` rule matches every run, so any rule placed after it would never be reached. Groups with `operator` set to `all` can use `always` rules in any position.
 
 ### Random cohorts
 
@@ -178,7 +180,7 @@ A cohort rule takes the following values:
 
 Knock hashes the recipient ID against the channel group to assign the cohort, so a given recipient consistently routes to the same channel across workflow runs.
 
-A single cohort rule only determines routing for the recipients inside that cohort, so it should be paired with at least one additional rule to catch remaining recipients. Set the channel group's `operator` to `any` so that messages are routed to only the first matching rule. To route the remaining recipients, create an `always` rule pointing at the fallback channel. The fallback rule should be ordered after the cohort rule, so that only recipients not belonging to the cohort will reach it. With this configuration, Knock routes the cohort to the first channel and everyone else to the second.
+A single cohort rule only determines routing for the recipients inside that cohort, so it should be paired with at least one additional rule to catch remaining recipients. Set the channel group's `operator` to `any` so that messages are routed to only the first matching rule. To route the remaining recipients, create an `always` rule pointing at the fallback channel. The fallback rule must be the last rule in the group, after the cohort rule, so that only recipients not belonging to the cohort will reach it. With this configuration, Knock routes the cohort to the first channel and everyone else to the second.
 
 #### Using more than one cohort
 
@@ -204,6 +206,10 @@ Set each percentage to the running total of the shares ahead of it. Channel B re
 While the group is in use, the request returns an error: `"Channel group is referenced by active resources and cannot be archived."` Knock checks both a workflow's saved changes and its published version, so remove the group from each step that targets it and commit or publish that change before you delete the group. Sent broadcasts and [archived workflows](/concepts/workflows#archiving-workflows) don't block a delete.
 
 Channel groups are account-wide, so a delete removes the group from every environment at once. If you've enabled [environments](/version-control/environments), Knock checks workflows and broadcasts in every environment and branch.
+
+### Archiving a channel in a group
+
+Knock blocks archiving a channel while a channel group includes it. To archive the channel, [delete the group](#deleting-a-channel-group) or [update the group's rules](/mapi-reference/channel_groups/upsert) to remove the channel, then archive the channel from <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank">**Channels and sources**</a>.
 
 ## Supported providers
 
