@@ -145,23 +145,23 @@ Every channel group has a `key` that identifies it, along with these settings:
 | Field           | Description                                                                                                                                                                                                                                        |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`          | The human-readable name of the group.                                                                                                                                                                                                              |
-| `channel_type`  | The type of channels the group contains, such as `email`, `sms`, `push`, `chat`, or `http`. Every channel in a group shares this type.                                                                                                             |
+| `channel_type`  | The type of channels the group contains, such as `email`, `sms`, `push`, `chat`, or `http`. Every channel in the group must be of this type.                                                                                                       |
 | `operator`      | Determines how many matching rules will result in message routing: `any` or `all`. When set to `any`, Knock routes to the first matching rule's channel only. When set to `all`, Knock routes to every matching rule's channel. Defaults to `any`. |
-| `channel_rules` | The ordered list of rules that determine which of the group's channels Knock routes to.                                                                                                                                                            |
+| `channel_rules` | The ordered list of rules that determine which of the group's channels Knock routes to. The rules must point to at least two channels, and each channel can appear in only one rule.                                                               |
 | `visible_in`    | Where the group appears as a step destination: `workflow`, `broadcast`, or both. Defaults to both.                                                                                                                                                 |
 
 ### Channel rules
 
 Each rule in `channel_rules` points to one of the group's channels and sets the terms under which Knock routes to it:
 
-| Field         | Description                                                                                                                                                                                                                                                                                                                  |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index`       | The rule's position in the group's ordered list.                                                                                                                                                                                                                                                                             |
-| `channel_key` | The key of the channel the rule routes to.                                                                                                                                                                                                                                                                                   |
-| `rule_type`   | Determines when the channel should be used: `always`, `if`, or `unless`. When set to `always`, Knock routes to the channel on every workflow run. When set to `if` or `unless`, Knock routes to the channel conditionally based on the values of `variable`, `operator`, and `argument`.                                     |
-| `variable`    | The workflow property to evaluate. Not applicable for `always` rules.                                                                                                                                                                                                                                                        |
-| `operator`    | The comparison to apply between the variable and the argument. Accepts any of the <a href="/concepts/conditions#operators" style={{color: "var(--tgph-accent-11)",textDecoration: "underline",}}>condition operators</a>, plus `is_in_random_cohort` for percentage-based cohort routing. Not applicable for `always` rules. |
-| `argument`    | The value to compare the variable against. Not applicable for `always` rules.                                                                                                                                                                                                                                                |
+| Field         | Description                                                                                                                                                                                                                                                                              |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index`       | The rule's position in the group's ordered list.                                                                                                                                                                                                                                         |
+| `channel_key` | The key of the channel the rule routes to. The channel must exist and must not be archived.                                                                                                                                                                                              |
+| `rule_type`   | Determines when the channel should be used: `always`, `if`, or `unless`. When set to `always`, Knock routes to the channel on every workflow run. When set to `if` or `unless`, Knock routes to the channel conditionally based on the values of `variable`, `operator`, and `argument`. |
+| `variable`    | The workflow property to evaluate. Not applicable for `always` rules.                                                                                                                                                                                                                    |
+| `operator`    | The comparison to apply between the variable and the argument. Accepts any of the [condition operators](/concepts/conditions#operators), plus `is_in_random_cohort` for percentage-based cohort routing. Not applicable for `always` rules.                                              |
+| `argument`    | The value to compare the variable against. Not applicable for `always` rules.                                                                                                                                                                                                            |
 
 ### Random cohorts
 
@@ -193,6 +193,17 @@ Order your cohort rules from the smallest percentage to the largest, and end the
 | `always` rule pointing at channel C | —          | The remaining 58% |
 
 Set each percentage to the running total of the shares ahead of it. Channel B receives 30% of recipients because its rule is set to `42`: the 12% already routed to channel A, plus its own 30%. Ordering a larger percentage ahead of a smaller one would prevent the smaller rule from ever matching, since every recipient below the smaller percentage is also below the larger one.
+
+### Deleting a channel group
+
+[Deleting a channel group](/mapi-reference/channel_groups/delete) archives it. Knock blocks a delete while a channel step targets the group:
+
+- In a workflow that isn't archived, including one whose [status](/concepts/workflows#workflow-status) is `Inactive`.
+- In a [broadcast](/concepts/broadcasts) that hasn't been sent yet, such as a draft or a scheduled broadcast.
+
+While the group is in use, the request returns an error: `"Channel group is referenced by active resources and cannot be archived."` Knock checks both a workflow's saved changes and its published version, so remove the group from each step that targets it and commit or publish that change before you delete the group. Sent broadcasts and [archived workflows](/concepts/workflows#archiving-workflows) don't block a delete.
+
+Channel groups are account-wide, so a delete removes the group from every environment at once. If you've enabled [environments](/version-control/environments), Knock checks workflows and broadcasts in every environment and branch.
 
 ## Supported providers
 

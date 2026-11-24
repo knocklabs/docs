@@ -77,6 +77,31 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Translation
       x-validate: null
+    Feedback:
+      description: Feedback received by Knock.
+      example:
+        created_at: "2021-01-01T00:00:00Z"
+        id: 2f9a3b8e-6d1c-4c55-9b6e-0a7f3f2d1c84
+      properties:
+        created_at:
+          description: The timestamp of when the feedback was received.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier of the feedback.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - created_at
+      title: Feedback
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Feedback
+      x-validate: null
     SourceProvidersResponse:
       description: Source providers available for creating sources.
       example:
@@ -274,11 +299,19 @@ components:
       description: The resource object associated with the commit.
       example:
         identifier: my-email-layout
+        metadata: null
         type: email_layout
       properties:
         identifier:
           description: The unique identifier for the resource.
           type: string
+          x-struct: null
+          x-validate: null
+        metadata:
+          description: Additional details about the resource, based on its type. Set for translation resources, and null for every other type.
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/TranslationCommitResourceMetadata'
           x-struct: null
           x-validate: null
         type:
@@ -2826,6 +2859,44 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    CreateEnvironmentRequest:
+      description: A request to create an environment.
+      example:
+        hide_pii_data: false
+        label_color: '#14B8A7'
+        name: Staging
+        preceding_environment: development
+      properties:
+        hide_pii_data:
+          default: false
+          description: Whether to hide PII data in the dashboard for the environment. Read more in the [data obfuscation docs](https://docs.knock.app/manage-your-account/data-obfuscation).
+          type: boolean
+          x-struct: null
+          x-validate: null
+        label_color:
+          description: A 3- or 6-digit hex color code for the environment label in the dashboard. A color is picked at random when omitted.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A human-readable name for the environment. The environment's slug is derived from it and must be unique in the project.
+          maxLength: 255
+          type: string
+          x-struct: null
+          x-validate: null
+        preceding_environment:
+          description: The slug of the environment the new environment comes directly after. Cannot be the last environment (Production). Defaults to the environment just before Production.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+      title: CreateEnvironmentRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.CreateEnvironmentRequest
+      x-validate: null
     WrappedWarehouseSyncRequestResponse:
       description: Wraps the WarehouseSyncRequest response under the `warehouse_sync` key.
       example:
@@ -3351,6 +3422,32 @@ components:
       required:
         - result
       title: ArchiveWebhookResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    RevertCommitResponse:
+      description: The response from reverting a commit, with the new commit under `commit`.
+      example:
+        commit:
+          author:
+            email: john.doe@example.com
+            name: John Doe
+          commit_message: This is a commit message
+          created_at: "2021-01-01T00:00:00Z"
+          environment: development
+          id: 123e4567-e89b-12d3-a456-426614174000
+          promote_group_id: null
+          promoted_from_commit_id: null
+          resource:
+            identifier: my-email-layout
+            metadata: null
+            type: email_layout
+      properties:
+        commit:
+          $ref: '#/components/schemas/Commit'
+      required:
+        - commit
+      title: RevertCommitResponse
       type: object
       x-struct: null
       x-validate: null
@@ -4291,6 +4388,41 @@ components:
       title: Tag
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Tag
+      x-validate: null
+    TranslationCommitResourceMetadata:
+      description: Details about the translation a commit changed.
+      example:
+        locale_code: en
+        namespace: courses
+        tenant: null
+      properties:
+        locale_code:
+          description: The locale code of the translation.
+          example: en
+          type: string
+          x-struct: null
+          x-validate: null
+        namespace:
+          description: The namespace of the translation, or null if it has none.
+          example: courses
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        tenant:
+          description: The tenant the translation is scoped to, or null if it isn't tenant-scoped.
+          example: acme
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - locale_code
+        - namespace
+        - tenant
+      title: TranslationCommitResourceMetadata
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.TranslationCommitResourceMetadata
       x-validate: null
     WarehouseSyncSettingsRequest:
       description: The sync's schedule settings. They take effect right away and aren't versioned. Fields left out keep their current values.
@@ -6938,6 +7070,21 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowInAppFeedStep
       x-validate: null
+    WrappedFeedbackResponse:
+      description: Wraps the Feedback response under the `feedback` key.
+      example:
+        feedback:
+          created_at: "2021-01-01T00:00:00Z"
+          id: 2f9a3b8e-6d1c-4c55-9b6e-0a7f3f2d1c84
+      properties:
+        feedback:
+          $ref: '#/components/schemas/Feedback'
+      required:
+        - feedback
+      title: WrappedFeedbackResponse
+      type: object
+      x-struct: null
+      x-validate: null
     ExitCriteriaIntegrationSourceEvent:
       description: An integration source event that exits the run.
       example:
@@ -7437,6 +7584,84 @@ components:
       title: MessageType
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageType
+      x-validate: null
+    FeedbackRequest:
+      description: Feedback about Knock. Do not include credentials, secrets, personally identifiable information, or full conversations.
+      example:
+        context:
+          expected: An error that identifies the missing variable.
+          model: claude-opus-5-5
+          tool: upsertWorkflow
+          type: friction
+        message: Please name the missing variable in workflow validation errors.
+      properties:
+        context:
+          additionalProperties: true
+          description: Relevant details about the feedback, up to 64 KiB when JSON encoded. The listed keys are recommended and any other keys are accepted.
+          nullable: true
+          properties:
+            actual:
+              description: What happened, including any error text.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            expected:
+              description: What you expected to happen.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            impact:
+              description: The time spent, retries, or workarounds used.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            model:
+              description: The name of the model used for the task.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            product:
+              description: The Knock product involved, such as workflows or guides.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            task:
+              description: What you were trying to do.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            tool:
+              description: The tool, command, or endpoint affected.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: A category such as bug, friction, or feature.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        message:
+          description: Your feedback. Must contain non-whitespace text.
+          maxLength: 10000
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - message
+      title: FeedbackRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.FeedbackRequest
       x-validate: null
     BillingSummary:
       description: A snapshot of the current draft Orb invoice for the account, including plan, per-metric usage, and remaining credit blocks.
@@ -7983,6 +8208,7 @@ components:
         promoted_from_commit_id: null
         resource:
           identifier: my-email-layout
+          metadata: null
           type: email_layout
       properties:
         author:
@@ -8049,11 +8275,19 @@ components:
           description: The resource object associated with the commit.
           example:
             identifier: my-email-layout
+            metadata: null
             type: email_layout
           properties:
             identifier:
               description: The unique identifier for the resource.
               type: string
+              x-struct: null
+              x-validate: null
+            metadata:
+              description: Additional details about the resource, based on its type. Set for translation resources, and null for every other type.
+              nullable: true
+              oneOf:
+                - $ref: '#/components/schemas/TranslationCommitResourceMetadata'
               x-struct: null
               x-validate: null
             type:
@@ -8428,6 +8662,33 @@ components:
       title: WrappedEmailLayoutResponse
       type: object
       x-struct: null
+      x-validate: null
+    UpdateEnvironmentRequest:
+      description: A request to update an environment. Omitted fields are left unchanged, and at least one field is required.
+      example:
+        hide_pii_data: true
+        label_color: '#6678D6'
+        name: QA
+      properties:
+        hide_pii_data:
+          description: Whether to hide PII data in the dashboard for the environment. Read more in the [data obfuscation docs](https://docs.knock.app/manage-your-account/data-obfuscation).
+          type: boolean
+          x-struct: null
+          x-validate: null
+        label_color:
+          description: A 3- or 6-digit hex color code for the environment label in the dashboard.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A new name for the environment. Renaming an environment you created also changes its slug. Production keeps its slug. Other Knock-defined environments can't be renamed, and a name other than their current one returns an error.
+          maxLength: 255
+          type: string
+          x-struct: null
+          x-validate: null
+      title: UpdateEnvironmentRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.UpdateEnvironmentRequest
       x-validate: null
     WorkflowChatStep:
       description: A chat step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
@@ -8919,6 +9180,86 @@ components:
       title: MessageTypeSelectField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.SelectField
+      x-validate: null
+    ArchiveWorkflowResponse:
+      description: The response from archiving a workflow.
+      example:
+        result: success
+        workflow:
+          active: false
+          categories:
+            - marketing
+            - black-friday
+          conditions:
+            all:
+              - argument: admin
+                operator: equal_to
+                variable: recipient.role
+          created_at: "2022-12-16T19:07:50.027113Z"
+          description: This is a dummy workflow for demo purposes.
+          environment: development
+          key: december-16-demo
+          name: december-16-demo
+          settings:
+            override_preferences: true
+          sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+          steps:
+            - channel_key: in-app-feed
+              channel_type: in_app_feed
+              description: Main in-app feed
+              name: In-app step
+              ref: in_app_feed_1
+              template:
+                action_url: '{{ data.onboarding_url }}'
+                markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+              type: channel
+            - ref: delay_1
+              settings:
+                delay_for:
+                  unit: hours
+                  value: 1
+              type: delay
+            - channel_key: postmark
+              channel_type: email
+              ref: email_1
+              template:
+                html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                settings:
+                  layout_key: default
+                subject: Welcome to {{ vars.app_name }}!
+              type: channel
+          tags:
+            - onboarding
+            - growth
+          trigger_data_json_schema:
+            properties:
+              onboarding_url:
+                type: string
+            required:
+              - onboarding_url
+            type: object
+          trigger_events:
+            - audience_action_type: member_added
+              audience_key: pro-users
+              type: audience
+          trigger_frequency: every_trigger
+          updated_at: "2023-02-08T22:15:19.846681Z"
+          valid: true
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+        workflow:
+          $ref: '#/components/schemas/Workflow'
+      required:
+        - result
+        - workflow
+      title: ArchiveWorkflowResponse
+      type: object
+      x-struct: null
       x-validate: null
     Broadcast:
       description: A broadcast object.
@@ -9761,7 +10102,7 @@ components:
         result: success
       properties:
         result:
-          description: The result of the promote operation.
+          description: The result of the archive operation.
           example: success
           type: string
           x-struct: null
@@ -9977,7 +10318,7 @@ components:
         rule_type: always
       properties:
         argument:
-          description: For conditional rules, the value to compare against. For `is_in_random_cohort`, a 0–100 percentage with at most one decimal place.
+          description: For conditional rules, the value to compare against. Required for `if` and `unless` rules unless the operator takes no value, such as `exists`. For `is_in_random_cohort`, a 0–100 percentage with at most one decimal place.
           nullable: true
           type: string
           x-struct: null
@@ -9993,7 +10334,7 @@ components:
           x-struct: null
           x-validate: null
         operator:
-          description: For conditional rules, the operator to apply. For `is_in_random_cohort`, `variable` must be `recipient.id` and `argument` is a 0–100 percentage.
+          description: For conditional rules, the operator to apply. Required for `if` and `unless` rules. For `is_in_random_cohort`, `variable` must be `recipient.id` and `argument` is a 0–100 percentage.
           enum:
             - equal_to
             - not_equal_to
@@ -10034,7 +10375,7 @@ components:
           x-struct: null
           x-validate: null
         variable:
-          description: For conditional rules, the variable to evaluate. For `is_in_random_cohort`, must be `recipient.id`.
+          description: For conditional rules, the variable to evaluate. Required for `if` and `unless` rules, except with an audience operator. For `is_in_random_cohort`, must be `recipient.id`.
           nullable: true
           type: string
           x-struct: null
@@ -11268,6 +11609,47 @@ components:
       title: DynamicAudience
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.DynamicAudience
+      x-validate: null
+    HeadlessAccountChallenge:
+      description: A proof-of-work challenge. Find a nonce for which the SHA-256 hash of `<challenge>:<nonce>` starts with `difficulty` zero bits, then send both when creating the account. A difficulty of 0 means no proof of work is needed right now.
+      example:
+        algorithm: sha256
+        challenge: eyJhbGciOiJIUzI1NiJ9.eyJkaWZmaWN1bHR5IjoyMH0.c2lnbmF0dXJl
+        difficulty: 20
+        expires_at: "2026-10-29T12:05:00.000Z"
+      properties:
+        algorithm:
+          description: The hash function to use.
+          enum:
+            - sha256
+          type: string
+          x-struct: null
+          x-validate: null
+        challenge:
+          description: The challenge to hash. It can be used for one account.
+          type: string
+          x-struct: null
+          x-validate: null
+        difficulty:
+          description: How many leading zero bits the hash must have.
+          minimum: 0
+          type: integer
+          x-struct: null
+          x-validate: null
+        expires_at:
+          description: When the challenge stops being accepted.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - challenge
+        - difficulty
+        - algorithm
+        - expires_at
+      title: HeadlessAccountChallenge
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountChallenge
       x-validate: null
     ExchangeForApiKeyResponse:
       description: Returns an API key that can be used to make requests to the public API.
@@ -12843,6 +13225,9 @@ components:
       example:
         expires_at: "2026-10-29T12:00:00.000Z"
         status: unclaimed
+        usage_limits:
+          message_limit: 100
+          workflow_run_limit: 100
       properties:
         expires_at:
           description: When an unclaimed account is deleted, or null once it has been claimed.
@@ -12861,9 +13246,31 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        usage_limits:
+          description: How much the account can use per UTC calendar month until a person claims it. Each limit is null when there is none, which is always the case once the account is claimed.
+          properties:
+            message_limit:
+              description: How many messages the account can send.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+            workflow_run_limit:
+              description: How many workflow runs, one per recipient, the account can trigger.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+          required:
+            - workflow_run_limit
+            - message_limit
+          type: object
+          x-struct: null
+          x-validate: null
       required:
         - status
         - expires_at
+        - usage_limits
       title: HeadlessAccountStatus
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountStatus
@@ -14605,7 +15012,7 @@ components:
           x-struct: null
           x-validate: null
         owner:
-          description: The owner of the environment.
+          description: 'Who created the environment. `system` environments, such as Development and Production, are defined by Knock: they can''t be deleted, and only Production can be renamed. `user` environments were created by you and can be renamed or deleted.'
           enum:
             - system
             - user
@@ -15214,6 +15621,7 @@ components:
           promoted_from_commit_id: null
           resource:
             identifier: my-email-layout
+            metadata: null
             type: email_layout
         promote_group:
           actor:
@@ -15383,6 +15791,7 @@ components:
             promoted_from_commit_id: null
             resource:
               identifier: my-email-layout
+              metadata: null
               type: email_layout
         page_info:
           after: null
@@ -16173,6 +16582,37 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Duration
       x-validate: null
+    HeadlessAccountCreateRequest:
+      description: The solved proof-of-work challenge, when one is required.
+      example:
+        proof_of_work:
+          challenge: eyJhbGciOiJIUzI1NiJ9.eyJkaWZmaWN1bHR5IjoyMH0.c2lnbmF0dXJl
+          nonce: "1048213"
+      properties:
+        proof_of_work:
+          description: A challenge from the challenge endpoint and the nonce that solves it.
+          properties:
+            challenge:
+              description: The challenge, as issued.
+              type: string
+              x-struct: null
+              x-validate: null
+            nonce:
+              description: The nonce that solves the challenge, at most 64 bytes.
+              maxLength: 64
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - challenge
+            - nonce
+          type: object
+          x-struct: null
+          x-validate: null
+      title: HeadlessAccountCreateRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.HeadlessAccountCreateRequest
+      x-validate: null
     EmailPartialBlock:
       description: A partial block in an email template, used to render a reusable partial component.
       example:
@@ -16503,6 +16943,23 @@ components:
         - entries
         - page_info
       title: PaginatedEnvironmentResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    ArchiveBroadcastResponse:
+      description: The response from archiving a broadcast.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveBroadcastResponse
       type: object
       x-struct: null
       x-validate: null
@@ -16974,8 +17431,9 @@ paths:
         workflow.
 
         Archiving renames the workflow's key in every environment, so a new workflow can use the key.
-        The archived workflow is deactivated and read-only, and the response returns it with its
-        archived key. Restore it with the unarchive endpoint, using its original key.
+        The archived workflow is deactivated and read-only. The response returns `result` with the
+        value `success`, and the workflow with its archived key. Restore it with the unarchive
+        endpoint, using its original key.
 
         Returns a 404 when no live workflow has the key, including when it's already archived.
       operationId: archiveWorkflow
@@ -17002,8 +17460,9 @@ paths:
           content:
             application/json:
               schema:
-                description: Wraps the Workflow response under the `workflow` key.
+                description: The response from archiving a workflow.
                 example:
+                  result: success
                   workflow:
                     active: false
                     categories:
@@ -17065,11 +17524,18 @@ paths:
                     updated_at: "2023-02-08T22:15:19.846681Z"
                     valid: true
                 properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
                   workflow:
                     $ref: '#/components/schemas/Workflow'
                 required:
+                  - result
                   - workflow
-                title: WrappedWorkflowResponse
+                title: ArchiveWorkflowResponse
                 type: object
                 x-struct: null
                 x-validate: null
@@ -17087,7 +17553,7 @@ paths:
 
           const workflow = await client.workflows.delete('workflow_key');
 
-          console.log(workflow.workflow);
+          console.log(workflow.result);
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -17098,7 +17564,7 @@ paths:
           workflow = client.workflows.delete(
               workflow_key="workflow_key",
           )
-          print(workflow.workflow)
+          print(workflow.result)
         go: |
           package main
 
@@ -17122,7 +17588,7 @@ paths:
           	if err != nil {
           		panic(err.Error())
           	}
-          	fmt.Printf("%+v\n", workflow.Workflow)
+          	fmt.Printf("%+v\n", workflow.Result)
           }
     get:
       callbacks: {}
@@ -18961,6 +19427,73 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+    post:
+      callbacks: {}
+      description: Creates an environment. The slug is derived from the `name`. Without `preceding_environment`, the environment is placed just before Production. Creating an environment also creates its public and secret API keys and copies the project's variables, channel and source settings, and preference center into it. Everything committed in the preceding environment is then promoted into it asynchronously, so its content may not be available as soon as this request returns. Requires environments to be enabled on the account.
+      operationId: createEnvironment
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnvironmentRequest'
+        description: Params
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+          description: Created
+      summary: Create an environment
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const environment = await client.environments.create({ name: 'Staging' });
+
+          console.log(environment.hide_pii_data);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          environment = client.environments.create(
+              name="Staging",
+          )
+          print(environment.hide_pii_data)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	environment, err := client.Environments.New(context.TODO(), knockmapi.EnvironmentNewParams{
+          		Name: "Staging",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", environment.HidePiiData)
+          }
   /v1/assets/{asset_id}:
     delete:
       callbacks: {}
@@ -19231,6 +19764,117 @@ paths:
           	fmt.Printf("%+v\n", asset.ID)
           }
   /v1/broadcasts/{broadcast_key}:
+    delete:
+      callbacks: {}
+      description: |
+        Archives a broadcast in a given environment. A broadcast lives in one environment, so no
+        other environment is changed.
+
+        Archiving renames the broadcast's key, so a new broadcast can use the key. It also cancels a
+        scheduled send, returning the broadcast to draft, and detaches its goal. A sent broadcast can
+        be archived too. Restore it with the unarchive endpoint, using its original key.
+
+        Returns a 404 when no live broadcast has the key, including when it's already archived.
+      operationId: archiveBroadcast
+      parameters:
+        - description: The key of the broadcast to archive.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving a broadcast.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive a broadcast
+      tags:
+        - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const broadcast = await client.broadcasts.delete('broadcast_key');
+
+          console.log(broadcast.result);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          broadcast = client.broadcasts.delete(
+              broadcast_key="broadcast_key",
+          )
+          print(broadcast.result)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	broadcast, err := client.Broadcasts.Delete(
+          		context.TODO(),
+          		"broadcast_key",
+          		knockmapi.BroadcastDeleteParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", broadcast.Result)
+          }
     get:
       callbacks: {}
       description: Get a broadcast by its key in a given environment.
@@ -19542,6 +20186,89 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
           }
+  /v1/feedback:
+    post:
+      callbacks: {}
+      description: Sends bugs, friction, and feature requests to the Knock team. Agents can use this to report issues they encounter while completing a task. Do not include secrets or personally identifiable information.
+      operationId: createFeedback
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+        description: Params
+        required: false
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Feedback response under the `feedback` key.
+                example:
+                  feedback:
+                    created_at: "2021-01-01T00:00:00Z"
+                    id: 2f9a3b8e-6d1c-4c55-9b6e-0a7f3f2d1c84
+                properties:
+                  feedback:
+                    $ref: '#/components/schemas/Feedback'
+                required:
+                  - feedback
+                title: WrappedFeedbackResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Created
+      summary: Send feedback
+      tags:
+        - Feedback
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const feedback = await client.feedback.create({
+            message: 'Please name the missing variable in workflow validation errors.',
+          });
+
+          console.log(feedback.feedback);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          feedback = client.feedback.create(
+              message="Please name the missing variable in workflow validation errors.",
+          )
+          print(feedback.feedback)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	feedback, err := client.Feedback.New(context.TODO(), knockmapi.FeedbackNewParams{
+          		Message: "Please name the missing variable in workflow validation errors.",
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", feedback.Feedback)
+          }
   /v1/templates/preview:
     post:
       callbacks: {}
@@ -19797,6 +20524,116 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.Guide)
+          }
+  /v1/audiences/{audience_key}/discard:
+    put:
+      callbacks: {}
+      description: |
+        Discards the uncommitted changes to an audience in a given environment, returning it to its
+        last committed version. Other environments aren't changed.
+
+        Returns the audience unchanged when it has no uncommitted changes. Returns a 422 when the
+        audience has never been committed, or can't be changed in the environment. Audiences aren't
+        branched, so passing a `branch` returns a 422.
+      operationId: discardAudienceChanges
+      parameters:
+        - description: The key of the audience.
+          in: path
+          name: audience_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Audience response under the `audience` key.
+                example:
+                  audience:
+                    created_at: "2024-01-15T10:30:00Z"
+                    description: Customers who signed up in the last 30 days.
+                    environment: development
+                    key: new-customers
+                    name: New customers
+                    segments:
+                      - conditions:
+                          - argument: 30_days_ago
+                            operator: greater_than
+                            property: recipient.created_at
+                    sha: a1b2c3d4e5f6
+                    type: dynamic
+                    updated_at: "2024-06-20T14:45:00Z"
+                properties:
+                  audience:
+                    $ref: '#/components/schemas/Audience'
+                required:
+                  - audience
+                title: WrappedAudienceResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Discard an audience's uncommitted changes
+      tags:
+        - Audiences
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.audiences.discard('audience_key');
+
+          console.log(response.audience);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.audiences.discard(
+              audience_key="audience_key",
+          )
+          print(response.audience)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Audiences.Discard(
+          		context.TODO(),
+          		"audience_key",
+          		knockmapi.AudienceDiscardParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Audience)
           }
   /v1/commits/promote:
     put:
@@ -20259,9 +21096,16 @@ paths:
   /v1/headless_accounts:
     post:
       callbacks: {}
-      description: Creates an account that has no owner yet, and returns a service token the agent uses to work in it. The account is deleted after 24 hours unless a person claims it. This endpoint needs no authentication and is rate limited.
+      description: Creates an account that has no owner yet, and returns a service token the agent uses to work in it. The account is deleted after 24 hours unless a person claims it. This endpoint needs no authentication and is rate limited. It can require a solved proof-of-work challenge; when it does and none is sent, the 400 response carries a challenge to solve.
       operationId: createHeadlessAccount
       parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeadlessAccountCreateRequest'
+        description: Params
+        required: false
       responses:
         "201":
           content:
@@ -20269,6 +21113,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/HeadlessAccount'
           description: Created
+        "400":
+          content:
+            application/json:
+              schema:
+                description: Returned when a proof-of-work solution is required and is missing, wrong, expired or already used. The `challenge` field has a new challenge to solve.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Bad Request
         "403":
           content:
             application/json:
@@ -20282,7 +21135,7 @@ paths:
           content:
             application/json:
               schema:
-                description: Returned when too many accounts were created from this address or overall. The Retry-After header says when to try again.
+                description: Returned when too many accounts were created from this address or overall, or too many are waiting to be claimed. The Retry-After header says when to try again.
                 type: object
                 x-struct: null
                 x-validate: null
@@ -20339,7 +21192,7 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	headlessAccount, err := client.HeadlessAccounts.New(context.TODO())
+          	headlessAccount, err := client.HeadlessAccounts.New(context.TODO(), knockmapi.HeadlessAccountNewParams{})
           	if err != nil {
           		panic(err.Error())
           	}
@@ -20498,6 +21351,212 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", page)
+          }
+  /v1/headless_accounts/challenge:
+    post:
+      callbacks: {}
+      description: Returns a proof-of-work challenge to solve before creating a headless account. The difficulty can change, so get a new challenge for each account. This endpoint needs no authentication.
+      operationId: createHeadlessAccountChallenge
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeadlessAccountChallenge'
+          description: OK
+        "403":
+          content:
+            application/json:
+              schema:
+                description: Returned when the request carries an Origin header, which browsers add.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Forbidden
+        "429":
+          content:
+            application/json:
+              schema:
+                description: Returned when too many challenges were requested from this address. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Too Many Requests
+        "503":
+          content:
+            application/json:
+              schema:
+                description: Returned when headless accounts are turned off. The Retry-After header says when to try again.
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Service Unavailable
+      security: []
+      summary: Get a proof-of-work challenge
+      tags:
+        - Headless accounts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt();
+
+          const response = await client.headlessAccounts.challenge();
+
+          console.log(response.algorithm);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt()
+          response = client.headless_accounts.challenge()
+          print(response.algorithm)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.HeadlessAccounts.Challenge(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Algorithm)
+          }
+  /v1/reusable_requests/{reusable_request_key}/discard:
+    put:
+      callbacks: {}
+      description: |
+        Discards the uncommitted changes to a reusable request in a given environment, returning it
+        to its last committed version. Other environments aren't changed.
+
+        Returns the reusable request unchanged when it has no uncommitted changes. Returns a 422 when
+        the reusable request has never been committed, or can't be changed in the environment.
+      operationId: discardReusableRequestChanges
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the reusable request.
+          in: path
+          name: reusable_request_key
+          required: true
+          schema:
+            example: fetch-user
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the ReusableRequest response under the `reusable_request` key.
+                example:
+                  reusable_request:
+                    created_at: "2021-01-01T00:00:00Z"
+                    description: Loads a user from the API.
+                    environment: development
+                    key: fetch-user
+                    name: Fetch user
+                    settings:
+                      body: null
+                      headers:
+                        - key: X-API-Key
+                          value: "1234567890"
+                      method: get
+                      query_params:
+                        - key: key
+                          value: value
+                      response_path: null
+                      signing_key: null
+                      url: https://example.com
+                    sha: abc123
+                    type: http_fetch
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  reusable_request:
+                    $ref: '#/components/schemas/ReusableRequest'
+                required:
+                  - reusable_request
+                title: WrappedReusableRequestResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Discard a reusable request's uncommitted changes
+      tags:
+        - Reusable requests
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.reusableRequests.discard('fetch-user');
+
+          console.log(response.reusable_request);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.reusable_requests.discard(
+              reusable_request_key="fetch-user",
+          )
+          print(response.reusable_request)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ReusableRequests.Discard(
+          		context.TODO(),
+          		"fetch-user",
+          		knockmapi.ReusableRequestDiscardParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ReusableRequest)
           }
   /v1/translations:
     get:
@@ -21043,6 +22102,144 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.Translation)
+          }
+  /v1/broadcasts/{broadcast_key}/unarchive:
+    put:
+      callbacks: {}
+      description: |
+        Restores an archived broadcast in a given environment by its original key. When the key was
+        archived more than once, the most recent archive is restored.
+
+        A broadcast that was scheduled when it was archived comes back as a draft, and a sent
+        broadcast stays sent.
+
+        Returns a 404 when the key isn't archived in the environment, including when an earlier or
+        concurrent request already restored it. Returns a 422 with the code `key_in_use` when a live
+        broadcast uses the key.
+      operationId: unarchiveBroadcast
+      parameters:
+        - description: The original key of the archived broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    tags:
+                      - in-review
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Unarchive a broadcast
+      tags:
+        - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.broadcasts.unarchive('broadcast_key');
+
+          console.log(response.broadcast);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.broadcasts.unarchive(
+              broadcast_key="broadcast_key",
+          )
+          print(response.broadcast)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Broadcasts.Unarchive(
+          		context.TODO(),
+          		"broadcast_key",
+          		knockmapi.BroadcastUnarchiveParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Broadcast)
           }
   /v1/goals/{goal_key}/validate:
     put:
@@ -22326,6 +23523,15 @@ paths:
       description: Archives a given guide across all environments.
       operationId: archiveGuide
       parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The key of the guide to archive.
           in: path
           name: guide_key
@@ -22344,7 +23550,7 @@ paths:
                   result: success
                 properties:
                   result:
-                    description: The result of the promote operation.
+                    description: The result of the archive operation.
                     example: success
                     type: string
                     x-struct: null
@@ -22378,7 +23584,7 @@ paths:
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
           response = client.guides.archive(
-              "guide_key",
+              guide_key="guide_key",
           )
           print(response.result)
         go: |
@@ -22396,7 +23602,11 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	response, err := client.Guides.Archive(context.TODO(), "guide_key")
+          	response, err := client.Guides.Archive(
+          		context.TODO(),
+          		"guide_key",
+          		knockmapi.GuideArchiveParams{},
+          	)
           	if err != nil {
           		panic(err.Error())
           	}
@@ -22757,6 +23967,89 @@ paths:
           	fmt.Printf("%+v\n", response.Guide)
           }
   /v1/sources/{key}:
+    delete:
+      callbacks: {}
+      description: |
+        Deletes a source by key from every environment in the project, not only the one in the
+        request. The token needs the `sources:manage` permission in every environment. Sources aren't
+        branched, so the `branch` parameter isn't accepted.
+
+        Deleting removes the source's settings in every environment and deactivates its event
+        mappings, so its events stop triggering workflows. The workflows themselves are kept. The key
+        is freed for a new source. A deleted source can't be restored.
+
+        Returns a 422 with the code `source_in_use` while a goal, or a workflow's exit criteria,
+        references the source in any environment. Archive those goals or remove those exit criteria
+        first. Returns a 404 when no source has the key.
+      operationId: deleteSource
+      parameters:
+        - description: The key of the source to delete.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          content:
+            application/json: {}
+          description: No Content
+      summary: Delete a source
+      tags:
+        - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.dataSources.delete('key');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.data_sources.delete(
+              key="key",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.DataSources.Delete(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceDeleteParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     get:
       callbacks: {}
       description: Returns a source with environment-specific settings, preprocess scripts, and event mappings.
@@ -23214,6 +24507,7 @@ paths:
                     promoted_from_commit_id: null
                     resource:
                       identifier: my-email-layout
+                      metadata: null
                       type: email_layout
                   promote_group:
                     actor:
@@ -23287,7 +24581,7 @@ paths:
   /v1/headless_accounts/status:
     get:
       callbacks: {}
-      description: Returns whether the headless account is still being set up, waiting to be claimed, claimed by a person, or past its claim window. Agents poll this endpoint to find out when a person has claimed the account.
+      description: Returns whether the headless account is still being set up, waiting to be claimed, claimed by a person, or past its claim window, and the monthly usage limits it has until it is claimed. Agents poll this endpoint to find out when a person has claimed the account.
       operationId: getHeadlessAccountStatus
       parameters: []
       responses:
@@ -23843,6 +25137,64 @@ paths:
           	fmt.Printf("%+v\n", page)
           }
   /v1/environments/{environment_slug}:
+    delete:
+      callbacks: {}
+      description: Deletes an environment you created (`owner` is `user`). Every API key in the environment is revoked first, so any integration still using those keys stops working. A deleted environment can't be restored from the API or the dashboard. Knock-defined environments, such as Development and Production, can't be deleted. To delete a branch, use the delete branch endpoint.
+      operationId: deleteEnvironment
+      parameters:
+        - description: The slug of the environment.
+          in: path
+          name: environment_slug
+          required: true
+          schema:
+            example: staging
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          description: No Content
+      summary: Delete an environment
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.environments.delete('staging');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.environments.delete(
+              "staging",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.Environments.Delete(context.TODO(), "staging")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     get:
       callbacks: {}
       description: Returns a single environment by the `environment_slug`.
@@ -23905,6 +25257,84 @@ paths:
           		option.WithServiceToken("My Service Token"),
           	)
           	environment, err := client.Environments.Get(context.TODO(), "development")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", environment.HidePiiData)
+          }
+    put:
+      callbacks: {}
+      description: Updates an environment. Omitted fields are left unchanged, and at least one field is required. What can change depends on the environment's `owner`. Environments you create (`user`) can change `name`, `label_color` and `hide_pii_data`. Renaming one also changes its slug, and the response holds the new slug. Later requests must use the new slug, and permission groups that reference the environment are updated to match. Production can change its `name`, but its slug stays `production`. Other Knock-defined environments, such as Development, can only change `label_color` and `hide_pii_data`. Sending them a `name` other than their current one returns an error.
+      operationId: updateEnvironment
+      parameters:
+        - description: The slug of the environment.
+          in: path
+          name: environment_slug
+          required: true
+          schema:
+            example: staging
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnvironmentRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+          description: OK
+      summary: Update an environment
+      tags:
+        - Environments
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const environment = await client.environments.update('staging');
+
+          console.log(environment.hide_pii_data);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          environment = client.environments.update(
+              environment_slug="staging",
+          )
+          print(environment.hide_pii_data)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	environment, err := client.Environments.Update(
+          		context.TODO(),
+          		"staging",
+          		knockmapi.EnvironmentUpdateParams{},
+          	)
           	if err != nil {
           		panic(err.Error())
           	}
@@ -25705,6 +27135,126 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Config)
           }
+  /v1/commits/{id}/revert:
+    put:
+      callbacks: {}
+      description: |
+        Reverts a commit in the given environment. Creates and commits a new version of the
+        resource that matches its version before the commit, and returns that new commit.
+        Uncommitted changes to the resource are discarded.
+
+        Most resources can only be reverted in the development environment or a branch, unless
+        writes are allowed in every environment.
+      operationId: revertCommit
+      parameters:
+        - description: The ID of the commit to revert.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from reverting a commit, with the new commit under `commit`.
+                example:
+                  commit:
+                    author:
+                      email: john.doe@example.com
+                      name: John Doe
+                    commit_message: This is a commit message
+                    created_at: "2021-01-01T00:00:00Z"
+                    environment: development
+                    id: 123e4567-e89b-12d3-a456-426614174000
+                    promote_group_id: null
+                    promoted_from_commit_id: null
+                    resource:
+                      identifier: my-email-layout
+                      metadata: null
+                      type: email_layout
+                properties:
+                  commit:
+                    $ref: '#/components/schemas/Commit'
+                required:
+                  - commit
+                title: RevertCommitResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Revert a commit
+      tags:
+        - Commits
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.commits.revert('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(response.commit);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.commits.revert(
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(response.commit)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Commits.Revert(
+          		context.TODO(),
+          		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          		knockmapi.CommitRevertParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Commit)
+          }
   /v1/commits:
     get:
       callbacks: {}
@@ -25859,6 +27409,7 @@ paths:
                       promoted_from_commit_id: null
                       resource:
                         identifier: my-email-layout
+                        metadata: null
                         type: email_layout
                   page_info:
                     after: null
@@ -29399,7 +30950,7 @@ paths:
             serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
           });
 
-          const response = await client.reusableRequests.updateUnarchive('fetch-user');
+          const response = await client.reusableRequests.unarchive('fetch-user');
 
           console.log(response.reusable_request);
         python: |-
@@ -29409,7 +30960,7 @@ paths:
           client = KnockMgmt(
               service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
           )
-          response = client.reusable_requests.update_unarchive(
+          response = client.reusable_requests.unarchive(
               reusable_request_key="fetch-user",
           )
           print(response.reusable_request)
@@ -29428,10 +30979,10 @@ paths:
           	client := knockmapi.NewClient(
           		option.WithServiceToken("My Service Token"),
           	)
-          	response, err := client.ReusableRequests.UpdateUnarchive(
+          	response, err := client.ReusableRequests.Unarchive(
           		context.TODO(),
           		"fetch-user",
-          		knockmapi.ReusableRequestUpdateUnarchiveParams{},
+          		knockmapi.ReusableRequestUnarchiveParams{},
           	)
           	if err != nil {
           		panic(err.Error())
@@ -31149,6 +32700,144 @@ paths:
           		panic(err.Error())
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
+          }
+  /v1/guides/{guide_key}/discard:
+    put:
+      callbacks: {}
+      description: |
+        Discards the uncommitted changes to a guide in a given environment, returning it to its last
+        committed version. Other environments aren't changed.
+
+        Returns the guide unchanged when it has no uncommitted changes. Returns a 422 when the guide
+        has never been committed, or can't be changed in the environment.
+      operationId: discardGuideChanges
+      parameters:
+        - description: The environment slug. When omitted, the account's default environment is used.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. When `environment` is omitted, the branch is resolved from Development after the account default is injected. When `environment` is supplied, it must be `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the guide.
+          in: path
+          name: guide_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Guide response under the `guide` key.
+                example:
+                  guide:
+                    activation_url_patterns:
+                      - directive: allow
+                        pathname: /dashboard/*
+                    active: true
+                    archived_at: null
+                    channel_key: in-app-guide
+                    created_at: "2024-01-01T00:00:00Z"
+                    description: A guide to help users get started with the application
+                    environment: development
+                    key: getting-started
+                    name: Getting Started Guide
+                    semver: 0.0.1
+                    sha: "1234567890"
+                    steps:
+                      - name: Welcome to the App
+                        ref: welcome-step
+                        schema_key: tooltip
+                        schema_semver: 1.0.0
+                        schema_variant_key: default
+                        values:
+                          text_field: value
+                    tags:
+                      - onboarding
+                      - growth
+                    target_audience_key: null
+                    target_property_conditions:
+                      all:
+                        - argument: some_property
+                          operator: equal_to
+                          variable: recipient.property
+                    type: banner
+                    updated_at: "2024-01-01T00:00:00Z"
+                    valid: true
+                properties:
+                  guide:
+                    $ref: '#/components/schemas/Guide'
+                required:
+                  - guide
+                title: WrappedGuideResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Discard a guide's uncommitted changes
+      tags:
+        - Guides
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.guides.discard('guide_key');
+
+          console.log(response.guide);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.guides.discard(
+              guide_key="guide_key",
+          )
+          print(response.guide)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Guides.Discard(
+          		context.TODO(),
+          		"guide_key",
+          		knockmapi.GuideDiscardParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Guide)
           }
   /v1/broadcasts/{broadcast_key}/validate:
     put:
@@ -34323,3 +36012,5 @@ tags:
     name: Warehouse syncs
   - description: Tags are a project-level catalog of labels that can be applied to workflows, partials, guides, and broadcasts.
     name: Tags
+  - description: Feedback lets you report bugs, friction, and feature requests to Knock.
+    name: Feedback

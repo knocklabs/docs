@@ -109,6 +109,7 @@ resources:
       retrieve: get /v1/commits/{id}
       promote_all: put /v1/commits/promote
       promote_one: put /v1/commits/{id}/promote
+      revert: put /v1/commits/{id}/revert
   partials:
     models:
       # NOTE: Rename Partial for TS only to avoid a conflict.
@@ -283,12 +284,16 @@ resources:
       list_logs: get /v1/sources/{key}/logs
       list_providers: get /v1/source_providers
       retrieve_provider: get /v1/source_providers/{key}
+      delete: delete /v1/sources/{key}
   environments:
     models:
       environment: "#/components/schemas/Environment"
     methods:
       list: get /v1/environments
       retrieve: get /v1/environments/{environment_slug}
+      create: post /v1/environments
+      delete: delete /v1/environments/{environment_slug}
+      update: put /v1/environments/{environment_slug}
     subresources:
       defaults:
         methods:
@@ -325,6 +330,7 @@ resources:
       activate:
         endpoint: put /v1/guides/{guide_key}/activate
       unarchive: put /v1/guides/{guide_key}/unarchive
+      discard: put /v1/guides/{guide_key}/discard
   branches:
     models:
       branch: "#/components/schemas/Branch"
@@ -346,6 +352,8 @@ resources:
       upsert: put /v1/broadcasts/{broadcast_key}
       cancel: put /v1/broadcasts/{broadcast_key}/cancel
       run: put /v1/broadcasts/{broadcast_key}/run
+      delete: delete /v1/broadcasts/{broadcast_key}
+      unarchive: put /v1/broadcasts/{broadcast_key}/unarchive
   audiences:
     models:
       audience: "#/components/schemas/Audience"
@@ -359,6 +367,7 @@ resources:
       upsert: put /v1/audiences/{audience_key}
       validate: put /v1/audiences/{audience_key}/validate
       list: get /v1/audiences
+      discard: put /v1/audiences/{audience_key}/discard
   goals:
     methods:
       list: get /v1/goals
@@ -429,7 +438,8 @@ resources:
       archive: delete /v1/reusable_requests/{reusable_request_key}
       retrieve: get /v1/reusable_requests/{reusable_request_key}
       upsert: put /v1/reusable_requests/{reusable_request_key}
-      update_unarchive: put /v1/reusable_requests/{reusable_request_key}/unarchive
+      unarchive: put /v1/reusable_requests/{reusable_request_key}/unarchive
+      discard: put /v1/reusable_requests/{reusable_request_key}/discard
     models:
       reusable_request: "#/components/schemas/ReusableRequest"
       reusable_request_request: "#/components/schemas/ReusableRequestRequest"
@@ -468,12 +478,16 @@ resources:
       create: post /v1/headless_accounts
       retrieve_status: get /v1/headless_accounts/status
       claim: post /v1/headless_accounts/claim
+      challenge: post /v1/headless_accounts/challenge
   warehouses:
     methods:
       retrieve: get /v1/warehouses/{warehouse_key}
       list: get /v1/warehouses
     models:
       warehouse: "#/components/schemas/Warehouse"
+  feedback:
+    methods:
+      create: post /v1/feedback
 settings:
   disable_mock_tests: true
   license: Apache-2.0
