@@ -1,5 +1,5 @@
 import { Box, Stack } from "@telegraph/layout";
-import { Text, Code } from "@telegraph/typography";
+import { Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Icon, LucideIcon } from "@telegraph/icon";
 import { TextArea } from "@telegraph/textarea";
@@ -24,112 +24,22 @@ import {
   type Message,
   type Source,
 } from "../hooks/useChatStream";
-import { Streamdown } from "streamdown";
+import dynamic from "next/dynamic";
 import React from "react";
 import { Icons } from "./ui/Icons";
-import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
-import { darkCodeTheme, lightCodeTheme } from "../styles/codeThemes";
 import { useClipboard } from "@/hooks/useClipboard";
-import { useTheme } from "@/components/theme/ThemeProvider";
 
-// Extract text content from React children (handles strings, elements, and arrays)
-function extractTextContent(children: React.ReactNode): string {
-  if (typeof children === "string") {
-    return children;
-  }
-  if (React.isValidElement(children)) {
-    const innerChildren = (children.props as { children?: React.ReactNode })
-      .children;
-    if (typeof innerChildren === "string") {
-      return innerChildren;
-    }
-    if (Array.isArray(innerChildren)) {
-      return innerChildren
-        .filter((c): c is string => typeof c === "string")
-        .join("");
-    }
-  }
-  return "";
-}
+// Words and the highlighter load on demand. The sidebar starts loading them
+// when it opens, so they're ready before the first answer streams in.
+const loadAskAiMarkdown = () => import("./AskAiMarkdown");
+const AskAiMarkdown = dynamic(loadAskAiMarkdown, { ssr: false });
 
-// Simplified code block component optimized for streaming
-// Unlike the main CodeBlock, this doesn't use useIsMounted to avoid flash during streaming
-function StreamingCodeBlock({
-  children,
-  language,
-}: {
-  children?: React.ReactNode;
-  language?: string;
-}) {
-  const { appearance } = useTheme();
-  const normalizedContent = extractTextContent(children)
-    .replace(/^\n+/, "") // Remove leading newlines
-    .replace(/\n+$/, ""); // Remove trailing newlines
-
-  const [isCopied, setCopied] = useClipboard(normalizedContent, {
-    successDuration: 2000,
-  });
-
-  return (
-    <Box
-      border="px"
-      borderColor="gray-4"
-      borderRadius="4"
-      style={{ overflow: "hidden", width: "100%", marginBottom: "16px" }}
-      data-code-block
-    >
-      <Stack
-        direction="row"
-        bg="gray-2"
-        borderBottomWidth="px"
-        borderColor="gray-2"
-        p="2"
-        alignItems="center"
-        justifyContent="flex-end"
-      >
-        <Button
-          variant="ghost"
-          size="0"
-          onClick={setCopied}
-          px="1"
-          icon={{
-            icon: isCopied ? Check : Copy,
-            "aria-hidden": true,
-          }}
-        />
-      </Stack>
-      <SyntaxHighlighter
-        showLineNumbers
-        lineNumberStyle={{
-          color: "var(--tgph-gray-8)",
-          display: "inline-block",
-          minWidth: "2.25em",
-          paddingRight: "1em",
-          textAlign: "right",
-          userSelect: "none",
-          paddingLeft: "0px",
-        }}
-        language={language || "shell"}
-        style={appearance === "dark" ? darkCodeTheme : lightCodeTheme}
-      >
-        {normalizedContent}
-      </SyntaxHighlighter>
-    </Box>
-  );
-}
-
-// Helper function to process content and remove inline source references
-// Sources are displayed in a separate section at the bottom of responses
-function processSourceReferences(content: string): string {
-  if (typeof content !== "string") return "";
-
-  let processed = content;
-
-  // Convert single newlines to double newlines for better paragraph spacing,
-  // but preserve markdown list structures (lines starting with -, *, or digits followed by .)
-  processed = processed.replace(/\n(?!\n)/g, (_match, offset) => {
-    const beforeNewline = content.substring(0, offset);
-    const afterNewline = content.substring(offset + 1);
+// Doubles single newlines so each line becomes its own paragraph, except
+// between list items, which need single newlines to stay one list.
+function spaceParagraphs(text: string): string {
+  return text.replace(/\n(?!\n)/g, (_match, offset) => {
+    const beforeNewline = text.substring(0, offset);
+    const afterNewline = text.substring(offset + 1);
 
     const currentLineMatch = beforeNewline.match(/[^\n]*$/);
     const currentLine = currentLineMatch ? currentLineMatch[0] : "";
@@ -143,6 +53,21 @@ function processSourceReferences(content: string): string {
 
     return isListItem ? "\n" : "\n\n";
   });
+}
+
+// Helper function to process content and remove inline source references
+// Sources are displayed in a separate section at the bottom of responses
+function processSourceReferences(content: string): string {
+  if (typeof content !== "string") return "";
+
+  let processed = content;
+
+  // Space out paragraphs, but leave fenced code blocks (including one that's
+  // still streaming) as written, so code keeps its own line breaks.
+  processed = processed
+    .split(/(```[\s\S]*?(?:```|$))/g)
+    .map((part, index) => (index % 2 === 1 ? part : spaceParagraphs(part)))
+    .join("");
 
   // Remove reference links that immediately follow regular markdown links (they're redundant)
   processed = processed.replace(
@@ -156,10 +81,17 @@ function processSourceReferences(content: string): string {
     "$1",
   );
 
-  // Remove inline footnote references like [(1)](url) - sources shown in separate section
-  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]+\)/g, "");
+  // Remove inline footnote references like [(1)](url) - sources shown in separate section.
+  // Take the space before each one too, so no gap is left before punctuation.
+  processed = processed.replace(/[ \t]*\[(\(?\d+\)?)\]\([^)]+\)/g, "");
 
-  // Remove incomplete markdown link syntax during streaming to prevent "[blocked]"
+  // Remove citations written with <sup>, such as [<sup>1</sup>](url). The
+  // markdown renderer strips raw HTML, so they would show as bare numbers.
+  processed = processed
+    .replace(/[ \t]*\[<sup>\s*\d+\s*<\/sup>\]\([^)]*\)/g, "")
+    .replace(/[ \t]*<sup>\s*\d+\s*<\/sup>/g, "");
+
+  // Remove citations that are still streaming in, so a partial one never shows.
   // These handle progressively incomplete states: [(1)](url..., [(1)], [(1), [1), [1
   processed = processed
     .replace(/\[(\(?\d+\)?)\]\([^)]*$/g, "")
@@ -349,6 +281,7 @@ function AskAiSidebar() {
   // Auto-focus textarea when sidebar opens
   useEffect(() => {
     if (isOpen) {
+      void loadAskAiMarkdown();
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
@@ -895,7 +828,6 @@ function MessageBubble({
 
   // Assistant response wrapped in AgentResponse container
   // Use tgraph-content class for consistent markdown styling with the rest of the docs
-  // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
     <Stack
       bg="surface-1"
@@ -908,135 +840,10 @@ function MessageBubble({
       {/* Response text section */}
       <Stack direction="column" gap="2" bg="surface-1" px="3">
         <div className="tgraph-content">
-          <Streamdown
-            parseIncompleteMarkdown={true}
-            components={{
-              // Only override what's necessary - CSS handles most styling via tgraph-content class
-              code: (props: any) => (
-                <Code
-                  as="code"
-                  color="blue"
-                  border="px"
-                  borderColor="blue-4"
-                  rounded="2"
-                  data-tgph-code
-                  style={{
-                    fontSize: "11px",
-                    padding: "2px 3px",
-                    margin: "0 2px",
-                  }}
-                >
-                  {props.children}
-                </Code>
-              ),
-              pre: ({ children }: { children?: React.ReactNode }) => {
-                // Extract language from code element className (e.g., "language-javascript")
-                const codeElement = React.Children.toArray(children).find(
-                  (child) =>
-                    React.isValidElement(child) && child.type === "code",
-                );
-
-                let language: string | undefined;
-                if (React.isValidElement(codeElement)) {
-                  const props = codeElement.props as { className?: string };
-                  if (props.className) {
-                    const match = /language-(\w+)/.exec(props.className);
-                    language = match ? match[1] : undefined;
-                  }
-                }
-
-                return (
-                  <StreamingCodeBlock language={language}>
-                    {children}
-                  </StreamingCodeBlock>
-                );
-              },
-              a: ({
-                href,
-                children,
-              }: {
-                href?: string;
-                children?: React.ReactNode;
-              }) => {
-                // Check if children contain a sup element
-                const hasSup = React.Children.toArray(children).some(
-                  (child: any) =>
-                    React.isValidElement(child) &&
-                    (child.type === "sup" ||
-                      (typeof child.type === "string" && child.type === "sup")),
-                );
-
-                return (
-                  <a
-                    href={href}
-                    target={href?.startsWith("http") ? "_blank" : undefined}
-                    rel={
-                      href?.startsWith("http")
-                        ? "noopener noreferrer"
-                        : undefined
-                    }
-                    style={hasSup ? { textDecoration: "none" } : undefined}
-                  >
-                    {children}
-                  </a>
-                );
-              },
-              sup: ({ children }: { children?: React.ReactNode }) => (
-                <sup
-                  style={{
-                    fontSize: "0.6rem",
-                    textDecoration: "none",
-                    borderBottom: "none",
-                  }}
-                >
-                  {children}
-                </sup>
-              ),
-              p: ({ children }: { children?: React.ReactNode }) => (
-                <p
-                  style={{
-                    margin: "12px 0",
-                    fontSize: "13px",
-                    lineHeight: "1.625",
-                  }}
-                >
-                  {children}
-                </p>
-              ),
-              ul: ({ children }: { children?: React.ReactNode }) => (
-                <ul
-                  style={{
-                    paddingLeft: "24px",
-                    fontSize: "13px",
-                    lineHeight: "1.625",
-                  }}
-                >
-                  {children}
-                </ul>
-              ),
-              ol: ({ children }: { children?: React.ReactNode }) => (
-                <ol
-                  style={{
-                    paddingLeft: "24px",
-                    fontSize: "13px",
-                    lineHeight: "1.625",
-                  }}
-                >
-                  {children}
-                </ol>
-              ),
-              li: ({ children }: { children?: React.ReactNode }) => (
-                <li
-                  data-tgph-list-item
-                  style={{ fontSize: "13px", lineHeight: "1.625" }}
-                >
-                  {children}
-                </li>
-              ),
-            }}
-          >
-            {processSourceReferences(String(message.content ?? ""))}
-          </Streamdown>
+          <AskAiMarkdown
+            content={processSourceReferences(String(message.content ?? ""))}
+            isStreaming={Boolean(isStreaming)}
+          />
         </div>
       </Stack>
 
