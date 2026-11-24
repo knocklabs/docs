@@ -1,0 +1,151 @@
+---
+title: Using Knock in multiple regions
+description: Learn how to run a Knock account in each region you serve, and the model we recommend for keeping those accounts in sync.
+tags: ["regional accounts", "sync", "data residency"]
+section: Tutorials
+---
+
+{/* TODO: As of Tues 11/24, it sounds like data residency will be generally available for all plans, but grouping multiple accounts under a single plan/unified billing will be enterprise only. I'm leaving the callout below as is for now, but this will need to be confirmed prior to shipping the docs and, if needed, updated. */}
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Data residency is available on the{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan
+      </a>
+      .
+    </>
+  }
+/>
+
+{/* TODO: Once the data residency docs page ships, link "data residency" below to it as the place to learn more about how to set up a regional account. */}
+
+Knock supports data residency, so you can keep your customer and notification data in a specific region. Each Knock account is hosted in a single region, which you choose when you create the account.
+
+If you serve customers in more than one region and need each region's data to stay in that region, you run a separate Knock account in each one. We call these regional accounts. Regional accounts are independent, and Knock doesn't share data or configuration between them. These tutorials cover how to keep your notifications consistent across your regional accounts.
+
+The model in these tutorials moves changes through environments, so each of your accounts needs [environments enabled](/version-control/environments#enable-environments).
+
+Start with this overview to plan your accounts and understand what the sync manages. Then continue with the tutorial for your role:
+
+- **Engineering teams.** Build and operate the sync with [Syncing accounts across regions](/tutorials/multiple-regions/syncing-accounts).
+- **Content and product teams.** After engineering configures the sync, learn how to make day-to-day changes with [Managing content across regions](/tutorials/multiple-regions/managing-content).
+
+## How regional accounts work
+
+<Callout
+  type="roadmap"
+  title="APAC data residency is coming soon."
+  text={
+    <>
+      Knock supports data residency in the US and EU. We expect to support APAC
+      data residency by the end of 2026. If you're interested,{" "}
+      <a href="mailto:support@knock.app">contact us</a> and we'll notify you
+      when it's available.
+    </>
+  }
+/>
+
+With data residency, Knock stores and processes your customer and notification data in the region where your account is hosted. An account's region is set when the account is created, and an account can't be moved to a different region later.
+
+Each regional account has its own environments, channels, API keys, members, and data. Each region also has its own dashboard and API hostnames, so your application and client-side SDKs connect to the hostnames for the region they send data to.
+
+These tutorials use four terms to describe how the accounts work together:
+
+- **Main account.** The account where your team creates and edits notification content that should be consistent across regions.
+- **Regional accounts.** The other accounts that receive approved content from the main account.
+- **Shared resources.** Resources, such as workflows and templates, that your team creates once in the main account and syncs to each regional account.
+- **Per-account resources.** Resources and settings that contain region-specific credentials or values, so you configure them separately in each account.
+
+The sync moves notification configuration between accounts. It never moves end-user data. Recipients, messages, preferences, and logs stay in the account—and therefore the region—where they were created.
+
+{/* TODO: Should we consider adding a diagram here? */}
+
+## How changes reach each region
+
+A change to a shared resource moves through four steps:
+
+1. **Make the change in the main account.** Your team creates and edits shared resources in the main account's development environment.
+2. **Promote it to staging.** [Promoting](/version-control/commits#promoting-commits) a change to the main account's staging environment is the approval point. It means "this is approved, sync it to the regions," so the regions only change when someone promotes, not every time someone saves or commits.
+3. **The sync applies it to each region.** A sync job you run picks up each promote and applies the same change to every regional account's staging environment.
+4. **Promote to production.** When someone promotes the main account to production, the sync promotes every region to production too.
+
+Because staging is the approval point, a change has to be committed and reviewed in the main account before it can reach any region. A few resources reach the regions differently, such as message types. See [shared and per-account resources](#shared-and-per-account-resources) for how each one is handled.
+
+## Plan your account structure
+
+The sync relies on consistent environments and resource keys across accounts. Make these decisions before you create your first regional account:
+
+- **Main account.** Choose the account where your team will build shared resources.
+- **Environments.** We recommend at least a development and a production environment. These tutorials use three: development, staging, and production. Use the same environments, in the same order, in every account, since the sync pushes to each region's development environment and promotes from there.
+- **Keys.** Use identical keys for shared resources in every account. Consider giving region-only resources a prefix, such as `eu-welcome-email`, to keep their keys distinct from shared resources.
+- **Regional differences.** Put small differences, such as a support URL or footer link, in variables, and create entirely different content as a region-only resource. See [handling content differences](/tutorials/multiple-regions/managing-content#handling-content-differences).
+- **Tags and views.** We recommend tagging shared resources (for example, `shared`) and region-only resources (for example, `eu-only`). You can then build views in each regional account that hide shared resources by default. Tags and views are available on workflows, partials, guides, and broadcasts.
+
+## Shared and per-account resources
+
+### Shared resources
+
+If you follow the pattern in these tutorials, these resources are created once in your main account and synced to every region:
+
+| Resource                                                                          | Sync trigger       | What you manage in each account                                                                                              |
+| --------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| [Workflows](/concepts/workflows)                                                  | Promote to staging | No additional setup                                                                                                          |
+| [Email layouts](/integrations/email/layouts)                                      | Promote to staging | No additional setup                                                                                                          |
+| [Partials](/template-editor/partials/overview)                                    | Promote to staging | No additional setup                                                                                                          |
+| [Translations](/template-editor/translations)                                     | Promote to staging | Set the account's default locale                                                                                             |
+| [Guides](/concepts/guides)                                                        | Promote to staging | Set each guide's [active status and priority order](/tutorials/multiple-regions/syncing-accounts#guides)                     |
+| [Audiences](/concepts/audiences)                                                  | Promote to staging | Add static audience members. Dynamic audiences compute their members from the users in that account.                         |
+| [Reusable requests](/designing-workflows/fetch-function#reusable-fetch-functions) | Promote to staging | No additional setup                                                                                                          |
+| [Message types](/in-app-ui/message-types/overview)                                | Commit             | No additional setup. Message types can't be promoted, so a committed change reaches every environment, including production. |
+
+Archives don't follow either trigger. Archiving a shared resource in the main account takes effect in all of that account's environments right away, but the archive isn't synced. Archive the resource in each regional account after the sync alerts your team.
+
+### Resources set up in each account
+
+These hold region-specific values or credentials, so you create them in each account:
+
+| Resource                                                         | How to set it up in each region                                                                                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Channels](/concepts/channels)                                   | Create each channel with the same key as in the main account, using the region's credentials. Synced workflows find their channels by key. |
+| [Channel groups](/integrations/overview#channel-groups)          | Create them with the same keys as in the main account.                                                                                     |
+| [Variables](/concepts/variables)                                 | Create each one with the same key and a region-specific value.                                                                             |
+| [Sources](/integrations/sources/overview)                        | Recreate each source and its event mappings, set its signing secret, and point the sending system at the region's source URL.              |
+| [Broadcasts](/concepts/broadcasts)                               | Create them in each account.                                                                                                               |
+| [Outbound webhooks](/developer-tools/outbound-webhooks/overview) | Create them in each account. Each webhook has its own signing secret.                                                                      |
+| [Extensions](/integrations/extensions/overview)                  | Set up each extension, including any data exports, in each account.                                                                        |
+| [API keys](/developer-tools/api-keys)                            | Each environment comes with its own API keys.                                                                                              |
+| [Service tokens](/developer-tools/service-tokens)                | Generate a service token in each account for the sync to use.                                                                              |
+
+Also configure these settings in each account:
+
+- **[Preference settings](/preferences/overview).** Set up your default preferences and preference center.
+- **[Branding](/template-editor/branding).** Set your logo, icon, and brand colors.
+- **[Default locale](/template-editor/translations#get-started).** If using translations, be sure to set the default `locale` in each account.
+
+## Team access
+
+Each regional account has its own members, roles, and authentication settings. Plan who needs access to which accounts, and what they can do in each.
+
+- **Signing in.** Each region has its own dashboard and sign-in, and the account switcher only shows accounts in the region you're signed in to. Anyone who works in more than one region signs in to each one separately.
+- **SSO and SCIM.** [SAML SSO](/manage-your-account/saml-sso) and [directory sync](/manage-your-account/directory-sync) are configured per account. {/* TODO: Confirm how multiple accounts on one email domain work with SSO and SCIM. */}
+- **Roles.** Use [custom permission groups](/manage-your-account/roles-and-permissions#custom-permission-groups) to limit who can edit content in each region. Shared resources in a regional account are overwritten by the next sync, so most of your team only needs to view them there.
+- **Customer data obfuscation.** [Customer data obfuscation](/manage-your-account/roles-and-permissions#customer-data-obfuscation) can differ per account. For example, your US team might have full access in the US account and see obfuscated data in the EU account.
+
+## Next steps
+
+Before you build anything:
+
+1. Pick your main account.
+2. Enable environments in every account, and match their names and order.
+3. List what each region needs from the [per-account resources and settings](#resources-set-up-in-each-account).
+4. Decide how to handle regional differences, and choose any prefixes and tags you'll use for region-only resources.
+5. Plan who needs access to each account.
+
+Then continue with the tutorial for your role:
+
+- **Engineering.** Set up the sync with [Syncing accounts across regions](/tutorials/multiple-regions/syncing-accounts).
+- **Content and product teams.** Learn where and how to make changes with [Managing content across regions](/tutorials/multiple-regions/managing-content).

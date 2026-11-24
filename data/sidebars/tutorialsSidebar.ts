@@ -21,6 +21,15 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Integrating into CI/CD",
   },
   {
+    slug: `${baseSlug}/multiple-regions`,
+    title: "Multiple regions",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/syncing-accounts", title: "Syncing accounts" },
+      { slug: "/managing-content", title: "Managing content" },
+    ],
+  },
+  {
     slug: `${baseSlug}/alerting`,
     title: "Alerting",
   },
