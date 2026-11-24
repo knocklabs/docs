@@ -136,7 +136,7 @@ You can clone supported resources from one environment to another in the Knock d
 
 Open a resource's action menu and select **Clone** (or **Duplicate** for email layouts) to start a clone. When your account has more than one writable destination environment, you can choose which environment to clone into.
 
-For most resources, cloning is a dashboard-only feature and is not available through the [Knock CLI](/cli/overview) or [Management API](/developer-tools/management-api). [Goals](/concepts/goals) are the exception: you can also clone them with the Management API or with [`knock goal clone`](/cli/goal/clone).
+For most resources, cloning is a dashboard-only feature and is not available through the [Knock CLI](/cli/overview) or [Management API](/developer-tools/management-api). [Goals](/concepts/goals) are the exception: you can also clone them with the Management API or [with the CLI](/cli/goal/clone) using `knock goal clone`.
 
 ### Supported resources
 
@@ -215,25 +215,26 @@ Environments cannot be re-ordered after they're created, as this would break the
 
 A new environment is not empty. Knock seeds it from the environment directly below it when you create it, and different parts of your account are seeded in different ways:
 
-| Resource                                                                                                                    | What the new environment starts with                                                                                                                                                                               |
-| --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Workflows, guides, layouts, partials, translations, and reusable requests                                                   | Promoted from the environment directly below it (the latest committed version of each item; archived items are skipped).                                                                                           |
-| <a href="/concepts/variables" className="text-brand underline">Environment variable</a> values                              | Empty. Values are per-environment and you need to set them.                                                                                                                                                        |
-| <a href="/concepts/channels" className="text-brand underline">Channel</a> settings                                          | Provider credentials are not copied and you need to configure them.                                                                                                                                                |
-| <a href="/integrations/sources/overview" className="text-brand underline">Source</a> settings                               | Every source in your project appears in the new environment with default settings and its own newly generated source URL. No settings are copied, so you need to point your provider at the new environment's URL. |
-| <a href="/preferences/hosted-preference-center" className="text-brand underline">Hosted preference center</a> configuration | The default configuration.                                                                                                                                                                                         |
-| API keys                                                                                                                    | A new public and secret key pair.                                                                                                                                                                                  |
-| Users, tenants, objects, messages, and logs                                                                                 | Nothing. Data is never copied between environments.                                                                                                                                                                |
+| Resource                                                                        | What the new environment starts with                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Workflows, guides, layouts, partials, translations, and reusable requests       | Promoted from the environment directly below it (the latest committed version of each item; archived items are skipped).                                                                                                                                                                                                                                                                                                                              |
+| [Environment variable](/concepts/variables) values                              | Empty. Values are per-environment and you need to set them.                                                                                                                                                                                                                                                                                                                                                                                           |
+| [Channel](/concepts/channels) settings                                          | Provider credentials are not copied and you need to configure them.                                                                                                                                                                                                                                                                                                                                                                                   |
+| [Source](/integrations/sources/overview) settings                               | Every source in your account, with settings copied from the lowest configured environment (usually development) rather than the environment directly below: the event type, timestamp, and idempotency key paths, the **Enforce idempotency** and **Enforce verification** toggles, identify handling, and the source's script. Each source gets its own newly generated source URL, so you need to point your provider at the new environment's URL. |
+| [Hosted preference center](/preferences/hosted-preference-center) configuration | The default configuration.                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| API keys                                                                        | A new public and secret key pair.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Users, tenants, objects, messages, and logs                                     | Nothing. Data is never copied between environments.                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 <Callout
   type="warning"
-  title="Configure variable values and channel credentials."
+  title="Configure variable values and channel credentials"
   text={
     <>
       A new environment can look fully configured in the dashboard because its
-      variable keys and channels are all present, but it will not send anything
-      until you set your variable values and reconfigure your provider
-      credentials for each channel.
+      variable keys, channels, and source settings are all present, but it will
+      not send anything until you set your variable values, including source
+      signing secrets, and reconfigure your provider credentials for each
+      channel.
     </>
   }
 />
