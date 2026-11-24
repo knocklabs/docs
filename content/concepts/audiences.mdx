@@ -68,6 +68,37 @@ Static audiences are populated by adding users directly. You can populate a stat
 - **CSV upload.** You can upload a CSV of users to an audience. After uploading your CSV, you can map the CSV fields to the corresponding user fields in Knock. Knock will upsert the users as they are added to the audience and skip any users with malformed or missing IDs. The maximum size of a CSV upload is capped at 100MB.
 - **Manually.** You can manually add existing users to an audience in the dashboard.
 
+## Exporting audience members
+
+You can export the members of an audience to a CSV file from the Knock dashboard. You can export both [dynamic](#dynamic-audiences) and [static](#static-audiences) audiences.
+
+Complete the following steps:
+
+1. Go to the **Audiences** page under the **Recipients** section of the dashboard sidebar, and open an audience.
+2. Click **Export members** at the top of the page.
+3. Keep the audience page open while Knock writes the file. When the file is ready, it downloads automatically.
+
+The file is named `audience-<audience-key>-<date>.csv`, where the date is the day the export started.
+
+### What the file holds
+
+An export holds the audience's members in the current environment. The columns depend on the audience type:
+
+- **Dynamic audiences.** One column, `id`, with one row for each member's user ID.
+- **Static audiences.** Two columns, `id` and `tenant`, with one row for each membership. A user who is in the audience with more than one [tenant](#audiences-and-tenants) has one row for each tenant. The `tenant` field is empty when a membership has no tenant.
+
+<Callout
+  type="warning"
+  title="Dynamic audience exports include only members that match the published conditions."
+  text={
+    <>
+      If you've saved condition changes but haven't published them, the members
+      list previews the saved conditions. The export doesn't include those
+      changes. Publish the changes first to export the members they match.
+    </>
+  }
+/>
+
 ## Audiences and workflows
 
 Audiences integrate with workflows in two key ways. You can configure a workflow to [trigger automatically whenever a user enters an audience](/send-notifications/triggering-workflows/audiences), enabling event-driven lifecycle messaging without additional API calls. You can also use audience membership as a condition in [branch](/designing-workflows/branch-function) and [step conditions](/designing-workflows/step-conditions) to gate logic based on which audiences a user belongs to at the time of execution.
@@ -130,6 +161,9 @@ For more information about how audience membership is evaluated for guides eligi
   </Accordion>
   <Accordion title="How quickly are dynamic audiences updated?" anchorSlug="faq-dynamic-audience-update-speed">
     Dynamic audiences are updated in real-time. Any changes to the user data in Knock will be reflected in the dynamic audience immediately. That means if you have a property `plan_type` on the user object, and you build a dynamic audience for users on the `pro` plan, setting the `plan_type` to `pro` will immediately add the user to the dynamic audience.
+  </Accordion>
+  <Accordion title="Can I export more than user IDs from an audience?" anchorSlug="faq-export-more-than-ids">
+    Not yet. An [export](#exporting-audience-members) includes only user IDs, plus tenant IDs for static audiences. It doesn't include user properties or other user data. Please [get in touch](mailto:support@knock.app) if you have a specific use case for exporting more user data.
   </Accordion>
   <Accordion title="Can I use audiences on a branch?" anchorSlug="faq-audiences-on-branch">
     While you can use an audience on a development [branch](/version-control/branches) to power workflows, broadcasts, and guides, you cannot make changes to an audience on a branch. You can only make changes to an audience on the main branch.
